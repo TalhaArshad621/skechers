@@ -497,7 +497,8 @@ class ModuleUtil extends Util
             'subscription' => ['name' => __('lang_v1.enable_subscription')],
             'types_of_service' => ['name' => __('lang_v1.types_of_service'),
                         'tooltip' => __('lang_v1.types_of_service_help_long')
-                    ]
+        ],
+        'ecommerce' => ['name' => __('lang_v1.ecommerce')], 
         ];
     }
 

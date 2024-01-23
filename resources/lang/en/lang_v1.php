@@ -1229,4 +1229,7 @@ return [
     'leave_empty_to_autogenerate' => 'Leave empty to autogenerate',
     'add_edit_invoice_number' => 'Add edit invoice number',
     'keep_blank_to_autogenerate' => 'Keep blank to auto generate',
+    'ecommerce' => 'Ecommerce',
+    'list_ecommerce' => 'List Ecommerce',
+    'all_ecommerce_orders' => 'All Ecommerce Orders',
 ];
