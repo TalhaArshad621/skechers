@@ -23,7 +23,7 @@ class AdminSidebarMenu
 
         Menu::create('admin-sidebar-menu', function ($menu) {
             $enabled_modules = !empty(session('business.enabled_modules')) ? session('business.enabled_modules') : [];
-
+            // dd($enabled_modules);   
             $is_admin = auth()->user()->hasRole('Admin#' . session('business.id')) ? true : false;
             //Home
             $menu->url(action('HomeController@index'), __('home.home'), ['icon' => 'fa fas fa-tachometer-alt', 'active' => request()->segment(1) == 'home'])->order(5);
@@ -349,6 +349,22 @@ class AdminSidebarMenu
                     },
                     ['icon' => 'fa fas fa-truck']
                 )->order(35);
+            }
+            //Stock transfer dropdown
+            if (in_array('ecommerce', $enabled_modules) && (auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create'))) {
+                $menu->dropdown(
+                    __('lang_v1.ecommerce'),
+                    function ($sub) {
+                        if (auth()->user()->can('purchase.view')) {
+                            $sub->url(
+                                action('EcommerceController@index'),
+                                __('lang_v1.list_ecommerce'),
+                                ['icon' => 'fa fas fa-list', 'active' => request()->segment(1) == 'ecommerce' && request()->segment(2) == null]
+                            );
+                        }
+                    },
+                    ['icon' => 'fa fa-shopping-cart']
+                )->order(36);
             }
 
             //stock adjustment dropdown

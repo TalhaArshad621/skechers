@@ -290,6 +290,10 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::post('/discount/mass-deactivate', 'DiscountController@massDeactivate');
     Route::resource('discount', 'DiscountController');
 
+    // Ecommerce 
+    Route::get('/ecommerce','EcommerceController@index');
+    Route::get('/fetch-ecommerce-api','EcommerceController@store');
+
     Route::group(['prefix' => 'account'], function () {
         Route::resource('/account', 'AccountController');
         Route::get('/fund-transfer/{id}', 'AccountController@getFundTransfer');
