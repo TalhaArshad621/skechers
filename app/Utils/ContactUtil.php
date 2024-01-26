@@ -5,7 +5,7 @@ namespace App\Utils;
 use App\Contact;
 use App\Utils\TransactionUtil;
 use App\Transaction;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class ContactUtil extends Util
 {
@@ -231,5 +231,47 @@ class ContactUtil extends Util
         $query->groupBy('contacts.id');
 
         return $query;
+    }
+
+    public function getEcommerceCustomer($email)
+    {
+        $contact = DB::table('contacts')->select('id')->where('email', $email)->first();
+        return $contact ? $contact->id : $contact;
+    }
+
+    public function createNewEcommerceCustomer($input, $business_id)
+    {
+        // dd($input);
+
+        $data = [];
+        $data['business_id'] = $business_id;
+        $data['type'] = "customer";
+        $data['name'] = $input['first_name']. ' '. $input['last_name'];
+        $data['first_name'] = $input['first_name'];
+        $data['last_name'] = $input['last_name'];
+        $data['email'] = $input['email'];
+        
+        //Update reference count
+        $ref_count = $this->setAndGetReferenceCount('contacts', $business_id);
+
+        if (empty($data['contact_id'])) {
+            //Generate reference number
+            $data['contact_id'] = $this->generateReferenceNumber('contacts', $ref_count, $business_id);
+        }
+
+        $data['contact_status'] = "active";
+        $data['city'] = $input['default_address']['city'];
+        $data['country'] = $input['default_address']['country'];
+        $data['address_line_1'] = $input['default_address']['address1'];
+        $data['address_line_2'] = $input['default_address']['address2'];
+        $data['zip_code'] = $input['default_address']['zip'];
+        $data['mobile'] = $input['default_address']['phone'];
+        $data['credit_limit'] = 0;
+        $data['created_by'] = 4;
+        $data['shipping_address'] = $input['default_address']['address1'];
+        $data['custom_field1'] = "ecommerce";
+        $contact = Contact::create($data);
+        $contact->save();
+        return $contact->id;
     }
 }
