@@ -285,6 +285,7 @@ class SellPosController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request);
         if (!auth()->user()->can('sell.create') && !auth()->user()->can('direct_sell.access')) {
             abort(403, 'Unauthorized action.');
         }
@@ -475,6 +476,42 @@ class SellPosController extends Controller
                                 );
                         }
                     }
+                    // dd($input['products'][1]['product_id']);
+                    // $product_name = DB::table('products')
+                    // ->where('id',$products['product_id'])
+                    // ->select('*')
+                    // ->where('products.name', $product_sku)
+                    // ->get();
+                    // dd("jj",$input['product_id']);
+                    // // dd($product_name);
+                    // dd($request);
+
+                    // dd($input['products']);
+                    $item_array = array();
+
+                    foreach ($input['products'] as $items) {
+                    $item_data = [
+                        "ItemCode"    => $items['product_id'],
+                        "ItemUnitAmount"    => $items['unit_price'],
+                        // "ItemName"    => $items['item_name'], // Uncomment and adjust as needed
+                        "Quantity"    => $items['quantity'],
+                        "PCTCode"     => 6404,
+                        "TaxRate"     => $items['item_tax'] / 5,
+                        "SaleValue"   => str_replace(',', '', $items['unit_price']) * (100 / (100 + 25)),
+                        "TotalAmount" => str_replace(',', '', $items['unit_price']) * $items['quantity'],
+                        "TaxCharged"  => str_replace(',', '', $items['unit_price']) / 5,
+                        "Discount"    => $items['line_discount_amount'],
+                        "FurtherTax"  => 0.0,
+                        "IsExchanged" => 0
+                        // "InvoiceType" => $items['is_exchanged'] == 0 ? 1 : 3, // Uncomment and adjust as needed
+                        // "RefUSIN"     => $items['is_exchanged'] == 0 ? null : $old_invoice_ref['old_invoice_ref'] // Uncomment and adjust as needed
+                    ];
+                    array_push($item_array, $item_data);
+                    }
+
+                    // dd($item_array,$input);
+
+                    // dd($input);
 
                     //Add payments to Cash Register
                     if (!$is_direct_sale && !$transaction->is_suspend && !empty($input['payment']) && !$is_credit_sale) {
@@ -558,6 +595,141 @@ class SellPosController extends Controller
                 if (!empty($whatsapp_link)) {
                     $output['whatsapp_link'] = $whatsapp_link;
                 }
+
+                // Convert product IDs in $productIds array to integers
+                $productIds = array_map('intval', array_column($input['products'], 'product_id'));
+
+                // Fetch category IDs for selected product IDs
+                $categoryIds = Product::leftJoin('categories', 'products.category_id', '=', 'categories.id')
+                ->whereIn('products.id', $productIds)
+                ->select('products.id as product_id', 'categories.id as category_id')
+                ->get()
+                ->pluck('category_id', 'product_id') // Using 'product_id' as the key
+                ->toArray();
+
+                // Debug statement to check $categoryIds
+                // dd($categoryIds,$productIds);
+
+                // Push the retrieved category IDs into the existing $input['products'] array
+                foreach ($input['products'] as $product) {
+                    // dd($product);
+                $productId = intval($product['product_id']);
+                $product['category_id'] = $categoryIds[$productId] ?? null;
+
+                // Debug statement to check each product
+                // echo "Product ID: $productId, Category ID: " . ($product['category_id'] ?? 'null') . PHP_EOL;
+                }
+
+                // Now $input['products'] contains the category_id for each selected product
+                // dd($input['products']);
+
+                // dd($input,$receipt,$print_invoice,$request->discount_type,$request->discount_amount);
+
+
+                $htmlContent = $receipt['html_content'];
+
+                // Use regular expression to extract Invoice number
+                if (preg_match('/<b>Invoice No.<\/b>\s*([^<]+)/', $htmlContent, $matches)) {
+                    $invoiceNumber = trim($matches[1]);
+                    // dd("Invoice Number: $invoiceNumber", "POS ID : $pos_id = 943050;");
+                } else {
+                    dd("Invoice number not found.");
+                }
+                // Extract Total Paid
+                if (preg_match('/<td class="text-right" >₨ ([^<]+)<\/td>\s*<td class="text-right">([^<]+)<\/td>/', $htmlContent, $matchesPaid)) {
+                    $totalPaidAmount = trim($matchesPaid[1]);
+                    $paidDate = trim($matchesPaid[2]);
+                    echo "Total Paid: ₨ $totalPaidAmount\n";
+                    echo "Paid Date: $paidDate\n";
+                } else {
+                    echo "Total Paid information not found.\n";
+                }
+
+                // Extract Quantity, assuming you want to extract from the table
+                if (preg_match('/<td class="text-right">([^<]+)<\/td>\s*<td class="text-right">([^<]+)<\/td>/', $htmlContent, $matchesQuantity)) {
+                    $quantity = trim(strip_tags($matchesQuantity[1])); // Assuming it contains product name
+                    echo "Quantity: $quantity\n";
+                } else {
+                    echo "Quantity information not found.\n";
+                }
+
+                $pos_id = 943050;
+
+                // Extract Customer Name
+                if (preg_match('/<b>Customer<\/b>\s*([^<]+)/', $htmlContent, $matchesCustomer)) {
+                    $customerName = trim($matchesCustomer[1]);
+                    echo "Customer Name: $customerName\n";
+                } else {
+                    echo "Customer name not found.\n";
+                }
+
+                // Extract product details
+                $totalQuantity = 0;
+                $totalSubtotal = 0;
+
+                if (preg_match_all('/<tr>\s*<td>\s*([^<]+)\s*<\/td>\s*<td class="text-right">([^<]+)<\/td>\s*<td class="text-right">([^<]+)<\/td>\s*<td class="text-right">([^<]+)<\/td>\s*<\/tr>/', $htmlContent, $matchesProducts, PREG_SET_ORDER)) {
+                    foreach ($matchesProducts as $product) {
+                        $productName = trim($product[1]);
+                        $quantity = trim($product[2]);
+                        $unitPrice = trim($product[3]);
+                        $subtotal = trim($product[4]);
+
+                        echo "Product Name: $productName\n";
+                        echo "Quantity: $quantity\n";
+                        echo "Unit Price: ₨ $unitPrice\n";
+                        echo "Subtotal: ₨ $subtotal\n";
+                        echo "-------------------\n";
+                        $totalQuantity += (float) str_replace(',', '', $quantity);
+                        $totalSubtotal += (float) str_replace(',', '', $subtotal);
+
+                    }
+                    // Display total quantity
+                    echo "Total Quantity: $totalQuantity\n";
+                    echo "Total Subtotal: ₨ $totalSubtotal\n";
+
+                } else {
+                    echo "Product information not found.\n";
+                }
+
+                if($request->discount_type == "percentage"){
+                    $discount_amount = $request->discount_amount / 100;
+                }
+                elseif($request->discount_type == "fixed"){
+                    $discount_amount = $request->discount_amount;
+                }
+
+                // $categoryIdsFromProducts = array_column($input['products'], 'category_id');
+                // echo "<pre>";
+                // print_r($categoryIdsFromProducts);
+                // echo "</pre>";
+                dd($input);
+                // ,$receipt,$print_invoice,$request->discount_type,$request->discount_amount);
+
+
+                $dataString = array(
+                    "InvoiceNumber"   => $invoiceNumber,
+                    "POSID"           => $pos_id,
+                    "USIN"            => $invoiceNumber,
+                    "BuyerNTN"        => "",
+                    "BuyerCNIC"       => "",
+                    "DateTime"        => $paidDate,
+                    "BuyerName"       => $customerName,
+                    "BuyerPhoneNumber"=> "",
+                    "TotalBillAmount" => $totalPaidAmount,
+                    "TotalQuantity"   => $totalQuantity,
+                    "TotalTaxCharged" => $invoice['gst_tax'],
+                    "TotalSaleValue"  => totalSubtotal - $invoice['gst_tax'],
+                    "Discount"        => $invoice['discount_amount'],
+                    "FurtherTax"      => 0.0,
+                    "PaymentMode"     => 1,
+                    "RefUSIN"         => null,
+                    "InvoiceType"     => 1,
+                    "Items"           => $item_array
+                  );
+
+                // dd($totalPaidAmount,$quantity,$invoiceNumber);
+                dd($input,$receipt,$print_invoice);
+
             } else {
                 $output = ['success' => 0,
                             'msg' => trans("messages.something_went_wrong")
@@ -653,12 +825,13 @@ class SellPosController extends Controller
 
         $invoice_layout_id = !empty($invoice_layout_id) ? $invoice_layout_id : $location_details->invoice_layout_id;
         $invoice_layout = $this->businessUtil->invoiceLayout($business_id, $location_id, $invoice_layout_id);
+        // dd($invoice_layout);
 
         //Check if printer setting is provided.
         $receipt_printer_type = is_null($printer_type) ? $location_details->receipt_printer_type : $printer_type;
 
         $receipt_details = $this->transactionUtil->getReceiptDetails($transaction_id, $location_id, $invoice_layout, $business_details, $location_details, $receipt_printer_type);
-
+// dd($receipt_details);
         $currency_details = [
             'symbol' => $business_details->currency_symbol,
             'thousand_separator' => $business_details->thousand_separator,

@@ -234,6 +234,7 @@ class TransactionUtil extends Util
         $modifiers_formatted = [];
         $combo_lines = [];
         $products_modified_combo = [];
+        $fbr_lines = [];
         foreach ($products as $product) {
             $multiplier = 1;
             if (isset($product['sub_unit_id']) && $product['sub_unit_id'] == $product['product_unit_id']) {
@@ -348,6 +349,23 @@ class TransactionUtil extends Util
                     $modifiers_array[] = $sell_line_modifiers;
                 }
 
+                $variation_data = DB::table('variations')->select("sub_sku",'default_sell_price','sell_price_inc_tax')->where('product_id', $product['product_id'])->first();
+
+                dd($product);
+                $item_data_for_fbr = [
+                    'ItemCode' => $product['product_id'],
+                    "ItemName"    => $variation_data['sub_sku'],
+                    "Quantity"    => $product['quantity'],
+                    "PCTCode"     => 6404,
+                    "TaxRate"     => $variation_data['sell_price_inc_tax'] - $variation_data['default_sell_price'],
+                    "SaleValue"   => $variation_data['default_price'],
+                    "TotalAmount" => $variation_data['sell_price_inc_tax'],
+                    "TaxCharged"  => $variation_data['sell_price_inc_tax'] - $variation_data['default_sell_price'],
+                    "Discount"    => $product['line_discount_amount'],
+                    "FurtherTax"  => 0.0,
+                    "InvoiceType" => $items['is_exchanged'] == 0 ? 1 : 3,
+                    "RefUSIN"     => $items['is_exchanged'] == 0 ? null : $old_invoice_ref['old_invoice_ref']
+                ];
                 $lines_formatted[] = new TransactionSellLine($line);
 
                 $sell_line_warranties[] = !empty($product['warranty_id']) ? $product['warranty_id'] : 0;
@@ -609,6 +627,8 @@ class TransactionUtil extends Util
             $transaction = Transaction::findOrFail($transaction);
         }
 
+        // dd($transaction);
+        // dd($payments);
         //If status is draft don't add payment
         if ($transaction->status == 'draft') {
             return true;
@@ -624,13 +644,16 @@ class TransactionUtil extends Util
             if (!empty($payment['payment_id'])) {
                 $edit_ids[] = $payment['payment_id'];
                 $this->editPaymentLine($payment, $transaction, $uf_data);
+                dd("upper if");
             } else {
+                // dd("upper else");
                 $payment_amount = $uf_data ? $this->num_uf($payment['amount']) : $payment['amount'];
                 if ($payment['method'] == 'advance' && $payment_amount > $contact_balance) {
                     throw new AdvanceBalanceNotAvailable(__('lang_v1.required_advance_balance_not_available'));
                 }
                 //If amount is 0 then skip.
                 if ($payment_amount != 0) {
+                    // dd($payment_amount);
                     $prefix_type = 'sell_payment';
                     if ($transaction->type == 'purchase') {
                         $prefix_type = 'purchase_payment';
@@ -649,6 +672,7 @@ class TransactionUtil extends Util
                     } else {
                         $paid_on = \Carbon::now()->toDateTimeString();
                     }
+                    // dd("before payment data");
                     
                     $payment_data = [
                         'amount' => $payment_amount,
@@ -670,6 +694,7 @@ class TransactionUtil extends Util
                         'payment_ref_no' => $payment_ref_no,
                         'account_id' => !empty($payment['account_id']) && $payment['method'] != 'advance' ? $payment['account_id'] : null
                     ];
+                    // dd($payment_data, "payment data");
 
                     for ($i=1; $i<8; $i++) { 
                         if ($payment['method'] == 'custom_pay_' . $i) {
@@ -686,9 +711,11 @@ class TransactionUtil extends Util
                     $account_transactions[$c] = $payment_data;
 
                     $c++;
+                    // dd("if");
                 }
             }
         }
+        // dd("outside foreach");
 
         //Delete the payment lines removed.
         if (!empty($edit_ids)) {
@@ -711,6 +738,7 @@ class TransactionUtil extends Util
                 }
             }
         }
+        // dd("return");
 
         return true;
     }
