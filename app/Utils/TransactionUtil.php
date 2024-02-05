@@ -118,6 +118,127 @@ class TransactionUtil extends Util
         return $transaction;
     }
 
+
+    /**
+     * Add Ecommerce transaction
+     *
+     * @param int $business_id
+     * @param array $input
+     * @param float $invoice_total
+     * @param int $user_id
+     *
+     * @return boolean
+     */
+    public function createEcommerceTransaction($business_id, $input, $invoice_total, $user_id, $uf_data = true)
+    {
+        $invoice_no = $input['invoice_no'];
+
+        $final_total = $uf_data ? $this->num_uf($invoice_total) : $invoice_total;
+
+        $transaction = Transaction::create([
+            'business_id' => $business_id,
+            'location_id' => null ,
+            'type' => 'sell',
+            'sub_type' => 'ecommerce',
+            'status' => $input['status'],
+            'sub_status' => !empty($input['sub_status']) ? $input['sub_status'] : null,
+            'contact_id' => $input['contact_id'],
+            'customer_group_id' => !empty($input['customer_group_id']) ? $input['customer_group_id'] : null,
+            'invoice_no' => $invoice_no,
+            'ref_no' => '',
+            'total_before_tax' => $input['total_before_tax'],
+            'transaction_date' => $input['transaction_date'],
+            'tax_id' => !empty($input['tax_rate_id']) ? $input['tax_rate_id'] : null,
+            'discount_type' => !empty($input['discount_type']) ? $input['discount_type'] : null,
+            'discount_amount' => $uf_data ? $this->num_uf($input['discount_amount']) : $input['discount_amount'],
+            'tax_amount' => $input['tax'],
+            'final_total' => $final_total,
+            'additional_notes' => !empty($input['sale_note']) ? $input['sale_note'] : null,
+            'staff_note' => !empty($input['staff_note']) ? $input['staff_note'] : null,
+            'created_by' => $user_id,
+            'document' => !empty($input['document']) ? $input['document'] : null,
+            'custom_field_1' => !empty($input['custom_field_1']) ? $input['custom_field_1'] : null,
+            'custom_field_2' => !empty($input['custom_field_2']) ? $input['custom_field_2'] : null,
+            'custom_field_3' => !empty($input['custom_field_3']) ? $input['custom_field_3'] : null,
+            'custom_field_4' => !empty($input['custom_field_4']) ? $input['custom_field_4'] : null,
+            'is_direct_sale' => !empty($input['is_direct_sale']) ? $input['is_direct_sale'] : 0,
+            'commission_agent' => $input['commission_agent'],
+            'is_quotation' => isset($input['is_quotation']) ? $input['is_quotation'] : 0,
+            'shipping_details' => isset($input['shipping_details']) ? $input['shipping_details'] : null,
+            'shipping_address' => isset($input['shipping_address']) ? $input['shipping_address'] : null,
+            'shipping_status' => isset($input['shipping_status']) ? $input['shipping_status'] : null,
+            'delivered_to' => isset($input['delivered_to']) ? $input['delivered_to'] : null,
+            'shipping_charges' => isset($input['shipping_charges']) ? $uf_data ? $this->num_uf($input['shipping_charges']) : $input['shipping_charges'] : 0,
+            'shipping_custom_field_1' => !empty($input['shipping_custom_field_1']) ? $input['shipping_custom_field_1'] : null,
+            'shipping_custom_field_2' => !empty($input['shipping_custom_field_2']) ? $input['shipping_custom_field_2'] : null,
+            'shipping_custom_field_3' => !empty($input['shipping_custom_field_3']) ? $input['shipping_custom_field_3'] : null,
+            'shipping_custom_field_4' => !empty($input['shipping_custom_field_4']) ? $input['shipping_custom_field_4'] : null,
+            'shipping_custom_field_5' => !empty($input['shipping_custom_field_5']) ? $input['shipping_custom_field_5'] : null,
+            'exchange_rate' => !empty($input['exchange_rate']) ?
+                                $uf_data ? $this->num_uf($input['exchange_rate']) : $input['exchange_rate'] : 1,
+            'selling_price_group_id' => isset($input['selling_price_group_id']) ? $input['selling_price_group_id'] : null,
+            'pay_term_number' => isset($input['pay_term_number']) ? $input['pay_term_number'] : null,
+            'pay_term_type' => isset($input['pay_term_type']) ? $input['pay_term_type'] : null,
+            'is_suspend' => !empty($input['is_suspend']) ? 1 : 0,
+            'is_recurring' => !empty($input['is_recurring']) ? $input['is_recurring'] : 0,
+            'recur_interval' => !empty($input['recur_interval']) ? $input['recur_interval'] : 1,
+            'recur_interval_type' => !empty($input['recur_interval_type']) ? $input['recur_interval_type'] : null,
+            'subscription_repeat_on' => !empty($input['subscription_repeat_on']) ? $input['subscription_repeat_on'] : null,
+            'subscription_no' => !empty($input['subscription_no']) ? $input['subscription_no'] : null,
+            'recur_repetitions' => !empty($input['recur_repetitions']) ? $input['recur_repetitions'] : 0,
+            'order_addresses' => !empty($input['order_addresses']) ? $input['order_addresses'] : null,
+            'sub_type' => !empty($input['sub_type']) ? $input['sub_type'] : null,
+            'rp_earned' => $input['status'] == 'final' ? $this->calculateRewardPoints($business_id, $final_total) : 0,
+            'rp_redeemed' => !empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0,
+            'rp_redeemed_amount' => !empty($input['rp_redeemed_amount']) ? $input['rp_redeemed_amount'] : 0,
+            'is_created_from_api' => !empty($input['is_created_from_api']) ? 1 : 0,
+            'types_of_service_id' => !empty($input['types_of_service_id']) ? $input['types_of_service_id'] : null,
+            'packing_charge' => !empty($input['packing_charge']) ? $input['packing_charge'] : 0,
+            'packing_charge_type' => !empty($input['packing_charge_type']) ? $input['packing_charge_type'] : null,
+            'service_custom_field_1' => !empty($input['service_custom_field_1']) ? $input['service_custom_field_1'] : null,
+            'service_custom_field_2' => !empty($input['service_custom_field_2']) ? $input['service_custom_field_2'] : null,
+            'service_custom_field_3' => !empty($input['service_custom_field_3']) ? $input['service_custom_field_3'] : null,
+            'service_custom_field_4' => !empty($input['service_custom_field_4']) ? $input['service_custom_field_4'] : null,
+            'round_off_amount' => !empty($input['round_off_amount']) ? $input['round_off_amount'] : 0,
+            'import_batch' => !empty($input['import_batch']) ? $input['import_batch'] : null,
+            'import_time' => !empty($input['import_time']) ? $input['import_time'] : null,
+            'res_table_id' => !empty($input['res_table_id']) ? $input['res_table_id'] : null,
+            'res_waiter_id' => !empty($input['res_waiter_id']) ? $input['res_waiter_id'] : null,
+        ]);
+
+    return $transaction;
+    }
+
+
+    public function createEcommerceSellLines($transaction, $products)
+    {
+        // Check product exists or not
+        foreach($products as $product) {
+            $product_id =  DB::table('variations')->select('product_id','product_variation_id')->where('sub_sku', $product['sku'])->first();
+            dd($product_id, $product, !empty($product['discount_allocations'][0]['amount']));
+            $unit_price_before_disc = $product['price'];
+            $discount_amount = !empty($product['discount_allocations'][0]['amount']) ? $product['discount_allocations'][0]['amount'] : 0; 
+            $unit_price = $product['price'] - $discount_amount;
+
+            $line = [
+                'product_id' => $product_id->product_id,
+                'variation_id' => $product_id->variations,
+                'quantity' => $product->quantity,
+                'unit_price_before_discount' => $unit_price_before_disc,
+                'unit_price' => $unit_price,
+                'line_discount_type' => 'fixed',
+                'line_discount_amount' => $discount_amount,
+                'unit_price_inc_tax' => $unit_price,
+                'item_tax' => 0,
+                'tax_id' => null,
+                'discount_id' => null,
+                'lot_no_line_id' => null,
+                'res_service_staff_id' => null,
+                'res_line_order_status' => null,
+            ];
+        }
+    }
+
     /**
      * Add Sell transaction
      *

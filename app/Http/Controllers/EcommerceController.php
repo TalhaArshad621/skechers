@@ -106,46 +106,65 @@ class EcommerceController extends Controller
             $input['is_quotation'] = 0;
             $is_direct_sale = false;
 
-            // dd($shopifyOrders[5]);
             foreach($shopifyOrders as $shopifyOrder) {
-                
-                // Order number for the shopify order in DB it will be invoice number
-                $orderId = trim($shopifyOrder['name'], "#");
-                $input['invoice_no'] = $orderId;
-                // Check if the order already exist
-                $existingTransactions = DB::table('transactions')->where('type','sell')->where('sub_type','ecommerce')->where('invoice_no',$orderId)->first();
-                if(!$existingTransactions) {
-                    $business_id = $this->business_id;
-
-                    $input['discount_type'] = "fixed";
-                    $input['discount_amount'] = $shopifyOrder['total_discounts'];
-                    // total_price = original_price - discount_amount;
-                    $invoice_total = $shopifyOrder['total_price'];
-                    $user_id = 1;
+                if($shopifyOrder['name'] == "#SS6034"){                    
                     
+                    // Order number for the shopify order in DB it will be invoice number
+                    $orderId = trim($shopifyOrder['name'], "#");
+                    $input['invoice_no'] = $orderId;
+                    // Check if the order already exist
+                    $existingTransactions = DB::table('transactions')->where('type','sell')->where('sub_type','ecommerce')->where('invoice_no',$orderId)->first();
+                    if(!$existingTransactions) {
+                        $business_id = $this->business_id;
+                        $input['status'] = "final";
+                        $input['discount_type'] = "fixed";
+                        $input['discount_amount'] = $shopifyOrder['total_discounts'];
+                        $input['is_credit_sale'] = 0;
+                      
+                        // total_price = original_price - discount_amount;
+                        $invoice_total = $shopifyOrder['total_price'];
+                        $user_id = 1;
+                        
+                        $input['total_before_tax'] = $invoice_total;
+                        $input['tax'] = $shopifyOrder['total_tax'];
+                        $discount = [
+                            'discount_type' => $input['discount_type'],
+                            'discount_amount' => $input['discount_amount']
+                        ];
+    
+                        DB::beginTransaction();
+                        $input['transaction_date'] = Carbon::now();
+                        $input['commission_agent'] = null;
 
-                    $discount = [
-                        'discount_type' => $input['discount_type'],
-                        'discount_amount' => $input['discount_amount']
-                    ];
+                        // dd($shopifyOrder);
+                        // Customer Details
+                        $contact_id = $this->contactUtil->getEcommerceCustomer($shopifyOrder['customer']['email']);
+                        if(!$contact_id) {
+                            $contact_id = $this->contactUtil->createNewEcommerceCustomer($shopifyOrder['customer'], $business_id);
+                        }
 
-                    DB::beginTransaction();
-                    $input['transaction_date'] = Carbon::now();
-                    $input['commission_agent'] = null;
-                    // dd($shopifyOrder);
-                    // Customer Details
-                    // $contact_id = $this->contactUtil->getEcommerceCustomer($shopifyOrder['customer']['email']);
-                    // if(!$contact_id) {
-                    //     $contact_id = $this->contactUtil->createNewEcommerceCustomer($shopifyOrder['customer'], $business_id);
-                    // }
-                    dd($shopifyOrder);
+                        $input['contact_id'] = $contact_id;
+                        $input['cutomer_group_id'] = null;
+                        $price_group_id = null;
+                        $input['is_suspend'] = 0;
+                        $input['sale_note'] = $shopifyOrder['note'];
+                        $input['is_recurring'] = 0;
+                        $input['shipping_details'] = $shopifyOrder['shipping_address']['address1'];
+                        $input['shipping_address'] = $shopifyOrder['shipping_address']['address1'];
+                        $input['shipping_status'] = "pending";
+                        $input['delivered_to'] = $shopifyOrder['shipping_address']['first_name'];
+                        $input['order_addresses'] = $shopifyOrder['shipping_address']['address1'];
+                        $input['is_created_from_api'] = 1;
+                        $input['products'] = $shopifyOrder['line_items'];
 
-                    $input['cutomer_group_id'] = null;
-                    $price_group_id = null;
-                    $input['is_suspend'] = 0;
-                    $input['sale_note'] = $shopifyOrder['note'];
-                    $input['is_recurring'] = 0;
+                        // if($input['payment_gateway_names'][0] == "")
+                        
+                        
+                        $transaction = $this->transactionUtil->createEcommerceTransaction($business_id, $input, $invoice_total, $user_id);
 
+                        $this->transactionUtil->createEcommerceSellLines($transaction, $input['products']);
+    
+                    }
                 }
             }
 
