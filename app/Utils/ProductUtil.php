@@ -21,6 +21,7 @@ use App\VariationLocationDetails;
 use App\VariationTemplate;
 use App\VariationValueTemplate;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ProductUtil extends Util
 {
@@ -1151,7 +1152,7 @@ class ProductUtil extends Util
         $updated_purchase_lines = [];
         $updated_purchase_line_ids = [0];
         $exchange_rate = !empty($transaction->exchange_rate) ? $transaction->exchange_rate : 1;
-        
+        // dd($input_data);
         foreach ($input_data as $data) {
             $multiplier = 1;
             if (isset($data['sub_unit_id']) && $data['sub_unit_id'] == $data['product_unit_id']) {
@@ -1244,6 +1245,142 @@ class ProductUtil extends Util
         if (!empty($updated_purchase_lines)) {
             $transaction->purchase_lines()->saveMany($updated_purchase_lines);
         }
+
+        return $delete_purchase_lines;
+    }
+
+    public function createOrUpdatePurchaseLinesForImport($transaction, $input_data, $currency_details, $enable_product_editing, $before_status = null)
+    {
+        // dd($input_data);
+        $updated_purchase_lines = [];
+        $updated_purchase_line_ids = [0];
+        $exchange_rate = !empty($transaction->exchange_rate) ? $transaction->exchange_rate : 1;
+        // dd($input_data,$transaction);
+        // dd($input_data['product_unit_id']);
+        foreach ($input_data as $data) {
+            // dd($input_data,$data);
+
+            $multiplier = 1;
+            // if (isset($data['sub_unit_id']) && $data['sub_unit_id'] == $data['product_unit_id']) {
+            //     unset($data['sub_unit_id']);
+            // }
+            // if ($key === 'sub_unit_id' && isset($input_data['product_unit_id']) && $value == $input_data['product_unit_id']) {
+            //     // dd("inside");
+            //     unset($input_data[$key]);
+            // }
+            // dd("out");
+        
+            
+            if (!empty($data['sub_unit_id'])) {
+                // dd("hit");
+                $unit = Unit::find($data['sub_unit_id']);
+                $multiplier = !empty($unit->base_unit_multiplier) ? $unit->base_unit_multiplier : 1;
+            }
+            // dd($multiplier);
+            $new_quantity = $this->num_uf($data['quantity']) * $multiplier;
+            $new_quantity_f = $this->num_f($new_quantity);
+            // dd($new_quantity_f);
+            //update existing purchase line
+            if (isset($data['purchase_line_id'])) {
+                $purchase_line = PurchaseLine::findOrFail($data['purchase_line_id']);
+                $updated_purchase_line_ids[] = $purchase_line->id;
+                $old_qty = $this->num_f($purchase_line->quantity);
+                $this->updateProductStock($before_status, $transaction, $data['product_id'], $data['variation_id'], $new_quantity, $purchase_line->quantity, $currency_details);
+            } else {
+                // dd("here");
+                //create newly added purchase lines
+                $purchase_line = new PurchaseLine();
+                $purchase_line->product_id = $data['product_id'];
+                $purchase_line->variation_id = $data['variation_id'];
+            // dd("done",$transaction->status);
+                //Increase quantity only if status is received
+                if ($transaction->status == 'received') {
+                    $this->updateProductQuantity($transaction->location_id, $data['product_id'], $data['variation_id'], $new_quantity_f, 0, $currency_details);
+                }
+                // dd("done");
+            }
+
+            $purchase_line->quantity = $new_quantity;
+            $purchase_line->pp_without_discount = ($this->num_uf($data['pp_without_discount'], $currency_details)*$exchange_rate) / $multiplier;
+            $purchase_line->discount_percent = $this->num_uf($data['discount_percent'], $currency_details);
+            $purchase_line->purchase_price = ($this->num_uf($data['purchase_price'], $currency_details)*$exchange_rate) / $multiplier;
+            $purchase_line->purchase_price_inc_tax = ($this->num_uf($data['purchase_price_inc_tax'], $currency_details)*$exchange_rate) / $multiplier;
+            $purchase_line->item_tax = ($this->num_uf($data['item_tax'], $currency_details)*$exchange_rate) / $multiplier;
+            $purchase_line->tax_id = $data['purchase_line_tax_id'];
+            $purchase_line->lot_number = !empty($data['lot_number']) ? $data['lot_number'] : null;
+            $purchase_line->mfg_date = !empty($data['mfg_date']) ? $this->uf_date($data['mfg_date']) : null;
+            $purchase_line->exp_date = !empty($data['exp_date']) ? $this->uf_date($data['exp_date']) : null;
+            $purchase_line->sub_unit_id = !empty($data['sub_unit_id']) ? $data['sub_unit_id'] : null;
+            $purchase_line->created_at = Carbon::now();
+            $purchase_line->updated_at = Carbon::now();
+
+            
+            $updated_purchase_lines[] = $purchase_line;
+            // dd($updated_purchase_lines,$enable_product_editing);
+
+            //Edit product price
+            if ($enable_product_editing == 1) {
+                if (isset($data['default_sell_price'])) {
+                    $variation_data['sell_price_inc_tax'] = ($this->num_uf($data['default_sell_price'], $currency_details)) / $multiplier;
+                }
+                $variation_data['pp_without_discount'] = ($this->num_uf($data['pp_without_discount'], $currency_details)*$exchange_rate) / $multiplier;
+                $variation_data['variation_id'] = $purchase_line->variation_id;
+                $variation_data['purchase_price'] = $purchase_line->purchase_price;
+             
+                $this->updateProductFromPurchase($variation_data);
+                // dd("done");
+            }
+        }
+        // dd($updated_purchase_line_ids);
+
+        //unset deleted purchase lines
+        $delete_purchase_line_ids = [];
+        $delete_purchase_lines = null;
+        if (!empty($updated_purchase_line_ids)) {
+            $delete_purchase_lines = PurchaseLine::where('transaction_id', $transaction->id)
+                    ->whereNotIn('id', $updated_purchase_line_ids)
+                    ->get();
+
+            if ($delete_purchase_lines->count()) {
+                foreach ($delete_purchase_lines as $delete_purchase_line) {
+                    $delete_purchase_line_ids[] = $delete_purchase_line->id;
+
+                    //decrease deleted only if previous status was received
+                    if ($before_status == 'received') {
+                        $this->decreaseProductQuantity(
+                            $delete_purchase_line->product_id,
+                            $delete_purchase_line->variation_id,
+                            $transaction->location_id,
+                            $delete_purchase_line->quantity
+                    );
+                    }
+                }
+                //Delete deleted purchase lines
+                PurchaseLine::where('transaction_id', $transaction->id)
+                        ->whereIn('id', $delete_purchase_line_ids)
+                        ->delete();
+            }
+        }
+
+        //update purchase lines
+        // dd($updated_purchase_lines);
+        if (!empty($updated_purchase_lines)) {
+            $transaction->purchase_lines()->saveMany($updated_purchase_lines);
+
+            // $purchaseLinesData = []; // Initialize an empty array to store data for multiple purchase lines
+        
+            // foreach ($updated_purchase_lines as $lineModel) {
+            //     $lineData = $lineModel->toArray();
+            //     $lineData['transaction_id'] = $transaction->id; // Assuming transaction_id is the foreign key
+            //     $purchaseLinesData[] = $lineData;
+            // }
+        
+            // // Insert multiple records into the purchase_lines table
+            // PurchaseLine::insert($purchaseLinesData);
+        }
+        
+        
+        // dd("return");
 
         return $delete_purchase_lines;
     }
@@ -1382,14 +1519,17 @@ class ProductUtil extends Util
      */
     public function adjustStockOverSelling($transaction)
     {
+        // dd($transaction->purchase_lines);
         if ($transaction->status != 'received') {
             return false;
         }
 
         foreach ($transaction->purchase_lines as $purchase_line) {
+            // dd($purchase_line->product->enable_stock);
+            // dd($purchase_line->quantity_remaining);
             if ($purchase_line->product->enable_stock == 1) {
 
-        //Available quantity in the purchase line
+                //Available quantity in the purchase line
                 $purchase_line_qty_avlbl = $purchase_line->quantity_remaining;
 
                 if ($purchase_line_qty_avlbl <= 0) {
@@ -1398,7 +1538,7 @@ class ProductUtil extends Util
 
                 //update sell line purchase line mapping
                 $sell_line_purchase_lines =
-        TransactionSellLinesPurchaseLines::where('purchase_line_id', 0)
+                TransactionSellLinesPurchaseLines::where('purchase_line_id', 0)
                 ->join('transaction_sell_lines as tsl', 'tsl.id', '=', 'transaction_sell_lines_purchase_lines.sell_line_id')
                 ->join('transactions as t', 'tsl.transaction_id', '=', 't.id')
                 ->where('t.location_id', $transaction->location_id)
@@ -1407,6 +1547,7 @@ class ProductUtil extends Util
 
                 ->select('transaction_sell_lines_purchase_lines.*')
                 ->get();
+                // dd($sell_line_purchase_lines);
 
                 foreach ($sell_line_purchase_lines as $slpl) {
                     if ($purchase_line_qty_avlbl > 0) {
