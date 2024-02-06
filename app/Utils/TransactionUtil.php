@@ -505,6 +505,75 @@ class TransactionUtil extends Util
         return true;
     }
 
+    public function SendFbrDataForReturn($transaction, $pos_id, $token, $fbr_lines)
+    {
+        $total_tax = 0;
+        $total_items = 0;
+        foreach($transaction->sell_lines as $sell) {
+            $total_tax += $sell->item_tax;
+            $total_items += $sell->quantity;
+        }
+        $dataString = array(
+            "InvoiceNumber"   => $transaction->invoice_no,
+            "POSID"           => $pos_id,
+            "USIN"            => $transaction->invoice_no   ,
+            "BuyerNTN"        => "",
+            "BuyerCNIC"       => "",
+            "DateTime"        => $transaction->transaction_date,
+            "BuyerName"       => $transaction->contact->name,
+            "BuyerPhoneNumber"=> $transaction->contact->mobile,
+            "TotalBillAmount" => $transaction->final_total,
+            "TotalQuantity"   => $total_items,
+            "TotalSaleValue"  => $transaction->final_total - $total_tax,
+            "TotalTaxCharged" => $total_tax,
+            "Discount"        => $transaction->discount_amount,
+            "FurtherTax"      => 0.0,
+            "PaymentMode"     => 1,
+            "RefUSIN"         => null,
+            "InvoiceType"     => 1,
+            "Items"           => $fbr_lines
+          );
+
+          $data = json_encode($dataString);
+          $curl = curl_init();
+    
+          curl_setopt($curl, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
+          curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);    
+          curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+          curl_setopt_array($curl, array(
+            //LIVE URL
+            // CURLOPT_URL             => 'https://gw.fbr.gov.pk/imsp/v1/api/Live/PostData',
+            //SANDBOX URL FOR TESTING
+            CURLOPT_URL             => 'https://esp.fbr.gov.pk:8244/FBR/v1/api/Live/PostData',
+            CURLOPT_RETURNTRANSFER  => true,
+            CURLOPT_ENCODING        => '',
+            CURLOPT_MAXREDIRS       => 10,
+            CURLOPT_TIMEOUT         => 0,
+            CURLOPT_FOLLOWLOCATION  => true,
+            CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST   => 'POST',
+            CURLOPT_POSTFIELDS      => $data,
+            CURLOPT_HTTPHEADER      => $token,
+          ));
+    
+          $response = curl_exec($curl);
+          if ($response === false) {
+            throw new Exception(curl_error($curl), curl_errno($curl));
+          }
+          curl_close($curl);
+    
+          $obj            = json_decode($response);
+          $fbr_reponse    = get_object_vars($obj);
+          $fbr_invoice_id = $fbr_reponse['InvoiceNumber'];
+
+          if($fbr_invoice_id) {
+              Transaction::where('id', $transaction->id)->update([
+                'custom_field_1' => $fbr_invoice_id
+              ]);
+          }
+        return true;
+    }
+
     /**
      * Returns the line for combo product
      *
@@ -5119,10 +5188,9 @@ class TransactionUtil extends Util
         $input['tax_id'] = $input['tax_id'] ?? null;
 
         $invoice_total = $productUtil->calculateInvoiceTotal($input['products'], $input['tax_id'], $discount, $uf_number);
-
         //Get parent sale
         $sell = Transaction::where('business_id', $business_id)
-                        ->with(['sell_lines', 'sell_lines.sub_unit'])
+                        ->with(['sell_lines', 'sell_lines.sub_unit','contact'])
                         ->findOrFail($input['transaction_id']);
 
         //Check if any sell return exists for the sale
@@ -5140,7 +5208,6 @@ class TransactionUtil extends Util
             'total_before_tax' => $invoice_total['total_before_tax'],
             'final_total' => $invoice_total['final_total']
         ];
-
         if (!empty($input['transaction_date'])) {
             $sell_return_data['transaction_date'] = $uf_number ? $this->uf_date($input['transaction_date'], true) : $input['transaction_date'];
         }
@@ -5151,6 +5218,7 @@ class TransactionUtil extends Util
             $ref_count = $this->setAndGetReferenceCount('sell_return', $business_id);
             $sell_return_data['invoice_no'] = $this->generateReferenceNumber('sell_return', $ref_count, $business_id);
         }
+
 
         if (empty($sell_return)) {
             $sell_return_data['transaction_date'] = $sell_return_data['transaction_date'] ?? \Carbon::now();
@@ -5192,9 +5260,17 @@ class TransactionUtil extends Util
         //Update quantity returned in sell line
         $returns = [];
         $product_lines = $input['products'];
+
         foreach ($product_lines as $product_line) {
             $returns[$product_line['sell_line_id']] = $uf_number ? $this->num_uf($product_line['quantity']) : $product_line['quantity'];
         }
+
+        $fbr_lines = [];
+        $total_tax = 0;
+        $total_items = 0;
+        $unit_price = 0;
+        $line_discount_amount = 0;
+
         foreach ($sell->sell_lines as $sell_line) {
             if (array_key_exists($sell_line->id, $returns)) {
                 $multiplier = 1;
@@ -5209,6 +5285,29 @@ class TransactionUtil extends Util
                 $sell_line->quantity_returned = $quantity;
                 $sell_line->save();
 
+                $total_tax += $sell_line->item_tax;
+                $total_items += $sell_line->quantity;
+                $unit_price += $sell_line->unit_price;
+                $line_discount_amount += $sell_line->line_discount_amount;
+
+                $variation_data = DB::table('variations')->select("sub_sku")->where('product_id', $sell_line['product_id'])->first();
+
+                $item_data_for_fbr = [  
+                    'ItemCode'    => $sell_line['product_id'],
+                    "ItemName"    => $variation_data->sub_sku,
+                    "Quantity"    => $quantity,
+                    "PCTCode"     => 6404,
+                    "TaxRate"     => $sell_line['tax_id'] / $multiplier,
+                    "SaleValue"   => $sell_line['unit_price'],
+                    "TotalAmount" => $sell_line['unit_price_inc_tax'] / $multiplier,
+                    "TaxCharged"  => $sell_line['item_tax'] / $multiplier,
+                    "Discount"    => $sell_line['line_discount_amount'],
+                    "FurtherTax"  => 0.0,
+                    "InvoiceType" => 3,
+                    "RefUSIN"     => $sell->invoice_no
+                ];
+                array_push( $fbr_lines, $item_data_for_fbr);
+
                 //update quantity sold in corresponding purchase lines
                 $this->updateQuantitySoldFromSellLine($sell_line, $quantity, $quantity_before, false);
 
@@ -5216,6 +5315,71 @@ class TransactionUtil extends Util
                 $productUtil->updateProductQuantity($sell_return->location_id, $sell_line->product_id, $sell_line->variation_id, $quantity, $quantity_before, null, false);
             }
         }
+
+        $pos_id = 943050;
+        $token  = array(
+            'Authorization: Bearer 1298b5eb-b252-3d97-8622-a4a69d5bf818',
+            'Content-Type: application/json'
+        );
+        
+        $dataString = array(
+            "InvoiceNumber"   => $sell_return->invoice_no,
+            "POSID"           => $pos_id,
+            "USIN"            => $sell_return->invoice_no,
+            "BuyerNTN"        => "",
+            "BuyerCNIC"       => "",
+            "DateTime"        => $sell_return_data['transaction_date'],
+            "BuyerName"       => $sell->contact->name,
+            "BuyerPhoneNumber"=> $sell->contact->mobile,
+            "TotalBillAmount" => $sell->final_total,
+            "TotalQuantity"   => $total_items,
+            "TotalSaleValue"  => $unit_price,
+            "TotalTaxCharged" => $total_tax,
+            "Discount"        => $sell_return->discount_amount,
+            "FurtherTax"      => 0.0,
+            "PaymentMode"     => 1,
+            "RefUSIN"         => $sell->invoice_no,
+            "InvoiceType"     => 3,
+            "Items"           => $fbr_lines
+        );
+        
+          $data = json_encode($dataString);
+          $curl = curl_init();
+          
+          curl_setopt($curl, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
+          curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);    
+          curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+          curl_setopt_array($curl, array(
+            //LIVE URL
+            // CURLOPT_URL             => 'https://gw.fbr.gov.pk/imsp/v1/api/Live/PostData',
+            //SANDBOX URL FOR TESTING
+            CURLOPT_URL             => 'https://esp.fbr.gov.pk:8244/FBR/v1/api/Live/PostData',
+            CURLOPT_RETURNTRANSFER  => true,
+            CURLOPT_ENCODING        => '',
+            CURLOPT_MAXREDIRS       => 10,
+            CURLOPT_TIMEOUT         => 0,
+            CURLOPT_FOLLOWLOCATION  => true,
+            CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST   => 'POST',
+            CURLOPT_POSTFIELDS      => $data,
+            CURLOPT_HTTPHEADER      => $token,
+          ));
+    
+          $response = curl_exec($curl);
+          if ($response === false) {
+            throw new Exception(curl_error($curl), curl_errno($curl));
+          }
+          curl_close($curl);
+    
+          $obj            = json_decode($response);
+          $fbr_reponse    = get_object_vars($obj);
+          $fbr_invoice_id = $fbr_reponse['InvoiceNumber'];
+
+          if($fbr_invoice_id) {
+              Transaction::where('id', $sell_return->id)->update([
+                'custom_field_1' => $fbr_invoice_id
+              ]);
+          }
 
         return $sell_return;     
     }
