@@ -26,6 +26,7 @@ use App\VariationLocationDetails;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Utils\ModuleUtil;
+use Exception;
 
 class TransactionUtil extends Util
 {
@@ -349,29 +350,28 @@ class TransactionUtil extends Util
                     $modifiers_array[] = $sell_line_modifiers;
                 }
 
-                $variation_data = DB::table('variations')->select("sub_sku",'default_sell_price','sell_price_inc_tax')->where('product_id', $product['product_id'])->first();
+                $variation_data = DB::table('variations')->select("sub_sku")->where('product_id', $product['product_id'])->first();
 
-                dd($product);
-                $item_data_for_fbr = [
+                $item_data_for_fbr = [  
                     'ItemCode' => $product['product_id'],
-                    "ItemName"    => $variation_data['sub_sku'],
+                    "ItemName"    => $variation_data->sub_sku,
                     "Quantity"    => $product['quantity'],
                     "PCTCode"     => 6404,
-                    "TaxRate"     => $variation_data['sell_price_inc_tax'] - $variation_data['default_sell_price'],
-                    "SaleValue"   => $variation_data['default_price'],
-                    "TotalAmount" => $variation_data['sell_price_inc_tax'],
-                    "TaxCharged"  => $variation_data['sell_price_inc_tax'] - $variation_data['default_sell_price'],
+                    "TaxRate"     => $uf_item_tax / $multiplier,
+                    "SaleValue"   => $unit_price,
+                    "TotalAmount" => $uf_unit_price_inc_tax / $multiplier,
+                    "TaxCharged"  => $uf_item_tax / $multiplier,
                     "Discount"    => $product['line_discount_amount'],
                     "FurtherTax"  => 0.0,
-                    "InvoiceType" => $items['is_exchanged'] == 0 ? 1 : 3,
-                    "RefUSIN"     => $items['is_exchanged'] == 0 ? null : $old_invoice_ref['old_invoice_ref']
+                    "InvoiceType" => 1,
+                    "RefUSIN"     => null
                 ];
+                array_push( $fbr_lines, $item_data_for_fbr);
                 $lines_formatted[] = new TransactionSellLine($line);
-
                 $sell_line_warranties[] = !empty($product['warranty_id']) ? $product['warranty_id'] : 0;
             }
         }
-
+        
         if (!is_object($transaction)) {
             $transaction = Transaction::findOrFail($transaction);
         }
@@ -432,6 +432,76 @@ class TransactionUtil extends Util
         if ($return_deleted) {
             return $deleted_lines;
         }
+        return $fbr_lines;
+    }
+
+
+    public function SendFbrData($transaction, $pos_id, $token, $fbr_lines)
+    {
+        $total_tax = 0;
+        $total_items = 0;
+        foreach($transaction->sell_lines as $sell) {
+            $total_tax += $sell->item_tax;
+            $total_items += $sell->quantity;
+        }
+        $dataString = array(
+            "InvoiceNumber"   => $transaction->invoice_no,
+            "POSID"           => $pos_id,
+            "USIN"            => $transaction->invoice_no   ,
+            "BuyerNTN"        => "",
+            "BuyerCNIC"       => "",
+            "DateTime"        => $transaction->transaction_date,
+            "BuyerName"       => $transaction->contact->name,
+            "BuyerPhoneNumber"=> $transaction->contact->mobile,
+            "TotalBillAmount" => $transaction->final_total,
+            "TotalQuantity"   => $total_items,
+            "TotalSaleValue"  => $transaction->final_total - $total_tax,
+            "TotalTaxCharged" => $total_tax,
+            "Discount"        => $transaction->discount_amount,
+            "FurtherTax"      => 0.0,
+            "PaymentMode"     => 1,
+            "RefUSIN"         => null,
+            "InvoiceType"     => 1,
+            "Items"           => $fbr_lines
+          );
+
+          $data = json_encode($dataString);
+          $curl = curl_init();
+    
+          curl_setopt($curl, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
+          curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);    
+          curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+          curl_setopt_array($curl, array(
+            //LIVE URL
+            // CURLOPT_URL             => 'https://gw.fbr.gov.pk/imsp/v1/api/Live/PostData',
+            //SANDBOX URL FOR TESTING
+            CURLOPT_URL             => 'https://esp.fbr.gov.pk:8244/FBR/v1/api/Live/PostData',
+            CURLOPT_RETURNTRANSFER  => true,
+            CURLOPT_ENCODING        => '',
+            CURLOPT_MAXREDIRS       => 10,
+            CURLOPT_TIMEOUT         => 0,
+            CURLOPT_FOLLOWLOCATION  => true,
+            CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST   => 'POST',
+            CURLOPT_POSTFIELDS      => $data,
+            CURLOPT_HTTPHEADER      => $token,
+          ));
+    
+          $response = curl_exec($curl);
+          if ($response === false) {
+            throw new Exception(curl_error($curl), curl_errno($curl));
+          }
+          curl_close($curl);
+    
+          $obj            = json_decode($response);
+          $fbr_reponse    = get_object_vars($obj);
+          $fbr_invoice_id = $fbr_reponse['InvoiceNumber'];
+
+          if($fbr_invoice_id) {
+              Transaction::where('id', $transaction->id)->update([
+                'custom_field_1' => $fbr_invoice_id
+              ]);
+          }
         return true;
     }
 
