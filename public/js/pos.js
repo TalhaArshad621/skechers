@@ -1489,6 +1489,7 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
             },
             dataType: 'json',
             success: function(result) {
+                console.log(result);
                 if (result.success) {
                     $('table#pos_table tbody')
                         .append(result.html_content)
