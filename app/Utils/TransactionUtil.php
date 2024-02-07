@@ -350,23 +350,29 @@ class TransactionUtil extends Util
                     $modifiers_array[] = $sell_line_modifiers;
                 }
 
-                $variation_data = DB::table('variations')->select("sub_sku")->where('product_id', $product['product_id'])->first();
+                // dd($transaction);
+                if($transaction->type == 'sell' || $transaction->type == 'sell_return'){
 
-                $item_data_for_fbr = [  
-                    'ItemCode' => $product['product_id'],
-                    "ItemName"    => $variation_data->sub_sku,
-                    "Quantity"    => $product['quantity'],
-                    "PCTCode"     => 6404,
-                    "TaxRate"     => $uf_item_tax / $multiplier,
-                    "SaleValue"   => $unit_price,
-                    "TotalAmount" => $uf_unit_price_inc_tax / $multiplier,
-                    "TaxCharged"  => $uf_item_tax / $multiplier,
-                    "Discount"    => $product['line_discount_amount'],
-                    "FurtherTax"  => 0.0,
-                    "InvoiceType" => 1,
-                    "RefUSIN"     => null
-                ];
-                array_push( $fbr_lines, $item_data_for_fbr);
+                    $variation_data = DB::table('variations')->select("sub_sku")->where('product_id', $product['product_id'])->first();
+
+                    $item_data_for_fbr = [  
+                        'ItemCode' => $product['product_id'],
+                        "ItemName"    => $variation_data->sub_sku,
+                        "Quantity"    => $product['quantity'],
+                        "PCTCode"     => 6404,
+                        "TaxRate"     => $uf_item_tax / $multiplier,
+                        "SaleValue"   => $unit_price,
+                        "TotalAmount" => $uf_unit_price_inc_tax / $multiplier,
+                        "TaxCharged"  => $uf_item_tax / $multiplier,
+                        "Discount"    => $product['line_discount_amount'],
+                        "FurtherTax"  => 0.0,
+                        "InvoiceType" => 1,
+                        "RefUSIN"     => null
+                    ];
+                    array_push( $fbr_lines, $item_data_for_fbr);
+                }
+               
+                
                 $lines_formatted[] = new TransactionSellLine($line);
                 $sell_line_warranties[] = !empty($product['warranty_id']) ? $product['warranty_id'] : 0;
             }
@@ -2734,14 +2740,18 @@ class TransactionUtil extends Util
         }
 
         $qty_selling = null;
+        // dd($transaction_lines);
         foreach ($transaction_lines as $line) {
             //Check if stock is not enabled then no need to assign purchase & sell
             $product = Product::find($line->product_id);
+            // dd($product);
             if ($product->enable_stock != 1) {
                 continue;
             }
+            // dd("continue");
 
             $qty_sum_query = $this->get_pl_quantity_sum_string('PL');
+            // dd($qty_sum_query);
             
             //Get purchase lines, only for products with enable stock.
             $query = Transaction::join('purchase_lines AS PL', 'transactions.id', '=', 'PL.transaction_id')
@@ -2753,6 +2763,7 @@ class TransactionUtil extends Util
                 ->whereRaw("( $qty_sum_query ) < PL.quantity")
                 ->where('PL.product_id', $line->product_id)
                 ->where('PL.variation_id', $line->variation_id);
+            // dd($query);
 
             //If product expiry is enabled then check for on expiry conditions
             if ($stop_selling_expired && empty($purchase_line_id)) {
@@ -2787,16 +2798,19 @@ class TransactionUtil extends Util
                 'PL.mfg_quantity_used as mfg_quantity_used',
                 'transactions.invoice_no'
                     )->get();
+                    // dd($rows);
 
             $purchase_sell_map = [];
 
             //Iterate over the rows, assign the purchase line to sell lines.
             $qty_selling = $line->quantity;
+            // dd($qty_selling);
             foreach ($rows as $k => $row) {
                 $qty_allocated = 0;
 
                 //Check if qty_available is more or equal
                 if ($qty_selling <= $row->quantity_available) {
+                    // dd("true");
                     $qty_allocated = $qty_selling;
                     $qty_selling = 0;
                 } else {
@@ -2845,6 +2859,7 @@ class TransactionUtil extends Util
                             ];
 
                         //Update purchase line
+                        // dd($row->purchase_lines_id);
                         PurchaseLine::where('id', $row->purchase_lines_id)
                             ->update(['mfg_quantity_used' => $row->mfg_quantity_used + $qty_allocated]);
                     }
