@@ -360,6 +360,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'stock-transfers' && request()->segment(2) == 'create']
                             );
                         }
+                        if (auth()->user()->can('purchase.create')) {
+                            $sub->url(
+                                action('ImportStockTrasferController@create'),
+                                __('Stock Transfer Import'),
+                                ['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'import-stock-transfer ' && request()->segment(2) == 'create']
+                            );
+                        }
                     },
                     ['icon' => 'fa fas fa-truck']
                 )->order(35);

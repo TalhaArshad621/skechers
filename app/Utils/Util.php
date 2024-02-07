@@ -342,7 +342,6 @@ class Util
             // dd("hit",$type,$ref_count,$business_id,$default_prefix,$prefix);
         }
         if (!empty($business_id)) {
-            dd("hit");
             $business = Business::find($business_id);
             $prefixes = $business->ref_no_prefixes;
             $prefix = !empty($prefixes[$type]) ? $prefixes[$type] : '';
