@@ -7,6 +7,7 @@ use App\Business;
 use App\BusinessLocation;
 use App\Contact;
 use App\Currency;
+use App\EcommerceStoreLocation;
 use App\Events\TransactionPaymentAdded;
 use App\Events\TransactionPaymentDeleted;
 use App\Events\TransactionPaymentUpdated;
@@ -158,7 +159,7 @@ class TransactionUtil extends Util
             'created_by' => $user_id,
             'document' => !empty($input['document']) ? $input['document'] : null,
             'custom_field_1' => !empty($input['custom_field_1']) ? $input['custom_field_1'] : null,
-            'custom_field_2' => !empty($input['custom_field_2']) ? $input['custom_field_2'] : null,
+            'custom_field_2' => 'ecommerce',
             'custom_field_3' => !empty($input['custom_field_3']) ? $input['custom_field_3'] : null,
             'custom_field_4' => !empty($input['custom_field_4']) ? $input['custom_field_4'] : null,
             'is_direct_sale' => !empty($input['is_direct_sale']) ? $input['is_direct_sale'] : 0,
@@ -210,33 +211,113 @@ class TransactionUtil extends Util
     }
 
 
-    public function createEcommerceSellLines($transaction, $products)
+    public function checkQuantityForEcommerce($transaction, $order)
     {
-        // Check product exists or not
+
+    }
+
+
+    public function createEcommerceSellLines($transaction, $products, $business_id)
+    {
+
+        $lines_formatted = [];
+        $ecommerce_product_location = [];
+        $total_quantity = 0;
+        $exist = false;
         foreach($products as $product) {
             $product_id =  DB::table('variations')->select('product_id','product_variation_id')->where('sub_sku', $product['sku'])->first();
-            dd($product_id, $product, !empty($product['discount_allocations'][0]['amount']));
-            $unit_price_before_disc = $product['price'];
-            $discount_amount = !empty($product['discount_allocations'][0]['amount']) ? $product['discount_allocations'][0]['amount'] : 0; 
-            $unit_price = $product['price'] - $discount_amount;
 
-            $line = [
-                'product_id' => $product_id->product_id,
-                'variation_id' => $product_id->variations,
-                'quantity' => $product->quantity,
-                'unit_price_before_discount' => $unit_price_before_disc,
-                'unit_price' => $unit_price,
-                'line_discount_type' => 'fixed',
-                'line_discount_amount' => $discount_amount,
-                'unit_price_inc_tax' => $unit_price,
-                'item_tax' => 0,
-                'tax_id' => null,
-                'discount_id' => null,
-                'lot_no_line_id' => null,
-                'res_service_staff_id' => null,
-                'res_line_order_status' => null,
-            ];
+            // Check product exists or not
+            if($product_id) {
+                $exist = true;
+                $unit_price_before_disc = $product['price'];
+                $discount_amount = !empty($product['discount_allocations'][0]['amount']) ? $product['discount_allocations'][0]['amount'] : 0; 
+                $unit_price = $product['price'] - $discount_amount;
+                $total_quantity += $product['quantity'];
+
+                $line = [
+                    'product_id' => $product_id->product_id,
+                    'variation_id' => $product_id->product_variation_id,
+                    'quantity' => $product['quantity'],
+                    'unit_price_before_discount' => $unit_price_before_disc,
+                    'unit_price' => $unit_price,
+                    'line_discount_type' => 'fixed',
+                    'line_discount_amount' => $discount_amount,
+                    'unit_price_inc_tax' => $unit_price,
+                    'item_tax' => 0,
+                    'tax_id' => null,
+                    'discount_id' => null,
+                    'lot_no_line_id' => null,
+                    'res_service_staff_id' => null,
+                    'res_line_order_status' => null,
+                ];
+                
+                $lines_formatted[] = new TransactionSellLine($line);
+
+            } else {
+                // $error_msg = "Product Doesn't Exist.";
+                // throw new \Exception($error_msg);
+            }
+            if($exist == false) {
+                return $exist;
+            }
+            $business_location = BusinessLocation::select('id','location_id')->where('business_id', $business_id)->get();
+    
+            
+            foreach($business_location as $location) {
+                $available_quantity = DB::table('variation_location_details')->where('product_id', $product_id->product_id)->where('location_id', $location->id)->sum('qty_available');
+
+                if($available_quantity > 0 ) {
+                    // Order can be paritally fulfilled from this location
+                    $quantity_to_pick = min($available_quantity, $total_quantity);
+                    $ecommerce_product_location[] = [
+                        'location_id' => $location->id,
+                        'quantity' => $quantity_to_pick
+                    ];
+
+                    // Update Inventory based on the loaction_id
+                    VariationLocationDetails::where('product_id', $product_id->product_id)->where('location_id', $location->id)->decrement('qty_available', $quantity_to_pick);
+                    
+                    // Reduce remaining order quantity
+                    $total_quantity -= $quantity_to_pick;
+
+                    // Exit the loop if order quantity is lesser than 0
+                    if($total_quantity <= 0) {
+                        break;
+                    }
+                }
+            }
+
+            if($total_quantity > 0) {
+                $error_msg = "Product Quantity Doesn't Exist.";
+                throw new \Exception($error_msg);
+            } else {
+                // Insert Location vise data 
+                foreach($ecommerce_product_location as $ecommerce_location) {
+                   $ecommerce_store_location =  EcommerceStoreLocation::create([
+                        'transaction_id' => $transaction->id,
+                        'product_id' => $product_id->product_id,
+                        'location_id' => $ecommerce_location['location_id'],
+                        'quantity' => $ecommerce_location['quantity'],
+                    ]);
+
+                    
+                    Transaction::where('id', $transaction->id)->update([
+                        'ecommerce_location' => $ecommerce_store_location->id
+                    ]);
+                }
+            }
         }
+
+        if (!is_object($transaction)) {
+            $transaction = Transaction::findOrFail($transaction);
+        }
+        // dd($lines_formatted);
+        if (!empty($lines_formatted)) {
+            $transaction->sell_lines()->saveMany($lines_formatted);
+        }
+
+        return $exist;
     }
 
     /**
@@ -711,6 +792,71 @@ class TransactionUtil extends Util
             }
         }
     }
+
+
+
+    public function createEcommercePaymentLine($transaction, $shopifyOrder, $user_id, $business_id)
+    {
+        $payments_formatted = [];
+        $account_transactions = [];
+
+        if(!is_object($transaction)) {
+            $transaction = Transaction::findorFail($transaction);
+        }
+
+        $c = 0;
+        $prefix_type = "sell_payment";
+
+        $payment_amount = $this->num_uf($shopifyOrder['total_price']);
+        
+        $ref_count = $this->setAndGetReferenceCount($prefix_type, $business_id);
+        //Generate reference number
+        $payment_ref_no = $this->generateReferenceNumber($prefix_type, $ref_count, $business_id);
+
+        $paid_on = \Carbon::now()->toDateTimeString();
+
+        $payment_data = [
+            'amount' => $payment_amount,
+            'method' => str_contains($shopifyOrder['payment_gateway_names'][0],  "(COD)") ? "cash" : "card",
+            'business_id' => $transaction->business_id,
+            'is_return' => 0,
+            'card_transaction_number' =>  null,
+            'card_number' =>  null,
+            'card_type' =>  null,
+            'card_holder_name' => null,
+            'card_month' => null,
+            'card_security' => null,
+            'cheque_number' => null,
+            'bank_account_number' => null,
+            'note' => null,
+            'paid_on' => $paid_on,
+            'created_by' => empty($user_id) ? auth()->user()->id : $user_id,
+            'payment_for' => $transaction->contact_id,
+            'payment_ref_no' => $payment_ref_no,
+            'account_id' =>  null
+        ];
+
+        $payments_formatted[] = new TransactionPayment($payment_data);
+
+        $account_transactions[$c] = [];
+
+        //create account transaction
+        $payment_data['transaction_type'] = $transaction->type;
+        $account_transactions[$c] = $payment_data;
+
+        if (!empty($payments_formatted)) {
+            $transaction->payment_lines()->saveMany($payments_formatted);
+
+            foreach ($transaction->payment_lines as $key => $value) {
+                if (!empty($account_transactions[$key])) {
+                    event(new TransactionPaymentAdded($value, $account_transactions[$key]));
+                }
+            }
+        }
+
+        return true;
+    }
+
 
     /**
      * Add line for payment
@@ -4347,6 +4493,97 @@ class TransactionUtil extends Util
                     ->groupBy('transactions.id');
 
         return $purchases;
+    }
+
+    /**
+    * common function to get
+    * list sell
+    * @param int $business_id
+    *
+    * @return object
+    */
+    public function getEcommerceListSells($business_id)
+    {
+        $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
+                // ->leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
+                ->leftJoin('transaction_sell_lines as tsl', function($join) {
+                    $join->on('transactions.id', '=', 'tsl.transaction_id')
+                        ->whereNull('tsl.parent_sell_line_id');
+                })
+                ->leftJoin('users as u', 'transactions.created_by', '=', 'u.id')
+                ->leftJoin('users as ss', 'transactions.res_waiter_id', '=', 'ss.id')
+                ->leftJoin('res_tables as tables', 'transactions.res_table_id', '=', 'tables.id')
+                // ->join(
+                //     'business_locations AS bl',
+                //     'transactions.location_id',
+                //     '=',
+                //     'bl.id'
+                // )
+                ->leftJoin(
+                    'transactions AS SR',
+                    'transactions.id',
+                    '=',
+                    'SR.return_parent_id'
+                )
+                ->leftJoin(
+                    'types_of_services AS tos',
+                    'transactions.types_of_service_id',
+                    '=',
+                    'tos.id'
+                )
+                ->where('transactions.business_id', $business_id)
+                ->where('transactions.type', 'sell')
+                ->where('transactions.status', 'final')
+                ->select(
+                    'transactions.id',
+                    'transactions.transaction_date',
+                    'transactions.is_direct_sale',
+                    'transactions.invoice_no',
+                    'transactions.invoice_no as invoice_no_text',
+                    'contacts.name',
+                    'contacts.mobile',
+                    'contacts.contact_id',
+                    'contacts.supplier_business_name',
+                    'transactions.payment_status',
+                    'transactions.final_total',
+                    'transactions.tax_amount',
+                    'transactions.discount_amount',
+                    'transactions.discount_type',
+                    'transactions.total_before_tax',
+                    'transactions.rp_redeemed',
+                    'transactions.rp_redeemed_amount',
+                    'transactions.rp_earned',
+                    'transactions.types_of_service_id',
+                    'transactions.shipping_status',
+                    'transactions.pay_term_number',
+                    'transactions.pay_term_type',
+                    'transactions.additional_notes',
+                    'transactions.staff_note',
+                    'transactions.shipping_details',
+                    'transactions.document',
+                    'transactions.shipping_custom_field_1',
+                    'transactions.shipping_custom_field_2',
+                    'transactions.shipping_custom_field_3',
+                    'transactions.shipping_custom_field_4',
+                    'transactions.shipping_custom_field_5',
+                    DB::raw('DATE_FORMAT(transactions.transaction_date, "%Y/%m/%d") as sale_date'),
+                    DB::raw("CONCAT(COALESCE(u.surname, ''),' ',COALESCE(u.first_name, ''),' ',COALESCE(u.last_name,'')) as added_by"),
+                    DB::raw('(SELECT SUM(IF(TP.is_return = 1,-1*TP.amount,TP.amount)) FROM transaction_payments AS TP WHERE
+                        TP.transaction_id=transactions.id) as total_paid'),
+                    // 'bl.name as business_location',
+                    DB::raw('COUNT(SR.id) as return_exists'),
+                    DB::raw('(SELECT SUM(TP2.amount) FROM transaction_payments AS TP2 WHERE
+                        TP2.transaction_id=SR.id ) as return_paid'),
+                    DB::raw('COALESCE(SR.final_total, 0) as amount_return'),
+                    'SR.id as return_transaction_id',
+                    'tos.name as types_of_service_name',
+                    'transactions.service_custom_field_1',
+                    DB::raw('COUNT( DISTINCT tsl.id) as total_items'),
+                    DB::raw("CONCAT(COALESCE(ss.surname, ''),' ',COALESCE(ss.first_name, ''),' ',COALESCE(ss.last_name,'')) as waiter"),
+                    'tables.name as table_name'
+                );
+
+        return $sells;
     }
 
     /**

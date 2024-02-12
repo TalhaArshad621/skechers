@@ -1,4 +1,4 @@
-[2023-08-28 11:27:38] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:13:31] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -14,7 +14,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:28:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:14:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -30,7 +30,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:29:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:15:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -46,7 +46,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:30:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:16:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -62,7 +62,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:31:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:17:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -78,7 +78,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:32:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:18:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -94,7 +94,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:33:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:19:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -110,7 +110,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:34:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:20:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -126,7 +126,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:35:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:21:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -142,7 +142,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:36:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:22:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -158,7 +158,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:37:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:23:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -174,7 +174,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:38:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:24:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -190,7 +190,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:39:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:25:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -206,7 +206,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:40:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:26:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -222,7 +222,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:41:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:27:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -238,7 +238,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:42:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:28:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -254,7 +254,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:43:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:29:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -270,7 +270,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:44:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:30:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -286,7 +286,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:45:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:31:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -302,7 +302,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:46:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:32:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -318,7 +318,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:47:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:33:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -334,7 +334,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:48:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:34:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -350,7 +350,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:49:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:35:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -366,7 +366,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:50:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:36:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -382,7 +382,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:51:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:37:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -398,7 +398,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:52:04] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:38:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -414,7 +414,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:53:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:39:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -430,7 +430,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:54:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:40:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -446,7 +446,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:55:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:41:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -462,7 +462,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:56:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:42:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -478,7 +478,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:57:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:43:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -494,7 +494,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:58:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:44:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -510,7 +510,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 11:59:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:45:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -526,7 +526,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:00:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:46:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -542,7 +542,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:01:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:47:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -558,7 +558,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:02:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:48:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -574,7 +574,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:03:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:49:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -590,7 +590,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:04:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:50:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -606,7 +606,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:05:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:51:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -622,7 +622,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:06:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:52:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -638,7 +638,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:07:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:53:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -654,7 +654,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:08:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:54:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -670,7 +670,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:09:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:55:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -686,7 +686,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:10:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:56:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -702,7 +702,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:11:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:57:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -718,7 +718,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:12:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:58:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -734,7 +734,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:13:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 13:59:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -750,7 +750,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:14:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:00:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -766,7 +766,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:15:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:01:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -782,7 +782,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:16:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:02:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -798,7 +798,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:17:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:03:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -814,7 +814,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:18:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:04:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -830,7 +830,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:19:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:05:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -846,7 +846,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:20:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:06:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -862,7 +862,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:21:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:07:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -878,7 +878,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:22:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:08:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -894,7 +894,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:23:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:09:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -910,7 +910,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:24:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:10:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -926,7 +926,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:25:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:11:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -942,7 +942,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:26:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:12:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -958,7 +958,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:27:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:13:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -974,7 +974,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:28:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:14:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -990,7 +990,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:29:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:15:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1006,7 +1006,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:30:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:16:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1022,7 +1022,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:31:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:17:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1038,7 +1038,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:32:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:18:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1054,7 +1054,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:33:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:19:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1070,7 +1070,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:34:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:20:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1086,7 +1086,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:35:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:21:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1102,7 +1102,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:36:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:22:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1118,7 +1118,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:37:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:23:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1134,7 +1134,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:38:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:24:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1150,7 +1150,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:39:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:25:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1166,7 +1166,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:40:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:26:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1182,7 +1182,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:41:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:27:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1198,7 +1198,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:42:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:28:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1214,7 +1214,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:43:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:29:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1230,7 +1230,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:44:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:30:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1246,7 +1246,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:45:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:31:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1262,7 +1262,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:46:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:32:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1278,7 +1278,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:47:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:33:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1294,7 +1294,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:48:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:34:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1310,7 +1310,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:49:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:35:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1326,7 +1326,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:50:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:36:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1342,7 +1342,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:51:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:37:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1358,7 +1358,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:52:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:38:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1374,7 +1374,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:53:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:39:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1390,7 +1390,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:54:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:40:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1406,7 +1406,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:55:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:41:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1422,7 +1422,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:56:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:42:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1438,7 +1438,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:57:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:43:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1454,7 +1454,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:58:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:44:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1470,7 +1470,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 12:59:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:45:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1486,7 +1486,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:00:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:46:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1502,7 +1502,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:01:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:47:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1518,7 +1518,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:02:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:48:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1534,7 +1534,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:03:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:49:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1550,7 +1550,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:04:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:50:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1566,7 +1566,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:05:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:51:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1582,7 +1582,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:06:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:52:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1598,7 +1598,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:07:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:53:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1614,7 +1614,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:08:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:54:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1630,7 +1630,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:09:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:55:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1646,7 +1646,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:10:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:56:33] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1662,7 +1662,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:11:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:57:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1678,7 +1678,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:12:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:58:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1694,7 +1694,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:13:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 14:59:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1710,7 +1710,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:14:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:00:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1726,7 +1726,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:15:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:01:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1742,7 +1742,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:16:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:02:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1758,7 +1758,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:17:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:03:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1774,7 +1774,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:18:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:04:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1790,7 +1790,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:19:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:05:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1806,7 +1806,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:20:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:06:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1822,7 +1822,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:21:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:07:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1838,7 +1838,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:22:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:08:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1854,7 +1854,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:23:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:09:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1870,7 +1870,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:24:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:10:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1886,7 +1886,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:25:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:11:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1902,7 +1902,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:26:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:12:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1918,7 +1918,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:27:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:13:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1934,7 +1934,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:28:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:14:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1950,7 +1950,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:29:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:15:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1966,7 +1966,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:30:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:16:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1982,7 +1982,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:31:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:17:25] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -1998,7 +1998,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:32:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:36:42] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2014,7 +2014,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:33:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:37:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2030,7 +2030,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:34:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:38:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2046,7 +2046,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:35:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:39:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2062,7 +2062,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:36:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:40:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2078,7 +2078,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:37:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:41:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2094,7 +2094,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:38:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:42:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2110,7 +2110,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:39:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:43:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2126,7 +2126,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:40:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:44:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2142,503 +2142,39 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 13:41:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:42:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:43:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:44:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:45:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:46:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:47:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:48:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:49:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:50:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:51:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:52:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:53:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:54:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:55:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:56:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:57:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:58:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 13:59:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 14:00:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 14:01:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 14:02:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 14:03:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 14:04:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 14:05:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 14:06:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 14:07:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 14:08:05] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
-"} 
-[2023-08-28 14:09:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
+[2024-02-07 15:45:41] local.ERROR: Class App\Utils\TransactionUtil does not exist {"exception":"[object] (ReflectionException(code: 0): Class App\\Utils\\TransactionUtil does not exist at C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php:853, ParseError(code: 0): syntax error, unexpected '}' at C:\\laragon\\www\\skechers\\app\\Utils\\TransactionUtil.php:265)
 [stacktrace]
-#0 {main}
-"} 
-[2023-08-28 14:10:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
-[stacktrace]
-#0 {main}
+#0 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(853): ReflectionParameter->getClass()
+#1 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(816): Illuminate\\Container\\Container->resolveDependencies(Array)
+#2 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(667): Illuminate\\Container\\Container->build('App\\\\Console\\\\Com...')
+#3 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(615): Illuminate\\Container\\Container->resolve('App\\\\Console\\\\Com...', Array)
+#4 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(767): Illuminate\\Container\\Container->make('App\\\\Console\\\\Com...', Array)
+#5 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Application.php(258): Illuminate\\Foundation\\Application->make('App\\\\Console\\\\Com...')
+#6 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(244): Illuminate\\Console\\Application->resolve('App\\\\Console\\\\Com...')
+#7 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Application.php(149): Illuminate\\Foundation\\Console\\Kernel->Illuminate\\Foundation\\Console\\{closure}(Object(Illuminate\\Console\\Application))
+#8 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Application.php(72): Illuminate\\Console\\Application->bootstrap()
+#9 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(342): Illuminate\\Console\\Application->__construct(Object(Illuminate\\Foundation\\Application), Object(Illuminate\\Events\\Dispatcher), '5.8.38')
+#10 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(133): Illuminate\\Foundation\\Console\\Kernel->getArtisan()
+#11 Command line code(1): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#12 {main}
 "} 
-[2023-08-28 14:11:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
-#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
-Stack trace:
-#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
-#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
-#2 Command line code(1): array_map(Object(Closure), Array, Array)
-#3 {main}
-  thrown at Command line code:1)
+[2024-02-07 15:45:41] local.ERROR: Class App\Utils\TransactionUtil does not exist {"exception":"[object] (ReflectionException(code: 0): Class App\\Utils\\TransactionUtil does not exist at C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php:853, ParseError(code: 0): syntax error, unexpected '}' at C:\\laragon\\www\\skechers\\app\\Utils\\TransactionUtil.php:265)
 [stacktrace]
-#0 {main}
+#0 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(853): ReflectionParameter->getClass()
+#1 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(816): Illuminate\\Container\\Container->resolveDependencies(Array)
+#2 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(667): Illuminate\\Container\\Container->build('App\\\\Console\\\\Com...')
+#3 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(615): Illuminate\\Container\\Container->resolve('App\\\\Console\\\\Com...', Array)
+#4 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(767): Illuminate\\Container\\Container->make('App\\\\Console\\\\Com...', Array)
+#5 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Application.php(258): Illuminate\\Foundation\\Application->make('App\\\\Console\\\\Com...')
+#6 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(244): Illuminate\\Console\\Application->resolve('App\\\\Console\\\\Com...')
+#7 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Application.php(149): Illuminate\\Foundation\\Console\\Kernel->Illuminate\\Foundation\\Console\\{closure}(Object(Illuminate\\Console\\Application))
+#8 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Application.php(72): Illuminate\\Console\\Application->bootstrap()
+#9 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(342): Illuminate\\Console\\Application->__construct(Object(Illuminate\\Foundation\\Application), Object(Illuminate\\Events\\Dispatcher), '5.8.38')
+#10 C:\\laragon\\www\\skechers\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(133): Illuminate\\Foundation\\Console\\Kernel->getArtisan()
+#11 Command line code(1): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#12 {main}
 "} 
-[2023-08-28 14:12:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:45:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2654,7 +2190,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:13:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:46:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2670,7 +2206,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:14:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:47:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2686,7 +2222,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:15:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:48:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2702,7 +2238,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:16:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:49:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2718,7 +2254,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:17:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:50:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2734,7 +2270,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:18:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:51:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2750,7 +2286,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:19:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:52:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2766,7 +2302,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:20:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:53:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2782,7 +2318,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:21:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:54:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2798,7 +2334,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:22:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:55:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2814,7 +2350,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:23:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:56:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2830,7 +2366,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:24:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:57:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2846,7 +2382,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:25:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:58:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2862,7 +2398,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:26:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 15:59:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2878,7 +2414,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:27:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:00:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2894,7 +2430,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:28:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:01:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2910,7 +2446,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:29:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:02:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2926,7 +2462,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:30:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:03:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2942,7 +2478,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:31:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:04:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2958,7 +2494,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:32:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:05:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2974,7 +2510,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:33:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:06:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -2990,7 +2526,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:34:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:07:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3006,7 +2542,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:35:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:08:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3022,7 +2558,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:36:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:09:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3038,7 +2574,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:37:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:10:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3054,7 +2590,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:38:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:11:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3070,7 +2606,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:39:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:12:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3086,7 +2622,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:40:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:13:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3102,7 +2638,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:41:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:14:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3118,7 +2654,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:42:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 16:15:41] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3134,7 +2670,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:43:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:21:49] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3150,7 +2686,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:44:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:22:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3166,7 +2702,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:45:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:23:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3182,7 +2718,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:46:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:24:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3198,7 +2734,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:47:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:25:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3214,7 +2750,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:48:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:26:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3230,7 +2766,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:49:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:27:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3246,7 +2782,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:50:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:28:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3262,7 +2798,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:51:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:29:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3278,7 +2814,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:52:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:30:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3294,7 +2830,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:53:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:31:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3310,7 +2846,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:54:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:32:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3326,7 +2862,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:55:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:33:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3342,7 +2878,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:56:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:34:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3358,7 +2894,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:57:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:35:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3374,7 +2910,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:58:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:36:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3390,7 +2926,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 14:59:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:37:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3406,7 +2942,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:00:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:38:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3422,7 +2958,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:01:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:39:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3438,7 +2974,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:02:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:40:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3454,7 +2990,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:03:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:41:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3470,7 +3006,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:04:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:42:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3486,7 +3022,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:05:24] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:43:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3502,7 +3038,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:06:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:44:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3518,7 +3054,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:07:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:45:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3534,7 +3070,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:08:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:46:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3550,7 +3086,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:09:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:47:47] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3566,7 +3102,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:10:06] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:49:14] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3582,7 +3118,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:45:43] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:50:14] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3598,7 +3134,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:46:37] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:51:14] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
@@ -3614,7 +3150,7 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
-[2023-08-28 15:47:37] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+[2024-02-07 19:52:14] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
 Stack trace:
 #0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
 #1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')

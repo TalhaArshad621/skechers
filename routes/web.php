@@ -291,8 +291,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::resource('discount', 'DiscountController');
 
     // Ecommerce 
-    Route::get('/ecommerce','EcommerceController@index');
-    Route::get('/fetch-ecommerce-api','EcommerceController@store');
+    Route::resource('/ecommerce','EcommerceController')->except(['store']);
+    Route::get('/shopify-ecommerce-api','EcommerceController@store');
 
     Route::group(['prefix' => 'account'], function () {
         Route::resource('/account', 'AccountController');
