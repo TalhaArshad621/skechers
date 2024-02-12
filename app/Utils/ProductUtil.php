@@ -1292,7 +1292,7 @@ class ProductUtil extends Util
                 $purchase_line = new PurchaseLine();
                 $purchase_line->product_id = $data['product_id'];
                 $purchase_line->variation_id = $data['variation_id'];
-            // dd("done",$transaction->status);
+                // dd("done",$transaction->status);
                 //Increase quantity only if status is received
                 if ($transaction->status == 'received') {
                     $this->updateProductQuantity($transaction->location_id, $data['product_id'], $data['variation_id'], $new_quantity_f, 0, $currency_details);
@@ -1321,12 +1321,12 @@ class ProductUtil extends Util
             //Edit product price
             if ($enable_product_editing == 1) {
                 if (isset($data['default_sell_price'])) {
-                    $variation_data['sell_price_inc_tax'] = ($this->num_uf($data['default_sell_price'], $currency_details)) / $multiplier;
+                    $variation_data['sell_price_inc_tax'] = ($this->num_uf($data['sell_price_inc_tax'], $currency_details)) / $multiplier;
                 }
                 $variation_data['pp_without_discount'] = ($this->num_uf($data['pp_without_discount'], $currency_details)*$exchange_rate) / $multiplier;
                 $variation_data['variation_id'] = $purchase_line->variation_id;
                 $variation_data['purchase_price'] = $purchase_line->purchase_price;
-             
+                // dd($updated_purchase_lines , $variation_data, $data);
                 $this->updateProductFromPurchase($variation_data);
                 // dd("done");
             }

@@ -219,8 +219,57 @@ class SellReturnController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function newSellReturn()
+    {
+        if (!auth()->user()->can('access_sell_return')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = request()->session()->get('user.business_id');
+        //Check if subscribed or not
+        if (!$this->moduleUtil->isSubscribed($business_id)) {
+            return $this->moduleUtil->expiredResponse();
+        }
+        $sell = Transaction::where('business_id', $business_id)
+                            ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit']);
+                            // ->find($id);
+        // dd($sell);
+        return view('sell_return.new_sell_return',compact('sell'));
+    }
+
+    public function extractData(Request $request) {
+        $invoiceNumber = $request->input('invoice_number');
+        $transaction = Transaction::where('invoice_no', $invoiceNumber)->first();
+    
+        // Check if a matching transaction is found
+        if ($transaction) {
+            $transactionId = $transaction->id;
+            $business_id = request()->session()->get('user.business_id');
+    
+            $sell = Transaction::where('business_id', $business_id)
+                ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
+                ->find($transactionId);
+
+
+            foreach ($sell->sell_lines as $key => $value) {
+                if (!empty($value->sub_unit_id)) {
+                    $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
+                    $sell->sell_lines[$key] = $formated_sell_line;
+                }
+    
+                $sell->sell_lines[$key]->formatted_qty = $this->transactionUtil->num_f($value->quantity, false, null, true);
+            }
+
+            return response()->json(['success' => true, 'sell' => $sell]);
+        }
+    
+        return response()->json(['success' => false, 'message' => 'Transaction not found']);
+    }
+    
+
     public function add($id)
     {
+        // dd($id);
         if (!auth()->user()->can('access_sell_return')) {
             abort(403, 'Unauthorized action.');
         }
@@ -234,6 +283,7 @@ class SellReturnController extends Controller
         $sell = Transaction::where('business_id', $business_id)
                             ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
                             ->find($id);
+                            // dd($sell);
 
         foreach ($sell->sell_lines as $key => $value) {
             if (!empty($value->sub_unit_id)) {
@@ -256,6 +306,7 @@ class SellReturnController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request);
         if (!auth()->user()->can('access_sell_return')) {
             abort(403, 'Unauthorized action.');
         }
@@ -265,7 +316,6 @@ class SellReturnController extends Controller
 
             if (!empty($input['products'])) {
                 $business_id = $request->session()->get('user.business_id');
-
                 //Check if subscribed or not
                 if (!$this->moduleUtil->isSubscribed($business_id)) {
                     return $this->moduleUtil->expiredResponse(action('SellReturnController@index'));
@@ -276,7 +326,6 @@ class SellReturnController extends Controller
                 DB::beginTransaction();
 
                 $sell_return =  $this->transactionUtil->addSellReturn($input, $business_id, $user_id);
-
                 $receipt = $this->receiptContent($business_id, $sell_return->location_id, $sell_return->id);
                 
                 DB::commit();

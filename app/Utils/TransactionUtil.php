@@ -5565,13 +5565,14 @@ class TransactionUtil extends Util
         $sell = Transaction::where('business_id', $business_id)
                         ->with(['sell_lines', 'sell_lines.sub_unit','contact'])
                         ->findOrFail($input['transaction_id']);
+        // dd($sell);
 
         //Check if any sell return exists for the sale
         $sell_return = Transaction::where('business_id', $business_id)
                 ->where('type', 'sell_return')
                 ->where('return_parent_id', $sell->id)
                 ->first();
-
+        // dd($sell_return);
         $sell_return_data = [
             'invoice_no' => $input['invoice_no'] ?? null,
             'discount_type' => $discount['discount_type'],
@@ -5581,16 +5582,20 @@ class TransactionUtil extends Util
             'total_before_tax' => $invoice_total['total_before_tax'],
             'final_total' => $invoice_total['final_total']
         ];
+        // dd($sell_return_data, $input);
         if (!empty($input['transaction_date'])) {
             $sell_return_data['transaction_date'] = $uf_number ? $this->uf_date($input['transaction_date'], true) : $input['transaction_date'];
+            // dd("in");
         }
         
         //Generate reference number
         if (empty($sell_return_data['invoice_no']) && empty($sell_return)) {
             //Update reference count
             $ref_count = $this->setAndGetReferenceCount('sell_return', $business_id);
+            dd($ref_count);
             $sell_return_data['invoice_no'] = $this->generateReferenceNumber('sell_return', $ref_count, $business_id);
         }
+        // dd("here");
 
 
         if (empty($sell_return)) {
@@ -5603,6 +5608,7 @@ class TransactionUtil extends Util
             $sell_return_data['status'] = 'final';
             $sell_return_data['created_by'] = $user_id;
             $sell_return_data['return_parent_id'] = $sell->id;
+            dd("trans");
             $sell_return = Transaction::create($sell_return_data);
 
             $this->activityLog($sell_return, 'added');
@@ -5645,6 +5651,7 @@ class TransactionUtil extends Util
         $line_discount_amount = 0;
 
         foreach ($sell->sell_lines as $sell_line) {
+            // dd("inside");
             if (array_key_exists($sell_line->id, $returns)) {
                 $multiplier = 1;
                 if (!empty($sell_line->sub_unit)) {
@@ -5688,6 +5695,7 @@ class TransactionUtil extends Util
                 $productUtil->updateProductQuantity($sell_return->location_id, $sell_line->product_id, $sell_line->variation_id, $quantity, $quantity_before, null, false);
             }
         }
+        // dd($fbr_lines);
 
         $pos_id = 943050;
         $token  = array(

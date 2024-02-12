@@ -212,9 +212,34 @@ class ImportPurchaseController extends Controller
 
                     $products = DB::table('products')
                     ->leftJoin('variations','products.id', '=', 'variations.product_id')
-                    ->select('products.id AS product_id','products.name AS product_sku', 'products.unit_id AS product_unit_id','products.sub_unit_ids AS sub_unit_id','variations.product_variation_id AS variation_id','variations.default_purchase_price AS pp_without_discount','variations.profit_percent AS profit_percent','variations.default_sell_price')
-                    ->where('products.name', $product_sku)
-                    ->first();    
+                    ->select('products.id AS product_id','products.name AS product_sku', 'products.unit_id AS product_unit_id','products.sub_unit_ids AS sub_unit_id','variations.product_variation_id AS variation_id','variations.default_purchase_price AS pp_without_discount','variations.profit_percent AS profit_percent','variations.default_sell_price','variations.dpp_inc_tax AS dpp_inc_tax','products.tax AS tax_id')
+                    ->where('products.sku', $product_sku)
+                    ->first();
+                    // dd($products);
+                    
+                    $tax_percentage = DB::table('tax_rates')
+                    ->where('id', $products->tax_id)
+                    ->select('amount')
+                    ->first();
+
+                    $tax =  ($tax_percentage->amount/100) + 1;
+
+                    $purchase_price_from_excel_inc_tax = trim($value[2]);
+
+                    $purchase_price_without_tax = $purchase_price_from_excel_inc_tax/$tax;
+                    $amount_of_tax = $purchase_price_from_excel_inc_tax - $purchase_price_without_tax;
+
+                    $selling_price_from_excel_inc_tax = trim($value[3]);
+
+                    $selling_price_without_tax = $selling_price_from_excel_inc_tax/$tax;
+                    /*
+                    profit margin percent formula:
+
+                        [(sell_price - purchase_price)/purchase_price]*100 
+
+                    */
+                    $profit_margin_percent = ($selling_price_from_excel_inc_tax - $purchase_price_from_excel_inc_tax)/$purchase_price_from_excel_inc_tax * 100;
+
                     
                     if (!empty($products)) {
                         $product_array['product_id'] = $products->product_id;
@@ -227,20 +252,21 @@ class ImportPurchaseController extends Controller
                         $product_array['variation_id'] = $products->variation_id;
                         $product_array['product_unit_id'] = $products->product_unit_id;
                         $product_array['sub_unit_id'] = $products->product_unit_id;
-                        $product_array['pp_without_discount'] = $products->pp_without_discount;
+                        $product_array['pp_without_discount'] = $purchase_price_without_tax;
                         $product_array['discount_percent'] = 0;
-                        $product_array['purchase_price'] = $products->pp_without_discount;
-                        $product_array['purchase_line_tax_id'] = null;
-                        $product_array['item_tax'] = 0;
-                        $product_array['purchase_price_inc_tax'] = ($products->pp_without_discount) + 0;
-                        $product_array['profit_percent'] = $products->profit_percent;
-                        $product_array['default_sell_price'] = $products->default_sell_price;
+                        $product_array['purchase_price'] = $purchase_price_without_tax;
+                        $product_array['purchase_line_tax_id'] = $products->tax_id;
+                        $product_array['item_tax'] = $amount_of_tax;
+                        $product_array['purchase_price_inc_tax'] = $purchase_price_from_excel_inc_tax;
+                        $product_array['profit_percent'] = $profit_margin_percent;
+                        $product_array['default_sell_price'] = $selling_price_without_tax;
+                        $product_array['sell_price_inc_tax'] = $selling_price_from_excel_inc_tax;
                         $product_array['rows_count'] = $total_rows;
 
                     } else {
                         $is_valid =  false;
                         $error_msg = "No matching product is found. $row_no";
-                        dd("first");
+                        // dd("first");
                         break;
                     }
                     $purchase_quantity = trim($value[1]);
@@ -253,8 +279,8 @@ class ImportPurchaseController extends Controller
                         break;
                     }
                     $all_product_data[] = $product_array;
+                    // dd($all_product_data);
                     
-                    $purchase_quantity = trim($value[1]);
                     $unit_cost = trim($value[2]);
                     $unit_selling_price = trim($value[3]);
                     $exchange_rate = 1;
@@ -296,7 +322,7 @@ class ImportPurchaseController extends Controller
                             'status' => $status,
                             'payment_status' => $payment_status,
                             'transaction_date' => $transaction_date,
-                            'total_before_tax' => $total_before_tax_sum,
+                            'total_before_tax' => $final_total_sum,
                             'tax_amount' => $tax_amount,
                             'discount_type' => $discount_type,
                             'final_total' => $final_total_sum,
@@ -307,7 +333,7 @@ class ImportPurchaseController extends Controller
                         // Fetch the updated record
                         $transaction = Transaction::find($transaction_id);  
                     }
-                    // dd($transaction);
+                    // dd($transaction, $all_product_data);
                     $this->productUtil->createOrUpdatePurchaseLinesForImport($transaction, $all_product_data, $currency_details, $enable_product_editing, $total_rows);
 // dd("hehe");
                     // //Adjust stock over selling if found

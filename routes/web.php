@@ -267,6 +267,9 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('sell-return/get-product-row', 'SellReturnController@getProductRow');
     Route::get('/sell-return/print/{id}', 'SellReturnController@printInvoice');
     Route::get('/sell-return/add/{id}', 'SellReturnController@add');
+    Route::get('/new-sell-return/add', 'SellReturnController@newSellReturn');
+    Route::post('/get-sell-return-data', 'SellReturnController@extractData');
+
     
     //Backup
     Route::get('backup/download/{file_name}', 'BackUpController@download');
