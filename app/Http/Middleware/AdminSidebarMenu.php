@@ -290,6 +290,13 @@ class AdminSidebarMenu
                         //         ['icon' => 'fa fas fa-pen-square', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == 'quotations']
                         //     );
                         // }
+                        if (auth()->user()->can('access_sell_return')) {
+                            $sub->url(
+                                action('SellReturnController@newSellReturn'),
+                                __('Add  Sell Return'),
+                                ['icon' => 'fa fas fa-undo', 'active' => request()->segment(1) == 'sell-return-new' && request()->segment(2) == null]
+                            );
+                        }
 
                         if (auth()->user()->can('access_sell_return')) {
                             $sub->url(
