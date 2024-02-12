@@ -336,28 +336,34 @@ class Util
     public function generateReferenceNumber($type, $ref_count, $business_id = null, $default_prefix = null)
     {
         $prefix = '';
-
+        
         if (session()->has('business') && !empty(request()->session()->get('business.ref_no_prefixes')[$type])) {
             $prefix = request()->session()->get('business.ref_no_prefixes')[$type];
+            // dd("hit",$type,$ref_count,$business_id,$default_prefix,$prefix);
         }
         if (!empty($business_id)) {
             $business = Business::find($business_id);
             $prefixes = $business->ref_no_prefixes;
             $prefix = !empty($prefixes[$type]) ? $prefixes[$type] : '';
         }
+        // dd("outside");
 
         if (!empty($default_prefix)) {
             $prefix = $default_prefix;
         }
 
         $ref_digits =  str_pad($ref_count, 4, 0, STR_PAD_LEFT);
+        // dd("hit",$type,$ref_count,$business_id,$default_prefix,$prefix,$ref_digits);
 
         if (!in_array($type, ['contacts', 'business_location', 'username'])) {
+            // dd("if");
             $ref_year = \Carbon::now()->year;
             $ref_number = $prefix . $ref_year . '/' . $ref_digits;
         } else {
+            // dd("else");
             $ref_number = $prefix . $ref_digits;
         }
+        // dd("return");
 
         return $ref_number;
     }

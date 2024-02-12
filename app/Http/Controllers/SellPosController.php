@@ -285,6 +285,7 @@ class SellPosController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request);
         if (!auth()->user()->can('sell.create') && !auth()->user()->can('direct_sell.access')) {
             abort(403, 'Unauthorized action.');
         }
@@ -430,8 +431,8 @@ class SellPosController extends Controller
                 //Upload Shipping documents
                 Media::uploadMedia($business_id, $transaction, $request, 'shipping_documents', false, 'shipping_document');
                 
-
-                $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id']);
+                // Getting FBR LINES DATA FROM SELL LINES FUCNCTION
+                $fbr_lines =   $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id']);
                 
                 if (!$is_direct_sale) {
                     //Add change return
@@ -476,6 +477,10 @@ class SellPosController extends Controller
                         }
                     }
 
+                    // dd($item_array,$input);
+
+                    // dd($input);
+
                     //Add payments to Cash Register
                     if (!$is_direct_sale && !$transaction->is_suspend && !empty($input['payment']) && !$is_credit_sale) {
                         $this->cashRegisterUtil->addSellPayments($transaction, $input['payment']);
@@ -513,6 +518,15 @@ class SellPosController extends Controller
                     $this->moduleUtil->getModuleData('after_sale_saved', ['transaction' => $transaction, 'input' => $input]);
                 }
 
+                //TOKEN AND POS ID FOR SANDBOX TESTING
+                $pos_id = 943050;
+                $token  = array(
+                    'Authorization: Bearer 1298b5eb-b252-3d97-8622-a4a69d5bf818',
+                    'Content-Type: application/json'
+                );
+
+                $this->transactionUtil->SendFbrData($transaction, $pos_id, $token, $fbr_lines);
+                
                 Media::uploadMedia($business_id, $transaction, $request, 'documents');
 
                 $this->transactionUtil->activityLog($transaction, 'added');
@@ -558,6 +572,8 @@ class SellPosController extends Controller
                 if (!empty($whatsapp_link)) {
                     $output['whatsapp_link'] = $whatsapp_link;
                 }
+
+
             } else {
                 $output = ['success' => 0,
                             'msg' => trans("messages.something_went_wrong")
@@ -653,12 +669,13 @@ class SellPosController extends Controller
 
         $invoice_layout_id = !empty($invoice_layout_id) ? $invoice_layout_id : $location_details->invoice_layout_id;
         $invoice_layout = $this->businessUtil->invoiceLayout($business_id, $location_id, $invoice_layout_id);
+        // dd($invoice_layout);
 
         //Check if printer setting is provided.
         $receipt_printer_type = is_null($printer_type) ? $location_details->receipt_printer_type : $printer_type;
 
         $receipt_details = $this->transactionUtil->getReceiptDetails($transaction_id, $location_id, $invoice_layout, $business_details, $location_details, $receipt_printer_type);
-
+// dd($receipt_details);
         $currency_details = [
             'symbol' => $business_details->currency_symbol,
             'thousand_separator' => $business_details->thousand_separator,

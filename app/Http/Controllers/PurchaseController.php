@@ -281,6 +281,7 @@ class PurchaseController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request);
         if (!auth()->user()->can('purchase.create')) {
             abort(403, 'Unauthorized action.');
         }
@@ -368,6 +369,7 @@ class PurchaseController extends Controller
             $this->transactionUtil->updatePaymentStatus($transaction->id, $transaction->final_total);
 
             //Adjust stock over selling if found
+            // dd($transaction, "controller");
             $this->productUtil->adjustStockOverSelling($transaction);
 
             $this->transactionUtil->activityLog($transaction, 'added');

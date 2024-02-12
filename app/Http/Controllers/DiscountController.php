@@ -129,6 +129,7 @@ class DiscountController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request);
         if (!auth()->user()->can('discount.access')) {
             abort(403, 'Unauthorized action.');
         }

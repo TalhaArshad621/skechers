@@ -133,6 +133,29 @@ $(document).ready(function() {
         }
     });
 
+    $('form#stock_transfer_form').validate({
+        rules: {
+            transfer_location_id: {
+                notEqual: function() {
+                    return $('select#location_id').val();
+                },
+            },
+        },
+    });
+    $('#save_stock_transfer').click(function(e) {
+        e.preventDefault();
+
+        if ($('table#stock_adjustment_product_table tbody').find('.product_row').length <= 0) {
+            toastr.warning(LANG.no_products_added);
+            return false;
+        }
+        if ($('form#stock_transfer_form').valid()) {
+            $('form#stock_transfer_form').submit();
+        } else {
+            return false;
+        }
+    });
+
     stock_transfer_table = $('#stock_transfer_table').DataTable({
         processing: true,
         serverSide: true,
