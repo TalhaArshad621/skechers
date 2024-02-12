@@ -68,5 +68,6 @@ return [
     'edit_sale' => 'Edit Sale',
     'shipping' => 'Shipping',
     'shipping_details' => 'Shipping Details',
-    'shipping_charges' => 'Shipping Charges'
+    'shipping_charges' => 'Shipping Charges',
+    'ecommerce_sale' => 'Ecommerce Sale Added',
 ];
