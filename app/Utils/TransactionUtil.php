@@ -253,7 +253,7 @@ class TransactionUtil extends Util
                     'res_line_order_status' => null,
                 ];
                 
-                $lines_formatted[] = new TransactionSellLine($line);
+              
 
             } else {
                 // $error_msg = "Product Doesn't Exist.";
@@ -263,21 +263,23 @@ class TransactionUtil extends Util
                 return $exist;
             }
             $business_location = BusinessLocation::select('id','location_id')->where('business_id', $business_id)->get();
-    
             
-            foreach($business_location as $location) {
-                $available_quantity = DB::table('variation_location_details')->where('product_id', $product_id->product_id)->where('location_id', $location->id)->sum('qty_available');
+            $stores_location = VariationLocationDetails::where('product_id', $product_id->product_id)->orderByDesc('qty_available')->get();
+
+            foreach($stores_location as $location) {
+                // dd($location);
+                     $available_quantity = $location->qty_available;
 
                 if($available_quantity > 0 ) {
                     // Order can be paritally fulfilled from this location
                     $quantity_to_pick = min($available_quantity, $total_quantity);
                     $ecommerce_product_location[] = [
-                        'location_id' => $location->id,
+                        'location_id' => $location->location_id,
                         'quantity' => $quantity_to_pick
                     ];
 
                     // Update Inventory based on the loaction_id
-                    VariationLocationDetails::where('product_id', $product_id->product_id)->where('location_id', $location->id)->decrement('qty_available', $quantity_to_pick);
+                    VariationLocationDetails::where('product_id', $product_id->product_id)->where('location_id', $location->location_id)->decrement('qty_available', $quantity_to_pick);
                     
                     // Reduce remaining order quantity
                     $total_quantity -= $quantity_to_pick;
@@ -288,6 +290,29 @@ class TransactionUtil extends Util
                     }
                 }
             }
+            // foreach($business_location as $location) {
+            //     $available_quantity = DB::table('variation_location_details')->where('product_id', $product_id->product_id)->where('location_id', $location->id)->sum('qty_available');
+
+            //     if($available_quantity > 0 ) {
+            //         // Order can be paritally fulfilled from this location
+            //         $quantity_to_pick = min($available_quantity, $total_quantity);
+            //         $ecommerce_product_location[] = [
+            //             'location_id' => $location->id,
+            //             'quantity' => $quantity_to_pick
+            //         ];
+
+            //         // Update Inventory based on the loaction_id
+            //         VariationLocationDetails::where('product_id', $product_id->product_id)->where('location_id', $location->id)->decrement('qty_available', $quantity_to_pick);
+                    
+            //         // Reduce remaining order quantity
+            //         $total_quantity -= $quantity_to_pick;
+
+            //         // Exit the loop if order quantity is lesser than 0
+            //         if($total_quantity <= 0) {
+            //             break;
+            //         }
+            //     }
+            // }
 
             if($total_quantity > 0) {
                 $error_msg = "Product Quantity Doesn't Exist.";
@@ -302,12 +327,14 @@ class TransactionUtil extends Util
                         'quantity' => $ecommerce_location['quantity'],
                     ]);
 
+                    // $line['ecommerce_location_id'] =  $ecommerce_location['location_id'];
                     
                     Transaction::where('id', $transaction->id)->update([
                         'ecommerce_location' => $ecommerce_store_location->id
                     ]);
                 }
             }
+            $lines_formatted[] = new TransactionSellLine($line);
         }
 
         if (!is_object($transaction)) {
@@ -3007,7 +3034,7 @@ class TransactionUtil extends Util
         }
 
         $qty_selling = null;
-        // dd($transaction_lines);
+        dd($transaction_lines);
         foreach ($transaction_lines as $line) {
             //Check if stock is not enabled then no need to assign purchase & sell
             $product = Product::find($line->product_id);
@@ -3018,7 +3045,7 @@ class TransactionUtil extends Util
             // dd("continue");
 
             $qty_sum_query = $this->get_pl_quantity_sum_string('PL');
-            // dd($qty_sum_query);
+            
             
             //Get purchase lines, only for products with enable stock.
             $query = Transaction::join('purchase_lines AS PL', 'transactions.id', '=', 'PL.transaction_id')
@@ -3136,7 +3163,6 @@ class TransactionUtil extends Util
                     break;
                 }
             }
-
             if (! ($qty_selling == 0 || is_null($qty_selling))) {
                 //If overselling not allowed through exception else create mapping with blank purchase_line_id
                 if (!$allow_overselling) {
