@@ -574,32 +574,32 @@ class Util
         $sub_units = [];
 
         //Add main unit as per given parameter or conditions.
-        if (($return_main_unit_if_empty && count($unit->sub_units) == 0)) {
-            $sub_units[$unit->id] = [
-                      'name' => $unit->actual_name,
-                      'multiplier' => 1,
-                      'allow_decimal' => $unit->allow_decimal
-                    ];
-        } elseif (empty($related_sub_units) || in_array($unit->id, $related_sub_units)) {
-            $sub_units[$unit->id] = [
-                      'name' => $unit->actual_name,
-                      'multiplier' => 1,
-                      'allow_decimal' => $unit->allow_decimal
-                    ];
-        }
+        // if (($return_main_unit_if_empty && count($unit->sub_units) == 0)) {
+        //     $sub_units[$unit->id] = [
+        //               'name' => $unit->actual_name,
+        //               'multiplier' => 1,
+        //               'allow_decimal' => $unit->allow_decimal
+        //             ];
+        // } elseif (empty($related_sub_units) || in_array($unit->id, $related_sub_units)) {
+        //     $sub_units[$unit->id] = [
+        //               'name' => $unit->actual_name,
+        //               'multiplier' => 1,
+        //               'allow_decimal' => $unit->allow_decimal
+        //             ];
+        // }
 
-        if (count($unit->sub_units) > 0) {
-            foreach ($unit->sub_units as $sub_unit) {
-                //Check if subunit is related to the product or not.
-                if (empty($related_sub_units) || in_array($sub_unit->id, $related_sub_units)) {
-                    $sub_units[$sub_unit->id] = [
-                        'name' => $sub_unit->actual_name,
-                        'multiplier' => $sub_unit->base_unit_multiplier,
-                        'allow_decimal' => $sub_unit->allow_decimal
-                        ];
-                }
-            }
-        }
+        // if (count($unit->sub_units) > 0) {
+        //     foreach ($unit->sub_units as $sub_unit) {
+        //         //Check if subunit is related to the product or not.
+        //         if (empty($related_sub_units) || in_array($sub_unit->id, $related_sub_units)) {
+        //             $sub_units[$sub_unit->id] = [
+        //                 'name' => $sub_unit->actual_name,
+        //                 'multiplier' => $sub_unit->base_unit_multiplier,
+        //                 'allow_decimal' => $sub_unit->allow_decimal
+        //                 ];
+        //         }
+        //     }
+        // }
 
         return $sub_units;
     }

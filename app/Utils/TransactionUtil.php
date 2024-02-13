@@ -350,7 +350,6 @@ class TransactionUtil extends Util
                     $modifiers_array[] = $sell_line_modifiers;
                 }
 
-                // dd($transaction);
                 if($transaction->type == 'sell' || $transaction->type == 'sell_return'){
 
                     $variation_data = DB::table('variations')->select("sub_sku")->where('product_id', $product['product_id'])->first();
@@ -772,8 +771,6 @@ class TransactionUtil extends Util
             $transaction = Transaction::findOrFail($transaction);
         }
 
-        // dd($transaction);
-        // dd($payments);
         //If status is draft don't add payment
         if ($transaction->status == 'draft') {
             return true;
@@ -789,16 +786,13 @@ class TransactionUtil extends Util
             if (!empty($payment['payment_id'])) {
                 $edit_ids[] = $payment['payment_id'];
                 $this->editPaymentLine($payment, $transaction, $uf_data);
-                dd("upper if");
             } else {
-                // dd("upper else");
                 $payment_amount = $uf_data ? $this->num_uf($payment['amount']) : $payment['amount'];
                 if ($payment['method'] == 'advance' && $payment_amount > $contact_balance) {
                     throw new AdvanceBalanceNotAvailable(__('lang_v1.required_advance_balance_not_available'));
                 }
                 //If amount is 0 then skip.
                 if ($payment_amount != 0) {
-                    // dd($payment_amount);
                     $prefix_type = 'sell_payment';
                     if ($transaction->type == 'purchase') {
                         $prefix_type = 'purchase_payment';
@@ -817,7 +811,6 @@ class TransactionUtil extends Util
                     } else {
                         $paid_on = \Carbon::now()->toDateTimeString();
                     }
-                    // dd("before payment data");
                     
                     $payment_data = [
                         'amount' => $payment_amount,
@@ -839,7 +832,6 @@ class TransactionUtil extends Util
                         'payment_ref_no' => $payment_ref_no,
                         'account_id' => !empty($payment['account_id']) && $payment['method'] != 'advance' ? $payment['account_id'] : null
                     ];
-                    // dd($payment_data, "payment data");
 
                     for ($i=1; $i<8; $i++) { 
                         if ($payment['method'] == 'custom_pay_' . $i) {
@@ -856,11 +848,9 @@ class TransactionUtil extends Util
                     $account_transactions[$c] = $payment_data;
 
                     $c++;
-                    // dd("if");
                 }
             }
         }
-        // dd("outside foreach");
 
         //Delete the payment lines removed.
         if (!empty($edit_ids)) {
@@ -883,7 +873,6 @@ class TransactionUtil extends Util
                 }
             }
         }
-        // dd("return");
 
         return true;
     }
@@ -2740,18 +2729,14 @@ class TransactionUtil extends Util
         }
 
         $qty_selling = null;
-        // dd($transaction_lines);
         foreach ($transaction_lines as $line) {
             //Check if stock is not enabled then no need to assign purchase & sell
             $product = Product::find($line->product_id);
-            // dd($product);
             if ($product->enable_stock != 1) {
                 continue;
             }
-            // dd("continue");
 
             $qty_sum_query = $this->get_pl_quantity_sum_string('PL');
-            // dd($qty_sum_query);
             
             //Get purchase lines, only for products with enable stock.
             $query = Transaction::join('purchase_lines AS PL', 'transactions.id', '=', 'PL.transaction_id')
@@ -2763,7 +2748,6 @@ class TransactionUtil extends Util
                 ->whereRaw("( $qty_sum_query ) < PL.quantity")
                 ->where('PL.product_id', $line->product_id)
                 ->where('PL.variation_id', $line->variation_id);
-            // dd($query);
 
             //If product expiry is enabled then check for on expiry conditions
             if ($stop_selling_expired && empty($purchase_line_id)) {
@@ -2798,19 +2782,16 @@ class TransactionUtil extends Util
                 'PL.mfg_quantity_used as mfg_quantity_used',
                 'transactions.invoice_no'
                     )->get();
-                    // dd($rows);
 
             $purchase_sell_map = [];
 
             //Iterate over the rows, assign the purchase line to sell lines.
             $qty_selling = $line->quantity;
-            // dd($qty_selling);
             foreach ($rows as $k => $row) {
                 $qty_allocated = 0;
 
                 //Check if qty_available is more or equal
                 if ($qty_selling <= $row->quantity_available) {
-                    // dd("true");
                     $qty_allocated = $qty_selling;
                     $qty_selling = 0;
                 } else {
@@ -2859,7 +2840,6 @@ class TransactionUtil extends Util
                             ];
 
                         //Update purchase line
-                        // dd($row->purchase_lines_id);
                         PurchaseLine::where('id', $row->purchase_lines_id)
                             ->update(['mfg_quantity_used' => $row->mfg_quantity_used + $qty_allocated]);
                     }
@@ -5207,14 +5187,12 @@ class TransactionUtil extends Util
         $sell = Transaction::where('business_id', $business_id)
                         ->with(['sell_lines', 'sell_lines.sub_unit','contact'])
                         ->findOrFail($input['transaction_id']);
-        // dd($sell);
 
         //Check if any sell return exists for the sale
         $sell_return = Transaction::where('business_id', $business_id)
                 ->where('type', 'sell_return')
                 ->where('return_parent_id', $sell->id)
                 ->first();
-        // dd($sell_return);
         $sell_return_data = [
             'invoice_no' => $input['invoice_no'] ?? null,
             'discount_type' => $discount['discount_type'],
@@ -5224,20 +5202,16 @@ class TransactionUtil extends Util
             'total_before_tax' => $invoice_total['total_before_tax'],
             'final_total' => $invoice_total['final_total']
         ];
-        // dd($sell_return_data, $input);
         if (!empty($input['transaction_date'])) {
             $sell_return_data['transaction_date'] = $uf_number ? $this->uf_date($input['transaction_date'], true) : $input['transaction_date'];
-            // dd("in");
         }
         
         //Generate reference number
         if (empty($sell_return_data['invoice_no']) && empty($sell_return)) {
             //Update reference count
             $ref_count = $this->setAndGetReferenceCount('sell_return', $business_id);
-            dd($ref_count);
             $sell_return_data['invoice_no'] = $this->generateReferenceNumber('sell_return', $ref_count, $business_id);
         }
-        // dd("here");
 
 
         if (empty($sell_return)) {
@@ -5250,7 +5224,6 @@ class TransactionUtil extends Util
             $sell_return_data['status'] = 'final';
             $sell_return_data['created_by'] = $user_id;
             $sell_return_data['return_parent_id'] = $sell->id;
-            dd("trans");
             $sell_return = Transaction::create($sell_return_data);
 
             $this->activityLog($sell_return, 'added');
@@ -5293,7 +5266,6 @@ class TransactionUtil extends Util
         $line_discount_amount = 0;
 
         foreach ($sell->sell_lines as $sell_line) {
-            // dd("inside");
             if (array_key_exists($sell_line->id, $returns)) {
                 $multiplier = 1;
                 if (!empty($sell_line->sub_unit)) {
@@ -5337,7 +5309,6 @@ class TransactionUtil extends Util
                 $productUtil->updateProductQuantity($sell_return->location_id, $sell_line->product_id, $sell_line->variation_id, $quantity, $quantity_before, null, false);
             }
         }
-        // dd($fbr_lines);
 
         $pos_id = 943050;
         $token  = array(
