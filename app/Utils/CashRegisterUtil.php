@@ -25,6 +25,37 @@ class CashRegisterUtil extends Util
         return $count;
     }
 
+        /**
+     * Adds sell payments to currently opened cash register
+     *
+     * @param object/int $transaction
+     * @param array $payments
+     *
+     * @return boolean
+     */
+    public function addSellEcommercePayments($transaction, $shopifyOrder, $user_id)
+    {
+        
+        $register =  CashRegister::where('user_id', $user_id)
+                                ->where('status', 'open')
+                                ->first();
+        $payments_formatted = [];
+            
+        $payments_formatted[] = new CashRegisterTransaction([
+                'amount' => $this->num_uf($shopifyOrder['total_price']),
+                'pay_method' => str_contains($shopifyOrder['payment_gateway_names'][0],  "(COD)") ? "cash" : "card",
+                'type' => 'credit',
+                'transaction_type' => 'sell',
+                'transaction_id' => $transaction->id
+            ]);
+
+        if (!empty($payments_formatted)) {
+            $register->cash_register_transactions()->saveMany($payments_formatted);
+        }
+
+        return true;
+    }
+
     /**
      * Adds sell payments to currently opened cash register
      *
