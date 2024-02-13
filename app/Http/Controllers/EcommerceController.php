@@ -600,7 +600,7 @@ class EcommerceController extends Controller
 
                         $transaction->payment_status = $payment_status;
 
-
+                        // dd($transaction->sell_lines);
                         
                         //Allocate the quantity from purchase and add mapping of
                         //purchase & sell lines in
@@ -625,7 +625,7 @@ class EcommerceController extends Controller
 
             $output = ['success' => 1, 'msg' => $msg];
             
-            DB::commit();
+            // DB::commit();
        
         } catch(Exception $e) {
             DB::rollBack();
