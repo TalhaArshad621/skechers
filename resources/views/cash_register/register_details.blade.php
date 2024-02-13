@@ -26,14 +26,14 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash }}</span>
               </td>
             </tr>
-            <tr>
+            {{-- <tr>
               <td>
                 @lang('cash_register.checque_payment'):
               </td>
               <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cheque }}</span>
               </td>
-            </tr>
+            </tr> --}}
             <tr>
               <td>
                 @lang('cash_register.card_payment'):
@@ -42,22 +42,22 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_card }}</span>
               </td>
             </tr>
-            <tr>
+            {{-- <tr>
               <td>
                 @lang('cash_register.bank_transfer'):
               </td>
               <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_bank_transfer }}</span>
               </td>
-            </tr>
-            <tr>
+            </tr> --}}
+            {{-- <tr>
               <td>
                 @lang('lang_v1.advance_payment'):
               </td>
               <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_advance }}</span>
               </td>
-            </tr>
+            </tr> --}}
             @if(array_key_exists('custom_pay_1', $payment_types))
               <tr>
                 <td>

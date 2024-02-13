@@ -180,11 +180,11 @@ class AdminSidebarMenu
                             );
                         }
 
-                        $sub->url(
-                            action('WarrantyController@index'),
-                            __('lang_v1.warranties'),
-                            ['icon' => 'fa fas fa-shield-alt', 'active' => request()->segment(1) == 'warranties']
-                        );
+                        // $sub->url(
+                        //     action('WarrantyController@index'),
+                        //     __('lang_v1.warranties'),
+                        //     ['icon' => 'fa fas fa-shield-alt', 'active' => request()->segment(1) == 'warranties']
+                        // );
                     },
                     ['icon' => 'fa fas fa-cubes', 'id' => 'tour_step5']
                 )->order(20);
@@ -209,13 +209,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'purchases' && request()->segment(2) == 'create']
                             );
                         }
-                        if (auth()->user()->can('purchase.update')) {
-                            $sub->url(
-                                action('PurchaseReturnController@index'),
-                                __('lang_v1.list_purchase_return'),
-                                ['icon' => 'fa fas fa-undo', 'active' => request()->segment(1) == 'purchase-return']
-                            );
-                        }
+                        // if (auth()->user()->can('purchase.update')) {
+                        //     $sub->url(
+                        //         action('PurchaseReturnController@index'),
+                        //         __('lang_v1.list_purchase_return'),
+                        //         ['icon' => 'fa fas fa-undo', 'active' => request()->segment(1) == 'purchase-return']
+                        //     );
+                        // }
                         if (auth()->user()->can('purchase.create')) {
                             $sub->url(
                                 action('ImportPurchaseController@index'),
@@ -321,13 +321,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-percent', 'active' => request()->segment(1) == 'discount']
                             );
                         }
-                        if (auth()->user()->can('discount.access')) {
-                            $sub->url(
-                                action('DiscountController@index'),
-                                __('lang_v1.discounts'),
-                                ['icon' => 'fa fas fa-percent', 'active' => request()->segment(1) == 'discount']
-                            );
-                        }
+                        // if (auth()->user()->can('discount.access')) {
+                        //     $sub->url(
+                        //         action('DiscountController@index'),
+                        //         __('lang_v1.discounts'),
+                        //         ['icon' => 'fa fas fa-percent', 'active' => request()->segment(1) == 'discount']
+                        //     );
+                        // }
                         if (in_array('subscription', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
                             $sub->url(
                                 action('SellPosController@listSubscriptions'),

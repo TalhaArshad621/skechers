@@ -233,7 +233,7 @@ class SellReturnController extends Controller
         $sell = Transaction::where('business_id', $business_id)
                             ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit']);
                             // ->find($id);
-        // dd($sell);
+
         return view('sell_return.new_sell_return',compact('sell'));
     }
 
@@ -269,7 +269,6 @@ class SellReturnController extends Controller
 
     public function add($id)
     {
-        // dd($id);
         if (!auth()->user()->can('access_sell_return')) {
             abort(403, 'Unauthorized action.');
         }
@@ -283,7 +282,6 @@ class SellReturnController extends Controller
         $sell = Transaction::where('business_id', $business_id)
                             ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
                             ->find($id);
-                            // dd($sell);
 
         foreach ($sell->sell_lines as $key => $value) {
             if (!empty($value->sub_unit_id)) {
@@ -306,7 +304,6 @@ class SellReturnController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request);
         if (!auth()->user()->can('access_sell_return')) {
             abort(403, 'Unauthorized action.');
         }
