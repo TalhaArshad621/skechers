@@ -217,3 +217,67 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
+[2024-02-14 10:59:31] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown at Command line code:1)
+[stacktrace]
+#0 {main}
+"} 
+[2024-02-14 11:00:31] local.ERROR: Class App\Utils\TransactionUtil does not exist {"exception":"[object] (ReflectionException(code: 0): Class App\\Utils\\TransactionUtil does not exist at /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php:853, ParseError(code: 0): syntax error, unexpected '<<' (T_SL) at /var/www/html/skechers/app/Utils/TransactionUtil.php:3026)
+[stacktrace]
+#0 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(853): ReflectionParameter->getClass()
+#1 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(816): Illuminate\\Container\\Container->resolveDependencies()
+#2 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(667): Illuminate\\Container\\Container->build()
+#3 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(615): Illuminate\\Container\\Container->resolve()
+#4 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(767): Illuminate\\Container\\Container->make()
+#5 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Console/Application.php(258): Illuminate\\Foundation\\Application->make()
+#6 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(244): Illuminate\\Console\\Application->resolve()
+#7 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Console/Application.php(149): Illuminate\\Foundation\\Console\\Kernel->Illuminate\\Foundation\\Console\\{closure}()
+#8 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Console/Application.php(72): Illuminate\\Console\\Application->bootstrap()
+#9 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(342): Illuminate\\Console\\Application->__construct()
+#10 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(133): Illuminate\\Foundation\\Console\\Kernel->getArtisan()
+#11 Command line code(1): Illuminate\\Foundation\\Console\\Kernel->handle()
+#12 {main}
+"} 
+[2024-02-14 11:00:31] local.ERROR: Class App\Utils\TransactionUtil does not exist {"exception":"[object] (ReflectionException(code: 0): Class App\\Utils\\TransactionUtil does not exist at /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php:853, ParseError(code: 0): syntax error, unexpected '<<' (T_SL) at /var/www/html/skechers/app/Utils/TransactionUtil.php:3026)
+[stacktrace]
+#0 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(853): ReflectionParameter->getClass()
+#1 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(816): Illuminate\\Container\\Container->resolveDependencies()
+#2 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(667): Illuminate\\Container\\Container->build()
+#3 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(615): Illuminate\\Container\\Container->resolve()
+#4 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(767): Illuminate\\Container\\Container->make()
+#5 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Console/Application.php(258): Illuminate\\Foundation\\Application->make()
+#6 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(244): Illuminate\\Console\\Application->resolve()
+#7 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Console/Application.php(149): Illuminate\\Foundation\\Console\\Kernel->Illuminate\\Foundation\\Console\\{closure}()
+#8 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Console/Application.php(72): Illuminate\\Console\\Application->bootstrap()
+#9 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(342): Illuminate\\Console\\Application->__construct()
+#10 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(133): Illuminate\\Foundation\\Console\\Kernel->getArtisan()
+#11 Command line code(1): Illuminate\\Foundation\\Console\\Kernel->handle()
+#12 {main}
+"} 
+[2024-02-14 11:00:31] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown at Command line code:1)
+[stacktrace]
+#0 {main}
+"} 

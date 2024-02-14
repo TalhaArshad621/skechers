@@ -3031,7 +3031,6 @@ class TransactionUtil extends Util
             }
 
             $qty_sum_query = $this->get_pl_quantity_sum_string('PL');
-            // dd($qty_sum_query);
             
             //Get purchase lines, only for products with enable stock.
             $query = Transaction::join('purchase_lines AS PL', 'transactions.id', '=', 'PL.transaction_id')
