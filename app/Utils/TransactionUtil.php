@@ -3023,7 +3023,6 @@ class TransactionUtil extends Util
         }
 
         $qty_selling = null;
-
         foreach ($transaction_lines as $line) {
             //Check if stock is not enabled then no need to assign purchase & sell
             $product = Product::find($line->product_id);
