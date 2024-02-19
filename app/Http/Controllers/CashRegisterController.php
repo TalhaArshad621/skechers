@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\BusinessLocation;
 use App\CashRegister;
 use App\Utils\CashRegisterUtil;
+use App\Utils\TransactionUtil;
 use App\Utils\ModuleUtil;
 use Illuminate\Http\Request;
 
@@ -16,6 +17,8 @@ class CashRegisterController extends Controller
      */
     protected $cashRegisterUtil;
     protected $moduleUtil;
+    protected $transactionUtil;
+
 
     /**
      * Constructor
@@ -23,10 +26,12 @@ class CashRegisterController extends Controller
      * @param CashRegisterUtil $cashRegisterUtil
      * @return void
      */
-    public function __construct(CashRegisterUtil $cashRegisterUtil, ModuleUtil $moduleUtil)
+    public function __construct(CashRegisterUtil $cashRegisterUtil, ModuleUtil $moduleUtil, TransactionUtil $transactionUtil)
     {
         $this->cashRegisterUtil = $cashRegisterUtil;
         $this->moduleUtil = $moduleUtil;
+        $this->transactionUtil = $transactionUtil;
+
     }
 
     /**
@@ -142,7 +147,8 @@ class CashRegisterController extends Controller
         $business_id = request()->session()->get('user.business_id');
         
         $register_details =  $this->cashRegisterUtil->getRegisterDetails();
-
+        $sell_return =  $this->cashRegisterUtil->getSaleReturnDetails();
+        // dd($sell_return,$register_details);
         $user_id = auth()->user()->id;
         $open_time = $register_details['open_time'];
         $close_time = \Carbon::now()->toDateTimeString();
@@ -150,11 +156,19 @@ class CashRegisterController extends Controller
         $is_types_of_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
 
         $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_id, $open_time, $close_time, $is_types_of_service_enabled);
-
+        // dd($details);
         $payment_types = $this->cashRegisterUtil->payment_types($register_details->location_id, true, $business_id);
         
+        $start_date = \Carbon\Carbon::parse($open_time)->format('Y-m-d');
+        $end_date = \Carbon\Carbon::parse($close_time)->format('Y-m-d');
+
+        // dd($open_time_formatted, $close_time_formatted);
+        // dd($open_time, $close_time);
+        $data = $this->transactionUtil->getProfitLossDetailsForRegister($business_id, $register_details->location_id, $start_date, $end_date);
+        // dd($data);
+
         return view('cash_register.register_details')
-                ->with(compact('register_details', 'details', 'payment_types', 'close_time'));
+                ->with(compact('register_details', 'details', 'payment_types', 'close_time','sell_return','data'));
     }
 
     /**

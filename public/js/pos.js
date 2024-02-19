@@ -403,32 +403,32 @@ $(document).ready(function() {
     });
 
     //Change in row discount type or discount amount
-    $('table#pos_table tbody').on(
-        'change',
-        'select.row_discount_type, input.row_discount_amount',
-        function() {
-            var tr = $(this).parents('tr');
+    // $('table#pos_table tbody').on(
+    //     'change',
+    //     'select.row_discount_type, input.row_discount_amount',
+    //     function() {
+    //         var tr = $(this).parents('tr');
 
-            //calculate discounted unit price
-            var discounted_unit_price = calculate_discounted_unit_price(tr);
+    //         //calculate discounted unit price
+    //         var discounted_unit_price = calculate_discounted_unit_price(tr);
 
-            var tax_rate = tr
-                .find('select.tax_id')
-                .find(':selected')
-                .data('rate');
-            var quantity = __read_number(tr.find('input.pos_quantity'));
+    //         var tax_rate = tr
+    //             .find('select.tax_id')
+    //             .find(':selected')
+    //             .data('rate');
+    //         var quantity = __read_number(tr.find('input.pos_quantity'));
 
-            var unit_price_inc_tax = __add_percent(discounted_unit_price, tax_rate);
-            var line_total = quantity * unit_price_inc_tax;
+    //         var unit_price_inc_tax = __add_percent(discounted_unit_price, tax_rate);
+    //         var line_total = quantity * unit_price_inc_tax;
 
-            __write_number(tr.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
-            __write_number(tr.find('input.pos_line_total'), line_total, false, 2);
-            tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
-            pos_each_row(tr);
-            pos_total_row();
-            round_row_to_iraqi_dinnar(tr);
-        }
-    );
+    //         __write_number(tr.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
+    //         __write_number(tr.find('input.pos_line_total'), line_total, false, 2);
+    //         tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
+    //         pos_each_row(tr);
+    //         pos_total_row();
+    //         round_row_to_iraqi_dinnar(tr);
+    //     }
+    // );
 
     //Remove row on click on remove row
     $('table#pos_table tbody').on('click', 'i.pos_remove_row', function() {
@@ -1562,7 +1562,7 @@ function pos_each_row(row_obj) {
         discounted_unit_price + __calculate_amount('percentage', tax_rate, discounted_unit_price);
     __write_number(row_obj.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
 
-    var discount = __read_number(row_obj.find('input.row_discount_amount'));
+    // var discount = __read_number(row_obj.find('input.row_discount_amount'));
 
     if (discount > 0) {
         var qty = __read_number(row_obj.find('input.pos_quantity'));
@@ -1950,14 +1950,14 @@ function calculate_discounted_unit_price(row) {
     var this_unit_price = __read_number(row.find('input.pos_unit_price'));
     var row_discounted_unit_price = this_unit_price;
     var row_discount_type = row.find('select.row_discount_type').val();
-    var row_discount_amount = __read_number(row.find('input.row_discount_amount'));
-    if (row_discount_amount) {
-        if (row_discount_type == 'fixed') {
-            row_discounted_unit_price = this_unit_price - row_discount_amount;
-        } else {
-            row_discounted_unit_price = __substract_percent(this_unit_price, row_discount_amount);
-        }
-    }
+    // var row_discount_amount = __read_number(row.find('input.row_discount_amount'));
+    // if (row_discount_amount) {
+    //     if (row_discount_type == 'fixed') {
+    //         row_discounted_unit_price = this_unit_price - row_discount_amount;
+    //     } else {
+    //         row_discounted_unit_price = __substract_percent(this_unit_price, row_discount_amount);
+    //     }
+    // }
 
     return row_discounted_unit_price;
 }
@@ -1965,14 +1965,14 @@ function calculate_discounted_unit_price(row) {
 function get_unit_price_from_discounted_unit_price(row, discounted_unit_price) {
     var this_unit_price = discounted_unit_price;
     var row_discount_type = row.find('select.row_discount_type').val();
-    var row_discount_amount = __read_number(row.find('input.row_discount_amount'));
-    if (row_discount_amount) {
-        if (row_discount_type == 'fixed') {
-            this_unit_price = discounted_unit_price + row_discount_amount;
-        } else {
-            this_unit_price = __get_principle(discounted_unit_price, row_discount_amount, true);
-        }
-    }
+    // var row_discount_amount = __read_number(row.find('input.row_discount_amount'));
+    // if (row_discount_amount) {
+    //     if (row_discount_type == 'fixed') {
+    //         this_unit_price = discounted_unit_price + row_discount_amount;
+    //     } else {
+    //         this_unit_price = __get_principle(discounted_unit_price, row_discount_amount, true);
+    //     }
+    // }
 
     return this_unit_price;
 }

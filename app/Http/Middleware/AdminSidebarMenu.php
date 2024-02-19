@@ -133,11 +133,11 @@ class AdminSidebarMenu
                             );
                         }
                         if (auth()->user()->can('product.create')) {
-                            $sub->url(
-                                action('VariationTemplateController@index'),
-                                __('product.variations'),
-                                ['icon' => 'fa fas fa-circle', 'active' => request()->segment(1) == 'variation-templates']
-                            );
+                            // $sub->url(
+                            //     action('VariationTemplateController@index'),
+                            //     __('product.variations'),
+                            //     ['icon' => 'fa fas fa-circle', 'active' => request()->segment(1) == 'variation-templates']
+                            // );
                             $sub->url(
                                 action('ImportProductsController@index'),
                                 __('product.import_products'),
@@ -232,20 +232,20 @@ class AdminSidebarMenu
                 $menu->dropdown(
                     __('sale.sale'),
                     function ($sub) use ($enabled_modules, $is_admin) {
-                        if ($is_admin || auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping']) ) {
-                            $sub->url(
-                                action('SellController@index'),
-                                __('lang_v1.all_sales'),
-                                ['icon' => 'fa fas fa-list', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == null]
-                            );
-                        }
-                        if (in_array('add_sale', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
-                            $sub->url(
-                                action('SellController@create'),
-                                __('sale.add_sale'),
-                                ['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == 'create' && empty(request()->get('status'))]
-                            );
-                        }
+                        // if ($is_admin || auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping']) ) {
+                        //     $sub->url(
+                        //         action('SellController@index'),
+                        //         __('lang_v1.all_sales'),
+                        //         ['icon' => 'fa fas fa-list', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == null]
+                        //     );
+                        // }
+                        // if (in_array('add_sale', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
+                        //     $sub->url(
+                        //         action('SellController@create'),
+                        //         __('sale.add_sale'),
+                        //         ['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == 'create' && empty(request()->get('status'))]
+                        //     );
+                        // }
                         if (auth()->user()->can('sell.view')) {
                             $sub->url(
                                 action('SellPosController@index'),
@@ -303,6 +303,14 @@ class AdminSidebarMenu
                                 action('SellReturnController@index'),
                                 __('lang_v1.list_sell_return'),
                                 ['icon' => 'fa fas fa-undo', 'active' => request()->segment(1) == 'sell-return' && request()->segment(2) == null]
+                            );
+                        }
+
+                        if (auth()->user()->can('access_sell_return')) {
+                            $sub->url(
+                                action('GiftController@index'),
+                                __('List Gifts'),
+                                ['icon' => 'fa fas fa-undo', 'active' => request()->segment(1) == 'gift-index' && request()->segment(2) == null]
                             );
                         }
 
@@ -672,6 +680,11 @@ class AdminSidebarMenu
             //Notification template menu
             if (auth()->user()->can('send_notifications')) {
                 $menu->url(action('NotificationTemplateController@index'), __('lang_v1.notification_templates'), ['icon' => 'fa fas fa-envelope', 'active' => request()->segment(1) == 'notification-templates'])->order(80);
+            }
+
+            //Gift Module
+            if (auth()->user()->can('purchase.create')) {
+                $menu->url(action('GiftController@create'), __('Gift'), ['icon' => 'fa fas fa-gift', 'active' => request()->segment(1) == 'gift-create'])->order(80);
             }
 
             //Settings Dropdown

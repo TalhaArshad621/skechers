@@ -298,6 +298,7 @@ class CashRegisterUtil extends Util
             DB::raw("SUM(IF(pay_method='custom_pay_6', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_6"),
             DB::raw("SUM(IF(pay_method='custom_pay_7', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_7"),
             DB::raw("SUM(IF(transaction_type='refund', amount, 0)) as total_refund"),
+            // DB::raw("SUM(IF(transaction_type='sell_return', amount, 0)) as total_sale_return"),
             DB::raw("SUM(IF(transaction_type='refund', IF(pay_method='cash', amount, 0), 0)) as total_cash_refund"),
             DB::raw("SUM(IF(transaction_type='refund', IF(pay_method='cheque', amount, 0), 0)) as total_cheque_refund"),
             DB::raw("SUM(IF(transaction_type='refund', IF(pay_method='card', amount, 0), 0)) as total_card_refund"),
@@ -316,8 +317,34 @@ class CashRegisterUtil extends Util
             DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as user_name"),
             'u.email',
             'bl.name as location_name'
-        )->first();
+        )
+        // ->where('transactions.payment_status','paid')
+        ->first();
+
+       
+
+        // dd($register_details);
         return $register_details;
+    }
+
+    public function getSaleReturnDetails($register_id = null){
+
+        $sell_return = CashRegister::leftjoin('cash_register_transactions','cash_register_transactions.cash_register_id','=','cash_registers.id')
+        ->rightJoin('transactions', 'transactions.id', '=', 'cash_register_transactions.transaction_id')
+        ->where('transactions.type','sell_return')
+        ->where('transactions.payment_status','paid')
+        ->select(
+            // 'cash_registers.created_at as open_time',
+            // 'cash_registers.closed_at as closed_at',
+
+            // '*',
+            DB::raw("SUM(final_total) as total_sale_return"),
+
+            )
+        ->first();
+        // dd($sell_return);
+
+        return  $sell_return;
     }
 
     /**
@@ -341,12 +368,74 @@ class CashRegisterUtil extends Util
                 ->leftjoin('brands AS B', 'P.brand_id', '=', 'B.id')
                 ->groupBy('B.id')
                 ->select(
+                    'transactions.id',
                     'B.name as brand_name',
                     DB::raw('SUM(TSL.quantity) as total_quantity'),
                     DB::raw('SUM(TSL.unit_price_inc_tax*TSL.quantity) as total_amount')
                 )
                 ->orderByRaw('CASE WHEN brand_name IS NULL THEN 2 ELSE 1 END, brand_name')
                 ->get();
+                // dd($product_details);
+                // $transactionIds = $product_details->pluck('id')->toArray();
+                // dd($transactionIds);
+
+
+        $return_product_details_id = Transaction::where('transactions.created_by', $user_id)
+                ->whereBetween('transaction_date', [$open_time, $close_time])
+                ->where('transactions.type', 'sell_return')
+                // ->whereIn('transactions.return_parent_id', $transactionIds)
+                // ->whereNull('transactions.return_parent_id')
+                ->where('transactions.status', 'final')
+                ->where('transactions.is_direct_sale', 0)
+                // ->join('transaction_sell_lines AS TSL', 'transactions.return_parent_id', '=', 'TSL.transaction_id')
+                // ->join('products AS P', 'TSL.product_id', '=', 'P.id')
+                // ->leftjoin('brands AS B', 'P.brand_id', '=', 'B.id')
+                // ->groupBy('B.id')
+                ->select(
+                    // '*',
+                    'transactions.id',
+                    // 'B.name as brand_name',
+                    // DB::raw('SUM(TSL.quantity_returned) as returned_quantity'),
+                    // DB::raw('SUM(TSL.unit_price_inc_tax*TSL.quantity_returned) as total_amount_returned'),
+                    // DB::raw('SUM(TSL.quantity) as total_quantity'),
+                    // DB::raw('SUM(TSL.unit_price_inc_tax*TSL.quantity) as total_amount'),
+                    // DB::raw('SUM(TSL.unit_price_inc_tax*TSL.quantity - TSL.unit_price_inc_tax*TSL.quantity_returned) as net_total_amount')
+
+                )
+                // ->orderByRaw('CASE WHEN brand_name IS NULL THEN 2 ELSE 1 END, brand_name')
+                ->get();
+                $transactionIds = $return_product_details_id->pluck('id')->toArray();
+
+                // dd($transactionIds);
+
+                $return_product_details = Transaction::where('transactions.created_by', $user_id)
+                ->whereBetween('transaction_date', [$open_time, $close_time])
+                ->where('transactions.type', 'sell_return')
+                ->whereIn('transactions.id', $transactionIds)
+                // ->whereNull('transactions.return_parent_id')
+                ->where('transactions.status', 'final')
+                ->where('transactions.is_direct_sale', 0)
+                ->join('transaction_sell_lines AS TSL', 'transactions.return_parent_id', '=', 'TSL.transaction_id')
+                ->join('products AS P', 'TSL.product_id', '=', 'P.id')
+                ->leftjoin('brands AS B', 'P.brand_id', '=', 'B.id')
+                // ->groupBy('B.id')
+                ->select(
+                    'TSL.quantity_returned AS returned_quantity', 'TSL.quantity AS total_quantity','TSL.unit_price_inc_tax',
+                    DB::raw('(TSL.unit_price_inc_tax*TSL.quantity_returned) as total_amount_returned'),
+                    DB::raw('(TSL.unit_price_inc_tax*TSL.quantity - TSL.unit_price_inc_tax*TSL.quantity_returned) as net_total_amount'),
+
+                    // 'transactions.id',
+                    'B.name as brand_name',
+                    // DB::raw('SUM(TSL.quantity_returned) as returned_quantity'),
+                    // DB::raw('SUM(TSL.unit_price_inc_tax*TSL.quantity_returned) as total_amount_returned'),
+                    // DB::raw('SUM(TSL.quantity) as total_quantity'),
+                    // DB::raw('SUM(TSL.unit_price_inc_tax*TSL.quantity) as total_amount'),
+                    // DB::raw('SUM(TSL.unit_price_inc_tax*TSL.quantity - TSL.unit_price_inc_tax*TSL.quantity_returned) as net_total_amount')
+
+                )
+                // ->orderByRaw('CASE WHEN brand_name IS NULL THEN 2 ELSE 1 END, brand_name')
+                ->get();
+                // dd($return_product_details);
 
         //If types of service
         $types_of_service_details = null;
@@ -379,6 +468,7 @@ class CashRegisterUtil extends Util
                 ->first();
 
         return ['product_details' => $product_details,
+                'return_product_details' => $return_product_details,
                 'transaction_details' => $transaction_details,
                 'types_of_service_details' => $types_of_service_details
             ];

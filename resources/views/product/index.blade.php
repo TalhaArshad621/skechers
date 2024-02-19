@@ -72,14 +72,14 @@
             @endforeach
         @endif
 
-        <div class="col-md-3">
+        {{-- <div class="col-md-3">
           <div class="form-group">
             <br>
             <label>
               {!! Form::checkbox('not_for_selling', 1, false, ['class' => 'input-icheck', 'id' => 'not_for_selling']); !!} <strong>@lang('lang_v1.not_for_selling')</strong>
             </label>
           </div>
-        </div>
+        </div> --}}
         @if($is_woocommerce)
             <div class="col-md-3">
                 <div class="form-group">
