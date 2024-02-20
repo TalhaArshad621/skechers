@@ -23,7 +23,7 @@
                 @lang('cash_register.cash_payment'):
               </th>
               <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash }}</span>
+                <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash  }}</span>
               </td>
             </tr>
             {{-- <tr>
@@ -40,6 +40,33 @@
               </td>
               <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_card }}</span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                @lang('Sale Return'):
+              </td>
+              <td>
+                <span class="display_currency" data-currency_symbol="true">{{ $sell_return->total_sale_return }}</span>
+              </td>
+            </tr>
+            <tr>
+              @php
+                  $returned_quantity = 0;
+              @endphp
+          
+              @foreach($details['return_product_details'] as $detail)
+                  @php
+                      $returned_quantity += $detail->returned_quantity;
+                  @endphp
+              @endforeach
+          
+              <td>
+                  @lang('Returned Items'):
+              </td>
+              
+              <td>
+                  <span class="display_currency" data-currency_symbol="true">{{ $returned_quantity }}</span>
               </td>
             </tr>
             {{-- <tr>
@@ -178,7 +205,7 @@
                 @lang('lang_v1.total_payment')
               </th>
               <td>
-                <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->cash_in_hand + $register_details->total_cash - $register_details->total_cash_refund }}</span></b>
+                <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->cash_in_hand + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_sale_return }}</span></b>
               </td>
             </tr>
             <tr class="success">
@@ -194,7 +221,15 @@
                 @lang('cash_register.total_sales'):
               </th>
               <td>
-                <b><span class="display_currency" data-currency_symbol="true">{{ $details['transaction_details']->total_sales }}</span></b>
+                <b><span class="display_currency" data-currency_symbol="true">{{ $details['transaction_details']->total_sales - $register_details->total_sale_return }}</span></b>
+              </td>
+            </tr>
+            <tr class="success">
+              <th>
+                @lang('lang_v1.gross_profit'):
+              </th>
+              <td>
+                <b><span class="display_currency" data-currency_symbol="true">{{ $data['gross_profit'] }}</span></b>
               </td>
             </tr>
           </table>

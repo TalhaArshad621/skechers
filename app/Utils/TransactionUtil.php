@@ -31,6 +31,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Utils\ModuleUtil;
 use Exception;
+use App\CashRegister;
+use App\CashRegisterTransaction;
+
 
 class TransactionUtil extends Util
 {
@@ -53,7 +56,7 @@ class TransactionUtil extends Util
         $transaction = Transaction::create([
             'business_id' => $business_id,
             'location_id' => $input['location_id'],
-            'type' => 'sell',
+            'type' => 'gift',
             'status' => $input['status'],
             'sub_status' => !empty($input['sub_status']) ? $input['sub_status'] : null,
             'contact_id' => $input['contact_id'],
@@ -1465,6 +1468,56 @@ class TransactionUtil extends Util
                         $output['taxes'][$tax_group_detail['name']] += $tax_group_detail['calculated_tax'];
                     }
                 }
+            }
+        }
+        else if ($transaction_type == 'gift') {
+            $sell_line_relations = ['modifiers', 'sub_unit', 'warranties'];
+
+            if ($is_lot_number_enabled == 1) {
+                $sell_line_relations[] = 'lot_details';
+            }
+
+            $lines = $transaction->sell_lines()->whereNull('parent_sell_line_id')->with($sell_line_relations)->get();
+
+            foreach ($lines as $key => $value) {
+                if (!empty($value->sub_unit_id)) {
+                    $formated_sell_line = $this->recalculateSellLineTotals($business_details->id, $value);
+
+                    $lines[$key] = $formated_sell_line;
+                }
+            }
+
+            $details = $this->_receiptDetailsSellLines($lines, $il, $business_details);
+            
+            $output['lines'] = $details['lines'];
+            $output['taxes'] = [];
+            $total_quantity = 0;
+            foreach ($details['lines'] as $line) {
+                if (!empty($line['group_tax_details'])) {
+                    foreach ($line['group_tax_details'] as $tax_group_detail) {
+                        if (!isset($output['taxes'][$tax_group_detail['name']])) {
+                            $output['taxes'][$tax_group_detail['name']] = 0;
+                        }
+                        $output['taxes'][$tax_group_detail['name']] += $tax_group_detail['calculated_tax'];
+                    }
+                } elseif (!empty($line['tax_id'])) {
+                    if (!isset($output['taxes'][$line['tax_name']])) {
+                        $output['taxes'][$line['tax_name']] = 0;
+                    }
+
+                    $output['taxes'][$line['tax_name']] += ($line['tax_unformatted'] * $line['quantity_uf']);
+                }
+
+                if (!empty($line['tax_id']) && $line['tax_percent'] == 0) {
+                    $total_exempt += $line['line_total_uf'];
+                }
+
+                $total_quantity += $line['quantity_uf'];
+            }
+
+            if (!empty($il->common_settings['total_quantity_label'])) {
+                $output['total_quantity_label'] = $il->common_settings['total_quantity_label'];
+                $output['total_quantity'] = $this->num_f($total_quantity, false, $business_details, true);
             }
         }
 
@@ -2995,7 +3048,6 @@ class TransactionUtil extends Util
         }
 
         $qty_selling = null;
-
         foreach ($transaction_lines as $line) {
             //Check if stock is not enabled then no need to assign purchase & sell
             $product = Product::find($line->product_id);
@@ -5455,6 +5507,206 @@ class TransactionUtil extends Util
         return $data;
     }
 
+    public function getProfitLossDetailsForRegister($business_id, $location_id, $start_date, $end_date, $user_id = null)
+    {
+        //For Opening stock date should be 1 day before
+        $day_before_start_date = \Carbon::createFromFormat('Y-m-d', $start_date)->subDay()->format('Y-m-d');
+
+        $filters = ['user_id' => $user_id];
+        //Get Opening stock
+        $opening_stock = $this->getOpeningClosingStock($business_id, $day_before_start_date, $location_id, true, false, $filters);
+
+        $opening_stock_by_sp = $this->getOpeningClosingStock($business_id, $day_before_start_date, $location_id, true, true, $filters);
+
+        //Get Closing stock
+        $closing_stock = $this->getOpeningClosingStock(
+            $business_id,
+            $end_date,
+            $location_id,
+            false,
+            false,
+            $filters
+        );
+
+        $closing_stock_by_sp = $this->getOpeningClosingStock(
+                $business_id,
+                $end_date,
+                $location_id,
+                false,
+                true,
+                $filters
+            );
+        
+        //Get Purchase details
+        $purchase_details = $this->getPurchaseTotals(
+            $business_id,
+            $start_date,
+            $end_date,
+            $location_id,
+            $user_id
+        );
+
+        //Get Sell details
+        $sell_details = $this->getSellTotals(
+            $business_id,
+            $start_date,
+            $end_date,
+            $location_id,
+            $user_id
+        );
+
+        $transaction_types = [
+            'purchase_return', 'sell_return', 'expense', 'stock_adjustment', 'sell_transfer', 'purchase', 'sell'
+        ];
+
+        $transaction_totals = $this->getTransactionTotals(
+            $business_id,
+            $transaction_types,
+            $start_date,
+            $end_date,
+            $location_id,
+            $user_id
+        );
+
+        $gross_profit = $this->getGrossProfit(
+            $business_id,
+            $start_date,
+            $end_date,
+            $location_id,
+            $user_id
+        );
+
+        $data['total_purchase_shipping_charge'] = !empty($purchase_details['total_shipping_charges']) ? $purchase_details['total_shipping_charges'] : 0;
+        $data['total_sell_shipping_charge'] = !empty($sell_details['total_shipping_charges']) ? $sell_details['total_shipping_charges'] : 0;
+        //Shipping
+        $data['total_transfer_shipping_charges'] = !empty($transaction_totals['total_transfer_shipping_charges']) ? $transaction_totals['total_transfer_shipping_charges'] : 0;
+        //Discounts
+        $total_purchase_discount = $transaction_totals['total_purchase_discount'];
+        $total_sell_discount = $transaction_totals['total_sell_discount'];
+        $total_reward_amount = $transaction_totals['total_reward_amount'];
+        $total_sell_round_off = $transaction_totals['total_sell_round_off'];
+
+        //Stocks
+        $data['opening_stock'] = !empty($opening_stock) ? $opening_stock : 0;
+        $data['closing_stock'] = !empty($closing_stock) ? $closing_stock : 0;
+
+        $data['opening_stock_by_sp'] = !empty($opening_stock_by_sp) ? $opening_stock_by_sp : 0;
+        $data['closing_stock_by_sp'] = !empty($closing_stock_by_sp) ? $closing_stock_by_sp : 0;
+
+        //Purchase
+        $data['total_purchase'] = !empty($purchase_details['total_purchase_exc_tax']) ? $purchase_details['total_purchase_exc_tax'] : 0;
+        $data['total_purchase_discount'] = !empty($total_purchase_discount) ? $total_purchase_discount : 0;
+        $data['total_purchase_return'] = $transaction_totals['total_purchase_return_exc_tax'];
+
+        //Sales
+        $data['total_sell'] = !empty($sell_details['total_sell_exc_tax']) ? $sell_details['total_sell_exc_tax'] : 0;
+        $data['total_sell_discount'] = !empty($total_sell_discount) ? $total_sell_discount : 0;
+        $data['total_sell_return'] = $transaction_totals['total_sell_return_exc_tax'];
+
+        $data['total_sell_round_off'] = !empty($total_sell_round_off) ? $total_sell_round_off : 0;
+
+        //Expense
+        $data['total_expense'] =  $transaction_totals['total_expense'];
+
+        //Stock adjustments
+        $data['total_adjustment'] = $transaction_totals['total_adjustment'];
+        $data['total_recovered'] = $transaction_totals['total_recovered'];
+
+        // $data['closing_stock'] = $data['closing_stock'] - $data['total_adjustment'];
+        
+        $data['total_reward_amount'] = !empty($total_reward_amount) ? $total_reward_amount : 0;
+
+        $moduleUtil = new ModuleUtil();
+
+        $module_parameters = [
+            'business_id' => $business_id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'location_id' => $location_id,
+            'user_id' => $user_id
+        ];
+        $modules_data = $moduleUtil->getModuleData('profitLossReportData', $module_parameters);
+
+        $data['left_side_module_data'] = [];
+        $data['right_side_module_data'] = [];
+        $module_total = 0;
+        if (!empty($modules_data)) {
+            foreach ($modules_data as $module_data) {
+                if (!empty($module_data[0])) {
+                    foreach ($module_data[0] as $array) {
+                        $data['left_side_module_data'][] = $array;
+                        if (!empty($array['add_to_net_profit'])) {
+                            $module_total -= $array['value'];
+                        }
+                    }
+                }
+                if (!empty($module_data[1])) {
+                    foreach ($module_data[1] as $array) {
+                        $data['right_side_module_data'][] = $array;
+                        if (!empty($array['add_to_net_profit'])) {
+                            $module_total += $array['value'];
+                        }
+                    }
+                }
+            }
+        }
+
+        // $data['net_profit'] = $module_total + $data['total_sell']
+        //                         + $data['closing_stock']
+        //                         - $data['total_purchase']
+        //                         - $data['total_sell_discount']
+        //                         + $data['total_sell_round_off']
+        //                         - $data['total_reward_amount']
+        //                         - $data['opening_stock']
+        //                         - $data['total_expense']
+        //                         + $data['total_recovered']
+        //                         - $data['total_transfer_shipping_charges']
+        //                         - $data['total_purchase_shipping_charge']
+        //                         + $data['total_sell_shipping_charge']
+        //                         + $data['total_purchase_discount']
+        //                         + $data['total_purchase_return']
+        //                         - $data['total_sell_return'];
+
+        $data['net_profit'] = $module_total + $gross_profit
+                                + ($data['total_sell_round_off'] + $data['total_recovered'] + $data['total_sell_shipping_charge'] + $data['total_purchase_discount']
+                                ) - ( $data['total_reward_amount'] + $data['total_expense'] + $data['total_adjustment'] + $data['total_transfer_shipping_charges'] + $data['total_purchase_shipping_charge']
+                                );
+
+        //get gross profit from Project Module
+        $module_parameters = [
+            'business_id' => $business_id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'location_id' => $location_id
+        ];
+        $project_module_data = $moduleUtil->getModuleData('grossProfit', $module_parameters);
+
+        if (!empty($project_module_data['Project']['gross_profit'])) {
+            $gross_profit = $gross_profit + $project_module_data['Project']['gross_profit'];
+            $data['gross_profit_label'] = __('project::lang.project_invoice');
+        }
+
+        $data['gross_profit'] = $gross_profit;
+
+        //get sub type for total sales
+        $sales_by_subtype = Transaction::where('business_id', $business_id)
+            ->where('type', 'sell')
+            ->where('status', 'final');
+        if (!empty($start_date) && !empty($end_date)) {
+            if ($start_date == $end_date) {
+                $sales_by_subtype->whereDate('transaction_date', $end_date);
+            } else {
+                $sales_by_subtype->whereBetween(DB::raw('transaction_date'), [$start_date, $end_date]);
+            }
+        }
+        $sales_by_subtype = $sales_by_subtype->select(DB::raw('SUM(total_before_tax) as total_before_tax'), 'sub_type')
+            ->whereNotNull('sub_type')
+            ->groupBy('transactions.sub_type')
+            ->get();
+        $data['total_sell_by_subtype'] = $sales_by_subtype;
+
+        return $data;
+    }
     /**
      * Creates recurring expense from existing expense
      * @param obj $transaction
@@ -5723,6 +5975,10 @@ class TransactionUtil extends Util
 
     public function addSellReturn($input, $business_id, $user_id, $uf_number = true)
     {
+        $register =  CashRegister::where('user_id', $user_id)
+                                ->where('status', 'open')
+                                ->first();
+                                // dd($register);
         $discount = [
                 'discount_type' => $input['discount_type'] ?? 'fixed',
                 'discount_amount' => $input['discount_amount'] ?? 0
@@ -5810,6 +6066,21 @@ class TransactionUtil extends Util
         foreach ($product_lines as $product_line) {
             $returns[$product_line['sell_line_id']] = $uf_number ? $this->num_uf($product_line['quantity']) : $product_line['quantity'];
         }
+
+        $payments_formatted = [];
+        $payments_formatted[] = new CashRegisterTransaction([
+                'amount' => $sell_return->final_total,
+                'pay_method' => 'cash',
+                'type' => 'debit',
+                'transaction_type' => 'sell_return',
+                'transaction_id' => $input['transaction_id']
+            ]);
+            // dd($payments_formatted);
+
+        if (!empty($payments_formatted)) {
+            $register->cash_register_transactions()->saveMany($payments_formatted);
+        }
+
 
         $fbr_lines = [];
         $total_tax = 0;

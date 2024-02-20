@@ -121,6 +121,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/sells/convert-to-proforma/{id}', 'SellPosController@convertToProforma');
     Route::get('/sells/quotations', 'SellController@getQuotations');
     Route::get('/sells/draft-dt', 'SellController@getDraftDatables');
+    Route::post('/sells/store-gift', 'SellPosController@storeGift');
     Route::resource('sells', 'SellController')->except(['show']);
 
     Route::get('/import-sales', 'ImportSalesController@index');
@@ -289,6 +290,12 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::resource('notification-templates', 'NotificationTemplateController')->only(['index', 'store']);
     Route::get('notification/get-template/{transaction_id}/{template_for}', 'NotificationController@getTemplate');
     Route::post('notification/send', 'NotificationController@send');
+
+    //Gift Module
+    Route::get('gift-create', 'GiftController@create');
+    Route::get('gift-index', 'GiftController@index');
+
+
 
     Route::post('/purchase-return/update', 'CombinedPurchaseReturnController@update');
     Route::get('/purchase-return/edit/{id}', 'CombinedPurchaseReturnController@edit');

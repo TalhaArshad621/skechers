@@ -121,14 +121,72 @@ class StockTransferController extends Controller
                     'shipping_charges',
                     '<span class="display_currency" data-currency_symbol="true">{{$shipping_charges}}</span>'
                 )
-                ->editColumn('status', function($row) use($statuses) {
+
+
+                ->editColumn('status', function($row) use ($statuses) {
                     $row->status = $row->status == 'final' ? 'completed' : $row->status;
-                    $status =  $statuses[$row->status];
+                    
+                    $status = $statuses[$row->status];
                     $status_color = !empty($this->status_colors[$row->status]) ? $this->status_colors[$row->status] : 'bg-gray';
-                    $status = $row->status != 'completed' ? '<a href="#" class="stock_transfer_status" data-status="' . $row->status . '" data-href="' . action("StockTransferController@updateStatus", [$row->id]) . '"><span class="label ' . $status_color .'">' . $statuses[$row->status] . '</span></a>' : '<span class="label ' . $status_color .'">' . $statuses[$row->status] . '</span>';
-                     
+                
+                    // Check if the logged-in user's location matches the base location
+                    $userLocationId = auth()->user()->id;
+                    $sendFrom = $row->location_from;
+                    $sendTo = $row->location_to;
+                
+                    $sendFromLocationId = BusinessLocation::where('name', $sendFrom)->value('id');
+                    $sendToLocationId = BusinessLocation::where('name', $sendTo)->value('id');
+                
+                    // dd($userLocationId, $sendFrom, $sendTo, $sendFromLocationId, $sendToLocationId);
+                
+                    if ($userLocationId != $sendToLocationId) {
+                        // dd("if");
+                        // If they match, display the status without the link
+                        $status = '<span class="label ' . $status_color .'">' . $status . '</span>';
+                    } else {
+                        // dd("else");
+                        // If they don't match, display the status with the link
+                        $status = '<a href="#" class="stock_transfer_status" data-status="' . $row->status . '" data-href="' . action("StockTransferController@updateStatus", [$row->id]) . '"><span class="label ' . $status_color .'">' . $status . '</span></a>';
+                    }
+                
                     return $status;
                 })
+
+                // ->editColumn('status', function($row) use ($statuses) {
+                //     $row->status = $row->status == 'final' ? 'completed' : $row->status;
+                    
+                //     $status = $statuses[$row->status];
+                //     $status_color = !empty($this->status_colors[$row->status]) ? $this->status_colors[$row->status] : 'bg-gray';
+                
+                //     // Check if the logged-in user's location matches the base location
+                //     $userLocationId = auth()->user()->id;
+                //     $sendFrom = $row->location_from;
+                //     $sendTo = $row->location_to;
+
+                //     $sendFromLocationId = BusinessLocation::where('name',$sendFrom)->select('id')->first();
+                //     $sendToLocationId = BusinessLocation::where('name',$sendTo)->select('id')->first();
+
+                //     // dd($userLocationId,$sendFrom, $sendTo,$sendFromLocationId->id,$sendToLocationId->id);
+                
+                //     if ($userLocationId == $sendFromLocationId) {
+                //         // If they match, display the status without the link
+                //         $status = '<span class="label ' . $status_color .'">' . $status . '</span>';
+                //     } else {
+                //         // If they don't match, display the status with the link
+                //         $status = '<a href="#" class="stock_transfer_status" data-status="' . $row->status . '" data-href="' . action("StockTransferController@updateStatus", [$row->id]) . '"><span class="label ' . $status_color .'">' . $status . '</span></a>';
+                //     }
+                
+                //     return $status;
+                // })
+
+                // ->editColumn('status', function($row) use($statuses) {
+                //     $row->status = $row->status == 'final' ? 'completed' : $row->status;
+                //     $status =  $statuses[$row->status];
+                //     $status_color = !empty($this->status_colors[$row->status]) ? $this->status_colors[$row->status] : 'bg-gray';
+                //     $status = $row->status != 'completed' ? '<a href="#" class="stock_transfer_status" data-status="' . $row->status . '" data-href="' . action("StockTransferController@updateStatus", [$row->id]) . '"><span class="label ' . $status_color .'">' . $statuses[$row->status] . '</span></a>' : '<span class="label ' . $status_color .'">' . $statuses[$row->status] . '</span>';
+                     
+                //     return $status;
+                // })
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
                 ->rawColumns(['final_total', 'action', 'shipping_charges', 'status'])
                 ->setRowAttr([

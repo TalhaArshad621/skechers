@@ -34,7 +34,7 @@
 				<div class="col-sm-4">
 					<div class="form-group">
 						{!! Form::label('status', __('sale.status').':*') !!} @show_tooltip(__('lang_v1.completed_status_help'))
-						{!! Form::select('status', $statuses, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'status']); !!}
+						{!! Form::select('status', $statuses, 'pending', ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'status']); !!}
 					</div>
 				</div>
 				<div class="clearfix"></div>
