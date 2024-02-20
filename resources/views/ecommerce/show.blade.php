@@ -141,7 +141,7 @@
   
         <div class="col-sm-12 col-xs-12">
           <div class="table-responsive">
-            @include('sale_pos.partials.sale_line_details')
+            @include('ecommerce.partials.ecommerce_sell_details')
           </div>
         </div>
       </div>
