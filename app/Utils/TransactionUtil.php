@@ -7,7 +7,10 @@ use App\Business;
 use App\BusinessLocation;
 use App\Contact;
 use App\Currency;
+use App\EcommercePayment;
+use App\EcommerceSellLine;
 use App\EcommerceStoreLocation;
+use App\EcommerceTransaction;
 use App\Events\TransactionPaymentAdded;
 use App\Events\TransactionPaymentDeleted;
 use App\Events\TransactionPaymentUpdated;
@@ -136,16 +139,14 @@ class TransactionUtil extends Util
         $invoice_no = $input['invoice_no'];
 
         $final_total = $uf_data ? $this->num_uf($invoice_total) : $invoice_total;
-
-        $transaction = Transaction::create([
+        
+        $transaction = EcommerceTransaction::create([
             'business_id' => $business_id,
-            'location_id' => null ,
             'type' => 'sell',
             'sub_type' => 'ecommerce',
             'status' => $input['status'],
             'sub_status' => !empty($input['sub_status']) ? $input['sub_status'] : null,
             'contact_id' => $input['contact_id'],
-            'customer_group_id' => !empty($input['customer_group_id']) ? $input['customer_group_id'] : null,
             'invoice_no' => $invoice_no,
             'ref_no' => '',
             'total_before_tax' => $input['total_before_tax'],
@@ -158,14 +159,7 @@ class TransactionUtil extends Util
             'additional_notes' => !empty($input['sale_note']) ? $input['sale_note'] : null,
             'staff_note' => !empty($input['staff_note']) ? $input['staff_note'] : null,
             'created_by' => $user_id,
-            'document' => !empty($input['document']) ? $input['document'] : null,
             'custom_field_1' => !empty($input['custom_field_1']) ? $input['custom_field_1'] : null,
-            'custom_field_2' => 'ecommerce',
-            'custom_field_3' => !empty($input['custom_field_3']) ? $input['custom_field_3'] : null,
-            'custom_field_4' => !empty($input['custom_field_4']) ? $input['custom_field_4'] : null,
-            'is_direct_sale' => !empty($input['is_direct_sale']) ? $input['is_direct_sale'] : 0,
-            'commission_agent' => $input['commission_agent'],
-            'is_quotation' => isset($input['is_quotation']) ? $input['is_quotation'] : 0,
             'shipping_details' => isset($input['shipping_details']) ? $input['shipping_details'] : null,
             'shipping_address' => isset($input['shipping_address']) ? $input['shipping_address'] : null,
             'shipping_status' => isset($input['shipping_status']) ? $input['shipping_status'] : null,
@@ -173,39 +167,12 @@ class TransactionUtil extends Util
             'shipping_charges' => isset($input['shipping_charges']) ? $uf_data ? $this->num_uf($input['shipping_charges']) : $input['shipping_charges'] : 0,
             'shipping_custom_field_1' => !empty($input['shipping_custom_field_1']) ? $input['shipping_custom_field_1'] : null,
             'shipping_custom_field_2' => !empty($input['shipping_custom_field_2']) ? $input['shipping_custom_field_2'] : null,
-            'shipping_custom_field_3' => !empty($input['shipping_custom_field_3']) ? $input['shipping_custom_field_3'] : null,
-            'shipping_custom_field_4' => !empty($input['shipping_custom_field_4']) ? $input['shipping_custom_field_4'] : null,
-            'shipping_custom_field_5' => !empty($input['shipping_custom_field_5']) ? $input['shipping_custom_field_5'] : null,
             'exchange_rate' => !empty($input['exchange_rate']) ?
                                 $uf_data ? $this->num_uf($input['exchange_rate']) : $input['exchange_rate'] : 1,
-            'selling_price_group_id' => isset($input['selling_price_group_id']) ? $input['selling_price_group_id'] : null,
-            'pay_term_number' => isset($input['pay_term_number']) ? $input['pay_term_number'] : null,
-            'pay_term_type' => isset($input['pay_term_type']) ? $input['pay_term_type'] : null,
             'is_suspend' => !empty($input['is_suspend']) ? 1 : 0,
-            'is_recurring' => !empty($input['is_recurring']) ? $input['is_recurring'] : 0,
-            'recur_interval' => !empty($input['recur_interval']) ? $input['recur_interval'] : 1,
-            'recur_interval_type' => !empty($input['recur_interval_type']) ? $input['recur_interval_type'] : null,
-            'subscription_repeat_on' => !empty($input['subscription_repeat_on']) ? $input['subscription_repeat_on'] : null,
-            'subscription_no' => !empty($input['subscription_no']) ? $input['subscription_no'] : null,
-            'recur_repetitions' => !empty($input['recur_repetitions']) ? $input['recur_repetitions'] : 0,
             'order_addresses' => !empty($input['order_addresses']) ? $input['order_addresses'] : null,
-            'sub_type' => !empty($input['sub_type']) ? $input['sub_type'] : null,
-            'rp_earned' => $input['status'] == 'final' ? $this->calculateRewardPoints($business_id, $final_total) : 0,
-            'rp_redeemed' => !empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0,
-            'rp_redeemed_amount' => !empty($input['rp_redeemed_amount']) ? $input['rp_redeemed_amount'] : 0,
             'is_created_from_api' => !empty($input['is_created_from_api']) ? 1 : 0,
-            'types_of_service_id' => !empty($input['types_of_service_id']) ? $input['types_of_service_id'] : null,
-            'packing_charge' => !empty($input['packing_charge']) ? $input['packing_charge'] : 0,
-            'packing_charge_type' => !empty($input['packing_charge_type']) ? $input['packing_charge_type'] : null,
-            'service_custom_field_1' => !empty($input['service_custom_field_1']) ? $input['service_custom_field_1'] : null,
-            'service_custom_field_2' => !empty($input['service_custom_field_2']) ? $input['service_custom_field_2'] : null,
-            'service_custom_field_3' => !empty($input['service_custom_field_3']) ? $input['service_custom_field_3'] : null,
-            'service_custom_field_4' => !empty($input['service_custom_field_4']) ? $input['service_custom_field_4'] : null,
             'round_off_amount' => !empty($input['round_off_amount']) ? $input['round_off_amount'] : 0,
-            'import_batch' => !empty($input['import_batch']) ? $input['import_batch'] : null,
-            'import_time' => !empty($input['import_time']) ? $input['import_time'] : null,
-            'res_table_id' => !empty($input['res_table_id']) ? $input['res_table_id'] : null,
-            'res_waiter_id' => !empty($input['res_waiter_id']) ? $input['res_waiter_id'] : null,
         ]);
 
     return $transaction;
@@ -227,7 +194,6 @@ class TransactionUtil extends Util
         $exist = false;
         foreach($products as $product) {
             $product_id =  DB::table('variations')->select('product_id','product_variation_id')->where('sub_sku', $product['sku'])->first();
-
             // Check product exists or not
             if($product_id) {
                 $exist = true;
@@ -239,7 +205,6 @@ class TransactionUtil extends Util
                 $line = [
                     'product_id' => $product_id->product_id,
                     'variation_id' => $product_id->product_variation_id,
-                    'quantity' => $product['quantity'],
                     'unit_price_before_discount' => $unit_price_before_disc,
                     'unit_price' => $unit_price,
                     'line_discount_type' => 'fixed',
@@ -249,8 +214,6 @@ class TransactionUtil extends Util
                     'tax_id' => null,
                     'discount_id' => null,
                     'lot_no_line_id' => null,
-                    'res_service_staff_id' => null,
-                    'res_line_order_status' => null,
                 ];
                 
               
@@ -269,7 +232,6 @@ class TransactionUtil extends Util
             foreach($stores_location as $location) {
                 // dd($location);
                      $available_quantity = $location->qty_available;
-
                 if($available_quantity > 0 ) {
                     // Order can be paritally fulfilled from this location
                     $quantity_to_pick = min($available_quantity, $total_quantity);
@@ -290,29 +252,6 @@ class TransactionUtil extends Util
                     }
                 }
             }
-            // foreach($business_location as $location) {
-            //     $available_quantity = DB::table('variation_location_details')->where('product_id', $product_id->product_id)->where('location_id', $location->id)->sum('qty_available');
-
-            //     if($available_quantity > 0 ) {
-            //         // Order can be paritally fulfilled from this location
-            //         $quantity_to_pick = min($available_quantity, $total_quantity);
-            //         $ecommerce_product_location[] = [
-            //             'location_id' => $location->id,
-            //             'quantity' => $quantity_to_pick
-            //         ];
-
-            //         // Update Inventory based on the loaction_id
-            //         VariationLocationDetails::where('product_id', $product_id->product_id)->where('location_id', $location->id)->decrement('qty_available', $quantity_to_pick);
-                    
-            //         // Reduce remaining order quantity
-            //         $total_quantity -= $quantity_to_pick;
-
-            //         // Exit the loop if order quantity is lesser than 0
-            //         if($total_quantity <= 0) {
-            //             break;
-            //         }
-            //     }
-            // }
 
             if($total_quantity > 0) {
                 $error_msg = "Product Quantity Doesn't Exist.";
@@ -320,31 +259,19 @@ class TransactionUtil extends Util
             } else {
                 // Insert Location vise data 
                 foreach($ecommerce_product_location as $ecommerce_location) {
-                   $ecommerce_store_location =  EcommerceStoreLocation::create([
-                        'transaction_id' => $transaction->id,
-                        'product_id' => $product_id->product_id,
-                        'location_id' => $ecommerce_location['location_id'],
-                        'quantity' => $ecommerce_location['quantity'],
-                    ]);
-
-                    // $line['ecommerce_location_id'] =  $ecommerce_location['location_id'];
-                    
-                    Transaction::where('id', $transaction->id)->update([
-                        'ecommerce_location' => $ecommerce_store_location->id
-                    ]);
+                        $line['location_id'] = $ecommerce_location['location_id'];
+                        $line['quantity'] = $ecommerce_location['quantity'];
                 }
             }
-            $lines_formatted[] = new TransactionSellLine($line);
+            $lines_formatted[] = new EcommerceSellLine($line);
         }
 
         if (!is_object($transaction)) {
-            $transaction = Transaction::findOrFail($transaction);
+            $transaction = EcommerceTransaction::findOrFail($transaction);
         }
-        // dd($lines_formatted);
         if (!empty($lines_formatted)) {
-            $transaction->sell_lines()->saveMany($lines_formatted);
+            $transaction->ecommerce_sell_lines()->saveMany($lines_formatted);
         }
-
         return $exist;
     }
 
@@ -990,7 +917,7 @@ class TransactionUtil extends Util
         $account_transactions = [];
 
         if(!is_object($transaction)) {
-            $transaction = Transaction::findorFail($transaction);
+            $transaction = EcommerceTransaction::findorFail($transaction);
         }
 
         $c = 0;
@@ -1025,7 +952,7 @@ class TransactionUtil extends Util
             'account_id' =>  null
         ];
 
-        $payments_formatted[] = new TransactionPayment($payment_data);
+        $payments_formatted[] = new EcommercePayment($payment_data);
 
         $account_transactions[$c] = [];
 
@@ -1042,6 +969,8 @@ class TransactionUtil extends Util
                 }
             }
         }
+
+        dd($transaction);
 
         return true;
     }
@@ -2829,6 +2758,31 @@ class TransactionUtil extends Util
 
         return $status;
     }
+    /**
+     * Calculates the payment status and returns back.
+     *
+     * @param int $transaction_id
+     * @param float $final_amount = null
+     *
+     * @return string
+     */
+    public function calculateEcommercePaymentStatus($transaction_id, $final_amount = null)
+    {
+        $total_paid = $this->getTotalPaid($transaction_id);
+
+        if (is_null($final_amount)) {
+            $final_amount = EcommerceTransaction::find($transaction_id)->final_total;
+        }
+
+        $status = 'due';
+        if ($final_amount <= $total_paid) {
+            $status = 'paid';
+        } elseif ($total_paid > 0 && $final_amount > $total_paid) {
+            $status = 'partial';
+        }
+
+        return $status;
+    }
 
     /**
      * Update the payment status for purchase or sell transactions. Returns
@@ -2842,6 +2796,23 @@ class TransactionUtil extends Util
     {
         $status = $this->calculatePaymentStatus($transaction_id, $final_amount);
         Transaction::where('id', $transaction_id)
+            ->update(['payment_status' => $status]);
+
+        return $status;
+    }
+
+    /**
+     * Update the payment status for purchase or sell transactions. Returns
+     * the status
+     *
+     * @param int $transaction_id
+     *
+     * @return string
+     */
+    public function updateEcommercePaymentStatus($transaction_id, $final_amount = null)
+    {
+        $status = $this->calculateEcommercePaymentStatus($transaction_id, $final_amount);
+        EcommerceTransaction::where('id', $transaction_id)
             ->update(['payment_status' => $status]);
 
         return $status;
@@ -3005,6 +2976,7 @@ class TransactionUtil extends Util
      */
     public function mapPurchaseSell($business, $transaction_lines, $mapping_type = 'purchase', $check_expiry = true, $purchase_line_id = null)
     {
+        // dd($transaction_lines);
         if (empty($transaction_lines)) {
             return false;
         }
@@ -3079,12 +3051,10 @@ class TransactionUtil extends Util
                     )->get();
 
             $purchase_sell_map = [];
-
             //Iterate over the rows, assign the purchase line to sell lines.
             $qty_selling = $line->quantity;
             foreach ($rows as $k => $row) {
                 $qty_allocated = 0;
-
                 //Check if qty_available is more or equal
                 if ($qty_selling <= $row->quantity_available) {
                     $qty_allocated = $qty_selling;
@@ -3093,7 +3063,6 @@ class TransactionUtil extends Util
                     $qty_selling = $qty_selling - $row->quantity_available;
                     $qty_allocated = $row->quantity_available;
                 }
-
                 //Check for sell mapping or stock adjsutment mapping
                 if ($mapping_type == 'stock_adjustment') {
                     //Mapping of stock adjustment
@@ -3144,6 +3113,7 @@ class TransactionUtil extends Util
                     break;
                 }
             }
+            
             if (! ($qty_selling == 0 || is_null($qty_selling))) {
                 //If overselling not allowed through exception else create mapping with blank purchase_line_id
                 if (!$allow_overselling) {
@@ -3191,7 +3161,218 @@ class TransactionUtil extends Util
                         ];
                 }
             }
+            
+            //Insert the mapping
+            if (!empty($purchase_adjustment_map)) {
+                TransactionSellLinesPurchaseLines::insert($purchase_adjustment_map);
+            }
+            if (!empty($purchase_sell_map)) {
+                TransactionSellLinesPurchaseLines::insert($purchase_sell_map);
+            }
+        }
+    }
 
+    /**
+     * Add a mapping between purchase & sell lines.
+     * NOTE: Don't use request variable here, request variable don't exist while adding
+     * dummybusiness via command line
+     *
+     * @param array $business
+     * @param array $transaction_lines
+     * @param string $mapping_type = purchase (purchase or stock_adjustment)
+     * @param boolean $check_expiry = true
+     * @param int $purchase_line_id (default: null)
+     *
+     * @return object
+     */
+    public function mapPurchaseEcommerceSell($business, $transaction_lines, $mapping_type = 'purchase', $check_expiry = true, $purchase_line_id = null)
+    {
+        // dd($transaction_lines);
+        if (empty($transaction_lines)) {
+            return false;
+        }
+
+        $allow_overselling = !empty($business['pos_settings']['allow_overselling']) ?
+                            true : false;
+
+        //Set flag to check for expired items during SELLING only.
+        $stop_selling_expired = false;
+        if ($check_expiry) {
+            if (session()->has('business') && request()->session()->get('business')['enable_product_expiry'] == 1 && request()->session()->get('business')['on_product_expiry'] == 'stop_selling') {
+                if ($mapping_type == 'purchase') {
+                    $stop_selling_expired = true;
+                }
+            }
+        }
+
+        $qty_selling = null;
+
+        foreach ($transaction_lines as $line) {
+            //Check if stock is not enabled then no need to assign purchase & sell
+            $product = Product::find($line->product_id);
+            if ($product->enable_stock != 1) {
+                continue;
+            }
+
+            $qty_sum_query = $this->get_pl_quantity_sum_string('PL');
+            
+            //Get purchase lines, only for products with enable stock.
+            $query = Transaction::join('purchase_lines AS PL', 'transactions.id', '=', 'PL.transaction_id')
+                ->where('transactions.business_id', $business['id'])
+                ->where('transactions.location_id', $line->location_id)
+                ->whereIn('transactions.type', ['purchase', 'purchase_transfer',
+                    'opening_stock', 'production_purchase'])
+                ->where('transactions.status', 'received')
+                ->whereRaw("( $qty_sum_query ) < PL.quantity")
+                ->where('PL.product_id', $line->product_id)
+                ->where('PL.variation_id', $line->variation_id);
+
+            //If product expiry is enabled then check for on expiry conditions
+            if ($stop_selling_expired && empty($purchase_line_id)) {
+                $stop_before = request()->session()->get('business')['stop_selling_before'];
+                $expiry_date = \Carbon::today()->addDays($stop_before)->toDateString();
+                $query->whereRaw('PL.exp_date IS NULL OR PL.exp_date > ?', [$expiry_date]);
+            }
+
+            //If lot number present consider only lot number purchase line
+            if (!empty($line->lot_no_line_id)) {
+                $query->where('PL.id', $line->lot_no_line_id);
+            }
+
+            //If purchase_line_id is given consider only that purchase line
+            if (!empty($purchase_line_id)) {
+                $query->where('PL.id', $purchase_line_id);
+            }
+
+            //Sort according to LIFO or FIFO
+            if ($business['accounting_method'] == 'lifo') {
+                $query = $query->orderBy('transaction_date', 'desc');
+            } else {
+                $query = $query->orderBy('transaction_date', 'asc');
+            }
+
+            $rows = $query->select(
+                'PL.id as purchase_lines_id',
+                DB::raw("(PL.quantity - ( $qty_sum_query )) AS quantity_available"),
+                'PL.quantity_sold as quantity_sold',
+                'PL.quantity_adjusted as quantity_adjusted',
+                'PL.quantity_returned as quantity_returned',
+                'PL.mfg_quantity_used as mfg_quantity_used',
+                'transactions.invoice_no'
+                    )->get();
+
+                    $purchase_sell_map = [];
+            //Iterate over the rows, assign the purchase line to sell lines.
+            $qty_selling = $line->quantity;
+            foreach ($rows as $k => $row) {
+                $qty_allocated = 0;
+                //Check if qty_available is more or equal
+                if ($qty_selling <= $row->quantity_available) {
+                    $qty_allocated = $qty_selling;
+                    $qty_selling = 0;
+                } else {
+                    $qty_selling = $qty_selling - $row->quantity_available;
+                    $qty_allocated = $row->quantity_available;
+                }
+                
+                //Check for sell mapping or stock adjsutment mapping
+                if ($mapping_type == 'stock_adjustment') {
+                    //Mapping of stock adjustment
+                    if ($qty_allocated != 0) {
+                        $purchase_adjustment_map[] =
+                            ['stock_adjustment_line_id' => $line->id,
+                                'purchase_line_id' => $row->purchase_lines_id,
+                                'quantity' => $qty_allocated,
+                                'created_at' => \Carbon::now(),
+                                'updated_at' => \Carbon::now()
+                            ];
+
+                        //Update purchase line
+                        PurchaseLine::where('id', $row->purchase_lines_id)
+                            ->update(['quantity_adjusted' => $row->quantity_adjusted + $qty_allocated]);
+                    }
+                } elseif ($mapping_type == 'purchase') {
+                    //Mapping of purchase
+                    if ($qty_allocated != 0) {
+                        $purchase_sell_map[] = ['sell_line_id' => $line->id,
+                                'purchase_line_id' => $row->purchase_lines_id,
+                                'quantity' => $qty_allocated,
+                                'created_at' => \Carbon::now(),
+                                'updated_at' => \Carbon::now()
+                            ];
+                        //Update purchase line
+                        PurchaseLine::where('id', $row->purchase_lines_id)
+                            ->update(['quantity_sold' => $row->quantity_sold + $qty_allocated]);
+                    }
+                } elseif ($mapping_type == 'production_purchase') {
+                    //Mapping of purchase
+                    if ($qty_allocated != 0) {
+                        $purchase_sell_map[] = ['sell_line_id' => $line->id,
+                                'purchase_line_id' => $row->purchase_lines_id,
+                                'quantity' => $qty_allocated,
+                                'created_at' => \Carbon::now(),
+                                'updated_at' => \Carbon::now()
+                            ];
+
+                        //Update purchase line
+                        PurchaseLine::where('id', $row->purchase_lines_id)
+                            ->update(['mfg_quantity_used' => $row->mfg_quantity_used + $qty_allocated]);
+                    }
+                }
+
+                if ($qty_selling == 0) {
+                    break;
+                }
+            }
+            
+            if (! ($qty_selling == 0 || is_null($qty_selling))) {
+                //If overselling not allowed through exception else create mapping with blank purchase_line_id
+                if (!$allow_overselling) {
+                    $variation = Variation::find($line->variation_id);
+                    $mismatch_name = $product->name;
+                    if (!empty($variation->sub_sku)) {
+                        $mismatch_name .= ' ' . 'SKU: ' . $variation->sub_sku;
+                    }
+                    if (!empty($qty_selling)) {
+                        $mismatch_name .= ' ' . 'Quantity: ' . abs($qty_selling);
+                    }
+                    
+                    if ($mapping_type == 'purchase') {
+                        $mismatch_error = trans(
+                            "messages.purchase_sell_mismatch_exception",
+                            ['product' => $mismatch_name]
+                        );
+
+                        if ($stop_selling_expired) {
+                            $mismatch_error .= __('lang_v1.available_stock_expired');
+                        }
+                    } elseif ($mapping_type == 'stock_adjustment') {
+                        $mismatch_error = trans(
+                            "messages.purchase_stock_adjustment_mismatch_exception",
+                            ['product' => $mismatch_name]
+                        );
+                    } else {
+                        $mismatch_error = trans(
+                            "lang_v1.quantity_mismatch_exception",
+                            ['product' => $mismatch_name]
+                        );
+                    }
+
+                    $business_name = optional(Business::find($business['id']))->name;
+                    $location_name = optional(BusinessLocation::find($business['location_id']))->name;
+                    \Log::emergency($mismatch_error . ' Business: ' . $business_name . ' Location: ' . $location_name);
+                    throw new PurchaseSellMismatch($mismatch_error);
+                } else {
+                    //Mapping with no purchase line
+                    $purchase_sell_map[] = ['sell_line_id' => $line->id,
+                            'purchase_line_id' => 0,
+                            'quantity' => $qty_selling,
+                            'created_at' => \Carbon::now(),
+                            'updated_at' => \Carbon::now()
+                        ];
+                }
+            }
+            
             //Insert the mapping
             if (!empty($purchase_adjustment_map)) {
                 TransactionSellLinesPurchaseLines::insert($purchase_adjustment_map);
@@ -4693,80 +4874,66 @@ class TransactionUtil extends Util
     */
     public function getEcommerceListSells($business_id)
     {
-        $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
-                // ->leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
+        $sells = EcommerceTransaction::leftJoin('contacts', 'ecommerce_transactions.contact_id', '=', 'contacts.id')
+                // ->leftJoin('transaction_payments as tp', 'ecommerce_transactions.id', '=', 'tp.transaction_id')
                 ->leftJoin('transaction_sell_lines as tsl', function($join) {
-                    $join->on('transactions.id', '=', 'tsl.transaction_id')
+                    $join->on('ecommerce_transactions.id', '=', 'tsl.transaction_id')
                         ->whereNull('tsl.parent_sell_line_id');
                 })
-                ->leftJoin('users as u', 'transactions.created_by', '=', 'u.id')
-                ->leftJoin('users as ss', 'transactions.res_waiter_id', '=', 'ss.id')
-                ->leftJoin('res_tables as tables', 'transactions.res_table_id', '=', 'tables.id')
+                ->leftJoin('users as u', 'ecommerce_transactions.created_by', '=', 'u.id')
+                ->leftJoin('users as ss', 'ecommerce_transactions.res_waiter_id', '=', 'ss.id')
+                ->leftJoin('res_tables as tables', 'ecommerce_transactions.res_table_id', '=', 'tables.id')
                 // ->join(
                 //     'business_locations AS bl',
-                //     'transactions.location_id',
+                //     'ecommerce_transactions.location_id',
                 //     '=',
                 //     'bl.id'
                 // )
                 ->leftJoin(
-                    'transactions AS SR',
-                    'transactions.id',
+                    'ecommerce_transactions AS SR',
+                    'ecommerce_transactions.id',
                     '=',
                     'SR.return_parent_id'
                 )
                 ->leftJoin(
                     'types_of_services AS tos',
-                    'transactions.types_of_service_id',
+                    'ecommerce_transactions.types_of_service_id',
                     '=',
                     'tos.id'
                 )
-                ->where('transactions.business_id', $business_id)
-                ->where('transactions.type', 'sell')
-                ->where('transactions.status', 'final')
+                ->where('ecommerce_transactions.business_id', $business_id)
+                ->where('ecommerce_transactions.type', 'sell')
+                ->where('ecommerce_transactions.status', 'final')
                 ->select(
-                    'transactions.id',
-                    'transactions.transaction_date',
-                    'transactions.is_direct_sale',
-                    'transactions.invoice_no',
-                    'transactions.invoice_no as invoice_no_text',
+                    'ecommerce_transactions.id',
+                    'ecommerce_transactions.transaction_date',
+                    'ecommerce_transactions.invoice_no',
+                    'ecommerce_transactions.invoice_no as invoice_no_text',
                     'contacts.name',
                     'contacts.mobile',
                     'contacts.contact_id',
                     'contacts.supplier_business_name',
-                    'transactions.payment_status',
-                    'transactions.final_total',
-                    'transactions.tax_amount',
-                    'transactions.discount_amount',
-                    'transactions.discount_type',
-                    'transactions.total_before_tax',
-                    'transactions.rp_redeemed',
-                    'transactions.rp_redeemed_amount',
-                    'transactions.rp_earned',
-                    'transactions.types_of_service_id',
-                    'transactions.shipping_status',
-                    'transactions.pay_term_number',
-                    'transactions.pay_term_type',
-                    'transactions.additional_notes',
-                    'transactions.staff_note',
-                    'transactions.shipping_details',
-                    'transactions.document',
-                    'transactions.shipping_custom_field_1',
-                    'transactions.shipping_custom_field_2',
-                    'transactions.shipping_custom_field_3',
-                    'transactions.shipping_custom_field_4',
-                    'transactions.shipping_custom_field_5',
-                    DB::raw('DATE_FORMAT(transactions.transaction_date, "%Y/%m/%d") as sale_date'),
+                    'ecommerce_transactions.payment_status',
+                    'ecommerce_transactions.final_total',
+                    'ecommerce_transactions.tax_amount',
+                    'ecommerce_transactions.discount_amount',
+                    'ecommerce_transactions.discount_type',
+                    'ecommerce_transactions.total_before_tax',
+                    'ecommerce_transactions.shipping_status',
+                    'ecommerce_transactions.additional_notes',
+                    'ecommerce_transactions.staff_note',
+                    'ecommerce_transactions.shipping_details',
+                    'ecommerce_transactions.shipping_custom_field_1',
+                    'ecommerce_transactions.shipping_custom_field_2',
+                    DB::raw('DATE_FORMAT(ecommerce_transactions.transaction_date, "%Y/%m/%d") as sale_date'),
                     DB::raw("CONCAT(COALESCE(u.surname, ''),' ',COALESCE(u.first_name, ''),' ',COALESCE(u.last_name,'')) as added_by"),
                     DB::raw('(SELECT SUM(IF(TP.is_return = 1,-1*TP.amount,TP.amount)) FROM transaction_payments AS TP WHERE
-                        TP.transaction_id=transactions.id) as total_paid'),
+                        TP.transaction_id=ecommerce_transactions.id) as total_paid'),
                     // 'bl.name as business_location',
                     DB::raw('COUNT(SR.id) as return_exists'),
                     DB::raw('(SELECT SUM(TP2.amount) FROM transaction_payments AS TP2 WHERE
                         TP2.transaction_id=SR.id ) as return_paid'),
                     DB::raw('COALESCE(SR.final_total, 0) as amount_return'),
-                    'SR.id as return_transaction_id',
-                    'tos.name as types_of_service_name',
-                    'transactions.service_custom_field_1',
                     DB::raw('COUNT( DISTINCT tsl.id) as total_items'),
                     DB::raw("CONCAT(COALESCE(ss.surname, ''),' ',COALESCE(ss.first_name, ''),' ',COALESCE(ss.last_name,'')) as waiter"),
                     'tables.name as table_name'

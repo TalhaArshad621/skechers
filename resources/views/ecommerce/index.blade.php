@@ -57,7 +57,7 @@
                         <th>@lang('lang_v1.shipping_status')</th>
                         <th>@lang('lang_v1.total_items')</th>
                         <th>@lang('lang_v1.types_of_service')</th>
-                        <th>{{ $custom_labels['types_of_service']['custom_field_1'] ?? __('lang_v1.service_custom_field_1' )}}</th>
+                        {{-- <th>{{ $custom_labels['types_of_service']['custom_field_1'] ?? __('lang_v1.service_custom_field_1' )}}</th> --}}
                         <th>@lang('lang_v1.added_by')</th>
                         <th>@lang('sale.sell_note')</th>
                         <th>@lang('sale.staff_note')</th>
@@ -78,7 +78,7 @@
                         <td class="footer_total_sell_return_due"></td>
                         <td colspan="2"></td>
                         <td class="service_type_count"></td>
-                        <td colspan="7"></td>
+                        <td colspan="6"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -174,7 +174,7 @@ $(document).ready( function(){
             { data: 'shipping_status', name: 'shipping_status'},
             { data: 'total_items', name: 'total_items', "searchable": false},
             { data: 'types_of_service_name', name: 'tos.name', @if(empty($is_types_service_enabled)) visible: false @endif},
-            { data: 'service_custom_field_1', name: 'service_custom_field_1', @if(empty($is_types_service_enabled)) visible: false @endif},
+            // { data: 'service_custom_field_1', name: 'service_custom_field_1', @if(empty($is_types_service_enabled)) visible: false @endif},
             { data: 'added_by', name: 'u.first_name'},
             { data: 'additional_notes', name: 'additional_notes'},
             { data: 'staff_note', name: 'staff_note'},
