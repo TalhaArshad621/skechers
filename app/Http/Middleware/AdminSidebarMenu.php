@@ -153,11 +153,18 @@ class AdminSidebarMenu
                         }
                         if (auth()->user()->can('product.create')) {
                             $sub->url(
-                                action('SellingPriceGroupController@index'),
-                                __('lang_v1.selling_price_group'),
-                                ['icon' => 'fa fas fa-circle', 'active' => request()->segment(1) == 'selling-price-group']
+                                action('SellController@indexForSellPriceUpdate'),
+                                __('Update Selling Price'),
+                                ['icon' => 'fa fas fa-circle', 'active' => request()->segment(1) == 'indexForSellPriceUpdate']
                             );
                         }
+                        // if (auth()->user()->can('product.create')) {
+                        //     $sub->url(
+                        //         action('SellingPriceGroupController@index'),
+                        //         __('lang_v1.selling_price_group'),
+                        //         ['icon' => 'fa fas fa-circle', 'active' => request()->segment(1) == 'selling-price-group']
+                        //     );
+                        // }
                         if (auth()->user()->can('unit.view') || auth()->user()->can('unit.create')) {
                             $sub->url(
                                 action('UnitController@index'),

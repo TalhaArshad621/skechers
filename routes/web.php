@@ -123,6 +123,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/sells/draft-dt', 'SellController@getDraftDatables');
     Route::post('/sells/store-gift', 'SellPosController@storeGift');
     Route::resource('sells', 'SellController')->except(['show']);
+    Route::get('indexForSellPriceUpdate', 'SellController@indexForSellPriceUpdate');
+    Route::post('importSellUpdatePrices', 'SellController@importSellUpdatePrices');
 
     Route::get('/import-sales', 'ImportSalesController@index');
     Route::post('/import-sales/preview', 'ImportSalesController@preview');

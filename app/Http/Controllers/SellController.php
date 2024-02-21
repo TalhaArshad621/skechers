@@ -26,6 +26,10 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Product;
 use App\Media;
 use Spatie\Activitylog\Models\Activity;
+use App\Utils\Util;
+use App\Variation;
+use App\VariationGroupPrice;
+use Excel;
 
 class SellController extends Controller
 {
@@ -37,6 +41,7 @@ class SellController extends Controller
     protected $businessUtil;
     protected $transactionUtil;
     protected $productUtil;
+    protected $commonUtil;
 
 
     /**
@@ -45,13 +50,15 @@ class SellController extends Controller
      * @param ProductUtils $product
      * @return void
      */
-    public function __construct(ContactUtil $contactUtil, BusinessUtil $businessUtil, TransactionUtil $transactionUtil, ModuleUtil $moduleUtil, ProductUtil $productUtil)
+
+    public function __construct(ContactUtil $contactUtil, BusinessUtil $businessUtil, TransactionUtil $transactionUtil, ModuleUtil $moduleUtil, ProductUtil $productUtil, Util $commonUtil)
     {
         $this->contactUtil = $contactUtil;
         $this->businessUtil = $businessUtil;
         $this->transactionUtil = $transactionUtil;
         $this->moduleUtil = $moduleUtil;
         $this->productUtil = $productUtil;
+        $this->commonUtil = $commonUtil;
 
         $this->dummyPaymentLine = ['method' => '', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
         'is_return' => 0, 'transaction_no' => ''];
@@ -1332,4 +1339,130 @@ class SellController extends Controller
             return view('sell.view_media')->with(compact('medias', 'title'));
         }
     }
+
+    public function indexForSellPriceUpdate()
+    {
+        if (!auth()->user()->can('product.create')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (request()->ajax()) {
+            $business_id = request()->session()->get('user.business_id');
+
+            $price_groups = SellingPriceGroup::where('business_id', $business_id)
+                        ->select(['name', 'description', 'id', 'is_active']);
+
+        }
+
+        return view('sell.sell_price_index');
+    }
+
+    public function importSellUpdatePrices(Request $request)
+    {
+        try {
+
+            $notAllowed = $this->commonUtil->notAllowedInDemo();
+            if (!empty($notAllowed)) {
+                return $notAllowed;
+            }
+        
+            //Set maximum php execution time
+            ini_set('max_execution_time', 0);
+            ini_set('memory_limit', -1);
+
+            // dd("here",$request);
+            if ($request->hasFile('product_sell_prices')) {
+                // dd("file");
+                $file = $request->file('product_sell_prices');
+                
+                $parsed_array = Excel::toArray([], $file);
+
+                $headers = $parsed_array[0][0];
+
+                //Remove header row
+                $imported_data = array_splice($parsed_array[0], 1);
+                // dd($imported_data);
+
+                $business_id = request()->user()->business_id;
+                $price_groups = SellingPriceGroup::where('business_id', $business_id)->active()->get();
+
+                //Get price group names from headers
+                $imported_pgs = [];
+                $new_prices = [];
+                $dpp_inc_tax_values = [];
+                $profit_margin_percentages = [];
+                $defaut_sell_price = [];
+
+                $error_msg = '';
+                DB::beginTransaction();
+                foreach ($imported_data as $key => $value) {
+                    $variation = Variation::where('sub_sku', $value[0])
+                                        ->first();
+                    $new_prices[$value[0]] = $value[2];
+
+                    $products = DB::table('products')
+                    ->leftJoin('variations','products.id', '=', 'variations.product_id')
+                    ->select('products.id AS product_id','products.name AS product_sku', 'products.unit_id AS product_unit_id','products.sub_unit_ids AS sub_unit_id','variations.product_variation_id AS variation_id','variations.default_purchase_price AS pp_without_discount','variations.profit_percent AS profit_percent','variations.default_sell_price','variations.dpp_inc_tax AS dpp_inc_tax','products.tax AS tax_id')
+                    ->where('variations.sub_sku',  $value[0])
+                    ->first();
+                    // dd($products);
+
+                    $tax_percentage = DB::table('tax_rates')
+                    ->where('id', $products->tax_id)
+                    ->select('amount')
+                    ->first();
+                    // dd($tax_percentage);
+
+                    $tax =  ($tax_percentage->amount/100) + 1;
+                    // dd($tax);
+
+
+
+                    if (empty($variation)) {
+                        $row = $key + 1;
+                        $error_msg = __('lang_v1.product_not_found_exception', ['sku' => $value[0], 'row' => $row]);
+
+                        throw new \Exception($error_msg);
+                    }
+
+                    $dpp_inc_tax = $variation->dpp_inc_tax;
+                    $new_selling_price = $new_prices[$value[0]];
+                    $profit_margin_percentage = ($new_selling_price - $dpp_inc_tax) / $dpp_inc_tax * 100;
+                    $profit_margin_percentages[$value[0]] = $profit_margin_percentage;
+                    
+
+                    $defaut_sell_price = $new_selling_price/$tax;
+                    $selling_price_without_tax[$value[0]] = $defaut_sell_price;
+
+                    // Update profit_percent and sell_price_inc_tax columns separately
+                    $variation->update(['profit_percent' => $profit_margin_percentage]);
+                    $variation->update(['sell_price_inc_tax' => $new_selling_price]);
+                    $variation->update(['default_sell_price' => $defaut_sell_price]);
+
+                    
+                }
+                // dd($selling_price_without_tax);
+
+                // dd($profit_margin_percentages);
+                // dd($dpp_inc_tax_values,$new_prices);
+                // dd($new_prices);
+                DB::commit();
+            }
+            $output = ['success' => 1,
+                            'msg' => __('lang_v1.product_grp_prices_imported_successfully')
+                        ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            
+            $output = ['success' => 0,
+                            'msg' => $e->getMessage()
+                        ];
+            return redirect('indexForSellPriceUpdate')->with('notification', $output);
+        }
+
+        return redirect('indexForSellPriceUpdate')->with('status', $output);
+
+    }
+
 }
