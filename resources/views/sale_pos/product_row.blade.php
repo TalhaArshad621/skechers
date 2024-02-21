@@ -1,4 +1,5 @@
 <tr class="product_row" data-row_index="{{$row_count}}">
+	{{-- {{ dd($discount) }} --}}
 	<td>
 		@php
 			$product_name = $product->product_name . '<br/>' . $product->sub_sku ;

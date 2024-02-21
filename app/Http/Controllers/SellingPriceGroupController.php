@@ -241,7 +241,7 @@ class SellingPriceGroupController extends Controller
         $export_data = [];
         foreach ($variations as $variation) {
             $temp = [];
-            $temp['product'] = $variation->type == 'single' ? $variation->product_name : $variation->product_name . ' - ' . $variation->product_variation_name . ' - ' . $variation->variation_name;
+            // $temp['product'] = $variation->type == 'single' ? $variation->product_name : $variation->product_name . ' - ' . $variation->product_variation_name . ' - ' . $variation->variation_name;
             $temp['sku'] = $variation->sub_sku;
             $temp['Base Selling Price'] = $variation->sell_price_inc_tax;
 
@@ -259,7 +259,7 @@ class SellingPriceGroupController extends Controller
         if (ob_get_contents()) ob_end_clean();
         ob_start();
         return collect($export_data)->downloadExcel(
-            'product_group_prices.xlsx',
+            'product_sell_prices.xlsx',
             null,
             true
         );

@@ -2922,7 +2922,7 @@ class ReportController extends Controller
                 ->editColumn('quantity', function ($row) {
                     $html = '<span data-is_quantity="true" class="display_currency quantity" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" data-unit="' . $row->unit . '" >' . (float) $row->quantity . '</span> ' . $row->unit;
                     if ($row->qty_returned > 0) {
-                        $html .= '<small><i>(<span data-is_quantity="true" class="display_currency" data-currency_symbol=false>' . (float) $row->quantity . '</span> ' . $row->unit . ' ' . __('lang_v1.returned') . ')</i></small>';
+                        $html .= '<small><i>(<span data-is_quantity="true" class="display_currency" data-currency_symbol=false>' . '-' . (float) abs($row->qty_returned) . '</span> ' . $row->unit . ' ' . __('lang_v1.returned') . ')</i></small>';
                     }
 
                     return $html;
