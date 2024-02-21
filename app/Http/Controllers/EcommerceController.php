@@ -21,6 +21,7 @@ use App\Business;
 use App\BusinessLocation;
 use App\Contact;
 use App\CustomerGroup;
+use App\EcommerceTransaction;
 use App\InvoiceScheme;
 use App\SellingPriceGroup;
 use App\TaxRate;
@@ -114,7 +115,7 @@ class EcommerceController extends Controller
             if (request()->has('created_by')) {
                 $created_by = request()->get('created_by');
                 if (!empty($created_by)) {
-                    $sells->where('transactions.created_by', $created_by);
+                    $sells->where('ecommerce_transactions.created_by', $created_by);
                 }
             }
 
@@ -122,12 +123,12 @@ class EcommerceController extends Controller
             if (!auth()->user()->can('direct_sell.access')) {
                 $sells->where( function($q){
                     if (auth()->user()->hasAnyPermission(['view_own_sell_only', 'access_own_shipping'])) {
-                        $q->where('transactions.created_by', request()->session()->get('user.id'));
+                        $q->where('ecommerce_transactions.created_by', request()->session()->get('user.id'));
                     }
 
                     //if user is commission agent display only assigned sells
                     if (auth()->user()->hasAnyPermission(['view_commission_agent_sell', 'access_commission_agent_shipping'])) {
-                        $q->orWhere('transactions.commission_agent', request()->session()->get('user.id'));
+                        $q->orWhere('ecommerce_transactions.commission_agent', request()->session()->get('user.id'));
                     }
                 });
             }
@@ -135,26 +136,26 @@ class EcommerceController extends Controller
             
 
             if (!empty(request()->input('payment_status')) && request()->input('payment_status') != 'overdue') {
-                $sells->where('transactions.payment_status', request()->input('payment_status'));
+                $sells->where('ecommerce_transactions.payment_status', request()->input('payment_status'));
             } elseif (request()->input('payment_status') == 'overdue') {
-                $sells->whereIn('transactions.payment_status', ['due', 'partial'])
-                    ->whereNotNull('transactions.pay_term_number')
-                    ->whereNotNull('transactions.pay_term_type')
-                    ->whereRaw("IF(transactions.pay_term_type='days', DATE_ADD(transactions.transaction_date, INTERVAL transactions.pay_term_number DAY) < CURDATE(), DATE_ADD(transactions.transaction_date, INTERVAL transactions.pay_term_number MONTH) < CURDATE())");
+                $sells->whereIn('ecommerce_transactions.payment_status', ['due', 'partial'])
+                    ->whereNotNull('ecommerce_transactions.pay_term_number')
+                    ->whereNotNull('ecommerce_transactions.pay_term_type')
+                    ->whereRaw("IF(ecommerce_transactions.pay_term_type='days', DATE_ADD(ecommerce_transactions.transaction_date, INTERVAL ecommerce_transactions.pay_term_number DAY) < CURDATE(), DATE_ADD(ecommerce_transactions.transaction_date, INTERVAL ecommerce_transactions.pay_term_number MONTH) < CURDATE())");
             }
 
             //Add condition for location,used in sales representative expense report
             // if (request()->has('location_id')) {
             //     $location_id = request()->get('location_id');
             //     if (!empty($location_id)) {
-            //         $sells->where('transactions.location_id', $location_id);
+            //         $sells->where('ecommerce_transactions.location_id', $location_id);
             //     }
             // }
 
             if (!empty(request()->input('rewards_only')) && request()->input('rewards_only') == true) {
                 $sells->where(function ($q) {
-                    $q->whereNotNull('transactions.rp_earned')
-                    ->orWhere('transactions.rp_redeemed', '>', 0);
+                    $q->whereNotNull('ecommerce_transactions.rp_earned')
+                    ->orWhere('ecommerce_transactions.rp_redeemed', '>', 0);
                 });
             }
 
@@ -165,16 +166,16 @@ class EcommerceController extends Controller
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
                 $start = request()->start_date;
                 $end =  request()->end_date;
-                $sells->whereDate('transactions.transaction_date', '>=', $start)
-                            ->whereDate('transactions.transaction_date', '<=', $end);
+                $sells->whereDate('ecommerce_transactions.transaction_date', '>=', $start)
+                            ->whereDate('ecommerce_transactions.transaction_date', '<=', $end);
             }
 
             //Check is_direct sell
             if (request()->has('is_direct_sale')) {
                 $is_direct_sale = request()->is_direct_sale;
                 if ($is_direct_sale == 0) {
-                    $sells->where('transactions.is_direct_sale', 0);
-                    $sells->whereNull('transactions.sub_type');
+                    $sells->where('ecommerce_transactions.is_direct_sale', 0);
+                    $sells->whereNull('ecommerce_transactions.sub_type');
                 }
             }
 
@@ -182,70 +183,70 @@ class EcommerceController extends Controller
             if (request()->has('commission_agent')) {
                 $commission_agent = request()->get('commission_agent');
                 if (!empty($commission_agent)) {
-                    $sells->where('transactions.commission_agent', $commission_agent);
+                    $sells->where('ecommerce_transactions.commission_agent', $commission_agent);
                 }
             }
 
             if ($is_woocommerce) {
-                $sells->addSelect('transactions.woocommerce_order_id');
+                $sells->addSelect('ecommerce_transactions.woocommerce_order_id');
                 if (request()->only_woocommerce_sells) {
-                    $sells->whereNotNull('transactions.woocommerce_order_id');
+                    $sells->whereNotNull('ecommerce_transactions.woocommerce_order_id');
                 }
             }
 
             if (request()->only_subscriptions) {
                 $sells->where(function ($q) {
-                    $q->whereNotNull('transactions.recur_parent_id')
-                        ->orWhere('transactions.is_recurring', 1);
+                    $q->whereNotNull('ecommerce_transactions.recur_parent_id')
+                        ->orWhere('ecommerce_transactions.is_recurring', 1);
                 });
             }
 
             if (!empty(request()->list_for) && request()->list_for == 'service_staff_report') {
-                $sells->whereNotNull('transactions.res_waiter_id');
+                $sells->whereNotNull('ecommerce_transactions.res_waiter_id');
             }
 
             if (!empty(request()->res_waiter_id)) {
-                $sells->where('transactions.res_waiter_id', request()->res_waiter_id);
+                $sells->where('ecommerce_transactions.res_waiter_id', request()->res_waiter_id);
             }
 
             if (!empty(request()->input('sub_type'))) {
-                $sells->where('transactions.sub_type', request()->input('sub_type'));
+                $sells->where('ecommerce_transactions.sub_type', request()->input('sub_type'));
             }
 
             if (!empty(request()->input('created_by'))) {
-                $sells->where('transactions.created_by', request()->input('created_by'));
+                $sells->where('ecommerce_transactions.created_by', request()->input('created_by'));
             }
 
             if (!empty(request()->input('sales_cmsn_agnt'))) {
-                $sells->where('transactions.commission_agent', request()->input('sales_cmsn_agnt'));
+                $sells->where('ecommerce_transactions.commission_agent', request()->input('sales_cmsn_agnt'));
             }
 
             if (!empty(request()->input('service_staffs'))) {
-                $sells->where('transactions.res_waiter_id', request()->input('service_staffs'));
+                $sells->where('ecommerce_transactions.res_waiter_id', request()->input('service_staffs'));
             }
             $only_shipments = request()->only_shipments == 'true' ? true : false;
             if ($only_shipments) {
-                $sells->whereNotNull('transactions.shipping_status');
+                $sells->whereNotNull('ecommerce_transactions.shipping_status');
             }
 
             if (!empty(request()->input('shipping_status'))) {
-                $sells->where('transactions.shipping_status', request()->input('shipping_status'));
+                $sells->where('ecommerce_transactions.shipping_status', request()->input('shipping_status'));
             }
 
             if (!empty(request()->input('shipping_status'))) {
-                $sells->where('transactions.shipping_status', request()->input('shipping_status'));
+                $sells->where('ecommerce_transactions.shipping_status', request()->input('shipping_status'));
             }
 
-            $sells->where('transactions.custom_field_2', 'ecommerce');   
+            $sells->where('ecommerce_transactions.sub_type', 'ecommerce');   
             
-            $sells->groupBy('transactions.id');
+            $sells->groupBy('ecommerce_transactions.id');
 
             if (!empty(request()->suspended)) {
                 $transaction_sub_type = request()->get('transaction_sub_type');
                 if (!empty($transaction_sub_type)) {
-                    $sells->where('transactions.sub_type', $transaction_sub_type);
+                    $sells->where('ecommerce_transactions.sub_type', $transaction_sub_type);
                 } else {
-                    $sells->where('transactions.sub_type', null);
+                    $sells->where('ecommerce_transactions.sub_type', null);
                 }
 
                 $with = ['sell_lines'];
@@ -258,9 +259,9 @@ class EcommerceController extends Controller
                     $with[] = 'service_staff';
                 }
 
-                $sales = $sells->where('transactions.is_suspend', 1)
+                $sales = $sells->where('ecommerce_transactions.is_suspend', 1)
                             ->with($with)
-                            ->addSelect('transactions.is_suspend', 'transactions.res_table_id', 'transactions.res_waiter_id', 'transactions.additional_notes')
+                            ->addSelect('ecommerce_transactions.is_suspend', 'ecommerce_transactions.additional_notes')
                             ->get();
 
                 return view('sale_pos.partials.suspended_sales_modal')->with(compact('sales', 'is_tables_enabled', 'is_service_staff_enabled', 'transaction_sub_type'));
@@ -273,7 +274,7 @@ class EcommerceController extends Controller
 
             //$business_details = $this->businessUtil->getDetails($business_id);
             if ($this->businessUtil->isModuleEnabled('subscription')) {
-                $sells->addSelect('transactions.is_recurring', 'transactions.recur_parent_id');
+                $sells->addSelect('ecommerce_transactions.is_recurring', 'ecommerce_transactions.recur_parent_id');
             }
             $datatable = Datatables::of($sells)
                 ->addColumn(
@@ -383,12 +384,12 @@ class EcommerceController extends Controller
                     'payment_status',
                     function ($row) {
                         $payment_status = Transaction::getPaymentStatus($row);
-                        return (string) view('sell.partials.payment_status', ['payment_status' => $payment_status, 'id' => $row->id]);
+                        return (string) view('ecommerce.partials.payment_status', ['payment_status' => $payment_status, 'id' => $row->id]);
                     }
                 )
                 ->editColumn(
                     'types_of_service_name',
-                    '<span class="service-type-label" data-orig-value="{{$types_of_service_name}}" data-status-name="{{$types_of_service_name}}">{{$types_of_service_name}}</span>'
+                    '<span class="service-type-label" data-orig-value="" data-status-name=""></span>'
                 )
                 ->addColumn('total_remaining', function ($row) {
                     $total_remaining =  $row->final_total - $row->total_paid;
@@ -426,7 +427,7 @@ class EcommerceController extends Controller
                 })
                 ->editColumn('shipping_status', function ($row) use ($shipping_statuses) {
                     $status_color = !empty($this->shipping_status_colors[$row->shipping_status]) ? $this->shipping_status_colors[$row->shipping_status] : 'bg-gray';
-                    $status = !empty($row->shipping_status) ? '<a href="#" class="btn-modal" data-href="' . action('SellController@editShipping', [$row->id]) . '" data-container=".view_modal"><span class="label ' . $status_color .'">' . $shipping_statuses[$row->shipping_status] . '</span></a>' : '';
+                    $status = !empty($row->shipping_status) ? '<a href="#" class="btn-modal" data-href="' . action('EcommerceController@editShipping', [$row->id]) . '" data-container=".view_modal"><span class="label ' . $status_color .'">' . $shipping_statuses[$row->shipping_status] . '</span></a>' : '';
                      
                     return $status;
                 })
@@ -526,12 +527,12 @@ class EcommerceController extends Controller
             $input['is_quotation'] = 0;
             $is_direct_sale = false;
 
-            foreach($shopifyOrders as $key => $shopifyOrder) {                
+            foreach($shopifyOrders as $key => $shopifyOrder) {     
                     // Order number for the shopify order in DB it will be invoice number
                     $orderId = trim($shopifyOrder['name'], "#");
                     $input['invoice_no'] = $orderId;
                     // Check if the order already exist
-                    $existingTransactions = DB::table('transactions')->where('type','sell')->where('custom_field_2','ecommerce')->where('invoice_no',$orderId)->first();
+                    $existingTransactions = DB::table('ecommerce_transactions')->where('type','sell')->where('sub_type','ecommerce')->where('invoice_no',$orderId)->first();
                     if(!$existingTransactions) {
                         $business_id = $this->business_id;
                         $input['status'] = "final";
@@ -575,18 +576,21 @@ class EcommerceController extends Controller
                         $input['products'] = $shopifyOrder['line_items'];
                         
                         $transaction = $this->transactionUtil->createEcommerceTransaction($business_id, $input, $invoice_total, $user_id);
-
+                        
                         $transactionSellLines = $this->transactionUtil->createEcommerceSellLines($transaction, $input['products'], $business_id);
+
                         if(!$transactionSellLines) {
                             DB::rollBack();
                             continue;
                         }
+
+                        // dd($transaction);
                         $is_credit_sale = false;
                         if( str_contains($shopifyOrder['payment_gateway_names'][0],  "(COD)")) {
                             $is_credit_sale = true;
                         }
                         
-                        if(!$is_credit_sale) {
+                        if(!$is_credit_sale) {  
                             $this->transactionUtil->createEcommercePaymentLine($transaction, $shopifyOrder, $user_id, $business_id);
                         }
 
@@ -596,36 +600,37 @@ class EcommerceController extends Controller
                         }
 
                         //Update payment status
-                        $payment_status = $this->transactionUtil->updatePaymentStatus($transaction->id, $invoice_total);
-
+                        $payment_status = $this->transactionUtil->updateEcommercePaymentStatus($transaction->id, $invoice_total);
                         $transaction->payment_status = $payment_status;
-
-                        // dd($transaction->sell_lines);
+                        
+                        // dd($transaction->ecommerce_sell_lines);
                         
                         //Allocate the quantity from purchase and add mapping of
                         //purchase & sell lines in
-                        //transaction_sell_lines_purchase_lines table
+                        //transaction_ecommerce_sell_lines_purchase_lines table
                         $business_details = $this->businessUtil->getDetails($business_id);
                         $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
-
-                        $business = ['id' => $business_id,
-                                        'accounting_method' => $request->session()->get('business.accounting_method'),
-                                        'location_id' => 4,
-                                        'pos_settings' => $pos_settings
-                                    ];
-                        $this->transactionUtil->mapPurchaseSell($business, $transaction->sell_lines, 'purchase');
                         
+                        $business = ['id' => $business_id,
+                        'accounting_method' => $request->session()->get('business.accounting_method'),
+                        'location_id' => 8,
+                        'pos_settings' => $pos_settings
+                         ];
+
+                        //  dd($transaction->ecommerce_sell_lines);
+                        $this->transactionUtil->mapPurchaseEcommerceSell($business, $transaction->ecommerce_sell_lines, 'purchase');
                         $this->transactionUtil->activityLog($transaction, 'added');
+
                         
                     }
                     
                     
+                    $msg = trans("sale.ecommerce_sale");
+        
+                    $output = ['success' => 1, 'msg' => $msg];
+                    
+                    DB::commit();
                 }
-            $msg = trans("sale.ecommerce_sale");
-
-            $output = ['success' => 1, 'msg' => $msg];
-            
-            // DB::commit();
        
         } catch(Exception $e) {
             DB::rollBack();
@@ -653,14 +658,14 @@ class EcommerceController extends Controller
         $business_id = request()->session()->get('user.business_id');
         $taxes = TaxRate::where('business_id', $business_id)
                             ->pluck('name', 'id');
-        $query = Transaction::where('business_id', $business_id)
+        $query = EcommerceTransaction::where('business_id', $business_id)
                     ->where('id', $id)
-                    ->with(['contact', 'sell_lines' => function ($q) {
+                    ->with(['contact', 'ecommerce_sell_lines' => function ($q) {
                         $q->whereNull('parent_sell_line_id');
-                    },'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+                    },'ecommerce_sell_lines.product', 'ecommerce_sell_lines.product.unit', 'ecommerce_sell_lines.variations', 'ecommerce_sell_lines.variations.product_variation', 'payment_lines', 'ecommerce_sell_lines.modifiers', 'ecommerce_sell_lines.lot_details', 'tax', 'ecommerce_sell_lines.sub_unit', 'table', 'service_staff', 'ecommerce_sell_lines.service_staff', 'types_of_service', 'ecommerce_sell_lines.warranties', 'media','ecommerce_sell_lines.location']);
 
         if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
-            $query->where('transactions.created_by', request()->session()->get('user.id'));
+            $query->where('ecommerce_transactions.created_by', request()->session()->get('user.id'));
         }
 
         $sell = $query->firstOrFail();
@@ -670,7 +675,7 @@ class EcommerceController extends Controller
            ->latest()
            ->get();
 
-        foreach ($sell->sell_lines as $key => $value) {
+        foreach ($sell->ecommerce_sell_lines as $key => $value) {
             if (!empty($value->sub_unit_id)) {
                 $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
                 $sell->sell_lines[$key] = $formated_sell_line;
@@ -686,7 +691,7 @@ class EcommerceController extends Controller
                 $order_taxes[$sell->tax->name] = $sell->tax_amount;
             }
         }
-
+        
         $business_details = $this->businessUtil->getDetails($business_id);
         $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
         $shipping_statuses = $this->transactionUtil->shipping_statuses();
@@ -695,7 +700,6 @@ class EcommerceController extends Controller
         $is_warranty_enabled = !empty($common_settings['enable_product_warranty']) ? true : false;
 
         $statuses = Transaction::getSellStatuses();
-
         return view('ecommerce.show')
             ->with(compact(
                 'taxes',
@@ -744,4 +748,75 @@ class EcommerceController extends Controller
     {
         //
     }
+
+    
+    /**
+     * Shows modal to edit shipping details.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editShipping($id)
+    {
+        $is_admin = $this->businessUtil->is_admin(auth()->user());
+
+        if ( !$is_admin && !auth()->user()->hasAnyPermission(['access_shipping', 'access_own_shipping', 'access_commission_agent_shipping']) ) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = request()->session()->get('user.business_id');
+
+        $transaction = EcommerceTransaction::where('business_id', $business_id)
+                                ->with(['media', 'media.uploaded_by_user'])
+                                ->findorfail($id);
+        $shipping_statuses = $this->transactionUtil->shipping_statuses();
+
+        return view('ecommerce.partials.edit_shipping')
+               ->with(compact('transaction', 'shipping_statuses'));
+    }
+    
+    /**
+     * Update shipping.
+     *
+     * @param  Request $request, int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateShipping(Request $request, $id)
+    {
+        $is_admin = $this->businessUtil->is_admin(auth()->user());
+
+        if ( !$is_admin && !auth()->user()->hasAnyPermission(['access_shipping', 'access_own_shipping', 'access_commission_agent_shipping']) ) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $input = $request->only([
+                    'shipping_details', 'shipping_address',
+                    'shipping_status', 'delivered_to', 'shipping_custom_field_1', 'shipping_custom_field_2', 'shipping_custom_field_3', 'shipping_custom_field_4', 'shipping_custom_field_5'
+                ]);
+            $business_id = $request->session()->get('user.business_id');
+
+            $transaction = EcommerceTransaction::where('business_id', $business_id)
+                                ->findOrFail($id);
+
+            $transaction_before = $transaction->replicate();
+
+            $transaction->update($input);
+
+            $this->transactionUtil->activityLog($transaction, 'shipping_edited', $transaction_before);
+
+            $output = ['success' => 1,
+                            'msg' => trans("lang_v1.updated_success")
+                        ];
+        } catch (\Exception $e) {
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            
+            $output = ['success' => 0,
+                            'msg' => trans("messages.something_went_wrong")
+                        ];
+        }
+
+        return $output;
+    }
+
 }

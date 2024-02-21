@@ -11,6 +11,8 @@
 |
 */
 
+use App\Http\Controllers\EcommerceController;
+
 include_once('install_r.php');
 
 Route::middleware(['setData'])->group(function () {
@@ -310,8 +312,17 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::resource('discount', 'DiscountController');
 
     // Ecommerce 
+    // Route::get('/ecommerce',[EcommerceController::class, 'index']);
+    // Route::get('/ecommerce/{id}',[EcommerceController::class, 'show']);
+    Route::get('ecommerce/edit-shipping/{id}', 'EcommerceController@editShipping');
+    Route::put('ecommerce/update-shipping/{id}', 'EcommerceController@updateShipping');
+
     Route::resource('/ecommerce','EcommerceController')->except(['store']);
     Route::get('/shopify-ecommerce-api','EcommerceController@store');
+
+    Route::resource('ecommerce-payments','EcommercePaymentController');
+
+    // Route::resource('/')
 
     Route::group(['prefix' => 'account'], function () {
         Route::resource('/account', 'AccountController');
