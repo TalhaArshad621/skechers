@@ -19,6 +19,10 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\TransactionPaymentAdded::class => [
             \App\Listeners\AddAccountTransaction::class,
         ],
+       
+        \App\Events\EcommercePaymentAdded::class => [
+            \App\Listeners\AddEcommerceAccountTransation::class,
+        ],
 
         \App\Events\TransactionPaymentUpdated::class => [
             \App\Listeners\UpdateAccountTransaction::class,
@@ -27,6 +31,7 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\TransactionPaymentDeleted::class => [
             \App\Listeners\DeleteAccountTransaction::class,
         ],
+
     ];
 
     /**

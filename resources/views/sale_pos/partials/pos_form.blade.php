@@ -66,7 +66,7 @@
 		<div class="col-md-4">
 			<div class="form-group">
 			{!! Form::select('commission_agent', 
-						$commission_agent, null, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.commission_agent')]); !!}
+						$commission_agent, null, ['class' => 'form-control select2', 'required','placeholder' => __('lang_v1.commission_agent')]); !!}
 			</div>
 		</div>
 	@endif
