@@ -21,7 +21,10 @@ use App\Business;
 use App\BusinessLocation;
 use App\Contact;
 use App\CustomerGroup;
+use App\EcommercePayment;
+use App\EcommerceSellLine;
 use App\EcommerceTransaction;
+use App\Events\EcommercePaymentAdded;
 use App\InvoiceScheme;
 use App\SellingPriceGroup;
 use App\TaxRate;
@@ -29,6 +32,7 @@ use App\Transaction;
 use App\TransactionSellLine;
 use App\TypesOfService;
 use App\User;
+use Illuminate\Support\Facades\Redirect;
 use Yajra\DataTables\Facades\DataTables;
 use Spatie\Activitylog\Models\Activity;
 
@@ -814,6 +818,134 @@ class EcommerceController extends Controller
             $output = ['success' => 0,
                             'msg' => trans("messages.something_went_wrong")
                         ];
+        }
+
+        return $output;
+    }
+
+    public function returnItem($id)
+    {
+        //  dd($id);
+         if (!auth()->user()->can('access_sell_return')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $input = EcommerceSellLine::findorFail($id);
+            $business_id = request()->session()->get('user.business_id');
+            $user_id = request()->session()->get('user.id');
+
+            DB::beginTransaction();
+            // dd($input); 
+            $sell_return =  $this->transactionUtil->addEcommerceSellReturn($input, $business_id, $user_id);
+            $receipt = $this->receiptContent($business_id, $input->location_id, $sell_return->id);
+            $payment_details['total_price'] =  $sell_return->final_total;
+            $payment_details['payment_gateway_names'] = [
+                '0' => 'COD'
+            ];
+            // $this->transactionUtil->createEcommercePaymentLine($sell_return, $payment_details, $user_id, $business_id);
+
+            if ($sell_return) {
+                
+                $inputs['paid_on'] = Carbon::now();
+                $inputs['ecommerce_transaction_id'] = $sell_return->id;
+                $inputs['amount'] = $this->transactionUtil->num_uf($sell_return->final_total);
+                $inputs['created_by'] = auth()->user()->id;
+                $inputs['payment_for'] = $sell_return->contact_id;
+                $inputs['method'] = "cash";
+                
+                $prefix_type = 'purchase_payment';
+                
+                $prefix_type = 'sell_payment';
+                
+                
+                
+                $ref_count = $this->transactionUtil->setAndGetReferenceCount($prefix_type);
+                //Generate reference number
+                $inputs['payment_ref_no'] = $this->transactionUtil->generateReferenceNumber($prefix_type, $ref_count);
+                
+                $inputs['business_id'] = $business_id;
+                
+                //Pay from advance balance
+                $payment_amount = $inputs['amount'];
+                if (!empty($inputs['amount'])) {
+                    $tp = EcommercePayment::create($inputs);
+                    
+                    $inputs['transaction_type'] = $sell_return->type;
+                    event(new EcommercePaymentAdded($tp, $inputs));
+                }
+                
+                EcommerceTransaction::where('id', $sell_return->id)
+                ->update(['payment_status' => 'paid']);
+                
+                // dd($tp);
+                
+                // $this->transactionUtil->activityLog($sell_return, 'payment_edited', $transaction_before);
+                
+            }
+
+
+            DB::commit();
+
+            $output = ['success' => 1,
+                        'msg' => __('lang_v1.success'),
+                        'receipt' => $receipt
+                    ];
+            // dd($output); 
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            if (get_class($e) == \App\Exceptions\PurchaseSellMismatch::class) {
+                $msg = $e->getMessage();
+            } else {
+                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+                $msg = __('messages.something_went_wrong');
+            }
+
+            $output = ['success' => 0,
+                            'msg' => $msg
+                        ];
+        }
+
+        return Redirect::to('/ecommerce')->with('output');  
+
+    }
+
+    private function receiptContent(
+        $business_id,
+        $location_id,
+        $transaction_id,
+        $printer_type = null
+    ) {
+        $output = ['is_enabled' => false,
+                    'print_type' => 'browser',
+                    'html_content' => null,
+                    'printer_config' => [],
+                    'data' => []
+                ];
+
+        $business_details = $this->businessUtil->getDetails($business_id);
+                
+        $location_details = BusinessLocation::find($location_id);
+        //Check if printing of invoice is enabled or not.
+        if ($location_details->print_receipt_on_invoice == 1) {
+            //If enabled, get print type.
+            $output['is_enabled'] = true;
+
+            $invoice_layout = $this->businessUtil->invoiceLayout($business_id, $location_id, $location_details->invoice_layout_id);
+
+            //Check if printer setting is provided.
+            $receipt_printer_type = is_null($printer_type) ? $location_details->receipt_printer_type : $printer_type;
+
+            $receipt_details = $this->transactionUtil->getEcommerceReceiptDetails($transaction_id, $location_id, $invoice_layout, $business_details, $location_details, $receipt_printer_type);
+            //If print type browser - return the content, printer - return printer config data, and invoice format config
+            if ($receipt_printer_type == 'printer') {
+                $output['print_type'] = 'printer';
+                $output['printer_config'] = $this->businessUtil->printerConfig($business_id, $location_details->printer_id);
+                $output['data'] = $receipt_details;
+            } else {
+                $output['html_content'] = view('sell_return.receipt', compact('receipt_details'))->render();
+            }
         }
 
         return $output;
