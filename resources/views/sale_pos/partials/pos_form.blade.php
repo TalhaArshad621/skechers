@@ -194,7 +194,7 @@
 					<th class="tex-center @if(!empty($pos_settings['inline_service_staff'])) col-md-3 @else col-md-4 @endif">	
 						@lang('sale.product') @show_tooltip(__('lang_v1.tooltip_sell_product_column'))
 					</th>
-					<th class="text-center col-md-3">
+					<th class="text-center col-md-2">
 						@lang('sale.qty')
 					</th>
 					@if(!empty($pos_settings['inline_service_staff']))
@@ -202,6 +202,12 @@
 							@lang('restaurant.service_staff')
 						</th>
 					@endif
+					<th class="text-center col-md-2">
+						@lang('Original Amount')
+					</th>
+					<th class="text-center col-md-2">
+						@lang('Discount Amount')
+					</th>
 					<th class="text-center col-md-2 {{$hide_tax}}">
 						@lang('sale.price_inc_tax')
 					</th>

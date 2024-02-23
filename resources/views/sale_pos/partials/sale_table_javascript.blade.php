@@ -86,8 +86,8 @@ sell_table = $('#sell_table').DataTable({
             { data: 'service_custom_field_1', name: 'service_custom_field_1', @if(empty($is_types_service_enabled)) visible: false @endif},
             { data: 'added_by', name: 'u.first_name'},
             { data: 'additional_notes', name: 'additional_notes'},
-            { data: 'staff_note', name: 'staff_note'},
-            { data: 'shipping_details', name: 'shipping_details'},
+            // { data: 'staff_note', name: 'staff_note'},
+            // { data: 'shipping_details', name: 'shipping_details'},
             { data: 'table_name', name: 'tables.name', @if(empty($is_tables_enabled)) visible: false @endif },
             { data: 'waiter', name: 'ss.first_name', @if(empty($is_service_staff_enabled)) visible: false @endif }
         ],

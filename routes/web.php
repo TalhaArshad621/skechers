@@ -185,6 +185,10 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/reports/customer-group', 'ReportController@getCustomerGroup');
     Route::get('/reports/product-purchase-report', 'ReportController@getproductPurchaseReport');
     Route::get('/reports/product-sell-report', 'ReportController@getproductSellReport');
+    // Route::get('/reports/product-sell-report-detailed', 'ReportController@getproductSellReportDetailed');
+    Route::get('/reports/product-sell-grouped-report-detailed', 'ReportController@getproductSellGroupedReportDetailed');
+    Route::get('/reports/product-sell-grouped-report-detailed-returns', 'ReportController@getproductSellGroupedReportDetailedReturns');
+
     Route::get('/reports/product-sell-report-with-purchase', 'ReportController@getproductSellReportWithPurchase');
     Route::get('/reports/product-sell-grouped-report', 'ReportController@getproductSellGroupedReport');
     Route::get('/reports/lot-report', 'ReportController@getLotReport');
