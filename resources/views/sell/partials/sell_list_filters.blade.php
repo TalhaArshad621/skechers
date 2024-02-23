@@ -59,7 +59,7 @@
     </div>
 @endif
 @endif
-@if(!empty($shipping_statuses))
+{{-- @if(!empty($shipping_statuses))
     <div class="col-md-3">
         <div class="form-group">
             {!! Form::label('shipping_status', __('lang_v1.shipping_status') . ':') !!}
@@ -79,4 +79,4 @@
         </div>
     </div>
 </div>
-@endif
+@endif --}}

@@ -24,13 +24,15 @@
 			<div class="row">
 				<div class="col-sm-4">
 					<strong>@lang('sale.invoice_no'):</strong> <input type="text" name="old_invoice_no" id="old_invoice_number" class="form-control" placeholder="Old Invoice No" required><br>
-                    <button type="button" id="sale_invoice">Click</button>
-					<strong>@lang('messages.date'):</strong><span id="transaction_date"></span>
+                    <button type="button" id="sale_invoice" class="btn sm-btn btn-primary">Click</button>
 
 				</div>
 				<div class="col-sm-4">
 					<strong>@lang('contact.customer'):</strong> <span id="customer"></span> <br>
 					<strong>@lang('purchase.business_location'):</strong> <span id="business_location"></span>
+				</div>
+				<div class="col-md-4">
+					<strong>@lang('messages.date'):</strong><span id="transaction_date"></span>
 				</div>
 			</div>
 		</div>
@@ -248,6 +250,7 @@
                     // Update your view with the received data
                     // Assuming you have a function to update the view, you can replace it with your logic
                     updateView(response.sell);
+					update_sell_return_total();
                 } else {
                     // Handle the case where the transaction is not found
                     console.log(response.message);
@@ -397,7 +400,7 @@
 
                 sellLinesHtml += '</tbody></table>';
             } else {
-                sellLinesHtml = '<p>No sell lines available.</p>';
+                sellLinesHtml = '<td colspan="6" style="color:black; font-size: 18px; align-items:center; padding:5px; text-align:center;"><marquee> No sell lines available.</marquee></td>';
             }
 
             $('#sell_lines_container').html(sellLinesHtml);

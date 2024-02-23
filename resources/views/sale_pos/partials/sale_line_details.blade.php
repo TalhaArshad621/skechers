@@ -1,7 +1,7 @@
 <table class="table bg-gray">
         <tr class="bg-green">
         <th>#</th>
-        <th>{{ __('sale.product') }}</th>
+        <th>{{ __('SKU') }}</th>
         @if( session()->get('business.enable_lot_number') == 1)
             <th>{{ __('lang_v1.lot_n_expiry') }}</th>
         @endif
@@ -21,18 +21,18 @@
         <tr>
             <td>{{ $loop->iteration }}</td>
             <td>
-                {{ $sell_line->product->name }}
+                {{ $sell_line->product->sku }}
                 @if( $sell_line->product->type == 'variable')
                 - {{ $sell_line->variations->product_variation->name ?? ''}}
                 - {{ $sell_line->variations->name ?? ''}},
                 @endif
-                {{ $sell_line->variations->sub_sku ?? ''}}
-                @php
+                {{-- {{ $sell_line->variations->sub_sku ?? ''}} --}}
+                {{-- @php
                 $brand = $sell_line->product->brand;
                 @endphp
                 @if(!empty($brand->name))
                 , {{$brand->name}}
-                @endif
+                @endif --}}
 
                 @if(!empty($sell_line->sell_line_note))
                 <br> {{$sell_line->sell_line_note}}

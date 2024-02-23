@@ -19,12 +19,12 @@
 <div class="row">
     <div class="col-md-12">
     @component('components.filters', ['title' => __('report.filters')])
-        <div class="col-md-3">
+        {{-- <div class="col-md-3">
             <div class="form-group">
                 {!! Form::label('type', __('product.product_type') . ':') !!}
                 {!! Form::select('type', ['single' => __('lang_v1.single'), 'variable' => __('lang_v1.variable'), 'combo' => __('lang_v1.combo')], null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'product_list_filter_type', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
-        </div>
+        </div> --}}
         <div class="col-md-3">
             <div class="form-group">
                 {!! Form::label('category_id', __('product.category') . ':') !!}
@@ -32,36 +32,36 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        {{-- <div class="col-md-3">
             <div class="form-group">
                 {!! Form::label('unit_id', __('product.unit') . ':') !!}
                 {!! Form::select('unit_id', $units, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'product_list_filter_unit_id', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
-        </div>
+        </div> --}}
         <div class="col-md-3">
             <div class="form-group">
                 {!! Form::label('tax_id', __('product.tax') . ':') !!}
                 {!! Form::select('tax_id', $taxes, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'product_list_filter_tax_id', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
         </div>
-        <div class="col-md-3">
+        {{-- <div class="col-md-3">
             <div class="form-group">
                 {!! Form::label('brand_id', __('product.brand') . ':') !!}
                 {!! Form::select('brand_id', $brands, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'product_list_filter_brand_id', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
-        </div>
+        </div> --}}
         <div class="col-md-3" id="location_filter">
             <div class="form-group">
                 {!! Form::label('location_id',  __('purchase.business_location') . ':') !!}
                 {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
         </div>
-        <div class="col-md-3">
+        {{-- <div class="col-md-3">
             <br>
             <div class="form-group">
                 {!! Form::select('active_state', ['active' => __('business.is_active'), 'inactive' => __('lang_v1.inactive')], null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'active_state', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
-        </div>
+        </div> --}}
 
         <!-- include module filter -->
         @if(!empty($pos_module_data))
@@ -191,7 +191,7 @@
                         { data: 'mass_delete'  },
                         { data: 'image', name: 'products.image'  },
                         { data: 'action', name: 'action'},
-                        { data: 'product', name: 'products.name'  },
+                        { data: 'sku', name: 'products.sku'},
                         { data: 'product_locations', name: 'product_locations'  },
                         @can('view_purchase_price')
                             { data: 'purchase_price', name: 'max_purchase_price', searchable: false},
@@ -202,13 +202,13 @@
                         { data: 'current_stock', searchable: false},
                         { data: 'type', name: 'products.type'},
                         { data: 'category', name: 'c1.name'},
-                        { data: 'brand', name: 'brands.name'},
+                        // { data: 'brand', name: 'brands.name'},
                         { data: 'tax', name: 'tax_rates.name', searchable: false},
-                        { data: 'sku', name: 'products.sku'},
-                        { data: 'product_custom_field1', name: 'products.product_custom_field1'  },
-                        { data: 'product_custom_field2', name: 'products.product_custom_field2'  },
-                        { data: 'product_custom_field3', name: 'products.product_custom_field3'  },
-                        { data: 'product_custom_field4', name: 'products.product_custom_field4'  }
+                        { data: 'product', name: 'products.name'  }
+                        // { data: 'product_custom_field1', name: 'products.product_custom_field1'  },
+                        // { data: 'product_custom_field2', name: 'products.product_custom_field2'  },
+                        // { data: 'product_custom_field3', name: 'products.product_custom_field3'  },
+                        // { data: 'product_custom_field4', name: 'products.product_custom_field4'  }
                         
                     ],
                     createdRow: function( row, data, dataIndex ) {

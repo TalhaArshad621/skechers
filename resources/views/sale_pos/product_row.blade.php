@@ -1,12 +1,11 @@
 <tr class="product_row" data-row_index="{{$row_count}}">
-	{{-- {{ dd($discount) }} --}}
 	<td>
 		@php
 			$product_name = $product->product_name . '<br/>' . $product->sub_sku ;
-			if(!empty($product->brand)){ $product_name .= ' ' . $product->brand ;}
+			// if(!empty($product->brand)){ $product_name .= ' ' . $product->brand ;}
 		@endphp
 
-		@if( ($edit_price || $edit_discount) && empty($is_direct_sell) )
+	@if( ($edit_price || $edit_discount) && empty($is_direct_sell) )
 		<div title="@lang('lang_v1.pos_edit_product_price_help')">
 		<span class="text-link text-info cursor-pointer" data-toggle="modal" data-target="#row_edit_product_price_modal_{{$row_count}}">
 			{!! $product_name !!}
@@ -278,6 +277,26 @@
 					{!! Form::select("products[" . $row_count . "][res_service_staff_id]", $waiters, !empty($product->res_service_staff_id) ? $product->res_service_staff_id : null, ['class' => 'form-control select2 order_line_service_staff', 'placeholder' => __('restaurant.select_service_staff'), 'required' => (!empty($pos_settings['is_service_staff_required']) && $pos_settings['is_service_staff_required'] == 1) ? true : false ]); !!}
 				</div>
 			</div>
+		</td>
+	@endif
+	{{-- {{ dd($product) }} --}}
+	<td class="{{$hide_tax}}">
+		<input type="text" name="products[{{$row_count}}][unit_price_inc_tax]" class="form-control original_amount input_number" value="{{@num_format($unit_price_inc_tax)}}" @if(!$edit_price) readonly @endif @if(!empty($pos_settings['enable_msp'])) data-rule-min-value="{{$product->sell_price_inc_tax}}" data-msg-min-value="{{__('lang_v1.minimum_selling_price_error_msg', ['price' => @num_format($unit_price_inc_tax)])}}" @endif>
+	</td>
+	@if ( $discount && $discount->discount_type == 'fixed')
+		<td class="text-center">
+			<input type="{{$discount->amount}}" class="form-control pos_line_totall" value="{{@num_format($product->sell_price_inc_tax - $unit_price_inc_tax )}}">
+		</td>
+	@elseif ( $discount && $discount->discount_type == 'percentage')
+		@php
+			$discount_percentage = $discount->discount_amount * 100;
+		@endphp
+		<td class="text-center">
+			<input type="{{$discount->amount}}" class="form-control pos_line_totall" value="{{@num_format($discount_percentage )}}" disabled>
+		</td>
+	@else
+		<td class="text-center">
+			<input type="text" class="form-control pos_line_totall" value="0" disabled>
 		</td>
 	@endif
 	<td class="{{$hide_tax}}">

@@ -23,12 +23,12 @@
                 {!! Form::select('purchase_list_filter_location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
         </div>
-        <div class="col-md-3">
+        {{-- <div class="col-md-3">
             <div class="form-group">
                 {!! Form::label('purchase_list_filter_supplier_id',  __('purchase.supplier') . ':') !!}
                 {!! Form::select('purchase_list_filter_supplier_id', $suppliers, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
-        </div>
+        </div> --}}
         <div class="col-md-3">
             <div class="form-group">
                 {!! Form::label('purchase_list_filter_status',  __('purchase.purchase_status') . ':') !!}

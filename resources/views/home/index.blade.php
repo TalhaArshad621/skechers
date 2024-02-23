@@ -49,7 +49,7 @@
     	</div>
     	<br>
     	<div class="row row-custom">
-        	<div class="col-md-3 col-sm-6 col-xs-12 col-custom">
+        	<div class="col-md-4 col-sm-6 col-xs-12 col-custom">
     	      <div class="info-box info-box-new-style">
     	        <span class="info-box-icon bg-aqua"><i class="ion ion-cash"></i></span>
 
@@ -62,7 +62,7 @@
     	      <!-- /.info-box -->
     	    </div>
     	    <!-- /.col -->
-    	    <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
+    	    <div class="col-md-4 col-sm-6 col-xs-12 col-custom">
     	      <div class="info-box info-box-new-style">
     	        <span class="info-box-icon bg-aqua"><i class="ion ion-ios-cart-outline"></i></span>
 
@@ -75,7 +75,7 @@
     	      <!-- /.info-box -->
     	    </div>
     	    <!-- /.col -->
-    	    <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
+    	    <div class="col-md-4 col-sm-6 col-xs-12 col-custom">
     	      <div class="info-box info-box-new-style">
     	        <span class="info-box-icon bg-yellow">
     	        	<i class="fa fa-dollar"></i>
@@ -83,7 +83,7 @@
     	        </span>
 
     	        <div class="info-box-content">
-    	          <span class="info-box-text">{{ __('home.purchase_due') }}</span>
+    	          <span class="info-box-text">{{ __('Ecommerce Sales') }}</span>
     	          <span class="info-box-number purchase_due"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
     	        </div>
     	        <!-- /.info-box-content -->
@@ -94,7 +94,7 @@
 
     	    <!-- fix for small devices only -->
     	    <!-- <div class="clearfix visible-sm-block"></div> -->
-    	    <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
+    	    {{-- <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
     	      <div class="info-box info-box-new-style">
     	        <span class="info-box-icon bg-yellow">
     	        	<i class="ion ion-ios-paper-outline"></i>
@@ -108,10 +108,10 @@
     	        <!-- /.info-box-content -->
     	      </div>
     	      <!-- /.info-box -->
-    	    </div>
+    	    </div> --}}
     	    <!-- /.col -->
       	</div>
-      	<div class="row row-custom">
+      	{{-- <div class="row row-custom">
             <!-- expense -->
             <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
               <div class="info-box info-box-new-style">
@@ -129,7 +129,7 @@
               </div>
               <!-- /.info-box -->
             </div>
-        </div>
+        </div> --}}
         @if(!empty($widgets['after_sale_purchase_totals']))
             @foreach($widgets['after_sale_purchase_totals'] as $widget)
                 {!! $widget !!}
@@ -166,7 +166,7 @@
             @endforeach
         @endif
       	<!-- products less than alert quntity -->
-      	<div class="row">
+      	{{-- <div class="row">
             <div class="col-sm-6">
                 @component('components.widget', ['class' => 'box-warning'])
                   @slot('icon')
@@ -207,8 +207,8 @@
                 </table>
                 @endcomponent
             </div>
-        </div>
-        <div class="row">
+        </div> --}}
+        {{-- <div class="row">
             <div class="@if((session('business.enable_product_expiry') != 1) && auth()->user()->can('stock_report.view')) col-sm-12 @else col-sm-6 @endif">
                 @component('components.widget', ['class' => 'box-warning'])
                   @slot('icon')
@@ -253,7 +253,7 @@
                   </div>
                 @endif
             @endcan
-      	</div>
+      	</div> --}}
         @if(!empty($widgets['after_dashboard_reports']))
           @foreach($widgets['after_dashboard_reports'] as $widget)
             {!! $widget !!}
