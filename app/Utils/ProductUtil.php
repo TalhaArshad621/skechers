@@ -661,6 +661,67 @@ class ProductUtil extends Util
     }
 
     /**
+     * Calculates the total amount of invoice
+     *
+     * @param int $tax_id
+     * @param array $discount['discount_type', 'discount_amount']
+     *
+     * @return Mixed (false, array)
+     */
+    public function calculateEcommerceInvoiceTotal($products, $tax_id, $discount = null, $uf_number = true)
+    {
+        if (empty($products)) {
+            return false;
+        }
+
+        $output = ['total_before_tax' => 0, 'tax' => 0, 'discount' => 0, 'final_total' => 0];
+
+        //Sub Total
+        // foreach ($products as $product) {
+            $unit_price_inc_tax = $uf_number ? $this->num_uf($products->unit_price_before_discount) : $products->unit_price_before_discount;
+            $quantity = $uf_number ? $this->num_uf($products->quantity) : $products->quantity;
+
+            $output['total_before_tax'] += $quantity * $unit_price_inc_tax;
+
+            //Add modifier price to total if exists
+            // if (!empty($product['modifier_price'])) {
+            //     foreach ($product['modifier_price'] as $key => $modifier_price) {
+            //         $modifier_price = $uf_number ? $this->num_uf($modifier_price) : $modifier_price;
+            //         $uf_modifier_price = $this->num_uf($modifier_price);
+            //         $modifier_qty = isset($product['modifier_quantity'][$key]) ? $product['modifier_quantity'][$key] : 0;
+            //         $modifier_total = $uf_modifier_price * $modifier_qty;
+            //         $output['total_before_tax'] += $modifier_total;
+            //     }
+            // }
+        // }
+
+        //Calculate discount
+        if (is_array($discount)) {
+            $discount_amount = $uf_number ? $this->num_uf($discount['discount_amount']) : $discount['discount_amount'];
+            if ($discount['discount_type'] == 'fixed') {
+                $output['discount'] = $discount_amount;
+            } else {
+                $output['discount'] = ($discount_amount/100)*$output['total_before_tax'];
+            }
+        }
+
+        //Tax
+        $output['tax'] = 0;
+        if (!empty($tax_id)) {
+            $tax_details = TaxRate::find($tax_id);
+            if (!empty($tax_details)) {
+                $output['tax_id'] = $tax_id;
+                $output['tax'] = ($tax_details->amount/100) * ($output['total_before_tax'] - $output['discount']);
+            }
+        }
+        
+        //Calculate total
+        $output['final_total'] = $output['total_before_tax'] + $output['tax'] - $output['discount'];
+
+        return $output;
+    }
+
+    /**
      * Generates product sku
      *
      * @param string $string

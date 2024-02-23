@@ -70,4 +70,5 @@ return [
     'shipping_details' => 'Shipping Details',
     'shipping_charges' => 'Shipping Charges',
     'ecommerce_sale' => 'Ecommerce Sale Added',
+    'return' => 'Return',
 ];

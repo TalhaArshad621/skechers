@@ -320,11 +320,13 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     // Route::get('/ecommerce/{id}',[EcommerceController::class, 'show']);
     Route::get('ecommerce/edit-shipping/{id}', 'EcommerceController@editShipping');
     Route::put('ecommerce/update-shipping/{id}', 'EcommerceController@updateShipping');
-
+    Route::get('/ecommerce/return-item/{id}','EcommerceController@returnItem');
     Route::resource('/ecommerce','EcommerceController')->except(['store']);
     Route::get('/shopify-ecommerce-api','EcommerceController@store');
-
+    
+    // Ecommerce Payments
     Route::resource('ecommerce-payments','EcommercePaymentController');
+    Route::get('/ecommerce-payments/add_payment/{transaction_id}', 'EcommercePaymentController@addPayment');
 
     // Route::resource('/')
 

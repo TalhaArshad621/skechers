@@ -17,6 +17,7 @@
     <th>{{ __('sale.tax') }}</th>
     <th>{{ __('sale.price_inc_tax') }}</th>
     <th>{{ __('sale.subtotal') }}</th>
+    <th>{{ __('sale.return') }}</th>
 </tr>
 @foreach($sell->ecommerce_sell_lines as $sell_line)
     <tr>
@@ -82,6 +83,13 @@
         </td>
         <td>
             <span class="display_currency" data-currency_symbol="true">{{ $sell_line->quantity * $sell_line->unit_price_inc_tax }}</span>
+        </td>
+        <td>
+            @if ($sell_line->quantity_returned > 0 )
+            <span class="label bg-red">Returned</span>
+            @else
+            <a href="{{ action('EcommerceController@returnItem', [$sell_line->id]) }}" class="btn btn-danger btn-xs no-print">Return</a>
+            @endif
         </td>
     </tr>
     @if(!empty($sell_line->modifiers))
