@@ -322,6 +322,11 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::resource('ecommerce-payments','EcommercePaymentController');
     Route::get('/ecommerce-payments/add_payment/{transaction_id}', 'EcommercePaymentController@addPayment');
 
+
+    // Product Adjustment 
+
+    Route::resource('product-adjustment', 'ProductAdjustmentController');
+
     // Route::resource('/')
 
     Route::group(['prefix' => 'account'], function () {

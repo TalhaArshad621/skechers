@@ -179,6 +179,14 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-gem', 'active' => request()->segment(1) == 'brands']
                             );
                         }
+                        
+                        if (auth()->user()->can('product.create')) {
+                            $sub->url(
+                                action('ProductAdjustmentController@index'),
+                                __('product.product_adjustment'),
+                                ['icon' => 'fa fas fa-gem', 'active' => request()->segment(1) == 'product-adjustment']
+                            );
+                        }
 
                         // $sub->url(
                         //     action('WarrantyController@index'),
