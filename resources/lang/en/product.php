@@ -57,5 +57,10 @@ return [
     'variations' => 'Variations',
     'import_products' => 'Import Products',
     'file_to_import' => 'File To Import',
-    'file_imported_successfully' => 'File imported successfully'
+    'file_imported_successfully' => 'File imported successfully',
+    'product_adjustment' => 'Product Adjustment',
+    'all_product_adjustments' => 'All Product Adjustment',
+    'add_product_adjustment' => 'Add Product Adjustment',
+    'adjustment_in' => 'In',
+    'adjustment_out' => 'Out',
  ];

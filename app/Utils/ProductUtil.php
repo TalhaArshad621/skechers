@@ -421,6 +421,49 @@ class ProductUtil extends Util
     }
 
     /**
+     * Checks if products has manage stock enabled then Decrease quantity for product and its variations
+     *
+     * @param $product_id
+     * @param $variation_id
+     * @param $location_id
+     * @param $new_quantity
+     * @param $old_quantity = 0
+     *
+     * @return boolean
+     */
+    public function increaseProductQuantity($product_id, $variation_id, $location_id, $new_quantity, $old_quantity = 0)
+    {
+        $qty_difference = $new_quantity;
+
+        $product = Product::find($product_id);
+
+        //Check if stock is enabled or not.
+        if ($product->enable_stock == 1) {
+            //Decrement Quantity in variations location table
+            $details = VariationLocationDetails::where('variation_id', $variation_id)
+                ->where('product_id', $product_id)
+                ->where('location_id', $location_id)
+                ->first();
+
+            //If location details not exists create new one
+            if (empty($details)) {
+                $variation = Variation::find($variation_id);
+                $details = VariationLocationDetails::create([
+                            'product_id' => $product_id,
+                            'location_id' => $location_id,
+                            'variation_id' => $variation_id,
+                            'product_variation_id' => $variation->product_variation_id,
+                            'qty_available' => 0
+                          ]);
+            }
+            
+            $details->increment('qty_available', $qty_difference);
+        }
+
+        return true;
+    }
+
+    /**
      * Decrease the product quantity of combo sub-products
      *
      * @param $combo_details

@@ -65,6 +65,11 @@ class Transaction extends Model
         return $this->hasMany(\App\StockAdjustmentLine::class);
     }
 
+    public function product_adjustment_lines()
+    {
+        return $this->hasMany(\App\ProductAdjustmentLine::class);
+    }
+
     public function sales_person()
     {
         return $this->belongsTo(\App\User::class, 'created_by');
