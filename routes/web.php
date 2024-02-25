@@ -123,6 +123,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/sells/draft-dt', 'SellController@getDraftDatables');
     Route::post('/sells/store-gift', 'SellPosController@storeGift');
     Route::resource('sells', 'SellController')->except(['show']);
+    Route::get('indexForSellPriceUpdate', 'SellController@indexForSellPriceUpdate');
+    Route::post('importSellUpdatePrices', 'SellController@importSellUpdatePrices');
 
     Route::get('/import-sales', 'ImportSalesController@index');
     Route::post('/import-sales/preview', 'ImportSalesController@preview');
@@ -183,6 +185,10 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/reports/customer-group', 'ReportController@getCustomerGroup');
     Route::get('/reports/product-purchase-report', 'ReportController@getproductPurchaseReport');
     Route::get('/reports/product-sell-report', 'ReportController@getproductSellReport');
+    // Route::get('/reports/product-sell-report-detailed', 'ReportController@getproductSellReportDetailed');
+    Route::get('/reports/product-sell-grouped-report-detailed', 'ReportController@getproductSellGroupedReportDetailed');
+    Route::get('/reports/product-sell-grouped-report-detailed-returns', 'ReportController@getproductSellGroupedReportDetailedReturns');
+
     Route::get('/reports/product-sell-report-with-purchase', 'ReportController@getproductSellReportWithPurchase');
     Route::get('/reports/product-sell-grouped-report', 'ReportController@getproductSellGroupedReport');
     Route::get('/reports/lot-report', 'ReportController@getLotReport');

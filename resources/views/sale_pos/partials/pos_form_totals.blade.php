@@ -9,7 +9,7 @@
 					<span class="price_total">0</span>
 				</td>
 			</tr>
-			<tr>
+			<tr style="display: none;">
 				<td>
 					<b>
 						@if($is_discount_enabled)

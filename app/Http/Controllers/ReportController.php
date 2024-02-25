@@ -2922,7 +2922,7 @@ class ReportController extends Controller
                 ->editColumn('quantity', function ($row) {
                     $html = '<span data-is_quantity="true" class="display_currency quantity" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" data-unit="' . $row->unit . '" >' . (float) $row->quantity . '</span> ' . $row->unit;
                     if ($row->qty_returned > 0) {
-                        $html .= '<small><i>(<span data-is_quantity="true" class="display_currency" data-currency_symbol=false>' . (float) $row->quantity . '</span> ' . $row->unit . ' ' . __('lang_v1.returned') . ')</i></small>';
+                        $html .= '<small><i>(<span data-is_quantity="true" class="display_currency" data-currency_symbol=false>' . '-' . (float) abs($row->qty_returned) . '</span> ' . $row->unit . ' ' . __('lang_v1.returned') . ')</i></small>';
                     }
 
                     return $html;
@@ -3166,5 +3166,215 @@ class ReportController extends Controller
             'potential_profit' => $potential_profit,
             'profit_margin' => $profit_margin
         ];
+    }
+
+    public function getproductSellGroupedReportDetailed(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        $location_id = $request->get('location_id', null);
+
+        $vld_str = '';
+        if (!empty($location_id)) {
+            $vld_str = "AND vld.location_id=$location_id";
+        }
+
+        if ($request->ajax()) {
+            $variation_id = $request->get('variation_id', null);
+
+            $query = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell')
+                ->where('t.status', 'final')
+                ->select(
+                    'p.name as product_name',
+                    'p.enable_stock',
+                    'p.type as product_type',
+                    'pv.name as product_variation',
+                    'v.name as variation_name',
+                    'v.sub_sku',
+                    't.id as transaction_id',
+                    't.transaction_date as transaction_date',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    'u.short_name as unit',
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    'cat.name as category_name'
+                )
+                ->groupBy('v.id')
+                ->groupBy('formated_date');
+
+            if (!empty($variation_id)) {
+                $query->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $query->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $query->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $query->where('t.contact_id', $customer_id);
+            }
+
+            return Datatables::of($query)
+                ->editColumn('product_name', function ($row) {
+                    $product_name = $row->product_name;
+                    if ($row->product_type == 'variable') {
+                        $product_name .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
+                    }
+
+                    return $product_name;
+                })
+                ->addColumn('category_name', function ($row) {
+                    return $row->category_name;
+                })                ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
+                ->editColumn('total_qty_sold', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                })
+                ->editColumn('subtotal', function ($row) {
+                    return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
+                })
+                
+                ->rawColumns(['subtotal', 'total_qty_sold'])
+                ->make(true);
+        }
+        $business_locations = BusinessLocation::forDropdown($business_id);
+        $customers = Contact::customersDropdown($business_id);       
+
+        return view('report.product_sell_report_detailed')
+            ->with(compact('business_locations', 'customers'));
+    }
+
+
+    public function getproductSellGroupedReportDetailedReturns(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        $location_id = $request->get('location_id', null);
+
+        $vld_str = '';
+        if (!empty($location_id)) {
+            $vld_str = "AND vld.location_id=$location_id";
+        }
+
+        if ($request->ajax()) {
+            $variation_id = $request->get('variation_id', null);
+            $query = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell')
+                ->where('t.status', 'final')
+                ->where('transaction_sell_lines.quantity_returned', '>', 0)
+                ->select(
+                    'p.name as product_name',
+                    'p.enable_stock',
+                    'p.type as product_type',
+                    'pv.name as product_variation',
+                    'v.name as variation_name',
+                    'v.sub_sku',
+                    't.id as transaction_id',
+                    't.transaction_date as transaction_date',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_sold'),
+                    'u.short_name as unit',
+                    DB::raw('transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax as subtotal'),
+                    'cat.name as category_name'
+                )
+                ->groupBy('v.id')
+                ->groupBy('formated_date');
+
+            if (!empty($variation_id)) {
+                $query->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $query->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $query->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $query->where('t.contact_id', $customer_id);
+            }
+
+            return Datatables::of($query)
+                ->editColumn('product_name', function ($row) {
+                    $product_name = $row->product_name;
+                    if ($row->product_type == 'variable') {
+                        $product_name .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
+                    }
+
+                    return $product_name;
+                })
+                ->addColumn('category_name', function ($row) {
+                    return $row->category_name;
+                })                ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
+                ->editColumn('total_qty_sold', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                })
+                ->editColumn('subtotal', function ($row) {
+                    return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
+                })
+                
+                ->rawColumns(['subtotal', 'total_qty_sold'])
+                ->make(true);
+        }
     }
 }

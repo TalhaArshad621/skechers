@@ -63,18 +63,18 @@
       </button>
       @endcan
 
-      <button title="@lang('lang_v1.calculator')" id="btnCalculator" type="button" class="btn btn-success btn-flat pull-right m-5 btn-xs mt-10 popover-default" data-toggle="popover" data-trigger="click" data-content='@include("layouts.partials.calculator")' data-html="true" data-placement="bottom">
+      {{-- <button title="@lang('lang_v1.calculator')" id="btnCalculator" type="button" class="btn btn-success btn-flat pull-right m-5 btn-xs mt-10 popover-default" data-toggle="popover" data-trigger="click" data-content='@include("layouts.partials.calculator")' data-html="true" data-placement="bottom">
             <strong><i class="fa fa-calculator fa-lg" aria-hidden="true"></i></strong>
-      </button>
+      </button> --}}
 
       <button type="button" title="{{ __('lang_v1.full_screen') }}" class="btn btn-primary btn-flat m-6 hidden-xs btn-xs m-5 pull-right" id="full_screen">
             <strong><i class="fa fa-window-maximize fa-lg"></i></strong>
       </button>
 
-      <button type="button" id="view_suspended_sales" title="{{ __('lang_v1.view_suspended_sales') }}" class="btn bg-yellow btn-flat m-6 btn-xs m-5 btn-modal pull-right" data-container=".view_modal" 
+      {{-- <button type="button" id="view_suspended_sales" title="{{ __('lang_v1.view_suspended_sales') }}" class="btn bg-yellow btn-flat m-6 btn-xs m-5 btn-modal pull-right" data-container=".view_modal" 
           data-href="{{$view_suspended_sell_url}}">
             <strong><i class="fa fa-pause-circle fa-lg"></i></strong>
-      </button>
+      </button> --}}
       @if(empty($pos_settings['hide_product_suggestion']) && isMobile())
         <button type="button" title="{{ __('lang_v1.view_products') }}"   
           data-placement="bottom" class="btn btn-success btn-flat m-6 btn-xs m-5 btn-modal pull-right" data-toggle="modal" data-target="#mobile_product_suggestion_modal">

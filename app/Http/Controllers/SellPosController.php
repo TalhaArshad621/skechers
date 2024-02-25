@@ -257,7 +257,7 @@ class SellPosController extends Controller
                 'shortcuts',
                 'commission_agent',
                 'categories',
-                'brands',
+                // 'brands',
                 'pos_settings',
                 'change_return',
                 'types',
@@ -771,7 +771,7 @@ class SellPosController extends Controller
                 //upload document
                 $input['document'] = $this->transactionUtil->uploadFile($request, 'sell_document', 'documents');
 
-                $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
+                $transaction = $this->transactionUtil->createSellTransactionForGift($business_id, $input, $invoice_total, $user_id);
 
                 //Upload Shipping documents
                 Media::uploadMedia($business_id, $transaction, $request, 'shipping_documents', false, 'shipping_document');
@@ -953,7 +953,7 @@ class SellPosController extends Controller
                         ->with('status', $output);
                 }
                 return redirect()
-                    ->action('SellController@index')
+                    ->action('GiftController@index')
                     ->with('status', $output);
             }
         }

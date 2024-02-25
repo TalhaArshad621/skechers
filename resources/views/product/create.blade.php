@@ -68,7 +68,7 @@
           <div class="form-group">
             {!! Form::label('brand_id', __('product.brand') . ':') !!}
             <div class="input-group">
-              {!! Form::select('brand_id', $brands, !empty($duplicate_product->brand_id) ? $duplicate_product->brand_id : null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
+              {!! Form::select('brand_id', $brands, !empty($duplicate_product->brand_id) ? $duplicate_product->brand_id : null, ['class' => 'form-control select2']); !!}
             <span class="input-group-btn">
                 <button type="button" @if(!auth()->user()->can('brand.create')) disabled @endif class="btn btn-default bg-white btn-flat btn-modal" data-href="{{action('BrandController@create', ['quick_add' => true])}}" title="@lang('brand.add_brand')" data-container=".view_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
               </span>
@@ -154,7 +154,7 @@
           </div>
         </div>
         </div>
-        <div class="col-sm-4">
+        {{-- <div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('product_brochure', __('lang_v1.product_brochure') . ':') !!}
             {!! Form::file('product_brochure', ['id' => 'product_brochure', 'accept' => implode(',', array_keys(config('constants.document_upload_mimes_types')))]); !!}
@@ -165,10 +165,10 @@
                 </p>
             </small>
           </div>
-        </div>
+        </div> --}}
     @endcomponent
 
-    @component('components.widget', ['class' => 'box-primary'])
+    {{-- @component('components.widget', ['class' => 'box-primary'])
         <div class="row">
         @if(session('business.enable_product_expiry'))
 
@@ -202,7 +202,7 @@
               {!! Form::checkbox('enable_sr_no', 1, !(empty($duplicate_product)) ? $duplicate_product->enable_sr_no : false, ['class' => 'input-icheck']); !!} <strong>@lang('lang_v1.enable_imei_or_sr_no')</strong>
             </label> @show_tooltip(__('lang_v1.tooltip_sr_no'))
           </div>
-        </div>
+        </div> --}}
 
         {{-- <div class="col-sm-4">
           <div class="form-group">
@@ -213,10 +213,10 @@
           </div>
         </div> --}}
 
-        <div class="clearfix"></div>
+        {{-- <div class="clearfix"></div> --}}
 
         <!-- Rack, Row & position number -->
-        @if(session('business.enable_racks') || session('business.enable_row') || session('business.enable_position'))
+        {{-- @if(session('business.enable_racks') || session('business.enable_row') || session('business.enable_position'))
           <div class="col-md-12">
             <h4>@lang('lang_v1.rack_details'):
               @show_tooltip(__('lang_v1.tooltip_rack_details'))
@@ -290,7 +290,7 @@
         <div class="clearfix"></div>
         @include('layouts.partials.module_form_part')
       </div>
-    @endcomponent
+    @endcomponent --}}
 
     @component('components.widget', ['class' => 'box-primary'])
         <div class="row">
