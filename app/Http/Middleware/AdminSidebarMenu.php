@@ -671,6 +671,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-user-secret', 'active' => request()->segment(2) == 'service-staff-report']
                             );
                         }
+                        if (auth()->user()->can('purchase_n_sell_report.view')) {
+                            $sub->url(
+                                action('ReportController@ecommerceSellReport'),
+                                __('E-commerce Sell Report'),
+                                ['icon' => 'fa fas fa-tasks', 'active' => request()->segment(2) == 'ecommerce-sell-report']
+                            );
+                        }
                     },
                     ['icon' => 'fa fas fa-chart-bar', 'id' => 'tour_step8']
                 )->order(55);
