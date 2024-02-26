@@ -67,13 +67,13 @@ class AdminSidebarMenu
                 $menu->dropdown(
                     __('contact.contacts'),
                     function ($sub) {
-                        if (auth()->user()->can('supplier.view')) {
-                            $sub->url(
-                                action('ContactController@index', ['type' => 'supplier']),
-                                __('report.supplier'),
-                                ['icon' => 'fa fas fa-star', 'active' => request()->input('type') == 'supplier']
-                            );
-                        }
+                        // if (auth()->user()->can('supplier.view')) {
+                        //     $sub->url(
+                        //         action('ContactController@index', ['type' => 'supplier']),
+                        //         __('report.supplier'),
+                        //         ['icon' => 'fa fas fa-star', 'active' => request()->input('type') == 'supplier']
+                        //     );
+                        // }
                         if (auth()->user()->can('customer.view')) {
                             $sub->url(
                                 action('ContactController@index', ['type' => 'customer']),

@@ -44,7 +44,7 @@
 					@endif
 					
 
-					<button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action('ProductController@quickAdd')}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+					{{-- <button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action('ProductController@quickAdd')}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button> --}}
 				</span>
 			</div>
 		</div>
@@ -66,7 +66,7 @@
 		<div class="col-md-4">
 			<div class="form-group">
 			{!! Form::select('commission_agent', 
-						$commission_agent, null, ['class' => 'form-control select2', 'required','placeholder' => __('lang_v1.commission_agent')]); !!}
+						$commission_agent, null, ['class' => 'form-control select2', 'required','placeholder' => __('Employee Name')]); !!}
 			</div>
 		</div>
 	@endif
