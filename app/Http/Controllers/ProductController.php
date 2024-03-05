@@ -12,10 +12,15 @@ use App\ProductVariation;
 use App\PurchaseLine;
 use App\SellingPriceGroup;
 use App\TaxRate;
+use App\EcommercePayment;
+use App\EcommerceSellLine;
+use App\EcommerceTransaction;
+use App\Transaction;
 use App\Unit;
 use App\Utils\ModuleUtil;
 use App\Utils\ProductUtil;
 use App\Variation;
+use App\TransactionSellLine;
 use App\VariationGroupPrice;
 use App\VariationLocationDetails;
 use App\VariationTemplate;
@@ -214,6 +219,10 @@ class ProductController extends Controller
                         if (auth()->user()->can('product.view')) {
                             $html .=
                             '<li><a href="' . action('ProductController@productStockHistory', [$row->id]) . '"><i class="fas fa-history"></i> ' . __("lang_v1.product_stock_history") . '</a></li>';
+                        }
+                        if (auth()->user()->can('product.view')) {
+                            $html .=
+                            '<li><a href="' . action('ProductController@productHistoryAJAX', [$row->id]) . '"><i class="fas fa-history"></i> ' . __("Product History") . '</a></li>';
                         }
 
                         if (auth()->user()->can('product.create')) {
@@ -2158,4 +2167,688 @@ class ProductController extends Controller
         return view('product.stock_history')
                 ->with(compact('product', 'business_locations'));
     }
+
+    public function productHistoryAJAX($id)
+    {
+        if (!auth()->user()->can('product.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+        $business_id = request()->session()->get('user.business_id');
+
+        $product = Product::where('business_id', $business_id)
+        ->with(['variations', 'variations.product_variation'])
+        ->findOrFail($id);
+        $business_locations = BusinessLocation::forDropdown($business_id);
+
+        return view('product.product_history',compact('id','business_id','product','business_locations'));
+    }
+
+
+    public function productHistory(Request $request)
+    {   
+        if (!auth()->user()->can('product.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (request()->ajax()) {
+            $query = PurchaseLine::join('transactions','purchase_lines.transaction_id','=','transactions.id')
+                    ->join('products', 'purchase_lines.product_id', '=', 'products.id')
+                    ->where('transactions.type', 'purchase')
+                    ->where('purchase_lines.product_id', $request->id)
+                    ->select(
+                        'products.sku as product_sku',
+                        'products.image as product_image',
+                        'transactions.ref_no as invoice_id',
+                        'purchase_lines.quantity as purchase_quantity',
+                        'transactions.transaction_date as transaction_date'
+                    )
+                    ->get();
+                    return Datatables::of($query)
+                    ->editColumn('product_image', function ($row) {
+                        $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
+                        
+                        if (!empty($row->product_image)) {
+                            $imagePath = asset('uploads/img/' . $row->product_image);
+                        } else {
+                            $imagePath = asset('img/default.png');
+                        }
+                    
+                        return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+                    })
+                    ->editColumn('product_sku', function ($row) {
+                        $product_sku = $row->product_sku;
+    
+                        return $product_sku;
+                    })
+                    ->editColumn('invoice_id', function ($row) {
+                        $invoice_id = $row->invoice_id;
+    
+                        return $invoice_id;
+                    })
+                    ->editColumn('purchase_quantity', function ($row) {
+                        $purchase_quantity = $row->purchase_quantity;
+    
+                        return $purchase_quantity;
+                    })
+                    ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+                    ->rawColumns(['product_image','product_sku', 'invoice_id', 'purchase_quantity', 'transaction_date'])
+                    ->make(true);
+        }                    
+
+    }
+
+    public function productSellHistory(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        if ($request->ajax()) {
+            // $variation_id = $request->get('variation_id', null);
+            $query = TransactionSellLine::join('transactions', 'transaction_sell_lines.transaction_id','=','transactions.id')
+                ->join('products', 'transaction_sell_lines.product_id', '=', 'products.id')
+                ->join('business_locations', 'transactions.location_id', '=', 'business_locations.id')
+                // ->where('t.business_id', $business_id)
+                ->where('transactions.type', 'sell')
+                ->where('transactions.status', 'final')
+                ->where('transaction_sell_lines.product_id', $request->id)
+
+                ->select(
+                    'products.sku as product_sku',
+                    'products.image as product_image',
+                    'transactions.invoice_no',
+                    'transactions.transaction_date as transaction_date',
+                    'transaction_sell_lines.quantity as sell_quantity',
+                    'business_locations.name as store_name'
+                )
+                ->get();
+
+            return Datatables::of($query)
+            ->editColumn('product_image', function ($row) {
+                $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
+                
+                if (!empty($row->product_image)) {
+                    $imagePath = asset('uploads/img/' . $row->product_image);
+                } else {
+                    $imagePath = asset('img/default.png');
+                }
+            
+                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            })
+            ->editColumn('product_sku', function ($row) {
+                $product_sku = $row->product_sku;
+
+                return $product_sku;
+            })
+            ->editColumn('invoice_no', function ($row) {
+                $invoice_no = $row->invoice_no;
+
+                return $invoice_no;
+            })
+            ->editColumn('sell_quantity', function ($row) {
+                $sell_quantity = $row->sell_quantity;
+
+                return $sell_quantity;
+            })
+            ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+            ->editColumn('store_name', function ($row) {
+                $store_name = $row->store_name;
+
+                return $store_name;
+            })
+            ->rawColumns(['product_image','product_sku', 'invoice_no', 'sell_quantity', 'transaction_date','store_name'])
+            ->make(true);
+        }
+    }
+
+    public function productGiftHistory(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        if ($request->ajax()) {
+            $query = TransactionSellLine::join('transactions', 'transaction_sell_lines.transaction_id','=','transactions.id')
+                ->join('products', 'transaction_sell_lines.product_id', '=', 'products.id')
+                ->where('transaction_sell_lines.product_id', $request->id)
+                ->where('transactions.type', 'gift')
+                ->where('transactions.status', 'final')
+                ->select(
+                    'products.sku as product_sku',
+                    'products.image as product_image',
+                    'transactions.invoice_no',
+                    'transactions.transaction_date as transaction_date',
+                    'transaction_sell_lines.quantity as sell_quantity',
+                    'transaction_sell_lines.quantity_returned as return_quantity'
+                )
+                ->get();
+                // dd($query);
+
+            return Datatables::of($query)
+            ->editColumn('product_image', function ($row) {
+                $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
+                
+                if (!empty($row->product_image)) {
+                    $imagePath = asset('uploads/img/' . $row->product_image);
+                } else {
+                    $imagePath = asset('img/default.png');
+                }
+            
+                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            })            
+            ->editColumn('product_sku', function ($row) {
+                $product_sku = $row->product_sku;
+
+                return $product_sku;
+            })
+            ->editColumn('invoice_no', function ($row) {
+                $invoice_no = $row->invoice_no;
+
+                return $invoice_no;
+            })
+            ->editColumn('sell_quantity', function ($row) {
+                $sell_quantity = $row->sell_quantity;
+
+                return $sell_quantity;
+            })
+            ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+            ->editColumn('return_quantity', function ($row) {
+                $return_quantity = $row->return_quantity;
+
+                return $return_quantity;
+            })
+            ->rawColumns(['product_image','product_sku', 'invoice_no', 'sell_quantity', 'transaction_date','store_name'])
+            ->make(true);
+        }
+    }
+
+    public function productEcommerceHistory(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        if ($request->ajax()) {
+            $query = EcommerceTransaction::
+                leftJoin('ecommerce_sell_lines', 'ecommerce_sell_lines.ecommerce_transaction_id','=','ecommerce_transactions.id')
+                ->leftJoin('products', 'products.id', '=' , 'ecommerce_sell_lines.product_id')
+                ->leftJoin('business_locations', 'business_locations.id', '=' , 'ecommerce_sell_lines.location_id')
+                ->whereNull('ecommerce_transactions.return_parent_id')
+                ->where('ecommerce_transactions.type','sell')
+                ->where('ecommerce_sell_lines.product_id', $request->id )
+                ->select(
+                    'ecommerce_transactions.transaction_date AS transaction_date',
+                    'ecommerce_transactions.invoice_no AS invoice_no',
+                    'ecommerce_transactions.shipping_status AS shipping_status',
+                    'products.sku AS product_sku',
+                    'products.image as product_image',
+                    'ecommerce_sell_lines.quantity as quantity',
+                    'business_locations.name as store_name'
+                    );
+
+            return Datatables::of($query)
+            ->editColumn('product_image', function ($row) {
+                $basePath = config('app.url');
+                
+                if (!empty($row->product_image)) {
+                    $imagePath = asset('uploads/img/' . $row->product_image);
+                } else {
+                    $imagePath = asset('img/default.png');
+                }
+            
+                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            })            
+            ->editColumn('product_sku', function ($row) {
+                $product_sku = $row->product_sku;
+
+                return $product_sku;
+            })
+            ->editColumn('invoice_no', function ($row) {
+                $invoice_no = $row->invoice_no;
+
+                return $invoice_no;
+            })
+            ->editColumn('quantity', function ($row) {
+                $quantity = $row->quantity;
+
+                return $quantity;
+            })
+            ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+            ->editColumn('shipping_status', function ($row) {
+                $shipping_status = $row->shipping_status;            
+                $formattedShippingStatus = ucwords($shipping_status);
+            
+                return $formattedShippingStatus;
+            })
+            ->editColumn('store_name', function ($row) {
+                $store_name = $row->store_name;
+
+                return $store_name;
+            })
+            ->rawColumns(['product_image'])
+            ->make(true);
+        }
+    }
+
+    public function productEcommerceReturnHistory(Request $request)
+    {
+        // dd($request->id);
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        if ($request->ajax()) {
+            $query = EcommerceSellLine::
+            join('ecommerce_transactions','ecommerce_transactions.return_parent_id','ecommerce_sell_lines.ecommerce_transaction_id')
+            ->join('ecommerce_transactions as T1',
+                'ecommerce_transactions.return_parent_id',
+                '=',
+                'T1.id')
+                ->leftJoin('products', 'products.id', '=', 'ecommerce_sell_lines.product_id')
+                    ->leftJoin('business_locations', 'business_locations.id', '=', 'ecommerce_sell_lines.location_id')
+                    ->select(
+                        'ecommerce_transactions.transaction_date AS transaction_date',
+                        'T1.invoice_no as sell_invoice_no',
+                        'ecommerce_transactions.invoice_no as return_invoice_no',
+                        'ecommerce_sell_lines.quantity_returned as quantity',
+                        'products.sku as product_sku',
+                        'business_locations.name as store_name'
+                        )
+                        ->where('ecommerce_sell_lines.product_id', $request->id );
+
+            return Datatables::of($query)
+            ->editColumn('product_image', function ($row) {
+                $basePath = config('app.url');
+                
+                if (!empty($row->product_image)) {
+                    $imagePath = asset('uploads/img/' . $row->product_image);
+                } else {
+                    $imagePath = asset('img/default.png');
+                }
+            
+                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            })            
+            ->editColumn('product_sku', function ($row) {
+                $product_sku = $row->product_sku;
+
+                return $product_sku;
+            })
+            ->editColumn('return_invoice_no', function ($row) {
+                $return_invoice_no = $row->return_invoice_no;
+
+                return $return_invoice_no;
+            })
+            ->editColumn('sell_invoice_no', function ($row) {
+                $sell_invoice_no = $row->sell_invoice_no;
+
+                return $sell_invoice_no;
+            })
+            ->editColumn('quantity', function ($row) {
+                $quantity = $row->quantity;
+
+                return $quantity;
+            })
+            ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+            ->editColumn('shipping_status', function ($row) {
+                $shipping_status = "Return";
+
+                return $shipping_status;
+            })
+            ->editColumn('store_name', function ($row) {
+                $store_name = $row->store_name;
+
+                return $store_name;
+            })
+            ->rawColumns(['product_image'])
+            ->make(true);
+        }
+    }
+
+    public function productStoreToStoreHistory(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        if ($request->ajax()) {
+            $stock_transfers = Transaction::join(
+                'business_locations AS l1',
+                'transactions.location_id',
+                '=',
+                'l1.id'
+            )
+                    ->join('transactions as t2', 't2.transfer_parent_id', '=', 'transactions.id')
+                    ->join(
+                        'business_locations AS l2',
+                        't2.location_id',
+                        '=',
+                        'l2.id'
+                    )
+                    ->join('transaction_sell_lines', 'transactions.id', '=' , 'transaction_sell_lines.transaction_id')
+                    ->join('products','transaction_sell_lines.product_id', '=', 'products.id')
+                    ->where('transactions.type', 'sell_transfer')
+                    ->where('transactions.status','final')
+                    ->where('transaction_sell_lines.product_id', $request->id)
+                    ->where('l1.name', '<>', 'Warehouse')
+                    ->where('l2.name', '<>','Warehouse')
+                    ->select(
+                        'transaction_sell_lines.quantity as quantity',
+                        'transactions.id',
+                        'transactions.transaction_date',
+                        'transactions.ref_no',
+                        'products.sku as product_sku',
+                        'products.image as product_image',
+                        'l1.name as sender',
+                        'l2.name as receiver',
+                        'transactions.id as DT_RowId',
+                        'transactions.status'
+                    );
+
+            return Datatables::of($stock_transfers)
+            ->editColumn('product_image', function ($row) {
+                $basePath = config('app.url');
+                
+                if (!empty($row->product_image)) {
+                    $imagePath = asset('uploads/img/' . $row->product_image);
+                } else {
+                    $imagePath = asset('img/default.png');
+                }
+            
+                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            })            
+            ->editColumn('product_sku', function ($row) {
+                $product_sku = $row->product_sku;
+
+                return $product_sku;
+            })
+            ->editColumn('return_invoice_no', function ($row) {
+                $return_invoice_no = $row->return_invoice_no;
+
+                return $return_invoice_no;
+            })
+            ->editColumn('sell_invoice_no', function ($row) {
+                $sell_invoice_no = $row->sell_invoice_no;
+
+                return $sell_invoice_no;
+            })
+            ->editColumn('quantity', function ($row) {
+                $quantity = $row->quantity;
+
+                return $quantity;
+            })
+            ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+            ->editColumn('shipping_status', function ($row) {
+                $shipping_status = "Return";
+
+                return $shipping_status;
+            })
+            ->editColumn('store_name', function ($row) {
+                $store_name = $row->store_name;
+
+                return $store_name;
+            })
+            ->rawColumns(['product_image'])
+            ->make(true);
+        }
+    }
+
+    public function productStoreToWarehouseHistory(Request $request)
+    {
+        // dd($request->id);
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        if ($request->ajax()) {
+            // dd("hit");
+            $stock_transfers = Transaction::join(
+                'business_locations AS l1',
+                'transactions.location_id',
+                '=',
+                'l1.id'
+            )
+                    ->join('transactions as t2', 't2.transfer_parent_id', '=', 'transactions.id')
+                    ->join(
+                        'business_locations AS l2',
+                        't2.location_id',
+                        '=',
+                        'l2.id'
+                    )
+                    ->join('transaction_sell_lines', 'transactions.id', '=' , 'transaction_sell_lines.transaction_id')
+                    ->join('products','transaction_sell_lines.product_id', '=', 'products.id')
+                    ->where('transactions.type', 'sell_transfer')
+                    ->where('transactions.status','final')
+                    ->where('transaction_sell_lines.product_id', $request->id)
+                    ->where('l2.name','Warehouse')
+                    ->select(
+                        'transaction_sell_lines.quantity as quantity',
+                        'transactions.id',
+                        'transactions.transaction_date',
+                        'transactions.ref_no',
+                        'products.sku as product_sku',
+                        'products.image as product_image',
+                        'l1.name as sender',
+                        'l2.name as receiver',
+                        'transactions.id as DT_RowId',
+                        'transactions.status'
+                    );
+                    // dd($stock_transfers);
+
+            return Datatables::of($stock_transfers)
+            ->editColumn('product_image', function ($row) {
+                $basePath = config('app.url');
+                
+                if (!empty($row->product_image)) {
+                    $imagePath = asset('uploads/img/' . $row->product_image);
+                } else {
+                    $imagePath = asset('img/default.png');
+                }
+            
+                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            })            
+            ->editColumn('product_sku', function ($row) {
+                $product_sku = $row->product_sku;
+
+                return $product_sku;
+            })
+            ->editColumn('return_invoice_no', function ($row) {
+                $return_invoice_no = $row->return_invoice_no;
+
+                return $return_invoice_no;
+            })
+            ->editColumn('sell_invoice_no', function ($row) {
+                $sell_invoice_no = $row->sell_invoice_no;
+
+                return $sell_invoice_no;
+            })
+            ->editColumn('quantity', function ($row) {
+                $quantity = $row->quantity;
+
+                return $quantity;
+            })
+            ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+            ->editColumn('shipping_status', function ($row) {
+                $shipping_status = "Return";
+
+                return $shipping_status;
+            })
+            ->editColumn('store_name', function ($row) {
+                $store_name = $row->store_name;
+
+                return $store_name;
+            })
+            ->rawColumns(['product_image'])
+            ->make(true);
+        }
+    }
+
+    public function productWarehouseToStoreHistory(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        if ($request->ajax()) {
+            $stock_transfers = Transaction::join(
+                'business_locations AS l1',
+                'transactions.location_id',
+                '=',
+                'l1.id'
+            )
+                    ->join('transactions as t2', 't2.transfer_parent_id', '=', 'transactions.id')
+                    ->join(
+                        'business_locations AS l2',
+                        't2.location_id',
+                        '=',
+                        'l2.id'
+                    )
+                    ->join('transaction_sell_lines', 'transactions.id', '=' , 'transaction_sell_lines.transaction_id')
+                    ->join('products','transaction_sell_lines.product_id', '=', 'products.id')
+                    ->where('transactions.type', 'sell_transfer')
+                    ->where('transactions.status','final')
+                    ->where('transaction_sell_lines.product_id', $request->id)
+                    ->where('l1.name','Warehouse')
+                    ->select(
+                        'transaction_sell_lines.quantity as quantity',
+                        'transactions.id',
+                        'transactions.transaction_date',
+                        'transactions.ref_no',
+                        'products.sku as product_sku',
+                        'products.image as product_image',
+                        'l1.name as sender',
+                        'l2.name as receiver',
+                        'transactions.id as DT_RowId',
+                        'transactions.status'
+                    );
+
+            return Datatables::of($stock_transfers)
+            ->editColumn('product_image', function ($row) {
+                $basePath = config('app.url');
+                
+                if (!empty($row->product_image)) {
+                    $imagePath = asset('uploads/img/' . $row->product_image);
+                } else {
+                    $imagePath = asset('img/default.png');
+                }
+            
+                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            })            
+            ->editColumn('product_sku', function ($row) {
+                $product_sku = $row->product_sku;
+
+                return $product_sku;
+            })
+            ->editColumn('return_invoice_no', function ($row) {
+                $return_invoice_no = $row->return_invoice_no;
+
+                return $return_invoice_no;
+            })
+            ->editColumn('sell_invoice_no', function ($row) {
+                $sell_invoice_no = $row->sell_invoice_no;
+
+                return $sell_invoice_no;
+            })
+            ->editColumn('quantity', function ($row) {
+                $quantity = $row->quantity;
+
+                return $quantity;
+            })
+            ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+            ->editColumn('shipping_status', function ($row) {
+                $shipping_status = "Return";
+
+                return $shipping_status;
+            })
+            ->editColumn('store_name', function ($row) {
+                $store_name = $row->store_name;
+
+                return $store_name;
+            })
+            ->rawColumns(['product_image'])
+            ->make(true);
+        }
+    }
+
+    public function productAdjustmentHistory(Request $request)
+    {
+        // dd($request->id);
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        if ($request->ajax()) {
+            // dd("hit");
+            $stock_adjustments = Transaction::join('product_adjustment_lines', 'product_adjustment_lines.transaction_id', '=', 'transactions.id')
+            ->join('products', 'products.id', '=', 'product_adjustment_lines.product_id')
+            ->join(
+                'business_locations AS BL',
+                'transactions.location_id',
+                '=',
+                'BL.id'
+            )
+                    ->where('transactions.business_id', $business_id)
+                    ->where('product_adjustment_lines.product_id', $request->id)
+                    ->where('transactions.type', 'product_adjustment')
+                    ->select(
+                        'transactions.transaction_date as transaction_date',
+                        'ref_no as invoice_no',
+                        'BL.name as location_name',
+                        'adjustment_type as type',
+                        'product_adjustment_lines.quantity as quantity',
+                        'products.sku as product_sku',
+                        'products.image as product_image',
+                    );
+
+            return Datatables::of($stock_adjustments)
+            ->editColumn('product_image', function ($row) {
+                $basePath = config('app.url');
+                
+                if (!empty($row->product_image)) {
+                    $imagePath = asset('uploads/img/' . $row->product_image);
+                } else {
+                    $imagePath = asset('img/default.png');
+                }
+            
+                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            })            
+            ->editColumn('product_sku', function ($row) {
+                $product_sku = $row->product_sku;
+
+                return $product_sku;
+            })
+            ->editColumn('invoice_no', function ($row) {
+                $invoice_no = $row->invoice_no;
+
+                return $invoice_no;
+            })
+            ->editColumn('type', function ($row) {
+                $type = $row->type;
+                $formattedtype = ucwords($type);
+
+                return $formattedtype;
+            })
+            ->editColumn('quantity', function ($row) {
+                $quantity = $row->quantity;
+
+                return $quantity;
+            })
+            ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+            ->editColumn('location_name', function ($row) {
+                $location_name = $row->location_name;
+
+                return $location_name;
+            })
+            ->rawColumns(['product_image'])
+            ->make(true);
+        }
+    }
+
 }

@@ -33,6 +33,7 @@ use App\BusinessLocation;
 use App\Category;
 use App\Contact;
 use App\CustomerGroup;
+use Spatie\Permission\Models\Role;
 use App\Media;
 use App\Product;
 use App\SellingPriceGroup;
@@ -204,6 +205,68 @@ class SellPosController extends Controller
             $commission_agent = User::saleCommissionAgentsDropdown($business_id, false);
         }
 
+        // Find roles that contain the term 'employee'
+        $roles = Role::where('name', 'like', '%employee%')->get();
+
+        // Initialize an empty collection to store users
+        $usersCollection = collect();
+
+        // Loop through each role
+        foreach ($roles as $role) {
+            // Retrieve users with the specified role
+            $usersWithRole = $role->users;
+
+            // Add users to the collection
+            foreach ($usersWithRole as $user) {
+                $usersCollection[$user->id] = $user->first_name . ' ' . $user->last_name;
+                // You can customize the user name format based on your user model structure
+            }
+        }
+
+
+        // $roles = Role::where('name', 'like', '%employee%')->get();
+
+        // // Initialize an empty collection to store users
+        // $usersCollection = collect();
+
+        // // Loop through each role
+        // foreach ($roles as $role) {
+        //     // Retrieve users with the specified role
+        //     $usersWithRole = $role->users;
+
+        //     // Add users to the collection
+        //     $usersCollection = $usersCollection->merge($usersWithRole);
+        // }
+        // dd($usersCollection);
+
+        // $employees = User::role('Employee')->get();
+        // $roles = Role::all();
+        
+        // $filteredRoles = Role::where('name', 'like', '%employee%')->get();
+
+        // $role = Role::where('name', 'Employee#4')->first();
+
+    // Check if the role exists
+    // if ($role) {
+        // Retrieve users with the specified role
+        // $usersWithRole = $role->users;
+
+        // Display user details
+        // foreach ($usersWithRole as $user) {
+            // echo "User ID: " . $user->id . ", Username: " . $user->username . ", Email: " . $user->email . PHP_EOL;
+    //     }
+    // } else {
+    //     echo "Role not found." . PHP_EOL;
+    // }
+        // dd($filteredRoles);
+
+        // $employees = User::
+        // leftJoin('business', 'users.business_id', '=', 'business.id')
+        // ->leftJoin('roles', 'roles.business_id', '=', 'business.id')
+        // ->where('roles.name','Employee#4')
+        // ->get();
+        // dd($employees);
+
         //If brands, category are enabled then send else false.
         $categories = (request()->session()->get('business.enable_category') == 1) ? Category::catAndSubCategories($business_id) : false;
         $brands = (request()->session()->get('business.enable_brand') == 1) ? Brands::forDropdown($business_id)
@@ -273,7 +336,8 @@ class SellPosController extends Controller
                 'pos_module_data',
                 'invoice_schemes',
                 'default_invoice_schemes',
-                'invoice_layouts'
+                'invoice_layouts',
+                'usersCollection'
             ));
     }
 

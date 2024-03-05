@@ -6,11 +6,11 @@
 		    </h4>
 		</div>
 		<div class="modal-body">
-		  	<div class="row">
-			    <div class="col-sm-12">
-			      <p class="pull-right"><b>@lang('messages.date'):</b> {{ @format_date($stock_adjustment->transaction_date) }}</p>
-			    </div>
-			</div>
+				<div class="col-sm-4 invoice-col" style="float: right;">
+					<div class="thumbnail">
+						<img class="pull-right" src="{{ asset('storage/img/' . $stock_adjustment->document) }}" alt="Product image">
+					</div>
+				</div>
 			<div class="row invoice-info">
 				<div class="col-sm-4 invoice-col">
     				@lang('business.business'):
@@ -35,7 +35,7 @@
 			    <div class="col-sm-4 invoice-col">
 			      	<b>@lang('purchase.ref_no'):</b> #{{ $stock_adjustment->ref_no }}<br/>
 			      	<b>@lang('messages.date'):</b> {{ @format_date($stock_adjustment->transaction_date) }}<br/>
-			      	<b>@lang('stock_adjustment.adjustment_type'):</b> {{ __('stock_adjustment.' . $stock_adjustment->adjustment_type) }}<br>
+			      	<b>@lang('stock_adjustment.adjustment_type'):</b> {{ __($stock_adjustment->adjustment_type) }}<br>
 			      	<b>@lang('stock_adjustment.reason_for_stock_adjustment'):</b> {{ $stock_adjustment->additional_notes }}<br>
 			    </div>
     		</div>

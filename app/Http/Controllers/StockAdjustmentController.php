@@ -108,7 +108,7 @@ class StockAdjustmentController extends Controller
                 )
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
                 ->editColumn('adjustment_type', function ($row) {
-                    return __('stock_adjustment.' . $row->adjustment_type);
+                    return __($row->adjustment_type);
                 })
                 ->setRowAttr([
                 'data-href' => function ($row) {
@@ -159,22 +159,22 @@ class StockAdjustmentController extends Controller
 
         try {
             DB::beginTransaction();
-
+            
             $input_data = $request->only([ 'location_id', 'transaction_date', 'adjustment_type', 'additional_notes', 'total_amount_recovered', 'final_total', 'ref_no']);
             $business_id = $request->session()->get('user.business_id');
-
+            
             //Check if subscribed or not
             if (!$this->moduleUtil->isSubscribed($business_id)) {
                 return $this->moduleUtil->expiredResponse(action('StockAdjustmentController@index'));
             }
-        
+            
             $user_id = $request->session()->get('user.id');
-
+            
             $input_data['type'] = 'stock_adjustment';
             $input_data['business_id'] = $business_id;
             $input_data['created_by'] = $user_id;
             $input_data['transaction_date'] = $this->productUtil->uf_date($input_data['transaction_date'], true);
-            $input_data['total_amount_recovered'] = $this->productUtil->num_uf($input_data['total_amount_recovered']);
+            // $input_data['total_amount_recovered'] = $this->productUtil->num_uf($input_data['total_amount_recovered']);
 
             //Update reference count
             $ref_count = $this->productUtil->setAndGetReferenceCount('stock_adjustment');
@@ -208,6 +208,8 @@ class StockAdjustmentController extends Controller
                         $input_data['location_id'],
                         $this->productUtil->num_uf($product['quantity'])
                     );
+                    $input_data['document'] = $this->productUtil->uploadFileNew($request, 'image', config('constants.product_img_path'), 'image');
+
                 }
 
                 $stock_adjustment = Transaction::create($input_data);

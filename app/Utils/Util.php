@@ -695,6 +695,53 @@ class Util
 
         return $uploaded_file_name;
     }
+
+    public function uploadFileNew($request, $file_name, $dir_name, $file_type = 'document')
+    {
+        // dd($request->file($file_name), $file_name, $file_type,$dir_name);
+        //If app environment is demo return null
+        if (config('app.env') == 'demo') {
+            return null;
+        }
+        
+        $uploaded_file_name = null;
+        if ($request->hasFile($file_name) && $request->file($file_name)->isValid()) {
+            dd("in");
+            
+            //Check if mime type is image
+            if ($file_type == 'image') {
+                // dd("img");
+                if (strpos($request->$file_name->getClientMimeType(), 'image/') === false) {
+                    throw new \Exception("Invalid image file");
+                }
+            }
+
+            if ($file_type == 'document') {
+                if (!in_array($request->$file_name->getClientMimeType(), array_keys(config('constants.document_upload_mimes_types')))) {
+                    throw new \Exception("Invalid document file");
+                }
+            }
+            
+            if ($request->file($file_name)->getSize() <= config('constants.document_size_limit')) {
+                $originalName = $request->file($file_name)->getClientOriginalName();
+                $new_file_name = time() . '_' . $originalName;
+            
+                $storagePath = storage_path("app/public/{$dir_name}");
+                $request->file($file_name)->move($storagePath, $new_file_name);
+            
+                $uploaded_file_name = $new_file_name;
+            }
+
+            // if ($request->$file_name->getSize() <= config('constants.document_size_limit')) {
+            //     $new_file_name = time() . '_' . $request->$file_name->getClientOriginalName();
+            //     if ($request->$file_name->storeAs($dir_name, $new_file_name)) {
+            //         $uploaded_file_name = $new_file_name;
+            //     }
+            // }
+        }
+
+        return $uploaded_file_name;
+    }
     
     public function serviceStaffDropdown($business_id, $location_id = null)
     {

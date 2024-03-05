@@ -147,13 +147,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-download', 'active' => request()->segment(1) == 'import-products']
                             );
                         }
-                        if (auth()->user()->can('product.opening_stock')) {
-                            $sub->url(
-                                action('ImportOpeningStockController@index'),
-                                __('lang_v1.import_opening_stock'),
-                                ['icon' => 'fa fas fa-download', 'active' => request()->segment(1) == 'import-opening-stock']
-                            );
-                        }
+                        // if (auth()->user()->can('product.opening_stock')) {
+                        //     $sub->url(
+                        //         action('ImportOpeningStockController@index'),
+                        //         __('lang_v1.import_opening_stock'),
+                        //         ['icon' => 'fa fas fa-download', 'active' => request()->segment(1) == 'import-opening-stock']
+                        //     );
+                        // }
                         if (auth()->user()->can('product.create')) {
                             $sub->url(
                                 action('SellController@indexForSellPriceUpdate'),

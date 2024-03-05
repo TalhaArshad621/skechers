@@ -205,6 +205,7 @@ class ImportStockTrasferController extends Controller
 
             if ($request->hasFile('stock_transfer_csv')) {
                 $file = $request->file('stock_transfer_csv');
+                // dd("yes");
                 
                 $parsed_array = Excel::toArray([], $file);
                 //Remove header row
@@ -223,6 +224,8 @@ class ImportStockTrasferController extends Controller
             $product_array = [];
 
             foreach ($imported_data as $key => $value) {
+                                // dd("yes");
+
                 //Check if any column is missing
                 if (count($value) < 2) {
                     $is_valid =  false;
@@ -260,7 +263,7 @@ class ImportStockTrasferController extends Controller
                 $products = DB::table('products')
                 ->leftJoin('variations','products.id', '=', 'variations.product_id')
                 ->select('products.id AS product_id','products.name AS product_name','products.sku AS product_sku', 'products.unit_id AS product_unit_id','products.sub_unit_ids AS sub_unit_id','variations.product_variation_id AS variation_id','variations.default_purchase_price AS pp_without_discount','variations.profit_percent AS profit_percent','variations.default_sell_price','variations.product_variation_id AS variation_id','products.enable_stock AS enable_stock')
-                ->where('products.name', $product_sku)
+                ->where('products.sku', $product_sku)
                 ->first();    
 
             

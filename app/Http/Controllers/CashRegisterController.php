@@ -121,15 +121,22 @@ class CashRegisterController extends Controller
         $business_id = request()->session()->get('user.business_id');
 
         $register_details =  $this->cashRegisterUtil->getRegisterDetails($id);
+        $sell_return =  $this->cashRegisterUtil->getSaleReturnDetails($register_details->location_id);
+
         $user_id = $register_details->user_id;
         $open_time = $register_details['open_time'];
         $close_time = !empty($register_details['closed_at']) ? $register_details['closed_at'] : \Carbon::now()->toDateTimeString();
         $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_id, $open_time, $close_time);
 
         $payment_types = $this->cashRegisterUtil->payment_types(null, false, $business_id);
+        $start_date = \Carbon\Carbon::parse($open_time)->format('Y-m-d');
+        $end_date = \Carbon\Carbon::parse($close_time)->format('Y-m-d');
+
+        $data = $this->transactionUtil->getProfitLossDetailsForRegister($business_id, $register_details->location_id, $start_date, $end_date);
+
 
         return view('cash_register.register_details')
-                    ->with(compact('register_details', 'details', 'payment_types', 'close_time'));
+                    ->with(compact('register_details', 'details', 'payment_types', 'close_time','sell_return','data'));
     }
 
     /**

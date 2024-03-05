@@ -15,7 +15,7 @@
 
 <!-- Main content -->
 <section class="content no-print">
-	{!! Form::open(['url' => action('StockAdjustmentController@store'), 'method' => 'post', 'id' => 'stock_adjustment_form' ]) !!}
+	{!! Form::open(['url' => action('StockAdjustmentController@store'), 'method' => 'post', 'id' => 'stock_adjustment_form', 'enctype' => 'multipart/form-data']) !!}
 	<div class="box box-solid">
 		<div class="box-body">
 			<div class="row">
@@ -45,7 +45,7 @@
 				<div class="col-sm-3">
 					<div class="form-group">
 						{!! Form::label('adjustment_type', __('stock_adjustment.adjustment_type') . ':*') !!} @show_tooltip(__('tooltip.adjustment_type'))
-						{!! Form::select('adjustment_type', [ 'normal' =>  __('stock_adjustment.normal'), 'abnormal' =>  __('stock_adjustment.abnormal')], null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
+						{!! Form::select('adjustment_type', [ 'selling' =>  __('Selling'), 'buying' =>  __('Buying')], null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
 					</div>
 				</div>
 			</div>
@@ -105,8 +105,11 @@
 			<div class="row">
 				<div class="col-sm-4">
 					<div class="form-group">
-							{!! Form::label('total_amount_recovered', __('stock_adjustment.total_amount_recovered') . ':') !!} @show_tooltip(__('tooltip.total_amount_recovered'))
-							{!! Form::text('total_amount_recovered', 0, ['class' => 'form-control input_number', 'placeholder' => __('stock_adjustment.total_amount_recovered')]); !!}
+						{!! Form::label('image', __('lang_v1.product_image') . ':') !!}
+						{!! Form::file('image', ['class' => 'image', 'accept' => 'image/*']); !!}
+						<small><p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)]) <br> @lang('lang_v1.aspect_ratio_should_be_1_1')</p></small>
+						{{-- {!! Form::label('total_amount_recovered', __('stock_adjustment.total_amount_recovered') . ':') !!} @show_tooltip(__('tooltip.total_amount_recovered'))
+						{!! Form::text('total_amount_recovered', 0, ['class' => 'form-control input_number', 'placeholder' => __('stock_adjustment.total_amount_recovered')]); !!} --}}
 					</div>
 				</div>
 				<div class="col-sm-4">
