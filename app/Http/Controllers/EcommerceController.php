@@ -519,7 +519,7 @@ class EcommerceController extends Controller
 
             $response = $client->request('GET', $url, [
                 'headers' => [
-                    'X-Shopify-Access-Token' => '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',
+                    'X-Shopify-Access-Token' => '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',
                     'Content-Type' => 'application/json',
                 ],
             ]);
