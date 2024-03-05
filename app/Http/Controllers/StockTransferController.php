@@ -128,26 +128,32 @@ class StockTransferController extends Controller
                     
                     $status = $statuses[$row->status];
                     $status_color = !empty($this->status_colors[$row->status]) ? $this->status_colors[$row->status] : 'bg-gray';
-                
+                    
                     // Check if the logged-in user's location matches the base location
-                    $userLocationId = auth()->user()->id;
+                    $userLocationId = auth()->user()->permitted_locations();
                     $sendFrom = $row->location_from;
                     $sendTo = $row->location_to;
                 
                     $sendFromLocationId = BusinessLocation::where('name', $sendFrom)->value('id');
                     $sendToLocationId = BusinessLocation::where('name', $sendTo)->value('id');
                 
-                    // dd($userLocationId, $sendFrom, $sendTo, $sendFromLocationId, $sendToLocationId);
-                
-                    if ($userLocationId != $sendToLocationId) {
-                        // dd("if");
-                        // If they match, display the status without the link
-                        $status = '<span class="label ' . $status_color .'">' . $status . '</span>';
-                    } else {
-                        // dd("else");
-                        // If they don't match, display the status with the link
+                    // dd($userLocationId, $sendToLocationId);
+                    // dd($userLocationId);
+
+                    if (!is_array($userLocationId) && $userLocationId == 'all' ) {
+
                         $status = '<a href="#" class="stock_transfer_status" data-status="' . $row->status . '" data-href="' . action("StockTransferController@updateStatus", [$row->id]) . '"><span class="label ' . $status_color .'">' . $status . '</span></a>';
                     }
+                    else
+                        if (!in_array($sendToLocationId, $userLocationId) ) {
+                            // dd("if");
+                            // If they match, display the status without the link
+                            $status = '<span class="label ' . $status_color .'">' . $status . '</span>';
+                        } else {
+                            // dd("else");
+                            // If they don't match, display the status with the link
+                            $status = '<a href="#" class="stock_transfer_status" data-status="' . $row->status . '" data-href="' . action("StockTransferController@updateStatus", [$row->id]) . '"><span class="label ' . $status_color .'">' . $status . '</span></a>';
+                        }
                 
                     return $status;
                 })

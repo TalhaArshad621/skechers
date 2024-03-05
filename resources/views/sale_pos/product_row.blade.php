@@ -289,7 +289,7 @@
 		</td>
 	@elseif ( $discount && $discount->discount_type == 'percentage')
 		@php
-			$discount_percentage = $discount->discount_amount * 100;
+			$discount_percentage = ($product->sell_price_inc_tax*$discount->discount_amount)/100;
 		@endphp
 		<td class="text-center">
 			<input type="{{$discount->amount}}" class="form-control pos_line_totall" value="{{@num_format($discount_percentage )}}" disabled>

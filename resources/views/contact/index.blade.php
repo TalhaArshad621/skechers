@@ -78,7 +78,7 @@
                         <th>
                             {{ $custom_labels['contact']['custom_field_1'] ?? __('lang_v1.contact_custom_field1') }}
                         </th>
-                        <th>
+                        {{-- <th>
                             {{ $custom_labels['contact']['custom_field_2'] ?? __('lang_v1.contact_custom_field2') }}
                         </th>
                         <th>
@@ -104,7 +104,7 @@
                         </th>
                         <th>
                             {{ $custom_labels['contact']['custom_field_10'] ?? __('lang_v1.custom_field', ['number' => 10]) }}
-                        </th>
+                        </th> --}}
                     </tr>
                 </thead>
                 <tfoot>
@@ -131,6 +131,7 @@
                         </td>
                         <td id="footer_contact_due"></td>
                         <td id="footer_contact_return_due"></td>
+                        {{-- <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -139,8 +140,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td></td>
+                        <td></td> --}}
                     </tr>
                 </tfoot>
             </table>

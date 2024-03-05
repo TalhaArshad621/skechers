@@ -77,6 +77,21 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::resource('variation-templates', 'VariationTemplateController');
 
     Route::get('/products/stock-history/{id}', 'ProductController@productStockHistory');
+
+    Route::get('/products/history-ajax/{id}', 'ProductController@productHistoryAJAX');
+    Route::get('/products/history', 'ProductController@productHistory');
+    Route::get('/products/sell-history', 'ProductController@productSellHistory');
+    Route::get('/products/gift-history', 'ProductController@productGiftHistory');
+    Route::get('/products/ecommerce-history', 'ProductController@productEcommerceHistory');
+    Route::get('/products/ecommerce-return-history', 'ProductController@productEcommerceReturnHistory');
+    Route::get('/products/store-to-store-history', 'ProductController@productStoreToStoreHistory');
+    Route::get('/products/store-to-warehouse-history', 'ProductController@productStoreToWarehouseHistory');
+    Route::get('/products/warehouse-to-store-history', 'ProductController@productWarehouseToStoreHistory');
+    Route::get('/products/adjustment-history', 'ProductController@productAdjustmentHistory');
+
+    
+    
+
     Route::get('/delete-media/{media_id}', 'ProductController@deleteMedia');
     Route::post('/products/mass-deactivate', 'ProductController@massDeactivate');
     Route::get('/products/activate/{id}', 'ProductController@activate');

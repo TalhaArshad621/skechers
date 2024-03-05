@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', __('lang_v1.add_stock_transfer'))
+@section('title', __('Import Stock Transfer'))
 
 @section('content')
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('lang_v1.add_stock_transfer')</h1>
+    <h1>@lang('Import Stock Transfer')</h1>
 </section>
 
 <!-- Main content -->
@@ -41,7 +41,7 @@
             <br><br>
                 <div class="row">
                     <div class="col-sm-4">
-                        <a href="{{ asset('files/import_stock_transfer_csv_template.xls') }}" class="btn btn-success" download><i class="fa fa-download"></i> @lang('lang_v1.download_template_file')</a>
+                        <a href="{{ asset('files/import_stock_transfer_csv_template.csv') }}" class="btn btn-success" download><i class="fa fa-download"></i> @lang('lang_v1.download_template_file')</a>
                     </div>
                 </div>
 		</div>

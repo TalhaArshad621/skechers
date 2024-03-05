@@ -27,14 +27,14 @@
         @endif
     @endcomponent
     @component('components.widget', ['class' => 'box-primary', 'title' => __( 'lang_v1.ecommerce')])
-        @can('sell.create')
+        {{-- @can('sell.create')
             @slot('tool')
                 <div class="box-tools">
                     <a class="btn btn-block btn-primary" href="{{action('SellController@create')}}">
                     <i class="fa fa-plus"></i> @lang('messages.add')</a>
                 </div>
             @endslot
-        @endcan
+        @endcan --}}
         @if(auth()->user()->can('direct_sell.access') ||  auth()->user()->can('view_own_sell_only') ||  auth()->user()->can('view_commission_agent_sell'))
         @php
             $custom_labels = json_decode(session('business.custom_labels'), true);

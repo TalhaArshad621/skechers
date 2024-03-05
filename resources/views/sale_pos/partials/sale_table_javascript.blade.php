@@ -100,11 +100,12 @@ sell_table = $('#sell_table').DataTable({
             var footer_total_remaining = 0;
             var footer_total_sell_return_due = 0;
             for (var r in data){
+                console.log(data[r]);
+                console.log($(data[r].return_due).data('orig-value'),data[r].return_due);
                 footer_sale_total += $(data[r].final_total).data('orig-value') ? parseFloat($(data[r].final_total).data('orig-value')) : 0;
                 footer_total_paid += $(data[r].total_paid).data('orig-value') ? parseFloat($(data[r].total_paid).data('orig-value')) : 0;
                 footer_total_remaining += $(data[r].total_remaining).data('orig-value') ? parseFloat($(data[r].total_remaining).data('orig-value')) : 0;
-                footer_total_sell_return_due += $(data[r].return_due).data('orig-value') ? parseFloat($(data[r].return_due).data('orig-value')) : 0;
-            }
+                footer_total_sell_return_due += $(data[r].return_due).find('.sell_return_due').data('orig-value') ? parseFloat($(data[r].return_due).find('.sell_return_due').data('orig-value')) : 0;            }
 
             $('.footer_total_sell_return_due').html(__currency_trans_from_en(footer_total_sell_return_due));
             $('.footer_total_remaining').html(__currency_trans_from_en(footer_total_remaining));

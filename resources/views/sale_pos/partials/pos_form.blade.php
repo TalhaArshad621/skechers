@@ -62,11 +62,13 @@
 	<input type="hidden" name="pay_term_number" id="pay_term_number" value="{{$walk_in_customer['pay_term_number'] ?? ''}}">
 	<input type="hidden" name="pay_term_type" id="pay_term_type" value="{{$walk_in_customer['pay_term_type'] ?? ''}}">
 	
+	{{-- {{ dd($usersCollection) }} --}}
+
 	@if(!empty($commission_agent))
 		<div class="col-md-4">
 			<div class="form-group">
 			{!! Form::select('commission_agent', 
-						$commission_agent, null, ['class' => 'form-control select2', 'required','placeholder' => __('Employee Name')]); !!}
+						$usersCollection, null, ['class' => 'form-control select2', 'required','placeholder' => __('Employee Name')]); !!}
 			</div>
 		</div>
 	@endif
