@@ -279,7 +279,7 @@
 			</div>
 		</td>
 	@endif
-	{{-- {{ dd($product->sell_price_inc_tax) }} --}}
+	{{-- {{ dd($product->sell_price_inc_tax) }} --}} 
 	<td class="{{$hide_tax}}">
 		<input type="text" name="products[{{$row_count}}][unit_price_inc_tax]" class="form-control original_amount input_number" value="{{@num_format($unit_price_inc_tax)}}" @if(!$edit_price) readonly @endif @if(!empty($pos_settings['enable_msp'])) data-rule-min-value="{{$product->sell_price_inc_tax}}" data-msg-min-value="{{__('lang_v1.minimum_selling_price_error_msg', ['price' => @num_format($unit_price_inc_tax)])}}" @endif>
 	</td>
