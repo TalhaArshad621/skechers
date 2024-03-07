@@ -42,13 +42,13 @@
 									{!! Form::textarea('sale_note', !empty($transaction)? $transaction->additional_notes:null, ['class' => 'form-control', 'rows' => 3, 'placeholder' => __('sale.sell_note')]); !!}
 								</div>
 							</div>
-							<div class="col-md-6">
+							{{-- <div class="col-md-6">
 								<div class="form-group">
 									{!! Form::label('staff_note', __('sale.staff_note') . ':') !!}
 									{!! Form::textarea('staff_note', 
 									!empty($transaction)? $transaction->staff_note:null, ['class' => 'form-control', 'rows' => 3, 'placeholder' => __('sale.staff_note')]); !!}
 								</div>
-							</div>
+							</div> --}}
 						</div>
 					</div>
 					<div class="col-md-3">
