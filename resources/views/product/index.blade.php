@@ -202,6 +202,7 @@
                         { data: 'current_stock', searchable: false},
                         { data: 'type', name: 'products.type'},
                         { data: 'category', name: 'c1.name'},
+                        { data: 'sub_category', name: 'c2.name'},
                         // { data: 'brand', name: 'brands.name'},
                         { data: 'tax', name: 'tax_rates.name', searchable: false},
                         { data: 'product', name: 'products.name'  }

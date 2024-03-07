@@ -5,7 +5,7 @@
 			{!! Form::text("payment[$row_index][card_number]", $payment_line['card_number'], ['class' => 'form-control', 'placeholder' => __('lang_v1.card_no'), 'id' => "card_number_$row_index"]); !!}
 		</div>
 	</div>
-	<div class="col-md-4">
+	{{-- <div class="col-md-4">
 		<div class="form-group">
 			{!! Form::label("card_holder_name_$row_index", __('lang_v1.card_holder_name')) !!}
 			{!! Form::text("payment[$row_index][card_holder_name]", $payment_line['card_holder_name'], ['class' => 'form-control', 'placeholder' => __('lang_v1.card_holder_name'), 'id' => "card_holder_name_$row_index"]); !!}
@@ -42,7 +42,7 @@
 			{!! Form::label("card_security_$row_index",__('lang_v1.security_code')) !!}
 			{!! Form::text("payment[$row_index][card_security]", $payment_line['card_security'], ['class' => 'form-control', 'placeholder' => __('lang_v1.security_code'), 'id' => "card_security_$row_index"]); !!}
 		</div>
-	</div>
+	</div> --}}
 	<div class="clearfix"></div>
 </div>
 <div class="payment_details_div @if( $payment_line['method'] !== 'cheque' ) {{ 'hide' }} @endif" data-type="cheque" >

@@ -89,8 +89,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/products/warehouse-to-store-history', 'ProductController@productWarehouseToStoreHistory');
     Route::get('/products/adjustment-history', 'ProductController@productAdjustmentHistory');
 
-    
-    
+    Route::get('/products-audit', 'ProductController@productAudit');
+    Route::get('/products-list', 'ProductController@productList');
 
     Route::get('/delete-media/{media_id}', 'ProductController@deleteMedia');
     Route::post('/products/mass-deactivate', 'ProductController@massDeactivate');
@@ -202,7 +202,9 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/reports/product-sell-report', 'ReportController@getproductSellReport');
     // Route::get('/reports/product-sell-report-detailed', 'ReportController@getproductSellReportDetailed');
     Route::get('/reports/product-sell-grouped-report-detailed', 'ReportController@getproductSellGroupedReportDetailed');
+    Route::get('/reports/product-sell-grouped-report-detailed-category', 'ReportController@getproductSellGroupedReportDetailedCategory');
     Route::get('/reports/product-sell-grouped-report-detailed-returns', 'ReportController@getproductSellGroupedReportDetailedReturns');
+    Route::get('/reports/product-sell-grouped-report-detailed-returns-category', 'ReportController@getproductSellGroupedReportDetailedReturnsCategory');
 
     Route::get('/reports/product-sell-report-with-purchase', 'ReportController@getproductSellReportWithPurchase');
     Route::get('/reports/product-sell-grouped-report', 'ReportController@getproductSellGroupedReport');

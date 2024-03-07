@@ -51,6 +51,7 @@
                             id="product_sell_grouped_report_table" style="width: 100%;">
                                 <thead>
                                     <tr>
+                                        <th>Image</th>
                                         <th>@lang('messages.date')</th>
                                         <th>@lang('Category')</th>
                                         <th>@lang('product.sku')</th>
@@ -60,7 +61,7 @@
                                 </thead>
                                 <tfoot>
                                     <tr class="bg-gray font-17 footer-total text-center">
-                                        <td colspan="3"><strong>@lang('sale.total'):</strong></td>
+                                        <td colspan="4"><strong>@lang('sale.total'):</strong></td>
                                         <td id="footer_total_grouped_sold"></td>
                                         <td><span class="display_currency" id="footer_grouped_subtotal" data-currency_symbol ="true"></span></td>
                                     </tr>
@@ -77,6 +78,7 @@
                             id="product_sell_grouped_report_table_returned" style="width: 100%;">
                                 <thead>
                                     <tr>
+                                        <th>Image</th>
                                         <th>@lang('messages.date')</th>
                                         <th>@lang('Category')</th>
                                         <th>@lang('product.sku')</th>
@@ -86,7 +88,7 @@
                                 </thead>
                                 <tfoot>
                                     <tr class="bg-gray font-17 footer-total text-center">
-                                        <td colspan="3"><strong>@lang('sale.total'):</strong></td>
+                                        <td colspan="4"><strong>@lang('sale.total'):</strong></td>
                                         <td id="footer_total_grouped_sold_return"></td>
                                         <td><span class="display_currency" id="footer_grouped_subtotal_return" data-currency_symbol ="true"></span></td>
                                     </tr>
@@ -103,12 +105,14 @@
                             id="category_wise_sale" style="width: 100%;">
                                 <thead>
                                     <tr>
+                                        <th>Image</th>
                                         <th>@lang('Category')</th>
                                         <th>@lang('report.total_unit_sold')</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
                                     <tr class="bg-gray font-17 footer-total text-center">
+                                        <td></td>
                                         <td></td>
                                         <td id="footer_total_grouped_sold_category"></td>
                                     </tr>
@@ -125,12 +129,14 @@
                             id="category_wise_return" style="width: 100%;">
                                 <thead>
                                     <tr>
+                                        <th>Image</th>
                                         <th>@lang('Category')</th>
                                         <th>@lang('Total Unit Returned')</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
                                     <tr class="bg-gray font-17 footer-total text-center">
+                                        <td></td>
                                         <td></td>
                                         <td id="footer_total_grouped_sold_return_category"></td>
                                     </tr>
@@ -193,31 +199,75 @@
         aaSorting: [[1, 'desc']],
         ajax: {
             url: '/reports/product-sell-grouped-report-detailed',
+
             data: function(d) {
-                var start = '';
-                var end = '';
-                var start_time = $('#product_sr_start_time').val();
-                var end_time = $('#product_sr_end_time').val();
-                if ($('#product_sr_date_filter').val()) {
-                    start = $('input#product_sr_date_filter')
-                        .data('daterangepicker')
-                        .startDate.format('YYYY-MM-DD');
-                    end = $('input#product_sr_date_filter')
-                        .data('daterangepicker')
-                        .endDate.format('YYYY-MM-DD');
+            var start = '';
+            var end = '';
+            var start_time = $('#product_sr_start_time').val();
+            var end_time = $('#product_sr_end_time').val();
+            var currentDate = moment().format('YYYY-MM-DD'); // Get current date in 'YYYY-MM-DD' format
+            var yesterdayDate = moment().subtract(1, 'days').format('YYYY-MM-DD'); // Get yesterday's date in 'YYYY-MM-DD' format
 
-                    start = moment(start + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
-                    end = moment(end + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+            if ($('#product_sr_date_filter').val()) {
+                var selectedStartDate = $('input#product_sr_date_filter')
+                    .data('daterangepicker')
+                    .startDate.format('YYYY-MM-DD');
+                var selectedEndDate = $('input#product_sr_date_filter')
+                    .data('daterangepicker')
+                    .endDate.format('YYYY-MM-DD');
+
+                // If selected start and end dates are today or yesterday, use specific time range
+                if (selectedStartDate === currentDate) {
+                    start = moment().startOf('day').format('YYYY-MM-DD HH:mm'); // Today's start time (00:00:00)
+                    end = moment().endOf('day').format('YYYY-MM-DD HH:mm'); // Today's end time (23:59:59)
+                } else if (selectedStartDate === yesterdayDate) {
+                    start = moment().subtract(1, 'days').startOf('day').format('YYYY-MM-DD HH:mm'); // Yesterday's start time (00:00:00)
+                    end = moment().subtract(1, 'days').endOf('day').format('YYYY-MM-DD HH:mm'); // Yesterday's end time (23:59:59)
+                } else {
+                    start = moment(selectedStartDate + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                    end = moment(selectedEndDate + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
                 }
-                d.start_date = start;
-                d.end_date = end;
+                console.log(start, end);
+            }
+            d.start_date = start;
+            d.end_date = end;
 
-                d.variation_id = $('#variation_id').val();
-                d.customer_id = $('select#customer_id').val();
-                d.location_id = $('select#location_id').val();
+            d.variation_id = $('#variation_id').val();
+            d.customer_id = $('select#customer_id').val();
+            d.location_id = $('select#location_id').val();
             },
+
+
+
+
+
+            // data: function(d) {
+            //     var start = '';
+            //     var end = '';
+            //     var start_time = $('#product_sr_start_time').val();
+            //     var end_time = $('#product_sr_end_time').val();
+            //     if ($('#product_sr_date_filter').val()) {
+            //         start = $('input#product_sr_date_filter')
+            //             .data('daterangepicker')
+            //             .startDate.format('YYYY-MM-DD');
+            //         end = $('input#product_sr_date_filter')
+            //             .data('daterangepicker')
+            //             .endDate.format('YYYY-MM-DD');
+
+            //         start = moment(start + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+            //         end = moment(end + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+            //         console.log(start,end);
+            //     }
+            //     d.start_date = start;
+            //     d.end_date = end;
+
+            //     d.variation_id = $('#variation_id').val();
+            //     d.customer_id = $('select#customer_id').val();
+            //     d.location_id = $('select#location_id').val();
+            // },
         },
         columns: [
+            { data: 'product_image', name: 'product_image' },
             { data: 'transaction_date', name: 't.transaction_date' },
             { data: 'category_name', name: 'category_name' },
             { data: 'sub_sku', name: 'v.sub_sku' },
@@ -240,7 +290,7 @@
         serverSide: true,
         aaSorting: [[1, 'desc']],
         ajax: {
-            url: '/reports/product-sell-grouped-report-detailed',
+            url: '/reports/product-sell-grouped-report-detailed-category',
             data: function(d) {
                 var start = '';
                 var end = '';
@@ -266,6 +316,7 @@
             },
         },
         columns: [
+            { data: 'product_image', name: 'product_image' },
             { data: 'category_name', name: 'category_name' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
         ],
@@ -309,6 +360,7 @@
             },
         },
         columns: [
+            { data: 'product_image', name: 'product_image' },
             { data: 'transaction_date', name: 't.transaction_date' },
             { data: 'category_name', name: 'category_name' },
             { data: 'sub_sku', name: 'v.sub_sku' },
@@ -331,7 +383,7 @@
         serverSide: true,
         aaSorting: [[1, 'desc']],
         ajax: {
-            url: '/reports/product-sell-grouped-report-detailed-returns',
+            url: '/reports/product-sell-grouped-report-detailed-returns-category',
             data: function(d) {
                 var start = '';
                 var end = '';
@@ -357,6 +409,7 @@
             },
         },
         columns: [
+            { data: 'product_image', name: 'product_image' },
             { data: 'category_name', name: 'category_name' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
         ],

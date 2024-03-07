@@ -18,6 +18,9 @@
 <section class="content">
 <div class="row">
     <div class="col-md-12">
+        <div style="display: flex; justify-content: flex-end; align-items: center;">
+            <img src="{{ !empty($product->image) ? asset('uploads/img/' . $product->image) : asset('img/default.png') }}" alt="Product image" style="width: 20%;">
+        </div>
         <h4>@lang($product->name)</h4>
     </div>
     <input type="hidden" id="row_id" value="{{ $id }}">
@@ -55,17 +58,18 @@
                     <table class="table table-bordered table-striped" id="product_purchase_report_table">
                         <thead>
                             <tr>
-                                <th>@lang('Image')</th>
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('Invoice No.')</th>
                                 <th>@lang('sale.qty')</th>
                                 <th>@lang('Date')</th>
+                                <th>Created By</th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
-                                <td colspan="3"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="2"><strong>@lang('sale.total'):</strong></td>
                                 <td id="product_purchase_report_table_footer"></td>
+                                <td></td>
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -77,18 +81,19 @@
                     id="product_sell_report_table">
                         <thead>
                             <tr>
-                                <th>@lang('Image')</th>
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('Invoice No.')</th>
                                 <th>@lang('sale.qty')</th>
                                 <th>@lang('Store')</th>
                                 <th>@lang('Date')</th>
+                                <th>Created By</th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
-                                <td colspan="3"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="2"><strong>@lang('sale.total'):</strong></td>
                                 <td id="product_sell_report_table_footer"></td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                             </tr>
@@ -101,20 +106,22 @@
                     id="product_gift_report_table">
                         <thead>
                             <tr>
-                                <th>@lang('Image')</th>
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('Invoice No.')</th>
                                 <th>@lang('sale.qty')</th>
                                 <th>@lang('Returned')</th>
                                 <th>@lang('Date')</th>
+                                <th>Created By</th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
-                                <td colspan="3"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="2"><strong>@lang('sale.total'):</strong></td>
                                 <td id="product_gift_report_table_footer"></td>
+                                <td id="product_gift_report_table_footer_returned"></td>
                                 <td></td>
                                 <td></td>
+
                             </tr>
                         </tfoot>
                     </table>
@@ -125,19 +132,20 @@
                     id="product_ecommerce_report_table">
                         <thead>
                             <tr>
-                                <th>@lang('Image')</th>
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('Invoice No.')</th>
                                 <th>@lang('sale.qty')</th>
                                 <th>@lang('Store')</th>
                                 <th>@lang('POS Status')</th>
                                 <th>@lang('Date')</th>
+                                <th>Created By</th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
-                                <td colspan="3"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="2"><strong>@lang('sale.total'):</strong></td>
                                 <td id="product_ecommerce_report_table_footer"></td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -151,7 +159,6 @@
                     id="product_ecommerce_return_report_table">
                         <thead>
                             <tr>
-                                <th>@lang('Image')</th>
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('Parent Invoice No.')</th>
                                 <th>@lang('Invoice No.')</th>
@@ -159,12 +166,14 @@
                                 <th>@lang('Store')</th>
                                 <th>@lang('POS Status')</th>
                                 <th>@lang('Date')</th>
+                                <th>Created By</th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
-                                <td colspan="4"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="3"><strong>@lang('sale.total'):</strong></td>
                                 <td id="product_ecommerce_return_report_table_footer"></td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -178,18 +187,20 @@
                     id="store_to_store_transfer_report_table">
                         <thead>
                             <tr>
-                                <th>@lang('Image')</th>
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('Transfer Date')</th>
                                 <th>@lang('Quantity')</th>
                                 <th>@lang('Sender')</th>
                                 <th>@lang('Receiver')</th>
+                                <th>Created By</th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
-                                <td colspan="4"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="2"><strong>@lang('sale.total'):</strong></td>
                                 <td id="store_to_store_transfer_report_table_footer"></td>
+                                <td></td>
+                                <td></td>
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -201,18 +212,20 @@
                     id="store_to_warehouse_transfer_report_table">
                         <thead>
                             <tr>
-                                <th>@lang('Image')</th>
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('Transfer Date')</th>
                                 <th>@lang('Quantity')</th>
                                 <th>@lang('Sender')</th>
                                 <th>@lang('Receiver')</th>
+                                <th>Created By</th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
-                                <td colspan="4"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="2"><strong>@lang('sale.total'):</strong></td>
                                 <td id="store_to_warehouse_transfer_report_table_footer"></td>
+                                <td></td>
+                                <td></td>
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -224,18 +237,20 @@
                     id="warehouse_to_store_transfer_report_table">
                         <thead>
                             <tr>
-                                <th>@lang('Image')</th>
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('Transfer Date')</th>
                                 <th>@lang('Quantity')</th>
                                 <th>@lang('Sender')</th>
                                 <th>@lang('Receiver')</th>
+                                <th>Created By</th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
-                                <td colspan="4"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="2"><strong>@lang('sale.total'):</strong></td>
                                 <td id="warehouse_to_store_transfer_report_table_footer"></td>
+                                <td></td>
+                                <td></td>
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -247,53 +262,29 @@
                     id="product_adjustment_report_table">
                         <thead>
                             <tr>
-                                <th>@lang('Image')</th>
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('Invoice ID')</th>
                                 <th>@lang('Type')</th>
                                 <th>@lang('Quantity')</th>
                                 <th>@lang('Store')</th>
                                 <th>@lang('Transaction Date')</th>
+                                <th>Created By</th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
-                                <td colspan="4"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="3"><strong>@lang('sale.total'):</strong></td>
                                 <td id="product_adjustment_report_table_footer"></td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
-                {{-- <div class="table-responsive">
-                    <table class="table table-bordered table-striped" 
-                    id="product_sell_grouped_report_table" style="width: 100%;">
-                        <thead>
-                            <tr>
-                                <th>@lang('sale.product')</th>
-                                <th>@lang('product.sku')</th>
-                                <th>@lang('messages.date')</th>
-                                <th>@lang('report.current_stock')</th>
-                                <th>@lang('report.total_unit_sold')</th>
-                                <th>@lang('sale.total')</th>
-                            </tr>
-                        </thead>
-                        <tfoot>
-                            <tr class="bg-gray font-17 footer-total text-center">
-                                <td colspan="4"><strong>@lang('sale.total'):</strong></td>
-                                <td id="footer_total_grouped_sold"></td>
-                                <td><span class="display_currency" id="footer_grouped_subtotal" data-currency_symbol ="true"></span></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div> --}}
             @endcomponent
         </div>
     </div>
-    {{-- @component('components.widget')
-        <div id="product_stock_history" style="display: none;"></div>
-    @endcomponent --}}
     </div>
 </div>
 
@@ -318,15 +309,17 @@
                 },
             },
             columns: [
-                { data: 'product_image', name: 'product_image' },
                 { data: 'product_sku', name: 'product_sku' },
                 { data: 'invoice_id', name: 'invoice_id' },
                 { data: 'purchase_quantity', name: 'purchase_lines.quantity' },
-                { data: 'transaction_date', name: 'transaction_date' }
+                { data: 'transaction_date', name: 'transaction_date' },
+                { data: 'full_name', name: 'full_name' }
             ],
             fnDrawCallback: function(oSettings) {
-                var totalPurchaseQuantity = sum_table_col($('#product_purchase_report_table'), 'purchase_quantity');
-                $('#product_purchase_report_table_footer').text(totalPurchaseQuantity);                
+                $('#product_purchase_report_table_footer').text(
+                    sum_table_col($('#product_purchase_report_table'), 'sell_qty')
+                );
+                __currency_convert_recursively($('#product_purchase_report_table'));
             },
         });
 
@@ -342,18 +335,19 @@
                 },
             },
             columns: [
-                { data: 'product_image', name: 'product_image' },
                 { data: 'product_sku', name: 'product_sku' },
                 { data: 'invoice_no', name: 'invoice_no' },
                 { data: 'sell_quantity', name: 'sell_quantity' },
                 { data: 'store_name', name: 'store_name' },
                 { data: 'transaction_date', name: 'transaction_date' },
+                { data: 'full_name', name: 'full_name' }
             ],
             fnDrawCallback: function(oSettings) {
                 $('#product_sell_report_table_footer').text(
-                    sum_table_col($('#product_sell_report_table'), 'sell_quantity')
+                    sum_table_col($('#product_sell_report_table'), 'sell_qty')
                 );
-            },
+                __currency_convert_recursively($('#product_sell_report_table'));
+            }
         });
 
         //gift table js code
@@ -368,24 +362,19 @@
                 },
             },
             columns: [
-                { data: 'product_image', name: 'product_image' },
                 { data: 'product_sku', name: 'product_sku' },
                 { data: 'invoice_no', name: 'invoice_no' },
                 { data: 'sell_quantity', name: 'sell_quantity' },
                 { data: 'return_quantity', name: 'return_quantity' },
                 { data: 'transaction_date', name: 'transaction_date' },
+                { data: 'full_name', name: 'full_name' }
             ],
-            // fnDrawCallback: function(oSettings) {
-            //     $('#product_gift_report_table_footer').text(
-            //         sum_table_col($('#product_gift_report_table'), 'sell_quantity')
-            //     );
-            // },
             fnDrawCallback: function(oSettings) {
                 $('#product_gift_report_table_footer').text(
-                    sum_table_col($('#product_gift_report_table'), 'row_subtotal')
+                    sum_table_col($('#product_gift_report_table'), 'sell_qty')
                 );
-                $('#product_gift_report_table_footer').html(
-                    __sum_stock($('#product_gift_report_table'), 'sell_qty')
+                $('#product_gift_report_table_footer_returned').text(
+                    sum_table_col($('#product_gift_report_table'), 'sell_qtyy')
                 );
                 __currency_convert_recursively($('#product_gift_report_table'));
             },
@@ -403,28 +392,20 @@
                 },
             },
             columns: [
-                { data: 'product_image', name: 'product_image' },
                 { data: 'product_sku', name: 'product_sku' },
                 { data: 'invoice_no', name: 'invoice_no' },
                 { data: 'quantity', name: 'quantity' },
                 { data: 'store_name', name: 'store_name' },
                 { data: 'shipping_status', name: 'shipping_status' },
                 { data: 'transaction_date', name: 'transaction_date' },
+                { data: 'full_name', name: 'full_name' }
             ],
-            // fnDrawCallback: function(oSettings) {
-            //     $('#product_ecommerce_report_table_footer').text(
-            //         sum_table_col($('#product_ecommerce_report_table'), 'sell_quantity')
-            //     );
-            // },
             fnDrawCallback: function(oSettings) {
                 $('#product_ecommerce_report_table_footer').text(
-                    sum_table_col($('#product_ecommerce_report_table'), 'row_subtotal')
-                );
-                $('#product_ecommerce_report_table_footer').html(
-                    __sum_stock($('#product_ecommerce_report_table'), 'sell_qty')
+                    sum_table_col($('#product_ecommerce_report_table'), 'sell_qty')
                 );
                 __currency_convert_recursively($('#product_ecommerce_report_table'));
-            },
+            },            
         });
 
         //ecommerce return table js code
@@ -439,7 +420,6 @@
                 },
             },
             columns: [
-                { data: 'product_image', name: 'product_image' },
                 { data: 'product_sku', name: 'product_sku' },
                 { data: 'sell_invoice_no', name: 'sell_invoice_no' },
                 { data: 'return_invoice_no', name: 'return_invoice_no' },
@@ -447,13 +427,11 @@
                 { data: 'store_name', name: 'store_name' },
                 { data: 'shipping_status', name: 'shipping_status' },
                 { data: 'transaction_date', name: 'transaction_date' },
+                { data: 'full_name', name: 'full_name' }
             ],
             fnDrawCallback: function(oSettings) {
                 $('#product_ecommerce_return_report_table_footer').text(
-                    sum_table_col($('#product_ecommerce_return_report_table'), 'row_subtotal')
-                );
-                $('#product_ecommerce_return_report_table_footer').html(
-                    __sum_stock($('#product_ecommerce_return_report_table'), 'sell_qty')
+                    sum_table_col($('#product_ecommerce_return_report_table'), 'sell_qty')
                 );
                 __currency_convert_recursively($('#product_ecommerce_return_report_table'));
             },
@@ -470,19 +448,16 @@
                 },
             },
             columns: [
-                { data: 'product_image', name: 'product_image' },
                 { data: 'product_sku', name: 'product_sku' },
                 { data: 'transaction_date', name: 'transaction_date' },
                 { data: 'quantity', name: 'quantity' },
                 { data: 'sender', name: 'sender' },
                 { data: 'receiver', name: 'receiver' },
+                { data: 'full_name', name: 'full_name' }
             ],
             fnDrawCallback: function(oSettings) {
                 $('#store_to_store_transfer_report_table_footer').text(
-                    sum_table_col($('#store_to_store_transfer_report_table'), 'row_subtotal')
-                );
-                $('#store_to_store_transfer_report_table_footer').html(
-                    __sum_stock($('#store_to_store_transfer_report_table'), 'sell_qty')
+                    sum_table_col($('#store_to_store_transfer_report_table'), 'sell_qty')
                 );
                 __currency_convert_recursively($('#store_to_store_transfer_report_table'));
             },
@@ -500,19 +475,16 @@
                 },
             },
             columns: [
-                { data: 'product_image', name: 'product_image' },
                 { data: 'product_sku', name: 'product_sku' },
                 { data: 'transaction_date', name: 'transaction_date' },
                 { data: 'quantity', name: 'quantity' },
                 { data: 'sender', name: 'sender' },
                 { data: 'receiver', name: 'receiver' },
+                { data: 'full_name', name: 'full_name' }
             ],
             fnDrawCallback: function(oSettings) {
                 $('#store_to_warehouse_transfer_report_table_footer').text(
-                    sum_table_col($('#store_to_warehouse_transfer_report_table'), 'row_subtotal')
-                );
-                $('#store_to_warehouse_transfer_report_table_footer').html(
-                    __sum_stock($('#store_to_warehouse_transfer_report_table'), 'sell_qty')
+                    sum_table_col($('#store_to_warehouse_transfer_report_table'), 'sell_qty')
                 );
                 __currency_convert_recursively($('#store_to_warehouse_transfer_report_table'));
             },
@@ -530,19 +502,16 @@
                 },
             },
             columns: [
-                { data: 'product_image', name: 'product_image' },
                 { data: 'product_sku', name: 'product_sku' },
                 { data: 'transaction_date', name: 'transaction_date' },
                 { data: 'quantity', name: 'quantity' },
                 { data: 'sender', name: 'sender' },
                 { data: 'receiver', name: 'receiver' },
+                { data: 'full_name', name: 'full_name' }
             ],
             fnDrawCallback: function(oSettings) {
                 $('#warehouse_to_store_transfer_report_table_footer').text(
-                    sum_table_col($('#warehouse_to_store_transfer_report_table'), 'row_subtotal')
-                );
-                $('#warehouse_to_store_transfer_report_table_footer').html(
-                    __sum_stock($('#warehouse_to_store_transfer_report_table'), 'sell_qty')
+                    sum_table_col($('#warehouse_to_store_transfer_report_table'), 'sell_qty')
                 );
                 __currency_convert_recursively($('#warehouse_to_store_transfer_report_table'));
             },
@@ -560,20 +529,17 @@
                 },
             },
             columns: [
-                { data: 'product_image', name: 'product_image' },
                 { data: 'product_sku', name: 'product_sku' },
                 { data: 'invoice_no', name: 'invoice_no' },
                 { data: 'type', name: 'type' },
                 { data: 'quantity', name: 'quantity' },
                 { data: 'location_name', name: 'location_name' },
                 { data: 'transaction_date', name: 'transaction_date' },
+                { data: 'full_name', name: 'full_name' }
             ],
             fnDrawCallback: function(oSettings) {
                 $('#product_adjustment_report_table_footer').text(
-                    sum_table_col($('#product_adjustment_report_table'), 'row_subtotal')
-                );
-                $('#product_adjustment_report_table_footer').html(
-                    __sum_stock($('#product_adjustment_report_table'), 'sell_qty')
+                    sum_table_col($('#product_adjustment_report_table'), 'sell_qty')
                 );
                 __currency_convert_recursively($('#product_adjustment_report_table'));
             },

@@ -128,6 +128,8 @@ class ProductController extends Controller
                 DB::raw('MIN(v.dpp_inc_tax) as min_purchase_price')
 
                 )->groupBy('products.id');
+                // ->get();
+                // dd($products);
 
             $type = request()->get('type', null);
             if (!empty($type)) {
@@ -182,7 +184,15 @@ class ProductController extends Controller
                         return $row->product_locations->implode('name', ', ');
                     }
                 )
-                ->editColumn('category', '{{$category}} @if(!empty($sub_category))<br/> -- {{$sub_category}}@endif')
+                ->editColumn('category', '{{$category}}')
+                ->editColumn('sub_category', function ($row) {
+                    $sub_category = $row->sub_category;
+                    if(!empty($sub_category)){
+                        return $sub_category;
+                    }
+                    else
+                        return "--";
+                })
                 ->addColumn(
                     'action',
                     function ($row) use ($selling_price_group_count) {
@@ -2193,6 +2203,7 @@ class ProductController extends Controller
         if (request()->ajax()) {
             $query = PurchaseLine::join('transactions','purchase_lines.transaction_id','=','transactions.id')
                     ->join('products', 'purchase_lines.product_id', '=', 'products.id')
+                    ->join('users','transactions.created_by', '=', 'users.id')
                     ->where('transactions.type', 'purchase')
                     ->where('purchase_lines.product_id', $request->id)
                     ->select(
@@ -2200,21 +2211,11 @@ class ProductController extends Controller
                         'products.image as product_image',
                         'transactions.ref_no as invoice_id',
                         'purchase_lines.quantity as purchase_quantity',
-                        'transactions.transaction_date as transaction_date'
-                    )
+                        'transactions.transaction_date as transaction_date',
+                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        )
                     ->get();
                     return Datatables::of($query)
-                    ->editColumn('product_image', function ($row) {
-                        $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
-                        
-                        if (!empty($row->product_image)) {
-                            $imagePath = asset('uploads/img/' . $row->product_image);
-                        } else {
-                            $imagePath = asset('img/default.png');
-                        }
-                    
-                        return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
-                    })
                     ->editColumn('product_sku', function ($row) {
                         $product_sku = $row->product_sku;
     
@@ -2226,12 +2227,11 @@ class ProductController extends Controller
                         return $invoice_id;
                     })
                     ->editColumn('purchase_quantity', function ($row) {
-                        $purchase_quantity = $row->purchase_quantity;
-    
-                        return $purchase_quantity;
+                        return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->purchase_quantity . '" >' . (float) $row->purchase_quantity . '</span> ';
+
                     })
                     ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
-                    ->rawColumns(['product_image','product_sku', 'invoice_id', 'purchase_quantity', 'transaction_date'])
+                    ->rawColumns(['product_sku', 'invoice_id', 'purchase_quantity', 'transaction_date'])
                     ->make(true);
         }                    
 
@@ -2249,7 +2249,7 @@ class ProductController extends Controller
             $query = TransactionSellLine::join('transactions', 'transaction_sell_lines.transaction_id','=','transactions.id')
                 ->join('products', 'transaction_sell_lines.product_id', '=', 'products.id')
                 ->join('business_locations', 'transactions.location_id', '=', 'business_locations.id')
-                // ->where('t.business_id', $business_id)
+                ->join('users','transactions.created_by', '=', 'users.id')
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
                 ->where('transaction_sell_lines.product_id', $request->id)
@@ -2260,22 +2260,23 @@ class ProductController extends Controller
                     'transactions.invoice_no',
                     'transactions.transaction_date as transaction_date',
                     'transaction_sell_lines.quantity as sell_quantity',
-                    'business_locations.name as store_name'
+                    'business_locations.name as store_name',
+                    DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
                 )
                 ->get();
 
             return Datatables::of($query)
-            ->editColumn('product_image', function ($row) {
-                $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
+            // ->editColumn('product_image', function ($row) {
+            //     $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
                 
-                if (!empty($row->product_image)) {
-                    $imagePath = asset('uploads/img/' . $row->product_image);
-                } else {
-                    $imagePath = asset('img/default.png');
-                }
+            //     if (!empty($row->product_image)) {
+            //         $imagePath = asset('uploads/img/' . $row->product_image);
+            //     } else {
+            //         $imagePath = asset('img/default.png');
+            //     }
             
-                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
-            })
+            //     return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            // })
             ->editColumn('product_sku', function ($row) {
                 $product_sku = $row->product_sku;
 
@@ -2287,9 +2288,8 @@ class ProductController extends Controller
                 return $invoice_no;
             })
             ->editColumn('sell_quantity', function ($row) {
-                $sell_quantity = $row->sell_quantity;
+                return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->sell_quantity . '" >' . (float) $row->sell_quantity . '</span> ';
 
-                return $sell_quantity;
             })
             ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
             ->editColumn('store_name', function ($row) {
@@ -2297,7 +2297,7 @@ class ProductController extends Controller
 
                 return $store_name;
             })
-            ->rawColumns(['product_image','product_sku', 'invoice_no', 'sell_quantity', 'transaction_date','store_name'])
+            ->rawColumns(['product_sku', 'invoice_no', 'sell_quantity', 'transaction_date','store_name'])
             ->make(true);
         }
     }
@@ -2312,6 +2312,7 @@ class ProductController extends Controller
         if ($request->ajax()) {
             $query = TransactionSellLine::join('transactions', 'transaction_sell_lines.transaction_id','=','transactions.id')
                 ->join('products', 'transaction_sell_lines.product_id', '=', 'products.id')
+                ->join('users','transactions.created_by', '=', 'users.id')
                 ->where('transaction_sell_lines.product_id', $request->id)
                 ->where('transactions.type', 'gift')
                 ->where('transactions.status', 'final')
@@ -2321,23 +2322,12 @@ class ProductController extends Controller
                     'transactions.invoice_no',
                     'transactions.transaction_date as transaction_date',
                     'transaction_sell_lines.quantity as sell_quantity',
-                    'transaction_sell_lines.quantity_returned as return_quantity'
+                    'transaction_sell_lines.quantity_returned as return_quantity',
+                    DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
                 )
                 ->get();
-                // dd($query);
 
-            return Datatables::of($query)
-            ->editColumn('product_image', function ($row) {
-                $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
-                
-                if (!empty($row->product_image)) {
-                    $imagePath = asset('uploads/img/' . $row->product_image);
-                } else {
-                    $imagePath = asset('img/default.png');
-                }
-            
-                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
-            })            
+            return Datatables::of($query)            
             ->editColumn('product_sku', function ($row) {
                 $product_sku = $row->product_sku;
 
@@ -2349,17 +2339,15 @@ class ProductController extends Controller
                 return $invoice_no;
             })
             ->editColumn('sell_quantity', function ($row) {
-                $sell_quantity = $row->sell_quantity;
+                return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->sell_quantity . '" >' . (float) $row->sell_quantity . '</span> ';
 
-                return $sell_quantity;
             })
             ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
             ->editColumn('return_quantity', function ($row) {
-                $return_quantity = $row->return_quantity;
+                return '<span data-is_quantity="true" class="display_currency sell_qtyy" data-currency_symbol=false data-orig-value="' . (float)$row->return_quantity . '" >' . (float) $row->return_quantity . '</span> ';
 
-                return $return_quantity;
             })
-            ->rawColumns(['product_image','product_sku', 'invoice_no', 'sell_quantity', 'transaction_date','store_name'])
+            ->rawColumns(['return_quantity','product_sku', 'invoice_no', 'sell_quantity', 'transaction_date','store_name'])
             ->make(true);
         }
     }
@@ -2376,6 +2364,7 @@ class ProductController extends Controller
                 leftJoin('ecommerce_sell_lines', 'ecommerce_sell_lines.ecommerce_transaction_id','=','ecommerce_transactions.id')
                 ->leftJoin('products', 'products.id', '=' , 'ecommerce_sell_lines.product_id')
                 ->leftJoin('business_locations', 'business_locations.id', '=' , 'ecommerce_sell_lines.location_id')
+                ->join('users','ecommerce_transactions.created_by', '=', 'users.id')
                 ->whereNull('ecommerce_transactions.return_parent_id')
                 ->where('ecommerce_transactions.type','sell')
                 ->where('ecommerce_sell_lines.product_id', $request->id )
@@ -2386,21 +2375,11 @@ class ProductController extends Controller
                     'products.sku AS product_sku',
                     'products.image as product_image',
                     'ecommerce_sell_lines.quantity as quantity',
-                    'business_locations.name as store_name'
-                    );
+                    'business_locations.name as store_name',
+                    DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                );
 
             return Datatables::of($query)
-            ->editColumn('product_image', function ($row) {
-                $basePath = config('app.url');
-                
-                if (!empty($row->product_image)) {
-                    $imagePath = asset('uploads/img/' . $row->product_image);
-                } else {
-                    $imagePath = asset('img/default.png');
-                }
-            
-                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
-            })            
             ->editColumn('product_sku', function ($row) {
                 $product_sku = $row->product_sku;
 
@@ -2412,9 +2391,8 @@ class ProductController extends Controller
                 return $invoice_no;
             })
             ->editColumn('quantity', function ($row) {
-                $quantity = $row->quantity;
+                return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" >' . (float) $row->quantity . '</span> ';
 
-                return $quantity;
             })
             ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
             ->editColumn('shipping_status', function ($row) {
@@ -2428,14 +2406,13 @@ class ProductController extends Controller
 
                 return $store_name;
             })
-            ->rawColumns(['product_image'])
+            ->rawColumns(['quantity'])
             ->make(true);
         }
     }
 
     public function productEcommerceReturnHistory(Request $request)
     {
-        // dd($request->id);
         if (!auth()->user()->can('purchase_n_sell_report.view')) {
             abort(403, 'Unauthorized action.');
         }
@@ -2450,28 +2427,19 @@ class ProductController extends Controller
                 'T1.id')
                 ->leftJoin('products', 'products.id', '=', 'ecommerce_sell_lines.product_id')
                     ->leftJoin('business_locations', 'business_locations.id', '=', 'ecommerce_sell_lines.location_id')
+                    ->join('users','T1.created_by', '=', 'users.id')
                     ->select(
                         'ecommerce_transactions.transaction_date AS transaction_date',
                         'T1.invoice_no as sell_invoice_no',
                         'ecommerce_transactions.invoice_no as return_invoice_no',
                         'ecommerce_sell_lines.quantity_returned as quantity',
                         'products.sku as product_sku',
-                        'business_locations.name as store_name'
+                        'business_locations.name as store_name',
+                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
                         )
                         ->where('ecommerce_sell_lines.product_id', $request->id );
 
             return Datatables::of($query)
-            ->editColumn('product_image', function ($row) {
-                $basePath = config('app.url');
-                
-                if (!empty($row->product_image)) {
-                    $imagePath = asset('uploads/img/' . $row->product_image);
-                } else {
-                    $imagePath = asset('img/default.png');
-                }
-            
-                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
-            })            
             ->editColumn('product_sku', function ($row) {
                 $product_sku = $row->product_sku;
 
@@ -2488,9 +2456,8 @@ class ProductController extends Controller
                 return $sell_invoice_no;
             })
             ->editColumn('quantity', function ($row) {
-                $quantity = $row->quantity;
+                return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" >' . (float) $row->quantity . '</span> ';
 
-                return $quantity;
             })
             ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
             ->editColumn('shipping_status', function ($row) {
@@ -2503,7 +2470,7 @@ class ProductController extends Controller
 
                 return $store_name;
             })
-            ->rawColumns(['product_image'])
+            ->rawColumns(['quantity'])
             ->make(true);
         }
     }
@@ -2531,6 +2498,7 @@ class ProductController extends Controller
                     )
                     ->join('transaction_sell_lines', 'transactions.id', '=' , 'transaction_sell_lines.transaction_id')
                     ->join('products','transaction_sell_lines.product_id', '=', 'products.id')
+                    ->join('users','transactions.created_by', '=', 'users.id')
                     ->where('transactions.type', 'sell_transfer')
                     ->where('transactions.status','final')
                     ->where('transaction_sell_lines.product_id', $request->id)
@@ -2546,21 +2514,11 @@ class ProductController extends Controller
                         'l1.name as sender',
                         'l2.name as receiver',
                         'transactions.id as DT_RowId',
-                        'transactions.status'
+                        'transactions.status',
+                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
                     );
 
             return Datatables::of($stock_transfers)
-            ->editColumn('product_image', function ($row) {
-                $basePath = config('app.url');
-                
-                if (!empty($row->product_image)) {
-                    $imagePath = asset('uploads/img/' . $row->product_image);
-                } else {
-                    $imagePath = asset('img/default.png');
-                }
-            
-                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
-            })            
             ->editColumn('product_sku', function ($row) {
                 $product_sku = $row->product_sku;
 
@@ -2577,9 +2535,8 @@ class ProductController extends Controller
                 return $sell_invoice_no;
             })
             ->editColumn('quantity', function ($row) {
-                $quantity = $row->quantity;
+                return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" >' . (float) $row->quantity . '</span> ';
 
-                return $quantity;
             })
             ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
             ->editColumn('shipping_status', function ($row) {
@@ -2592,21 +2549,19 @@ class ProductController extends Controller
 
                 return $store_name;
             })
-            ->rawColumns(['product_image'])
+            ->rawColumns(['quantity'])
             ->make(true);
         }
     }
 
     public function productStoreToWarehouseHistory(Request $request)
     {
-        // dd($request->id);
         if (!auth()->user()->can('purchase_n_sell_report.view')) {
             abort(403, 'Unauthorized action.');
         }
 
         $business_id = $request->session()->get('user.business_id');
         if ($request->ajax()) {
-            // dd("hit");
             $stock_transfers = Transaction::join(
                 'business_locations AS l1',
                 'transactions.location_id',
@@ -2622,6 +2577,7 @@ class ProductController extends Controller
                     )
                     ->join('transaction_sell_lines', 'transactions.id', '=' , 'transaction_sell_lines.transaction_id')
                     ->join('products','transaction_sell_lines.product_id', '=', 'products.id')
+                    ->join('users','transactions.created_by', '=', 'users.id')
                     ->where('transactions.type', 'sell_transfer')
                     ->where('transactions.status','final')
                     ->where('transaction_sell_lines.product_id', $request->id)
@@ -2636,22 +2592,11 @@ class ProductController extends Controller
                         'l1.name as sender',
                         'l2.name as receiver',
                         'transactions.id as DT_RowId',
-                        'transactions.status'
+                        'transactions.status',
+                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
                     );
-                    // dd($stock_transfers);
 
             return Datatables::of($stock_transfers)
-            ->editColumn('product_image', function ($row) {
-                $basePath = config('app.url');
-                
-                if (!empty($row->product_image)) {
-                    $imagePath = asset('uploads/img/' . $row->product_image);
-                } else {
-                    $imagePath = asset('img/default.png');
-                }
-            
-                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
-            })            
             ->editColumn('product_sku', function ($row) {
                 $product_sku = $row->product_sku;
 
@@ -2668,9 +2613,8 @@ class ProductController extends Controller
                 return $sell_invoice_no;
             })
             ->editColumn('quantity', function ($row) {
-                $quantity = $row->quantity;
+                return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" >' . (float) $row->quantity . '</span> ';
 
-                return $quantity;
             })
             ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
             ->editColumn('shipping_status', function ($row) {
@@ -2683,7 +2627,7 @@ class ProductController extends Controller
 
                 return $store_name;
             })
-            ->rawColumns(['product_image'])
+            ->rawColumns(['quantity'])
             ->make(true);
         }
     }
@@ -2711,6 +2655,7 @@ class ProductController extends Controller
                     )
                     ->join('transaction_sell_lines', 'transactions.id', '=' , 'transaction_sell_lines.transaction_id')
                     ->join('products','transaction_sell_lines.product_id', '=', 'products.id')
+                    ->join('users','transactions.created_by', '=', 'users.id')
                     ->where('transactions.type', 'sell_transfer')
                     ->where('transactions.status','final')
                     ->where('transaction_sell_lines.product_id', $request->id)
@@ -2725,21 +2670,11 @@ class ProductController extends Controller
                         'l1.name as sender',
                         'l2.name as receiver',
                         'transactions.id as DT_RowId',
-                        'transactions.status'
+                        'transactions.status',
+                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
                     );
 
             return Datatables::of($stock_transfers)
-            ->editColumn('product_image', function ($row) {
-                $basePath = config('app.url');
-                
-                if (!empty($row->product_image)) {
-                    $imagePath = asset('uploads/img/' . $row->product_image);
-                } else {
-                    $imagePath = asset('img/default.png');
-                }
-            
-                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
-            })            
             ->editColumn('product_sku', function ($row) {
                 $product_sku = $row->product_sku;
 
@@ -2756,9 +2691,8 @@ class ProductController extends Controller
                 return $sell_invoice_no;
             })
             ->editColumn('quantity', function ($row) {
-                $quantity = $row->quantity;
+                return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" >' . (float) $row->quantity . '</span> ';
 
-                return $quantity;
             })
             ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
             ->editColumn('shipping_status', function ($row) {
@@ -2771,23 +2705,22 @@ class ProductController extends Controller
 
                 return $store_name;
             })
-            ->rawColumns(['product_image'])
+            ->rawColumns(['quantity'])
             ->make(true);
         }
     }
 
     public function productAdjustmentHistory(Request $request)
     {
-        // dd($request->id);
         if (!auth()->user()->can('purchase_n_sell_report.view')) {
             abort(403, 'Unauthorized action.');
         }
 
         $business_id = $request->session()->get('user.business_id');
         if ($request->ajax()) {
-            // dd("hit");
             $stock_adjustments = Transaction::join('product_adjustment_lines', 'product_adjustment_lines.transaction_id', '=', 'transactions.id')
             ->join('products', 'products.id', '=', 'product_adjustment_lines.product_id')
+            ->join('users','transactions.created_by', '=', 'users.id')
             ->join(
                 'business_locations AS BL',
                 'transactions.location_id',
@@ -2805,20 +2738,10 @@ class ProductController extends Controller
                         'product_adjustment_lines.quantity as quantity',
                         'products.sku as product_sku',
                         'products.image as product_image',
+                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
                     );
 
             return Datatables::of($stock_adjustments)
-            ->editColumn('product_image', function ($row) {
-                $basePath = config('app.url');
-                
-                if (!empty($row->product_image)) {
-                    $imagePath = asset('uploads/img/' . $row->product_image);
-                } else {
-                    $imagePath = asset('img/default.png');
-                }
-            
-                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
-            })            
             ->editColumn('product_sku', function ($row) {
                 $product_sku = $row->product_sku;
 
@@ -2836,9 +2759,8 @@ class ProductController extends Controller
                 return $formattedtype;
             })
             ->editColumn('quantity', function ($row) {
-                $quantity = $row->quantity;
+                return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" >' . (float) $row->quantity . '</span> ';
 
-                return $quantity;
             })
             ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
             ->editColumn('location_name', function ($row) {
@@ -2846,9 +2768,38 @@ class ProductController extends Controller
 
                 return $location_name;
             })
-            ->rawColumns(['product_image'])
+            ->rawColumns(['quantity'])
             ->make(true);
         }
+    }
+
+
+    public function productAudit(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        return view('product.audit',compact('business_id'));
+
+    }
+    public function productList(Request $request)
+    {
+        $query = Variation::
+                join('products', 'products.id', '=', 'variations.product_id')
+                ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+                ->where('variations.sub_sku', $request->barcode)
+                ->select(
+                    'products.id',
+                    'products.name as product',
+                    'products.type',
+                    'categories.name as category',
+                    'products.sku',
+                    'products.image'
+                )
+                ->first();
+            return $query;
     }
 
 }
