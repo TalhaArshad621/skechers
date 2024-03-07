@@ -3203,6 +3203,7 @@ class ReportController extends Controller
                 ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
                 ->join('products as p', 'pv.product_id', '=', 'p.id')
                 ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftJoin('categories as c2', 'p.sub_category_id', '=', 'c2.id')
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell')
@@ -3221,7 +3222,8 @@ class ReportController extends Controller
                     DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
                     'u.short_name as unit',
                     DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
-                    'cat.name as category_name'
+                    'cat.name as category_name',
+                    'c2.name as sub_category'
                 )
                 ->groupBy('v.id')
                 ->groupBy('formated_date');
@@ -3272,7 +3274,16 @@ class ReportController extends Controller
                 })
                 ->addColumn('category_name', function ($row) {
                     return $row->category_name;
-                })                ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
+                })
+                ->editColumn('sub_category', function ($row) {
+                    $sub_category = $row->sub_category;
+                    if(!empty($sub_category)){
+                        return $sub_category;
+                    }
+                    else
+                        return "--";
+                }) 
+                ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
                 ->editColumn('total_qty_sold', function ($row) {
                     return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
                 })
