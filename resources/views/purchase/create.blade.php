@@ -19,6 +19,8 @@
 
 	@include('layouts.partials.error')
 
+	
+
 	{!! Form::open(['url' => action('PurchaseController@store'), 'method' => 'post', 'id' => 'add_purchase_form', 'files' => true ]) !!}
 	@component('components.widget', ['class' => 'box-primary'])
 		<div class="row">
