@@ -108,14 +108,7 @@
         
         <div class="clearfix"></div>
         
-        <div class="col-sm-4">
-          <div class="form-group">
-          <br>
-            <label>
-              {!! Form::checkbox('enable_stock', 1, !empty($duplicate_product) ? $duplicate_product->enable_stock : true, ['class' => 'input-icheck', 'id' => 'enable_stock']); !!} <strong>@lang('product.manage_stock')</strong>
-            </label>@show_tooltip(__('tooltip.enable_stock')) <p class="help-block"><i>@lang('product.enable_stock_help')</i></p>
-          </div>
-        </div>
+        
         <div class="col-sm-4 @if(!empty($duplicate_product) && $duplicate_product->enable_stock == 0) hide @endif" id="alert_quantity_div">
           <div class="form-group">
             {!! Form::label('alert_quantity',  __('product.alert_quantity') . ':') !!} @show_tooltip(__('tooltip.alert_quantity'))
@@ -140,10 +133,18 @@
             @endforeach
         @endif
         <div class="clearfix"></div>
-        <div class="col-sm-8">
+        <div class="col-sm-8" style="display: none;">
           <div class="form-group">
             {!! Form::label('product_description', __('lang_v1.product_description') . ':') !!}
               {!! Form::textarea('product_description', !empty($duplicate_product->product_description) ? $duplicate_product->product_description : null, ['class' => 'form-control']); !!}
+          </div>
+        </div>
+        <div class="col-sm-4" style="display: none;">
+          <div class="form-group">
+            <br>
+            <label>
+              {!! Form::checkbox('enable_stock', 1, !empty($duplicate_product) ? $duplicate_product->enable_stock : true, ['class' => 'input-icheck', 'id' => 'enable_stock']); !!} <strong>@lang('product.manage_stock')</strong>
+            </label>@show_tooltip(__('tooltip.enable_stock')) <p class="help-block"><i>@lang('product.enable_stock_help')</i></p>
           </div>
         </div>
         <div class="col-sm-4">
@@ -312,7 +313,7 @@
 
         <div class="clearfix"></div>
 
-        <div class="col-sm-4">
+        <div class="col-sm-4" style="display: none;">
           <div class="form-group">
             {!! Form::label('type', __('product.product_type') . ':*') !!} @show_tooltip(__('tooltip.product_type'))
             {!! Form::select('type', $product_types, !empty($duplicate_product->type) ? $duplicate_product->type : null, ['class' => 'form-control select2',

@@ -41,36 +41,36 @@
                         <th>@lang('messages.action')</th>
                         <th>@lang('lang_v1.contact_id')</th>
                         @if($type == 'supplier') 
-                            <th>@lang('business.business_name')</th>
+                            {{-- <th>@lang('business.business_name')</th> --}}
                             <th>@lang('contact.name')</th>
                             <th>@lang('business.email')</th>
-                            <th>@lang('contact.tax_no')</th>
-                            <th>@lang('contact.pay_term')</th>
-                            <th>@lang('account.opening_balance')</th>
-                            <th>@lang('lang_v1.advance_balance')</th>
+                            {{-- <th>@lang('contact.tax_no')</th> --}}
+                            {{-- <th>@lang('contact.pay_term')</th>
+                            <th>@lang('account.opening_balance')</th> --}}
+                            {{-- <th>@lang('lang_v1.advance_balance')</th> --}}
                             <th>@lang('lang_v1.added_on')</th>
                             <th>@lang('business.address')</th>
                             <th>@lang('contact.mobile')</th>
-                            <th>@lang('contact.total_purchase_due')</th>
-                            <th>@lang('lang_v1.total_purchase_return_due')</th>
+                            {{-- <th>@lang('contact.total_purchase_due')</th>
+                            <th>@lang('lang_v1.total_purchase_return_due')</th> --}}
                         @elseif( $type == 'customer')
-                            <th>@lang('business.business_name')</th>
+                            {{-- <th>@lang('business.business_name')</th> --}}
                             <th>@lang('user.name')</th>
                             <th>@lang('business.email')</th>
-                            <th>@lang('contact.tax_no')</th>
+                            {{-- <th>@lang('contact.tax_no')</th>
                             <th>@lang('lang_v1.credit_limit')</th>
                             <th>@lang('contact.pay_term')</th>
                             <th>@lang('account.opening_balance')</th>
-                            <th>@lang('lang_v1.advance_balance')</th>
+                            <th>@lang('lang_v1.advance_balance')</th> --}}
                             <th>@lang('lang_v1.added_on')</th>
                             @if($reward_enabled)
                                 <th id="rp_col">{{session('business.rp_name')}}</th>
                             @endif
-                            <th>@lang('lang_v1.customer_group')</th>
+                            {{-- <th>@lang('lang_v1.customer_group')</th> --}}
                             <th>@lang('business.address')</th>
                             <th>@lang('contact.mobile')</th>
-                            <th>@lang('contact.total_sale_due')</th>
-                            <th>@lang('lang_v1.total_sell_return_due')</th>
+                            {{-- <th>@lang('contact.total_sale_due')</th>
+                            <th>@lang('lang_v1.total_sell_return_due')</th> --}}
                         @endif
                         @php
                             $custom_labels = json_decode(session('business.custom_labels'), true);
@@ -107,7 +107,7 @@
                         </th> --}}
                     </tr>
                 </thead>
-                <tfoot>
+                {{-- <tfoot>
                     <tr class="bg-gray font-17 text-center footer-total">
                         <td></td>
                         <td></td>
@@ -141,8 +141,8 @@
                         <td></td>
                         <td></td>
                         <td></td> --}}
-                    </tr>
-                </tfoot>
+                    {{-- </tr>
+                </tfoot> --}}
             </table>
         @endif
     @endcomponent

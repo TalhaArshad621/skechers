@@ -35,9 +35,9 @@
 						</span>
 					</div>
 				</div>
-				<strong>
+				{{-- <strong>
 					@lang('business.address'):
-				</strong>
+				</strong> --}}
 				<div id="supplier_address_div"></div>
 			</div>
 			<div class="@if(!empty($default_purchase_status)) col-sm-4 @else col-sm-3 @endif">
@@ -58,10 +58,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-sm-3 @if(!empty($default_purchase_status)) hide @endif">
+			<div class="col-sm-3 @if(!empty($default_purchase_status)) hide @endif" style="display: none;">
 				<div class="form-group">
 					{!! Form::label('status', __('purchase.purchase_status') . ':*') !!} @show_tooltip(__('tooltip.order_status'))
-					{!! Form::select('status', $orderStatuses, $default_purchase_status, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
+					{!! Form::select('status', $orderStatuses, 'Received', ['class' => 'form-control select2', 'required']); !!}
 				</div>
 			</div>			
 			@if(count($business_locations) == 1)
@@ -99,7 +99,7 @@
 				</div>
 			</div>
 
-			<div class="col-md-3">
+			<div class="col-md-3" style="display: none;">
 		          <div class="form-group">
 		            <div class="multi-input">
 		              {!! Form::label('pay_term_number', __('contact.pay_term') . ':') !!} @show_tooltip(__('tooltip.pay_term'))
@@ -115,7 +115,7 @@
 		        </div>
 		    </div>
 
-			<div class="col-sm-3">
+			<div class="col-sm-3" style="display: none;">
                 <div class="form-group">
                     {!! Form::label('document', __('purchase.attach_document') . ':') !!}
                     {!! Form::file('document', ['id' => 'upload_document', 'accept' => implode(',', array_keys(config('constants.document_upload_mimes_types')))]); !!}
@@ -221,110 +221,6 @@
 
 				<input type="hidden" id="row_count" value="0">
 			</div>
-		</div>
-	@endcomponent
-
-	@component('components.widget', ['class' => 'box-primary'])
-		<div class="row">
-			<div class="col-sm-12">
-			<table class="table">
-				<tr>
-					<td class="col-md-3">
-						<div class="form-group">
-							{!! Form::label('discount_type', __( 'purchase.discount_type' ) . ':') !!}
-							{!! Form::select('discount_type', [ '' => __('lang_v1.none'), 'fixed' => __( 'lang_v1.fixed' ), 'percentage' => __( 'lang_v1.percentage' )], '', ['class' => 'form-control select2']); !!}
-						</div>
-					</td>
-					<td class="col-md-3">
-						<div class="form-group">
-						{!! Form::label('discount_amount', __( 'purchase.discount_amount' ) . ':') !!}
-						{!! Form::text('discount_amount', 0, ['class' => 'form-control input_number', 'required']); !!}
-						</div>
-					</td>
-					<td class="col-md-3">
-						&nbsp;
-					</td>
-					<td class="col-md-3">
-						<b>@lang( 'purchase.discount' ):</b>(-) 
-						<span id="discount_calculated_amount" class="display_currency">0</span>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<div class="form-group">
-						{!! Form::label('tax_id', __('purchase.purchase_tax') . ':') !!}
-						<select name="tax_id" id="tax_id" class="form-control select2" placeholder="'Please Select'">
-							<option value="" data-tax_amount="0" data-tax_type="fixed" selected>@lang('lang_v1.none')</option>
-							@foreach($taxes as $tax)
-								<option value="{{ $tax->id }}" data-tax_amount="{{ $tax->amount }}" data-tax_type="{{ $tax->calculation_type }}">{{ $tax->name }}</option>
-							@endforeach
-						</select>
-						{!! Form::hidden('tax_amount', 0, ['id' => 'tax_amount']); !!}
-						</div>
-					</td>
-					<td>&nbsp;</td>
-					<td>&nbsp;</td>
-					<td>
-						<b>@lang( 'purchase.purchase_tax' ):</b>(+) 
-						<span id="tax_calculated_amount" class="display_currency">0</span>
-					</td>
-				</tr>
-
-				<tr>
-					<td>
-						<div class="form-group">
-						{!! Form::label('shipping_details', __( 'purchase.shipping_details' ) . ':') !!}
-						{!! Form::text('shipping_details', null, ['class' => 'form-control']); !!}
-						</div>
-					</td>
-					<td>&nbsp;</td>
-					<td>&nbsp;</td>
-					<td>
-						<div class="form-group">
-						{!! Form::label('shipping_charges','(+) ' . __( 'purchase.additional_shipping_charges' ) . ':') !!}
-						{!! Form::text('shipping_charges', 0, ['class' => 'form-control input_number', 'required']); !!}
-						</div>
-					</td>
-				</tr>
-
-				<tr>
-					<td>&nbsp;</td>
-					<td>&nbsp;</td>
-					<td>&nbsp;</td>
-					<td>
-						{!! Form::hidden('final_total', 0 , ['id' => 'grand_total_hidden']); !!}
-						<b>@lang('purchase.purchase_total'): </b><span id="grand_total" class="display_currency" data-currency_symbol='true'>0</span>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="4">
-						<div class="form-group">
-							{!! Form::label('additional_notes',__('purchase.additional_notes')) !!}
-							{!! Form::textarea('additional_notes', null, ['class' => 'form-control', 'rows' => 3]); !!}
-						</div>
-					</td>
-				</tr>
-
-			</table>
-			</div>
-		</div>
-	@endcomponent
-
-	@component('components.widget', ['class' => 'box-primary', 'title' => __('purchase.add_payment')])
-		<div class="box-body payment_row">
-			<div class="row">
-				<div class="col-md-12">
-					<strong>@lang('lang_v1.advance_balance'):</strong> <span id="advance_balance_text">0</span>
-					{!! Form::hidden('advance_balance', null, ['id' => 'advance_balance', 'data-error-msg' => __('lang_v1.required_advance_balance_not_available')]); !!}
-				</div>
-			</div>
-			@include('sale_pos.partials.payment_row_form', ['row_index' => 0, 'show_date' => true])
-			<hr>
-			<div class="row">
-				<div class="col-sm-12">
-					<div class="pull-right"><strong>@lang('purchase.payment_due'):</strong> <span id="payment_due">0.00</span></div>
-				</div>
-			</div>
 			<br>
 			<div class="row">
 				<div class="col-sm-12">
@@ -333,6 +229,114 @@
 			</div>
 		</div>
 	@endcomponent
+
+	<div style="display: none;">
+		@component('components.widget', ['class' => 'box-primary'])
+			<div class="row">
+				<div class="col-sm-12">
+				<table class="table">
+					<tr>
+						<td class="col-md-3">
+							<div class="form-group">
+								{!! Form::label('discount_type', __( 'purchase.discount_type' ) . ':') !!}
+								{!! Form::select('discount_type', [ '' => __('lang_v1.none'), 'fixed' => __( 'lang_v1.fixed' ), 'percentage' => __( 'lang_v1.percentage' )], '', ['class' => 'form-control select2']); !!}
+							</div>
+						</td>
+						<td class="col-md-3">
+							<div class="form-group">
+							{!! Form::label('discount_amount', __( 'purchase.discount_amount' ) . ':') !!}
+							{!! Form::text('discount_amount', 0, ['class' => 'form-control input_number', 'required']); !!}
+							</div>
+						</td>
+						<td class="col-md-3">
+							&nbsp;
+						</td>
+						<td class="col-md-3">
+							<b>@lang( 'purchase.discount' ):</b>(-) 
+							<span id="discount_calculated_amount" class="display_currency">0</span>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<div class="form-group">
+							{!! Form::label('tax_id', __('purchase.purchase_tax') . ':') !!}
+							<select name="tax_id" id="tax_id" class="form-control select2" placeholder="'Please Select'">
+								<option value="" data-tax_amount="0" data-tax_type="fixed" selected>@lang('lang_v1.none')</option>
+								@foreach($taxes as $tax)
+									<option value="{{ $tax->id }}" data-tax_amount="{{ $tax->amount }}" data-tax_type="{{ $tax->calculation_type }}">{{ $tax->name }}</option>
+								@endforeach
+							</select>
+							{!! Form::hidden('tax_amount', 0, ['id' => 'tax_amount']); !!}
+							</div>
+						</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>
+							<b>@lang( 'purchase.purchase_tax' ):</b>(+) 
+							<span id="tax_calculated_amount" class="display_currency">0</span>
+						</td>
+					</tr>
+
+					<tr>
+						<td>
+							<div class="form-group">
+							{!! Form::label('shipping_details', __( 'purchase.shipping_details' ) . ':') !!}
+							{!! Form::text('shipping_details', null, ['class' => 'form-control']); !!}
+							</div>
+						</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>
+							<div class="form-group">
+							{!! Form::label('shipping_charges','(+) ' . __( 'purchase.additional_shipping_charges' ) . ':') !!}
+							{!! Form::text('shipping_charges', 0, ['class' => 'form-control input_number', 'required']); !!}
+							</div>
+						</td>
+					</tr>
+
+					<tr>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>
+							{!! Form::hidden('final_total', 0 , ['id' => 'grand_total_hidden']); !!}
+							<b>@lang('purchase.purchase_total'): </b><span id="grand_total" class="display_currency" data-currency_symbol='true'>0</span>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="4">
+							<div class="form-group">
+								{!! Form::label('additional_notes',__('purchase.additional_notes')) !!}
+								{!! Form::textarea('additional_notes', null, ['class' => 'form-control', 'rows' => 3]); !!}
+							</div>
+						</td>
+					</tr>
+
+				</table>
+				</div>
+			</div>
+		@endcomponent
+	</div>
+	<div style="display: none;">
+		@component('components.widget', ['class' => 'box-primary', 'title' => __('purchase.add_payment')])
+			<div class="box-body payment_row">
+				<div class="row">
+					<div class="col-md-12">
+						<strong>@lang('lang_v1.advance_balance'):</strong> <span id="advance_balance_text">0</span>
+						{!! Form::hidden('advance_balance', null, ['id' => 'advance_balance', 'data-error-msg' => __('lang_v1.required_advance_balance_not_available')]); !!}
+					</div>
+				</div>
+				@include('sale_pos.partials.payment_row_form', ['row_index' => 0, 'show_date' => true])
+				<hr>
+				<div class="row" style="display: none;">
+					<div class="col-sm-12">
+						<div class="pull-right"><strong>@lang('purchase.payment_due'):</strong> <span id="payment_due">0.00</span></div>
+					</div>
+				</div>
+			</div>
+		@endcomponent
+	</div>
+
 
 {!! Form::close() !!}
 </section>
@@ -388,5 +392,41 @@
 		    }
 		});
 	</script>
+<script>
+	// Assuming you have included jQuery in your project
+
+	// Function to extract and store the dynamically populated value
+	function extractAndStoreValue() {
+		// Get the dynamically populated value
+		var totalSubtotalValue = $('#total_subtotal').text().trim();
+
+		// Check if the value is not empty
+		if (totalSubtotalValue !== "") {
+			// Remove currency symbol and comma, then convert the value to a numeric format
+			var numericTotalSubtotalValue = parseFloat(totalSubtotalValue.replace(/[^0-9.-]+/g, ''));
+
+			// Check if the conversion was successful and the result is a valid number and non-zero
+			if (!isNaN(numericTotalSubtotalValue) && numericTotalSubtotalValue !== 0) {
+				// Now, 'numericTotalSubtotalValue' contains the extracted and non-zero numeric value
+				console.log(numericTotalSubtotalValue);
+				$(".payment-amount").val(numericTotalSubtotalValue);
+
+				// You can store the value in a variable or use it as needed
+			}
+		}
+	}
+
+	// Create a MutationObserver to listen for changes in the subtree of the span
+	var observer = new MutationObserver(extractAndStoreValue);
+
+	// Configure and start observing the target span
+	observer.observe(document.getElementById('total_subtotal'), { subtree: true, childList: true });
+
+	// Trigger the function initially if the value is dynamically populated on page load
+	$(document).ready(function() {
+		extractAndStoreValue();
+});
+
+</script>
 	@include('purchase.partials.keyboard_shortcuts')
 @endsection

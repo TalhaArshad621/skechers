@@ -296,16 +296,29 @@
                 var end = '';
                 var start_time = $('#product_sr_start_time').val();
                 var end_time = $('#product_sr_end_time').val();
+                var currentDate = moment().format('YYYY-MM-DD'); // Get current date in 'YYYY-MM-DD' format
+                var yesterdayDate = moment().subtract(1, 'days').format('YYYY-MM-DD'); // Get yesterday's date in 'YYYY-MM-DD' format
+
                 if ($('#product_sr_date_filter').val()) {
-                    start = $('input#product_sr_date_filter')
+                    var selectedStartDate = $('input#product_sr_date_filter')
                         .data('daterangepicker')
                         .startDate.format('YYYY-MM-DD');
-                    end = $('input#product_sr_date_filter')
+                    var selectedEndDate = $('input#product_sr_date_filter')
                         .data('daterangepicker')
                         .endDate.format('YYYY-MM-DD');
 
-                    start = moment(start + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
-                    end = moment(end + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                    // If selected start and end dates are today or yesterday, use specific time range
+                    if (selectedStartDate === currentDate) {
+                        start = moment().startOf('day').format('YYYY-MM-DD HH:mm'); // Today's start time (00:00:00)
+                        end = moment().endOf('day').format('YYYY-MM-DD HH:mm'); // Today's end time (23:59:59)
+                    } else if (selectedStartDate === yesterdayDate) {
+                        start = moment().subtract(1, 'days').startOf('day').format('YYYY-MM-DD HH:mm'); // Yesterday's start time (00:00:00)
+                        end = moment().subtract(1, 'days').endOf('day').format('YYYY-MM-DD HH:mm'); // Yesterday's end time (23:59:59)
+                    } else {
+                        start = moment(selectedStartDate + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                        end = moment(selectedEndDate + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                    }
+                    console.log(start, end);
                 }
                 d.start_date = start;
                 d.end_date = end;
@@ -340,16 +353,29 @@
                 var end = '';
                 var start_time = $('#product_sr_start_time').val();
                 var end_time = $('#product_sr_end_time').val();
+                var currentDate = moment().format('YYYY-MM-DD'); // Get current date in 'YYYY-MM-DD' format
+                var yesterdayDate = moment().subtract(1, 'days').format('YYYY-MM-DD'); // Get yesterday's date in 'YYYY-MM-DD' format
+
                 if ($('#product_sr_date_filter').val()) {
-                    start = $('input#product_sr_date_filter')
+                    var selectedStartDate = $('input#product_sr_date_filter')
                         .data('daterangepicker')
                         .startDate.format('YYYY-MM-DD');
-                    end = $('input#product_sr_date_filter')
+                    var selectedEndDate = $('input#product_sr_date_filter')
                         .data('daterangepicker')
                         .endDate.format('YYYY-MM-DD');
 
-                    start = moment(start + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
-                    end = moment(end + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                    // If selected start and end dates are today or yesterday, use specific time range
+                    if (selectedStartDate === currentDate) {
+                        start = moment().startOf('day').format('YYYY-MM-DD HH:mm'); // Today's start time (00:00:00)
+                        end = moment().endOf('day').format('YYYY-MM-DD HH:mm'); // Today's end time (23:59:59)
+                    } else if (selectedStartDate === yesterdayDate) {
+                        start = moment().subtract(1, 'days').startOf('day').format('YYYY-MM-DD HH:mm'); // Yesterday's start time (00:00:00)
+                        end = moment().subtract(1, 'days').endOf('day').format('YYYY-MM-DD HH:mm'); // Yesterday's end time (23:59:59)
+                    } else {
+                        start = moment(selectedStartDate + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                        end = moment(selectedEndDate + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                    }
+                    console.log(start, end);
                 }
                 d.start_date = start;
                 d.end_date = end;
@@ -389,16 +415,29 @@
                 var end = '';
                 var start_time = $('#product_sr_start_time').val();
                 var end_time = $('#product_sr_end_time').val();
+                var currentDate = moment().format('YYYY-MM-DD'); // Get current date in 'YYYY-MM-DD' format
+                var yesterdayDate = moment().subtract(1, 'days').format('YYYY-MM-DD'); // Get yesterday's date in 'YYYY-MM-DD' format
+
                 if ($('#product_sr_date_filter').val()) {
-                    start = $('input#product_sr_date_filter')
+                    var selectedStartDate = $('input#product_sr_date_filter')
                         .data('daterangepicker')
                         .startDate.format('YYYY-MM-DD');
-                    end = $('input#product_sr_date_filter')
+                    var selectedEndDate = $('input#product_sr_date_filter')
                         .data('daterangepicker')
                         .endDate.format('YYYY-MM-DD');
 
-                    start = moment(start + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
-                    end = moment(end + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                    // If selected start and end dates are today or yesterday, use specific time range
+                    if (selectedStartDate === currentDate) {
+                        start = moment().startOf('day').format('YYYY-MM-DD HH:mm'); // Today's start time (00:00:00)
+                        end = moment().endOf('day').format('YYYY-MM-DD HH:mm'); // Today's end time (23:59:59)
+                    } else if (selectedStartDate === yesterdayDate) {
+                        start = moment().subtract(1, 'days').startOf('day').format('YYYY-MM-DD HH:mm'); // Yesterday's start time (00:00:00)
+                        end = moment().subtract(1, 'days').endOf('day').format('YYYY-MM-DD HH:mm'); // Yesterday's end time (23:59:59)
+                    } else {
+                        start = moment(selectedStartDate + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                        end = moment(selectedEndDate + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                    }
+                    console.log(start, end);
                 }
                 d.start_date = start;
                 d.end_date = end;

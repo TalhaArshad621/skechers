@@ -197,60 +197,61 @@ class ProductController extends Controller
                     'action',
                     function ($row) use ($selling_price_group_count) {
                         $html =
-                        '<div class="btn-group"><button type="button" class="btn btn-info dropdown-toggle btn-xs" data-toggle="dropdown" aria-expanded="false">'. __("messages.actions") . '<span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button><ul class="dropdown-menu dropdown-menu-left" role="menu"><li><a href="' . action('LabelsController@show') . '?product_id=' . $row->id . '" data-toggle="tooltip" title="' . __('lang_v1.label_help') . '"><i class="fa fa-barcode"></i> ' . __('barcode.labels') . '</a></li>';
+                        '<div class="btn-group"><button type="button" class="btn btn-info dropdown-toggle btn-xs" data-toggle="dropdown" aria-expanded="false">'. __("messages.actions") . '<span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button><ul class="dropdown-menu dropdown-menu-left" role="menu">';
+                        // <li><a href="' . action('LabelsController@show') . '?product_id=' . $row->id . '" data-toggle="tooltip" title="' . __('lang_v1.label_help') . '"><i class="fa fa-barcode"></i> ' . __('barcode.labels') . '</a></li>';
 
                         if (auth()->user()->can('product.view')) {
                             $html .=
                             '<li><a href="' . action('ProductController@view', [$row->id]) . '" class="view-product"><i class="fa fa-eye"></i> ' . __("messages.view") . '</a></li>';
                         }
 
-                        if (auth()->user()->can('product.update')) {
-                            $html .=
-                            '<li><a href="' . action('ProductController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
-                        }
+                        // if (auth()->user()->can('product.update')) {
+                        //     $html .=
+                        //     '<li><a href="' . action('ProductController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
+                        // }
 
-                        if (auth()->user()->can('product.delete')) {
-                            $html .=
-                            '<li><a href="' . action('ProductController@destroy', [$row->id]) . '" class="delete-product"><i class="fa fa-trash"></i> ' . __("messages.delete") . '</a></li>';
-                        }
+                        // if (auth()->user()->can('product.delete')) {
+                        //     $html .=
+                        //     '<li><a href="' . action('ProductController@destroy', [$row->id]) . '" class="delete-product"><i class="fa fa-trash"></i> ' . __("messages.delete") . '</a></li>';
+                        // }
 
                         if ($row->is_inactive == 1) {
                             $html .=
                             '<li><a href="' . action('ProductController@activate', [$row->id]) . '" class="activate-product"><i class="fas fa-check-circle"></i> ' . __("lang_v1.reactivate") . '</a></li>';
                         }
 
-                        $html .= '<li class="divider"></li>';
+                        // $html .= '<li class="divider"></li>';
 
-                        if ($row->enable_stock == 1 && auth()->user()->can('product.opening_stock')) {
-                            $html .=
-                            '<li><a href="#" data-href="' . action('OpeningStockController@add', ['product_id' => $row->id]) . '" class="add-opening-stock"><i class="fa fa-database"></i> ' . __("lang_v1.add_edit_opening_stock") . '</a></li>';
-                        }
+                        // if ($row->enable_stock == 1 && auth()->user()->can('product.opening_stock')) {
+                        //     $html .=
+                        //     '<li><a href="#" data-href="' . action('OpeningStockController@add', ['product_id' => $row->id]) . '" class="add-opening-stock"><i class="fa fa-database"></i> ' . __("lang_v1.add_edit_opening_stock") . '</a></li>';
+                        // }
 
                         if (auth()->user()->can('product.view')) {
                             $html .=
-                            '<li><a href="' . action('ProductController@productStockHistory', [$row->id]) . '"><i class="fas fa-history"></i> ' . __("lang_v1.product_stock_history") . '</a></li>';
+                            '<li><a href="' . action('ProductController@productStockHistory', [$row->id]) . '"><i class="fas fa-history"></i> ' . __("Product Ledger") . '</a></li>';
                         }
                         if (auth()->user()->can('product.view')) {
                             $html .=
                             '<li><a href="' . action('ProductController@productHistoryAJAX', [$row->id]) . '"><i class="fas fa-history"></i> ' . __("Product History") . '</a></li>';
                         }
 
-                        if (auth()->user()->can('product.create')) {
+                        // if (auth()->user()->can('product.create')) {
             
-                            if ($selling_price_group_count > 0) {
-                                $html .=
-                                '<li><a href="' . action('ProductController@addSellingPrices', [$row->id]) . '"><i class="fas fa-money-bill-alt"></i> ' . __("lang_v1.add_selling_price_group_prices") . '</a></li>';
-                            }
+                        //     if ($selling_price_group_count > 0) {
+                        //         $html .=
+                        //         '<li><a href="' . action('ProductController@addSellingPrices', [$row->id]) . '"><i class="fas fa-money-bill-alt"></i> ' . __("lang_v1.add_selling_price_group_prices") . '</a></li>';
+                        //     }
 
-                            $html .=
-                                '<li><a href="' . action('ProductController@create', ["d" => $row->id]) . '"><i class="fa fa-copy"></i> ' . __("lang_v1.duplicate_product") . '</a></li>';
-                        }
+                        //     $html .=
+                        //         '<li><a href="' . action('ProductController@create', ["d" => $row->id]) . '"><i class="fa fa-copy"></i> ' . __("lang_v1.duplicate_product") . '</a></li>';
+                        // }
 
-                        if (!empty($row->media->first())) {
+                        // if (!empty($row->media->first())) {
 
-                            $html .=
-                                '<li><a href="' . $row->media->first()->display_url . '" download="'.$row->media->first()->display_name.'"><i class="fas fa-download"></i> ' . __("lang_v1.product_brochure") . '</a></li>';
-                        }
+                        //     $html .=
+                        //         '<li><a href="' . $row->media->first()->display_url . '" download="'.$row->media->first()->display_name.'"><i class="fas fa-download"></i> ' . __("lang_v1.product_brochure") . '</a></li>';
+                        // }
 
                         $html .= '</ul></div>';
 
@@ -268,7 +269,7 @@ class ProductController extends Controller
                 ->editColumn('image', function ($row) {
                     return '<div style="display: flex;"><img src="' . $row->image_url . '" alt="Product image" class="product-thumbnail-small"></div>';
                 })
-                ->editColumn('type', '@lang("lang_v1." . $type)')
+                // ->editColumn('type', '@lang("lang_v1." . $type)')
                 ->addColumn('mass_delete', function ($row) {
                     return  '<input type="checkbox" class="row-select" value="' . $row->id .'">' ;
                 })
@@ -307,8 +308,8 @@ class ProductController extends Controller
 
         $units = Unit::forDropdown($business_id);
 
-        $tax_dropdown = TaxRate::forBusinessDropdown($business_id, false);
-        $taxes = $tax_dropdown['tax_rates'];
+        // $tax_dropdown = TaxRate::forBusinessDropdown($business_id, false);
+        // $taxes = $tax_dropdown['tax_rates'];
 
         $business_locations = BusinessLocation::forDropdown($business_id);
         $business_locations->prepend(__('lang_v1.none'), 'none');
@@ -330,7 +331,7 @@ class ProductController extends Controller
                 'categories',
                 'brands',
                 'units',
-                'taxes',
+                // 'taxes',
                 'business_locations',
                 'show_manufacturing_data',
                 'pos_module_data',

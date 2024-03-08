@@ -56,11 +56,16 @@ class TaxonomyController extends Controller
                     '
                 )
                 ->editColumn('name', function ($row) {
-                    if ($row->parent_id != 0) {
-                        return '--' . $row->name;
-                    } else {
-                        return $row->name;
+                    $categoryChain = $row->name;
+            
+                    // Get parent categories recursively
+                    $parent = $row;
+                    while ($parent->parent_id != 0) {
+                        $parent = Category::find($parent->parent_id);
+                        $categoryChain = $parent->name . ' -> ' . $categoryChain;
                     }
+            
+                    return $categoryChain;
                 })
                 ->removeColumn('id')
                 ->removeColumn('parent_id')
