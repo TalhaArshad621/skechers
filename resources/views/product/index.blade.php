@@ -38,12 +38,12 @@
                 {!! Form::select('unit_id', $units, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'product_list_filter_unit_id', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
         </div> --}}
-        <div class="col-md-3">
+        {{-- <div class="col-md-3">
             <div class="form-group">
                 {!! Form::label('tax_id', __('product.tax') . ':') !!}
                 {!! Form::select('tax_id', $taxes, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'product_list_filter_tax_id', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
-        </div>
+        </div> --}}
         {{-- <div class="col-md-3">
             <div class="form-group">
                 {!! Form::label('brand_id', __('product.brand') . ':') !!}
@@ -105,7 +105,7 @@
                     </li>
 
                     <li>
-                        <a href="#product_stock_report" data-toggle="tab" aria-expanded="true"><i class="fa fa-hourglass-half" aria-hidden="true"></i> @lang('report.stock_report')</a>
+                        <a href="#product_stock_report_new" data-toggle="tab" aria-expanded="true"><i class="fa fa-hourglass-half" aria-hidden="true"></i> @lang('report.stock_report')</a>
                     </li>
                 </ul>
 
@@ -119,8 +119,55 @@
                         @include('product.partials.product_list')
                     </div>
 
-                    <div class="tab-pane" id="product_stock_report">
-                        @include('report.partials.stock_report_table')
+                    <div class="tab-pane" id="product_stock_report_new">
+                        <table class="table table-bordered table-striped" id="stock_report_table_new">
+                            <thead>
+                                <tr>
+                                    <th>Product ID</th>
+                                    <th>SKU</th>
+                                    <th>@lang('business.product')</th>
+                                    <th>Category</th>
+                                    <th>@lang('report.total_unit_sold')</th>
+                                    <th>@lang('report.current_stock')</th>
+                                    <th>@lang('sale.location')</th>
+                                    <th>Image</th>
+                                    {{-- <th>@lang('sale.unit_price')</th> --}}
+                                    @can('view_product_stock_value')
+                                    {{-- <th class="stock_price">@lang('lang_v1.total_stock_price') <br><small>(@lang('lang_v1.by_purchase_price'))</small></th> --}}
+                                    {{-- <th>@lang('lang_v1.total_stock_price') <br><small>(@lang('lang_v1.by_sale_price'))</small></th> --}}
+                                    {{-- <th>@lang('lang_v1.potential_profit')</th> --}}
+                                    @endcan
+                                    {{-- <th>@lang('lang_v1.total_unit_transfered')</th>
+                                    <th>@lang('lang_v1.total_unit_adjusted')</th> --}}
+                                    @if($show_manufacturing_data)
+                                        <th class="current_stock_mfg">@lang('manufacturing::lang.current_stock_mfg') @show_tooltip(__('manufacturing::lang.mfg_stock_tooltip'))</th>
+                                    @endif
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr class="bg-gray font-17 text-center footer-total">
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td><strong>@lang('sale.total'):</strong></td>
+                                    <td class="footer_total_sold"></td>
+                                    <td class="footer_total_stock"></td>
+                                    <td></td>
+                                    <td></td>
+                                    @can('view_product_stock_value')
+                                    {{-- <td class="footer_total_stock_price"></td> --}}
+                                    {{-- <td class="footer_stock_value_by_sale_price"></td> --}}
+                                    {{-- <td class="footer_potential_profit"></td> --}}
+                                    @endcan
+                                    {{-- <td class="footer_total_transfered"></td>
+                                    <td class="footer_total_adjusted"></td> --}}
+                                    @if($show_manufacturing_data)
+                                        <td class="footer_total_mfg_stock"></td>
+                                    @endif
+                                </tr>
+                            </tfoot>
+                        </table>
+                        {{-- @include('report.partials.stock_report_table') --}}
                     </div>
                 </div>
             </div>
@@ -200,11 +247,11 @@
                             { data: 'selling_price', name: 'max_price', searchable: false},
                         @endcan
                         { data: 'current_stock', searchable: false},
-                        { data: 'type', name: 'products.type'},
+                        // { data: 'type', name: 'products.type'},
                         { data: 'category', name: 'c1.name'},
                         { data: 'sub_category', name: 'c2.name'},
                         // { data: 'brand', name: 'brands.name'},
-                        { data: 'tax', name: 'tax_rates.name', searchable: false},
+                        // { data: 'tax', name: 'tax_rates.name', searchable: false},
                         { data: 'product', name: 'products.name'  }
                         // { data: 'product_custom_field1', name: 'products.product_custom_field1'  },
                         // { data: 'product_custom_field2', name: 'products.product_custom_field2'  },
@@ -382,9 +429,13 @@
                     if ($("#product_list_tab").hasClass('active')) {
                         product_table.ajax.reload();
                     }
-
                     if ($("#product_stock_report").hasClass('active')) {
                         stock_report_table.ajax.reload();
+                    }
+
+
+                    if ($("#product_stock_report_new").hasClass('active')) {
+                        stock_report_table_new.ajax.reload();
                     }
             });
 
@@ -396,6 +447,10 @@
                 if ($("#product_stock_report").hasClass('active')) {
                     stock_report_table.ajax.reload();
                 }
+                if ($("#product_stock_report_new").hasClass('active')) {
+                    stock_report_table_new.ajax.reload();
+                }
+
             });
 
             $('#product_location').select2({dropdownParent: $('#product_location').closest('.modal')});
@@ -519,6 +574,130 @@
                 product_table.ajax.reload();
             }
         });
+
+        //NEW SOCK REPORT
+        var data_table_initailized = false;
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            if ($(e.target).attr('href') == '#product_stock_report_new') {
+                if (!data_table_initailized) {
+                    //Stock report table
+                    var stock_report_cols = [
+                        { data: 'product_id', name: 'product_id' },
+                        { data: 'sku', name: 'variations.sub_sku' },
+                        { data: 'product', name: 'p.name' },
+                        { data: 'category_name', name: 'categories.name' },
+                        { data: 'total_sold', name: 'total_sold', searchable: false },
+                        { data: 'stock', name: 'stock', searchable: false },
+                        { data: 'location_name', name: 'l.name' },
+                        {
+                            data: 'product_image',
+                            name: 'product_image',
+                            render: function(data, type, full, meta) {
+                                var imagePath = data;
+                                var baseURL = "{{ asset('uploads/img/') }}";
+
+                                if (imagePath) {
+                                    var imageURL = baseURL + '/' + imagePath;
+                                } else {
+                                    var imageURL = "{{ asset('img/default.png') }}";
+                                }
+
+                                return '<img src="' + imageURL + '" alt="Product Image" style="width: 50px; height: 50px;">';
+                            }
+                        },
+                        // { data: 'unit_price', name: 'variations.sell_price_inc_tax' },
+                        @can('view_product_stock_value')
+                        // { data: 'stock_price', name: 'stock_price', searchable: false },
+                        // { data: 'stock_value_by_sale_price', name: 'stock_value_by_sale_price', searchable: false, orderable: false },
+                        // { data: 'potential_profit', name: 'potential_profit', searchable: false, orderable: false },
+                        @endcan
+                        // { data: 'total_transfered', name: 'total_transfered', searchable: false },
+                        // { data: 'total_adjusted', name: 'total_adjusted', searchable: false }
+                    ];
+                    if ($('th.current_stock_mfg').length) {
+                        stock_report_cols.push({ data: 'total_mfg_stock', name: 'total_mfg_stock', searchable: false });
+                    }
+                    stock_report_table_new = $('#stock_report_table_new').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        // scrollY: "75vh",
+                        // scrollX:        true,
+                        scrollCollapse: true,
+                        ajax: {
+                            url: '/reports/stock-report',
+                            data: function(d) {
+                                d.location_id = $('#location_id').val();
+                                d.category_id = $('#product_list_filter_category_id').val();
+                                d.brand_id = $('#product_list_filter_brand_id').val();
+                                d.unit_id = $('#product_list_filter_unit_id').val();
+                                d.type = $('#product_list_filter_type').val();
+                                d.active_state = $('#active_state').val();
+                                d.not_for_selling = $('#not_for_selling').is(':checked');
+                                if ($('#repair_model_id').length == 1) {
+                                    d.repair_model_id = $('#repair_model_id').val();
+                                }
+                            }
+                        },
+                        columns: stock_report_cols,
+                        fnDrawCallback: function(oSettings) {
+                            __currency_convert_recursively($('#stock_report_table_new'));
+                        },
+                        "footerCallback": function ( row, data, start, end, display ) {
+                            var footer_total_stock = 0;
+                            var footer_total_sold = 0;
+                            var footer_total_transfered = 0;
+                            var total_adjusted = 0;
+                            var total_stock_price = 0;
+                            var footer_stock_value_by_sale_price = 0;
+                            var total_potential_profit = 0;
+                            var footer_total_mfg_stock = 0;
+                            for (var r in data){
+                                footer_total_stock += $(data[r].stock).data('orig-value') ? 
+                                parseFloat($(data[r].stock).data('orig-value')) : 0;
+
+                                footer_total_sold += $(data[r].total_sold).data('orig-value') ? 
+                                parseFloat($(data[r].total_sold).data('orig-value')) : 0;
+
+                                footer_total_transfered += $(data[r].total_transfered).data('orig-value') ? 
+                                parseFloat($(data[r].total_transfered).data('orig-value')) : 0;
+
+                                total_adjusted += $(data[r].total_adjusted).data('orig-value') ? 
+                                parseFloat($(data[r].total_adjusted).data('orig-value')) : 0;
+
+                                total_stock_price += $(data[r].stock_price).data('orig-value') ? 
+                                parseFloat($(data[r].stock_price).data('orig-value')) : 0;
+
+                                footer_stock_value_by_sale_price += $(data[r].stock_value_by_sale_price).data('orig-value') ? 
+                                parseFloat($(data[r].stock_value_by_sale_price).data('orig-value')) : 0;
+
+                                total_potential_profit += $(data[r].potential_profit).data('orig-value') ? 
+                                parseFloat($(data[r].potential_profit).data('orig-value')) : 0;
+
+                                footer_total_mfg_stock += $(data[r].total_mfg_stock).data('orig-value') ? 
+                                parseFloat($(data[r].total_mfg_stock).data('orig-value')) : 0;
+                            }
+
+                            $('.footer_total_stock').html(__currency_trans_from_en(footer_total_stock, false));
+                            $('.footer_total_stock_price').html(__currency_trans_from_en(total_stock_price));
+                            $('.footer_total_sold').html(__currency_trans_from_en(footer_total_sold, false));
+                            $('.footer_total_transfered').html(__currency_trans_from_en(footer_total_transfered, false));
+                            $('.footer_total_adjusted').html(__currency_trans_from_en(total_adjusted, false));
+                            $('.footer_stock_value_by_sale_price').html(__currency_trans_from_en(footer_stock_value_by_sale_price));
+                            $('.footer_potential_profit').html(__currency_trans_from_en(total_potential_profit));
+                            if ($('th.current_stock_mfg').length) {
+                                $('.footer_total_mfg_stock').html(__currency_trans_from_en(footer_total_mfg_stock, false));
+                            }
+                        },
+                                    });
+                    data_table_initailized = true;
+                } else {
+                    stock_report_table_new.ajax.reload();
+                }
+            } else {
+                product_table.ajax.reload();
+            }
+        });
+
 
         $(document).on('click', '.update_product_location', function(e){
             e.preventDefault();

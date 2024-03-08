@@ -18,10 +18,10 @@
 <section class="content">
 <div class="row">
     <div class="col-md-12">
-        <div style="display: flex; justify-content: flex-end; align-items: center;">
-            <img src="{{ !empty($product->image) ? asset('uploads/img/' . $product->image) : asset('img/default.png') }}" alt="Product image" style="width: 20%;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4 style="margin-right: auto;"><b>@lang($product->name)</b></h4>
+            <img src="{{ !empty($product->image) ? asset('uploads/img/' . $product->image) : asset('img/default.png') }}" alt="Product image" style="width: 15%;">
         </div>
-        <h4>@lang($product->name)</h4>
     </div>
     <input type="hidden" id="row_id" value="{{ $id }}">
     <div style="display: none;">

@@ -24,13 +24,13 @@
           {!! Form::text('name', null, ['class' => 'form-control', 'required', 'placeholder' => $name_label]); !!}
       </div>
       @if($cat_code_enabled)
-      <div class="form-group">
+      <div class="form-group" style="display: none;">
         {!! Form::label('short_code', $cat_code_label . ':') !!}
         {!! Form::text('short_code', null, ['class' => 'form-control', 'placeholder' => $cat_code_label]); !!}
         <p class="help-block">{!! $category_code_help_text !!}</p>
       </div>
       @endif
-      <div class="form-group">
+      <div class="form-group" style="display: none;">
         {!! Form::label('description', __( 'lang_v1.description' ) . ':') !!}
         {!! Form::textarea('description', null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.description'), 'rows' => 3]); !!}
       </div>

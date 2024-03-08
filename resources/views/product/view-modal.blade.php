@@ -66,7 +66,7 @@
 						<b>@lang('product.sub_category'): </b>
 						{{$product->sub_category->name ?? '--' }}<br>	
 						
-						<b>@lang('product.manage_stock'): </b>
+						{{-- <b>@lang('product.manage_stock'): </b>
 						@if($product->enable_stock)
 							@lang('messages.yes')
 						@else
@@ -82,10 +82,10 @@
 							<br>
 							<b>@lang('lang_v1.warranty'): </b>
 							{{$product->warranty->display_name }}
-						@endif
+						@endif --}}
 	      			</div>
 					
-	      			<div class="col-sm-4 invoice-col">
+	      			<div class="col-sm-4 invoice-col" style="display: none;">
 	      				<b>@lang('product.expires_in'): </b>
 	      				@php
 	  						$expiry_array = ['months'=>__('product.months'), 'days'=>__('product.days'), '' =>__('product.not_applicable') ];
@@ -172,7 +172,7 @@
       			@include('product.partials.combo_product_details')
       		@endif
       		@if($product->enable_stock == 1)
-	      		<div class="row">
+	      		<div class="row" style="display: none;">
 	      			<div class="col-md-12">
 	      				<strong>@lang('lang_v1.product_stock_details')</strong>
 	      			</div>

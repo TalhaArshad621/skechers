@@ -545,7 +545,7 @@ $(document).ready(function() {
             { data: 'status', name: 'status' },
             { data: 'payment_status', name: 'payment_status' },
             { data: 'final_total', name: 'final_total' },
-            { data: 'payment_due', name: 'payment_due', orderable: false, searchable: false },
+            // { data: 'payment_due', name: 'payment_due', orderable: false, searchable: false },
             { data: 'added_by', name: 'u.first_name' },
         ],
         fnDrawCallback: function(oSettings) {

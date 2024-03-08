@@ -1915,6 +1915,7 @@ class ProductUtil extends Util
     public function getProductStockDetails($business_id, $filters, $for)
     {
         $query = Variation::join('products as p', 'p.id', '=', 'variations.product_id')
+                ->join('categories', 'p.category_id', '=', 'categories.id')
                   ->join('units', 'p.unit_id', '=', 'units.id')
                   ->leftjoin('variation_location_details as vld', 'variations.id', '=', 'vld.variation_id')
                   ->leftjoin('business_locations as l', 'vld.location_id', '=', 'l.id')
@@ -2014,6 +2015,7 @@ class ProductUtil extends Util
             DB::raw("SUM(vld.qty_available) as stock"),
             'variations.sub_sku as sku',
             'p.name as product',
+            'p.image as product_image',
             'p.type',
             'p.id as product_id',
             'units.short_name as unit',
@@ -2023,7 +2025,8 @@ class ProductUtil extends Util
             'variations.name as variation_name',
             'l.name as location_name',
             'l.id as location_id',
-            'variations.id as variation_id'
+            'variations.id as variation_id',
+            'categories.name as category_name'
         )->groupBy('variations.id', 'vld.location_id');
             
         if (isset($filters['show_manufacturing_data']) && $filters['show_manufacturing_data']) {

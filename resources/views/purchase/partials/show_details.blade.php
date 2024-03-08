@@ -9,7 +9,7 @@
       <p class="pull-right"><b>@lang('messages.date'):</b> {{ @format_date($purchase->transaction_date) }}</p>
     </div>
   </div>
-  <div class="row invoice-info">
+  <div class="row invoice-info" style="display: none;">
     <div class="col-sm-4 invoice-col">
       @lang('purchase.supplier'):
       <address>
@@ -89,9 +89,9 @@
           <thead>
             <tr class="bg-green">
               <th>#</th>
-              <th>@lang('product.product_name')</th>
-              <th class="text-right">@lang('purchase.purchase_quantity')</th>
-              <th class="text-right">@lang( 'lang_v1.unit_cost_before_discount' )</th>
+              <th>Product SKU</th>
+              <th>@lang('purchase.purchase_quantity')</th>
+              {{-- <th class="text-right">@lang( 'lang_v1.unit_cost_before_discount' )</th>
               <th class="text-right">@lang( 'lang_v1.discount_percent' )</th>
               <th class="no-print text-right">@lang('purchase.unit_cost_before_tax')</th>
               <th class="no-print text-right">@lang('purchase.subtotal_before_tax')</th>
@@ -104,7 +104,7 @@
               @if(session('business.enable_product_expiry'))
                 <th>@lang('product.mfg_date')</th>
                 <th>@lang('product.exp_date')</th>
-              @endif
+              @endif --}}
               <th class="text-right">@lang('sale.subtotal')</th>
             </tr>
           </thead>
@@ -112,17 +112,18 @@
             $total_before_tax = 0.00;
           @endphp
           @foreach($purchase->purchase_lines as $purchase_line)
+          {{-- {{ dd($purchase_line->product) }} --}}
             <tr>
               <td>{{ $loop->iteration }}</td>
               <td>
-                {{ $purchase_line->product->name }}
+                {{ $purchase_line->product->sku }}
                  @if( $purchase_line->product->type == 'variable')
                   - {{ $purchase_line->variations->product_variation->name}}
                   - {{ $purchase_line->variations->name}}
                  @endif
               </td>
               <td><span class="display_currency" data-is_quantity="true" data-currency_symbol="false">{{ $purchase_line->quantity }}</span> @if(!empty($purchase_line->sub_unit)) {{$purchase_line->sub_unit->short_name}} @else {{$purchase_line->product->unit->short_name}} @endif</td>
-              <td class="text-right"><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->pp_without_discount}}</span></td>
+              {{-- <td class="text-right"><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->pp_without_discount}}</span></td>
               <td class="text-right"><span class="display_currency">{{ $purchase_line->discount_percent}}</span> %</td>
               <td class="no-print text-right"><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->purchase_price }}</span></td>
               <td class="no-print text-right"><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->quantity * $purchase_line->purchase_price }}</span></td>
@@ -159,7 +160,7 @@
                   @lang('product.not_applicable')
                 @endif
               </td>
-              @endif
+              @endif --}}
               <td class="text-right"><span class="display_currency" data-currency_symbol="true">{{ $purchase_line->purchase_price_inc_tax * $purchase_line->quantity }}</span></td>
             </tr>
             @php 
@@ -224,7 +225,7 @@
             <td></td>
             <td><span class="display_currency pull-right">{{ $total_before_tax }}</span></td>
           </tr> -->
-          <tr>
+          {{-- <tr>
             <th>@lang('purchase.net_total_amount'): </th>
             <td></td>
             <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $total_before_tax }}</span></td>
@@ -266,9 +267,9 @@
               <td><b>(+)</b></td>
               <td><span class="display_currency pull-right" >{{ $purchase->shipping_charges }}</span></td>
             </tr>
-          @endif
+          @endif --}}
           <tr>
-            <th>@lang('purchase.purchase_total'):</th>
+            <th class="text-right">@lang('purchase.purchase_total'):</th>
             <td></td>
             <td><span class="display_currency pull-right" data-currency_symbol="true" >{{ $purchase->final_total }}</span></td>
           </tr>
@@ -276,7 +277,7 @@
       </div>
     </div>
   </div>
-  <div class="row">
+  <div class="row" style="display: none;">
     <div class="col-sm-6">
       <strong>@lang('purchase.shipping_details'):</strong><br>
       <p class="well well-sm no-shadow bg-gray">
@@ -298,7 +299,7 @@
       </p>
     </div>
   </div>
-  <div class="row">
+  <div class="row" style="display: none;">
     <div class="col-md-12">
           <strong>{{ __('lang_v1.activities') }}:</strong><br>
           @includeIf('activity_log.activities', ['activity_type' => 'purchase'])

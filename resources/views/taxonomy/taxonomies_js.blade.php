@@ -25,10 +25,10 @@
                     ajax: '/taxonomies?type=' + category_type,
                     columns: [
                         { data: 'name', name: 'name' },
-                        @if($cat_code_enabled)
-                            { data: 'short_code', name: 'short_code' },
-                        @endif
-                        { data: 'description', name: 'description' },
+                        // @if($cat_code_enabled)
+                        //     { data: 'short_code', name: 'short_code' },
+                        // @endif
+                        // { data: 'description', name: 'description' },
                         { data: 'action', name: 'action', orderable: false, searchable: false},
                     ],
                 });
