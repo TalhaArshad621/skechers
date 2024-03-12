@@ -3919,4 +3919,120 @@ class ReportController extends Controller
         }
 
     }
+
+    public function getBuyOverviewReport(Request $request) 
+    {
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+        $location_id = $request->location_id;
+        $business_id = $request->session()->get('user.business_id');
+
+        if($request->ajax()) {
+            $purchase_details = $this->transactionUtil->getPurchaseTotals($business_id, $start_date, $end_date, $location_id);
+
+            $query1 = DB::table('purchase_lines')
+            ->join('transactions','transactions.id','purchase_lines.transaction_id')
+            ->where('transactions.type', 'purchase')
+            ->where('transactions.status', 'received')
+            ->where('transactions.business_id', $business_id);
+            
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query1->whereDate('transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query1->whereDate('transactions.transaction_date', $end_date);
+            }
+    
+            //Filter by the location
+            if (!empty($location_id)) {
+                $query1->where('transactions.location_id', $location_id);
+            }  
+            $purchased_items =  $query1->select(
+                DB::raw('SUM(purchase_lines.quantity) as quantity'),
+            )
+            ->first();
+
+            return response()->json([
+                'total_items' => $purchased_items->quantity ? $purchased_items->quantity : 0 ,
+                'total_buy_amount' => $purchase_details['total_purchase_inc_tax'],
+                'total_cost_amount' => $purchase_details['total_purchase_inc_tax'],
+                'total_purchase_amount' => $purchase_details['total_purchase_inc_tax']
+            ]);
+        }
+    }
+
+    public function getEcommerceOverviewReport(Request $request)
+    {
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+        $business_id = $request->session()->get('user.business_id');
+
+        if($request->ajax()) {
+            $query1 = DB::table('ecommerce_transactions')
+            ->where('ecommerce_transactions.type', 'sell')
+            ->where('ecommerce_transactions.status', 'final')
+            ->where('ecommerce_transactions.business_id', $business_id);
+            
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query1->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query1->whereDate('ecommerce_transactions.transaction_date', $end_date);
+            }
+    
+
+            $total_orders =  $query1->select(
+                DB::raw('Count(ecommerce_transactions.id) as total_orders'),
+                DB::raw('SUM(ecommerce_transactions.final_total) as total_order_amount')
+            )
+            ->first();
+            
+            
+            // Received Amount
+            $query2 = DB::table('ecommerce_transactions')
+            ->where('ecommerce_transactions.type', 'sell')
+            ->where('ecommerce_transactions.status', 'final')
+            ->where('ecommerce_transactions.payment_status','paid')
+            ->where('ecommerce_transactions.business_id', $business_id);
+            
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query2->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query2->whereDate('ecommerce_transactions.transaction_date', $end_date);
+            }
+    
+
+            $received_mount =  $query2->select(
+                DB::raw('SUM(ecommerce_transactions.final_total) as total_order_amount')
+            )
+            ->first();
+            
+            // Total Items
+            $query3 = DB::table('ecommerce_sell_lines')
+            ->join('ecommerce_transactions', 'ecommerce_transactions.id','ecommerce_sell_lines.transaction_id')
+            ->where('ecommerce_transactions.type', 'sell')
+            ->where('ecommerce_transactions.status', 'final')
+            ->where('ecommerce_transactions.business_id', $business_id);
+            
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query3->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query3->whereDate('ecommerce_transactions.transaction_date', $end_date);
+            }
+    
+
+            $total_items =  $query3->select(
+                DB::raw('SUM(ecommerce_sell_lines.quantity) as total_items'),
+            )
+            ->first();
+
+            dd($total_orders, $received_mount, $total_items);
+        }
+    }
 }

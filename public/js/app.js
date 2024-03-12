@@ -2460,7 +2460,6 @@ function updateOverView(start = null, end = null, location_id = null, selector =
     $.ajax({
         method: 'GET',
         url: '/reports/get-sell-overview',
-        // dataType: 'html',
         data: data,
         success: function(response) {
             // selector.html(response);
@@ -2478,6 +2477,18 @@ function updateOverView(start = null, end = null, location_id = null, selector =
             $("#total-gift-items").html(response.total_gift_items);
             $("#gst-tax").html(__currency_trans_from_en(response.gst_tax));
             __currency_convert_recursively(selector);
+        },
+    });
+    $.ajax({
+        type: "GET",
+        url: "/reports/get-buy-overview",
+        data: data,
+        success: function (response) {
+           console.log(response);
+            $("#buy-total-items").html(response.total_items);
+            $("#buy-amount").html(__currency_trans_from_en(response.total_buy_amount));
+            $("#total-cost-amount").html(__currency_trans_from_en(response.total_cost_amount));
+            $("#total-purchase-amount").html(__currency_trans_from_en(response.total_purchase_amount));
         },
     });
 }

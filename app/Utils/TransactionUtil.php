@@ -311,7 +311,7 @@ class TransactionUtil extends Util
             }
             $business_location = BusinessLocation::select('id','location_id')->where('business_id', $business_id)->get();
             
-            $stores_location = VariationLocationDetails::where('product_id', $product_id->product_id)->orderByDesc('qty_available')->get();
+            $stores_location = VariationLocationDetails::where('product_id', $product_id->product_id)->Where('location_id','<>', 9)->orderByDesc('qty_available')->get();
 
             foreach($stores_location as $location) {
                 // dd($location);
@@ -4204,7 +4204,7 @@ class TransactionUtil extends Util
                     throw new PurchaseSellMismatch($mismatch_error);
                 } else {
                     //Mapping with no purchase line
-                    $purchase_sell_map[] = ['sell_line_id' => $line->id,
+                    $purchase_sell_map[] = ['ecommerce_line_id' => $line->id,
                             'purchase_line_id' => 0,
                             'quantity' => $qty_selling,
                             'created_at' => \Carbon::now(),
