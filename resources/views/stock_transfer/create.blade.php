@@ -108,7 +108,7 @@
 			</div>
 		</div>
 	</div> <!--box end-->
-	<div class="box box-solid">
+	<div class="box box-solid" style="display: none;">
 		<div class="box-body">
 			<div class="row">
 				<div class="col-sm-4">
