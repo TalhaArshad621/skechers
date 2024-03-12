@@ -525,6 +525,11 @@ class AdminSidebarMenu
                                 __('report.profit_loss'),
                                 ['icon' => 'fa fas fa-file-invoice-dollar', 'active' => request()->segment(2) == 'profit-loss']
                             );
+                            $sub->url(
+                                action('ReportController@overviewReport'),
+                                __('Overview Report'),
+                                ['icon' => 'fa fas fa-file-invoice-dollar', 'active' => request()->segment(2) == 'overview-report']
+                            );
                         }
                         if (config('constants.show_report_606') == true) {
                             $sub->url(

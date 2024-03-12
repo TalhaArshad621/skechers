@@ -34,6 +34,7 @@ use Datatables;
 use DB;
 use Illuminate\Http\Request;
 use App\TaxRate;
+use Svg\Tag\Rect;
 
 class ReportController extends Controller
 {
@@ -3680,5 +3681,242 @@ class ReportController extends Controller
                 ->make(true);
         }
         return view('report.ecommerce_sell_report');
+    }
+
+    public function overviewReport(Request $request)
+    {
+        $business_id = $request->session()->get('user.business_id');
+
+        $business_locations = BusinessLocation::forDropdown($business_id, true);
+        return view('report.overview_report', compact('business_locations'));
+    }
+
+    public function getSellOverviewReport(Request $request)
+    {
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+        $location_id = $request->location_id;
+        $business_id = $request->session()->get('user.business_id');
+
+        if($request->ajax()) {
+
+                // Return Data
+                $query1 = DB::table('transactions')
+                ->where('transactions.type', 'sell_return')
+                ->where('transactions.status', 'final')
+                ->where('transactions.business_id', $business_id);
+                
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query1->whereDate('transactions.transaction_date', '>=', $start_date)
+                        ->whereDate('transactions.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query1->whereDate('transactions.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query1->where('transactions.location_id', $location_id);
+                }  
+                $return_data =  $query1->select(
+                    DB::raw('COUNT(transactions.id) as return_invoices'),
+                    DB::raw('SUM(transactions.final_total) as returned_amount'),
+                )
+                ->first();
+
+
+                // Return Items
+                $query2 = DB::table('transaction_sell_lines')
+                ->leftJoin('transactions as t', 't.return_parent_id', 'transaction_sell_lines.transaction_id')
+                ->where('t.type', 'sell_return')
+                ->where('t.business_id', $business_id);
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query2->whereDate('t.transaction_date', '>=', $start_date)
+                        ->whereDate('t.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query2->whereDate('t.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query2->where('t.location_id', $location_id);
+                }
+                $return_items = $query2->select(  DB::raw('SUM(transaction_sell_lines.quantity_returned) as returned_items'))
+                ->first();
+            
+
+
+                // Invoice Data
+                $query3 = TransactionSellLine::join(
+                    'transactions as t',
+                    'transaction_sell_lines.transaction_id',
+                    '=',
+                    't.id'
+                )
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell')
+                ->where('t.status', 'final');
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query3->whereDate('t.transaction_date', '>=', $start_date)
+                        ->whereDate('t.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query3->whereDate('t.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query3->where('t.location_id', $location_id);
+                }
+                $invoice_data =   $query3->select(
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_item_sold'),
+                    DB::raw('SUM((transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax) as invoice_amount'),
+                    DB::raw("SUM(
+                        IF(
+                            t.type = 'sell' AND t.status = 'final' AND line_discount_amount > 0,
+                            IF(
+                                line_discount_type = 'percentage',
+                                COALESCE((COALESCE(unit_price_inc_tax, 0) / (1 - (COALESCE(line_discount_amount, 0) / 100)) - unit_price_inc_tax ), 0),
+                                COALESCE(line_discount_amount, 0)
+                            ),
+                            0
+                        )
+                    ) as total_sell_discount")
+                )
+                ->first();
+                
+
+
+                // Cash Payment
+                $query4 = DB::table('cash_register_transactions')->leftJoin('transactions', 'cash_register_transactions.transaction_id', 'transactions.id')
+                ->where('transactions.business_id', $business_id)
+                ->where('transactions.type', 'sell')
+                ->where('transactions.status', 'final')
+                ->where('cash_register_transactions.pay_method', 'cash')
+                ->where('cash_register_transactions.transaction_type','sell');
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query4->whereDate('transactions.transaction_date', '>=', $start_date)
+                        ->whereDate('transactions.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query4->whereDate('transactions.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query4->where('transactions.location_id', $location_id);
+                }
+                $cash_payment = $query4->select(DB::raw('SUM(cash_register_transactions.amount) as cash_amount'))
+                ->first();
+
+
+                // Card Payment
+
+                $query5 = DB::table('transactions')->leftJoin('transaction_payments','transactions.id','transaction_payments.transaction_id')
+                ->where('transactions.business_id', $business_id)
+                ->where('transactions.type', 'sell')
+                ->where('transactions.status', 'final')
+                ->where('transaction_payments.method', 'card');
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query5->whereDate('transactions.transaction_date', '>=', $start_date)
+                        ->whereDate('transactions.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query5->whereDate('transactions.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query5->where('transactions.location_id', $location_id);
+                }
+                $card_payment = $query5->select(DB::raw('SUM(transaction_payments.amount) as card_amount'))
+                ->first();
+
+                // Gross Profit
+                $gross_profit = $this->transactionUtil->getGrossProfit($business_id,$start_date, $end_date, $location_id);
+
+                
+                // Gift Amount
+                $query6 = DB::table('transactions')
+                ->where('transactions.business_id', $business_id)
+                ->where('transactions.type', 'gift')
+                ->where('transactions.status', 'final');
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query6->whereDate('transactions.transaction_date', '>=', $start_date)
+                        ->whereDate('transactions.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query6->whereDate('transactions.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query6->where('transactions.location_id', $location_id);
+                }
+                $gift_amount = $query6->select(DB::raw('SUM(transactions.final_total) as amount'))
+                ->first();
+
+                // Gift Items
+                $query7 = TransactionSellLine::join('transactions as t', 't.id', 'transaction_sell_lines.transaction_id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'gift')
+                ->where('t.status', 'final');
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query7->whereDate('t.transaction_date', '>=', $start_date)
+                        ->whereDate('t.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query7->whereDate('t.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query7->where('t.location_id', $location_id);
+                }
+                $gift_items = $query7->select(  DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as gift_items'))
+                ->first();
+
+
+                // GST tax
+                $query8 = TransactionSellLine::join('transactions as t', 't.id', 'transaction_sell_lines.transaction_id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell')
+                ->where('t.status', 'final');
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query8->whereDate('t.transaction_date', '>=', $start_date)
+                        ->whereDate('t.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query8->whereDate('t.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query8->where('t.location_id', $location_id);
+                }
+                $gst_tax = $query8->select(DB::raw('SUM(item_tax) as tax'))
+                ->first();
+
+            // dd($return_data, $return_items, $invoice_data, $cash_payment, $card_payment, $gross_profit, $gift_amount, $gift_items, $gst_tax);
+
+            return response()->json([
+                'return_invoices' => $return_data->return_invoices,
+                'return_amount' => $return_data->returned_amount ? $return_data->returned_amount : 0.000 ,
+                'return_items' => $return_items->returned_items ? $return_items->returned_items : 0.000,
+                'total_item_sold' => $invoice_data['total_item_sold'],
+                'invoice_amount' => $invoice_data['invoice_amount'],
+                'total_sell_discount' => $invoice_data['total_sell_discount'],
+                'cash_amount' => $cash_payment->cash_amount,
+                'card_amount' => $card_payment->card_amount,
+                'total_received' => $invoice_data['invoice_amount'],
+                'profit_loss' => $gross_profit,
+                'total_gift_amount' => $gift_amount->amount,
+                'total_gift_items' => $gift_items['gift_items'],
+                'gst_tax' => $gst_tax['tax']
+            ]);
+
+        }
+
     }
 }

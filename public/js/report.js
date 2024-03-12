@@ -583,6 +583,25 @@ $(document).ready(function() {
         updateProfitLoss();
     });
 
+    //Overview Report
+    if ($('#overview_date_filter').length == 1) {
+        $('#overview_date_filter').daterangepicker(dateRangeSettings, function(start, end) {
+            $('#overview_date_filter span').html(
+                start.format(moment_date_format) + ' ~ ' + end.format(moment_date_format)
+            );
+            updateOverView();
+        });
+        $('#overview_date_filter').on('cancel.daterangepicker', function(ev, picker) {
+            $('#overview_date_filter').html(
+                '<i class="fa fa-calendar"></i> ' + LANG.filter_by_date
+            );
+        });
+        updateOverView();
+    }
+    $('#overview_location_filter').change(function() {
+        updateOverView();
+    });
+
     //Product Purchase Report
     if ($('#product_pr_date_filter').length == 1) {
         $('#product_pr_date_filter').daterangepicker(dateRangeSettings, function(start, end) {

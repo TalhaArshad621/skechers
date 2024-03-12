@@ -2439,6 +2439,49 @@ function updateProfitLoss(start = null, end = null, location_id = null, selector
     });
 }
 
+function updateOverView(start = null, end = null, location_id = null, selector = null) {
+    if(start == null){
+        var start = $('#overview_date_filter')
+                    .data('daterangepicker')
+                    .startDate.format('YYYY-MM-DD');
+    }
+    if(end == null){
+        var end = $('#overview_date_filter')
+                    .data('daterangepicker')
+                    .endDate.format('YYYY-MM-DD');
+    }
+    if(location_id == null){
+        var location_id = $('#overview_location_filter').val();
+    }
+    var data = { start_date: start, end_date: end, location_id: location_id };
+    selector = selector == null ? $('#pl_data_div') : selector;
+    var loader = '<div class="text-center">' + __fa_awesome() + '</div>';
+    selector.html(loader);
+    $.ajax({
+        method: 'GET',
+        url: '/reports/get-sell-overview',
+        // dataType: 'html',
+        data: data,
+        success: function(response) {
+            // selector.html(response);
+            $("#return-invoices").html(__currency_trans_from_en(response.return_invoices));
+            $("#return-amount").html(__currency_trans_from_en(response.return_amount));
+            $("#return-items").html(response.return_items);
+            $("#total-items-sold").html(response.total_item_sold);
+            $("#invoice-amount").html(__currency_trans_from_en(response.invoice_amount));
+            $("#discount").html(__currency_trans_from_en(response.total_sell_discount));
+            $("#cash-payment").html(__currency_trans_from_en(response.cash_amount));
+            $("#card-payment").html(__currency_trans_from_en(response.card_amount));
+            $("#total-received").html(__currency_trans_from_en(response.total_received));
+            $("#profit-loss").html(__currency_trans_from_en(response.profit_loss));
+            $("#total-gift-amount").html(__currency_trans_from_en(response.total_gift_amount));
+            $("#total-gift-items").html(response.total_gift_items);
+            $("#gst-tax").html(__currency_trans_from_en(response.gst_tax));
+            __currency_convert_recursively(selector);
+        },
+    });
+}
+
 $(document).on('click', 'button.activate-deactivate-location', function(){
     swal({
         title: LANG.sure,
