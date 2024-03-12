@@ -1570,16 +1570,20 @@ class ReportController extends Controller
                     't.id as transaction_id',
                     't.invoice_no',
                     't.transaction_date as transaction_date',
-                    'transaction_sell_lines.unit_price_before_discount as unit_price',
+                    'v.sell_price_inc_tax as unit_price',
+                    // 'transaction_sell_lines.unit_price_before_discount as unit_price',
                     'transaction_sell_lines.unit_price_inc_tax as unit_sale_price',
                     DB::raw('(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as sell_qty'),
                     'transaction_sell_lines.line_discount_type as discount_type',
-                    'transaction_sell_lines.line_discount_amount as discount_amount',
+                    // 'transaction_sell_lines.line_discount_amount as discount_amount',
                     'transaction_sell_lines.item_tax',
                     'tax_rates.name as tax',
                     'u.short_name as unit',
-                    DB::raw('((transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax) as subtotal')
+                    DB::raw('((transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    DB::raw('CASE WHEN transaction_sell_lines.line_discount_type = "percentage" THEN (v.sell_price_inc_tax * transaction_sell_lines.line_discount_amount / 100) ELSE transaction_sell_lines.line_discount_amount END AS discount_amount')
                 )
+                // ->get();
+                // dd($query);
                 ->groupBy('transaction_sell_lines.id');
 
             if (!empty($variation_id)) {
@@ -1635,7 +1639,7 @@ class ReportController extends Controller
                 })
                 ->editColumn('discount_amount', '
                     @if($discount_type == "percentage")
-                        {{@number_format($discount_amount)}} %
+                        {{@number_format($discount_amount)}}
                     @elseif($discount_type == "fixed")
                         {{@number_format($discount_amount)}}
                     @endif

@@ -18,13 +18,13 @@
             <th>@lang('lang_v1.sell_return_due')</th>
             {{-- <th>@lang('lang_v1.shipping_status')</th> --}}
             <th>@lang('lang_v1.total_items')</th>
-            <th>@lang('lang_v1.types_of_service')</th>
-            <th>{{ $custom_labels['types_of_service']['custom_field_1'] ?? __('lang_v1.service_custom_field_1' )}}</th>
+            {{-- <th>@lang('lang_v1.types_of_service')</th>
+            <th>{{ $custom_labels['types_of_service']['custom_field_1'] ?? __('lang_v1.service_custom_field_1' )}}</th> --}}
             <th>@lang('lang_v1.added_by')</th>
             <th>@lang('sale.sell_note')</th>
             {{-- <th>@lang('sale.staff_note')</th>
             <th>@lang('sale.shipping_details')</th> --}}
-            <th>@lang('restaurant.table')</th>
+            {{-- <th>@lang('restaurant.table')</th> --}}
             <th>@lang('restaurant.service_staff')</th>
         </tr>
     </thead>
@@ -38,8 +38,8 @@
             <td class="footer_total_remaining"></td>
             <td class="footer_total_sell_return_due"></td>
             {{-- <td colspan="2"></td> --}}
-            <td class="service_type_count"></td>
-            <td colspan="7"></td>
+            {{-- <td class="service_type_count"></td> --}}
+            <td colspan="4"></td>
         </tr>
     </tfoot>
 </table>

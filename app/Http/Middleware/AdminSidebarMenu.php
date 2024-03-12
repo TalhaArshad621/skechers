@@ -593,13 +593,13 @@ class AdminSidebarMenu
                                 );
                             }
 
-                            if (in_array('stock_adjustment', $enabled_modules)) {
-                                $sub->url(
-                                    action('ReportController@getStockAdjustmentReport'),
-                                    __('report.stock_adjustment_report'),
-                                    ['icon' => 'fa fas fa-sliders-h', 'active' => request()->segment(2) == 'stock-adjustment-report']
-                                );
-                            }
+                            // if (in_array('stock_adjustment', $enabled_modules)) {
+                            //     $sub->url(
+                            //         action('ReportController@getStockAdjustmentReport'),
+                            //         __('report.stock_adjustment_report'),
+                            //         ['icon' => 'fa fas fa-sliders-h', 'active' => request()->segment(2) == 'stock-adjustment-report']
+                            //     );
+                            // }
                         }
 
                         if (auth()->user()->can('trending_product_report.view')) {

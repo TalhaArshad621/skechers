@@ -163,7 +163,7 @@ $(document).ready(function() {
         ajax: '/stock-transfers',
         columnDefs: [
             {
-                targets: 8,
+                targets: 6,
                 orderable: false,
                 searchable: false,
             },
@@ -174,9 +174,9 @@ $(document).ready(function() {
             { data: 'location_from', name: 'l1.name' },
             { data: 'location_to', name: 'l2.name' },
             { data: 'status', name: 'status' },
-            { data: 'shipping_charges', name: 'shipping_charges' },
+            // { data: 'shipping_charges', name: 'shipping_charges' },
             { data: 'final_total', name: 'final_total' },
-            { data: 'additional_notes', name: 'additional_notes' },
+            // { data: 'additional_notes', name: 'additional_notes' },
             { data: 'action', name: 'action' },
         ],
         fnDrawCallback: function(oSettings) {

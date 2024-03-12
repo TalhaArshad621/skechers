@@ -80,15 +80,15 @@ sell_table = $('#sell_table').DataTable({
             { data: 'total_paid', name: 'total_paid', "searchable": false},
             { data: 'total_remaining', name: 'total_remaining'},
             { data: 'return_due', orderable: false, "searchable": false},
-            { data: 'shipping_status', name: 'shipping_status'},
+            // { data: 'shipping_status', name: 'shipping_status'},
             { data: 'total_items', name: 'total_items', "searchable": false},
-            { data: 'types_of_service_name', name: 'tos.name', @if(empty($is_types_service_enabled)) visible: false @endif},
-            { data: 'service_custom_field_1', name: 'service_custom_field_1', @if(empty($is_types_service_enabled)) visible: false @endif},
+            // { data: 'types_of_service_name', name: 'tos.name', @if(empty($is_types_service_enabled)) visible: false @endif},
+            // { data: 'service_custom_field_1', name: 'service_custom_field_1', @if(empty($is_types_service_enabled)) visible: false @endif},
             { data: 'added_by', name: 'u.first_name'},
             { data: 'additional_notes', name: 'additional_notes'},
             // { data: 'staff_note', name: 'staff_note'},
             // { data: 'shipping_details', name: 'shipping_details'},
-            { data: 'table_name', name: 'tables.name', @if(empty($is_tables_enabled)) visible: false @endif },
+            // { data: 'table_name', name: 'tables.name', @if(empty($is_tables_enabled)) visible: false @endif },
             { data: 'waiter', name: 'ss.first_name', @if(empty($is_service_staff_enabled)) visible: false @endif }
         ],
         "fnDrawCallback": function (oSettings) {
@@ -113,7 +113,7 @@ sell_table = $('#sell_table').DataTable({
             $('.footer_sale_total').html(__currency_trans_from_en(footer_sale_total));
 
             $('.footer_payment_status_count').html(__count_status(data, 'payment_status'));
-            $('.service_type_count').html(__count_status(data, 'types_of_service_name'));
+            // $('.service_type_count').html(__count_status(data, 'types_of_service_name'));
             $('.payment_method_count').html(__count_status(data, 'payment_methods'));
         },
         createdRow: function( row, data, dataIndex ) {

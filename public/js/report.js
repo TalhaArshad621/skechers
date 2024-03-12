@@ -76,7 +76,7 @@ $(document).ready(function() {
 
     var stock_report_cols = [
             { data: 'sku', name: 'variations.sub_sku' },
-            { data: 'product', name: 'p.name' },
+            // { data: 'product', name: 'p.name' },
             { data: 'location_name', name: 'l.name' },
             { data: 'unit_price', name: 'variations.sell_price_inc_tax' },
             { data: 'stock', name: 'stock', searchable: false },
@@ -89,7 +89,7 @@ $(document).ready(function() {
 
         stock_report_cols.push({ data: 'total_sold', name: 'total_sold', searchable: false });
         stock_report_cols.push({ data: 'total_transfered', name: 'total_transfered', searchable: false });
-        stock_report_cols.push({ data: 'total_adjusted', name: 'total_adjusted', searchable: false });
+        // stock_report_cols.push({ data: 'total_adjusted', name: 'total_adjusted', searchable: false });
 
         if ($('th.current_stock_mfg').length) {
             stock_report_cols.push({ data: 'total_mfg_stock', name: 'total_mfg_stock', searchable: false });
@@ -777,7 +777,7 @@ $(document).ready(function() {
             { data: 'unit_price', name: 'transaction_sell_lines.unit_price_before_discount' },
             { data: 'discount_amount', name: 'transaction_sell_lines.line_discount_amount' },
             { data: 'tax', name: 'tax_rates.name' },
-            { data: 'unit_sale_price', name: 'transaction_sell_lines.unit_price_inc_tax' },
+            // { data: 'unit_sale_price', name: 'transaction_sell_lines.unit_price_inc_tax' },
             { data: 'subtotal', name: 'subtotal', searchable: false },
         ],
         fnDrawCallback: function(oSettings) {
