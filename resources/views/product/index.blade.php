@@ -592,6 +592,7 @@
                         {
                             data: 'product_image',
                             name: 'product_image',
+                            searchable: false, // Set searchable to false for product_image
                             render: function(data, type, full, meta) {
                                 var imagePath = data;
                                 var baseURL = "{{ asset('uploads/img/') }}";

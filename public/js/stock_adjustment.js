@@ -123,7 +123,7 @@ $(document).ready(function() {
             { data: 'location_name', name: 'BL.name' },
             { data: 'adjustment_type', name: 'adjustment_type' },
             { data: 'final_total', name: 'final_total' },
-            { data: 'total_amount_recovered', name: 'total_amount_recovered' },
+            // { data: 'total_amount_recovered', name: 'total_amount_recovered' },
             { data: 'additional_notes', name: 'additional_notes' },
             { data: 'added_by', name: 'u.first_name' },
         ],

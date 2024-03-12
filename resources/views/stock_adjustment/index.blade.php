@@ -29,7 +29,7 @@
                         <th>@lang('business.location')</th>
                         <th>@lang('stock_adjustment.adjustment_type')</th>
                         <th>@lang('stock_adjustment.total_amount')</th>
-                        <th>@lang('stock_adjustment.total_amount_recovered')</th>
+                        {{-- <th>@lang('stock_adjustment.total_amount_recovered')</th> --}}
                         <th>@lang('stock_adjustment.reason_for_stock_adjustment')</th>
                         <th>@lang('lang_v1.added_by')</th>
                     </tr>

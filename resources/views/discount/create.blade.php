@@ -74,7 +74,7 @@
           </div>
         </div>
         <div class="clearfix"></div>
-        <div class="col-sm-6">
+        <div class="col-sm-6" style="display: none;">
           <div class="form-group">
             <br>
             <label>
@@ -82,7 +82,7 @@
             </label>
           </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-6" style="display: none;">
           <div class="form-group">
             <br>
             <label>

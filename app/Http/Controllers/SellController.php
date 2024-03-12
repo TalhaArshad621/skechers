@@ -282,21 +282,21 @@ class SellController extends Controller
                         if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access") || auth()->user()->can("view_own_sell_only")) {
                             $html .= '<li><a href="#" data-href="' . action("SellController@show", [$row->id]) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" aria-hidden="true"></i> ' . __("messages.view") . '</a></li>';
                         }
-                        if (!$only_shipments) {
-                            if ($row->is_direct_sale == 0) {
-                                if (auth()->user()->can("sell.update")) {
-                                    $html .= '<li><a target="_blank" href="' . action('SellPosController@edit', [$row->id]) . '"><i class="fas fa-edit"></i> ' . __("messages.edit") . '</a></li>';
-                                }
-                            } else {
-                                if (auth()->user()->can("direct_sell.access")) {
-                                    $html .= '<li><a target="_blank" href="' . action('SellController@edit', [$row->id]) . '"><i class="fas fa-edit"></i> ' . __("messages.edit") . '</a></li>';
-                                }
-                            }
+                        // if (!$only_shipments) {
+                        //     if ($row->is_direct_sale == 0) {
+                        //         if (auth()->user()->can("sell.update")) {
+                        //             $html .= '<li><a target="_blank" href="' . action('SellPosController@edit', [$row->id]) . '"><i class="fas fa-edit"></i> ' . __("messages.edit") . '</a></li>';
+                        //         }
+                        //     } else {
+                        //         if (auth()->user()->can("direct_sell.access")) {
+                        //             $html .= '<li><a target="_blank" href="' . action('SellController@edit', [$row->id]) . '"><i class="fas fa-edit"></i> ' . __("messages.edit") . '</a></li>';
+                        //         }
+                        //     }
 
                             // if (auth()->user()->can("direct_sell.delete") || auth()->user()->can("sell.delete")) {
                             //     $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fas fa-trash"></i> ' . __("messages.delete") . '</a></li>';
                             // }
-                        }
+                        // }
                         if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access")) {
                             if (!empty($row->document)) {
                                 $document_name = !empty(explode("_", $row->document, 2)[1]) ? explode("_", $row->document, 2)[1] : $row->document ;
