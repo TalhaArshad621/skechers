@@ -205,10 +205,10 @@ class ProductController extends Controller
                             '<li><a href="' . action('ProductController@view', [$row->id]) . '" class="view-product"><i class="fa fa-eye"></i> ' . __("messages.view") . '</a></li>';
                         }
 
-                        // if (auth()->user()->can('product.update')) {
-                        //     $html .=
-                        //     '<li><a href="' . action('ProductController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
-                        // }
+                        if (auth()->user()->can('product.update')) {
+                            $html .=
+                            '<li><a href="' . action('ProductController@edit', [$row->id]) . '"><i class="glyphicon glyphicon-edit"></i> ' . __("messages.edit") . '</a></li>';
+                        }
 
                         // if (auth()->user()->can('product.delete')) {
                         //     $html .=

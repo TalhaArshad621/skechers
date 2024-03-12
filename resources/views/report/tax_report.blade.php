@@ -65,7 +65,7 @@
         </div>
     </div>--}}
 
-    <div class="row">
+    <div class="row" style="display: none;">
         <div class="col-xs-12">
             @component('components.widget')
                 @slot('title')
@@ -92,17 +92,17 @@
            <!-- Custom Tabs -->
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs">
-                    <li class="active">
+                    {{-- <li>
                         <a href="#input_tax_tab" data-toggle="tab" aria-expanded="true"><i class="fa fas fa-arrow-circle-down" aria-hidden="true"></i> @lang('report.input_tax')</a>
-                    </li>
+                    </li> --}}
 
-                    <li>
+                    <li class="active">
                         <a href="#output_tax_tab" data-toggle="tab" aria-expanded="true"><i class="fa fas fa-arrow-circle-up" aria-hidden="true"></i> @lang('report.output_tax')</a>
                     </li>
 
-                    <li>
+                    {{-- <li>
                         <a href="#expense_tax_tab" data-toggle="tab" aria-expanded="true"><i class="fa fas fa-minus-circle" aria-hidden="true"></i> @lang('lang_v1.expense_tax')</a>
-                    </li>
+                    </li> --}}
                     @if(!empty($tax_report_tabs))
                         @foreach($tax_report_tabs as $key => $tabs)
                             @foreach ($tabs as $index => $value)
@@ -118,7 +118,7 @@
                 </ul>
 
                 <div class="tab-content">
-                    <div class="tab-pane active" id="input_tax_tab">
+                    <div class="tab-pane" id="input_tax_tab">
                         <table class="table table-bordered table-striped" id="input_tax_table">
                             <thead>
                                 <tr>
@@ -149,7 +149,7 @@
                             </tfoot>
                         </table>
                     </div>
-                    <div class="tab-pane" id="output_tax_tab">
+                    <div class="tab-pane active" id="output_tax_tab">
                         <table class="table table-bordered table-striped" id="output_tax_table" width="100%">
                             <thead>
                                 <tr>
@@ -240,51 +240,51 @@
             }
         );
 
-        input_tax_table = $('#input_tax_table').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: '/reports/tax-details',
-                data: function(d) {
-                    d.type = 'purchase';
-                    d.location_id = $('#tax_report_location_id').val();
-                    var start = $('input#tax_report_date_range')
-                        .data('daterangepicker')
-                        .startDate.format('YYYY-MM-DD');
-                    var end = $('input#tax_report_date_range')
-                        .data('daterangepicker')
-                        .endDate.format('YYYY-MM-DD');
-                    d.start_date = start;
-                    d.end_date = end;
-                }
-            },
-            columns: [
-                { data: 'transaction_date', name: 'transaction_date' },
-                { data: 'ref_no', name: 'ref_no' },
-                { data: 'contact_name', name: 'c.name' },
-                { data: 'tax_number', name: 'c.tax_number' },
-                { data: 'total_before_tax', name: 'total_before_tax' },
-                { data: 'discount_amount', name: 'discount_amount' },
-                @foreach($taxes as $tax)
-                { data: "tax_{{$tax['id']}}", searchable: false, orderable: false },
-                @endforeach
-            ],
-            fnDrawCallback: function(oSettings) {
-                $('#sell_total').text(
-                    sum_table_col($('#input_tax_table'), 'total_before_tax')
-                );
-                @foreach($taxes as $tax)
-                    $("#total_input_{{$tax['id']}}").text(
-                        sum_table_col($('#input_tax_table'), "tax_{{$tax['id']}}")
-                    );
-                @endforeach
+        // input_tax_table = $('#input_tax_table').DataTable({
+        //     processing: true,
+        //     serverSide: true,
+        //     ajax: {
+        //         url: '/reports/tax-details',
+        //         data: function(d) {
+        //             d.type = 'purchase';
+        //             d.location_id = $('#tax_report_location_id').val();
+        //             var start = $('input#tax_report_date_range')
+        //                 .data('daterangepicker')
+        //                 .startDate.format('YYYY-MM-DD');
+        //             var end = $('input#tax_report_date_range')
+        //                 .data('daterangepicker')
+        //                 .endDate.format('YYYY-MM-DD');
+        //             d.start_date = start;
+        //             d.end_date = end;
+        //         }
+        //     },
+        //     columns: [
+        //         { data: 'transaction_date', name: 'transaction_date' },
+        //         { data: 'ref_no', name: 'ref_no' },
+        //         { data: 'contact_name', name: 'c.name' },
+        //         { data: 'tax_number', name: 'c.tax_number' },
+        //         { data: 'total_before_tax', name: 'total_before_tax' },
+        //         { data: 'discount_amount', name: 'discount_amount' },
+        //         @foreach($taxes as $tax)
+        //         { data: "tax_{{$tax['id']}}", searchable: false, orderable: false },
+        //         @endforeach
+        //     ],
+        //     fnDrawCallback: function(oSettings) {
+        //         $('#sell_total').text(
+        //             sum_table_col($('#input_tax_table'), 'total_before_tax')
+        //         );
+        //         @foreach($taxes as $tax)
+        //             $("#total_input_{{$tax['id']}}").text(
+        //                 sum_table_col($('#input_tax_table'), "tax_{{$tax['id']}}")
+        //             );
+        //         @endforeach
 
-                __currency_convert_recursively($('#input_tax_table'));
-            },
-        });
-        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-            if ($(e.target).attr('href') == '#output_tax_tab') {
-                if (typeof (output_tax_datatable) == 'undefined') {
+        //         __currency_convert_recursively($('#input_tax_table'));
+        //     },
+        // });
+        // $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            // if ($(e.target).attr('href') == '#output_tax_tab') {
+                // if (typeof (output_tax_datatable) == 'undefined') {
                     output_tax_datatable = $('#output_tax_table').DataTable({
                         processing: true,
                         serverSide: true,
@@ -327,62 +327,63 @@
                             __currency_convert_recursively($('#output_tax_table'));
                         },
                     });
-                }
-            } else if ($(e.target).attr('href') == '#expense_tax_tab') {
-                if (typeof (expense_tax_datatable) == 'undefined') {
-                    expense_tax_datatable = $('#expense_tax_table').DataTable({
-                        processing: true,
-                        serverSide: true,
-                        ajax: {
-                            url: '/reports/tax-details',
-                            data: function(d) {
-                                d.type = 'expense';
-                                d.location_id = $('#tax_report_location_id').val();
-                                var start = $('input#tax_report_date_range')
-                                    .data('daterangepicker')
-                                    .startDate.format('YYYY-MM-DD');
-                                var end = $('input#tax_report_date_range')
-                                    .data('daterangepicker')
-                                    .endDate.format('YYYY-MM-DD');
-                                d.start_date = start;
-                                d.end_date = end;
-                            }
-                        },
-                        columns: [
-                            { data: 'transaction_date', name: 'transaction_date' },
-                            { data: 'ref_no', name: 'ref_no' },
-                            { data: 'tax_number', name: 'c.tax_number' },
-                            { data: 'total_before_tax', name: 'total_before_tax' },
-                            @foreach($taxes as $tax)
-                            { data: "tax_{{$tax['id']}}", searchable: false, orderable: false },
-                            @endforeach
-                        ],
-                        fnDrawCallback: function(oSettings) {
-                            $('#expense_total').text(
-                                sum_table_col($('#expense_tax_table'), 'total_before_tax')
-                            );
-                            @foreach($taxes as $tax)
-                                $("#total_expense_{{$tax['id']}}").text(
-                                    sum_table_col($('#expense_tax_table'), "tax_{{$tax['id']}}")
-                                );
-                            @endforeach
-                            __currency_convert_recursively($('#expense_tax_table'));
-                        },
-                    });
-                }
-            }
-        });
+                // }
+            // } 
+            // else if ($(e.target).attr('href') == '#expense_tax_tab') {
+            //     if (typeof (expense_tax_datatable) == 'undefined') {
+            //         expense_tax_datatable = $('#expense_tax_table').DataTable({
+            //             processing: true,
+            //             serverSide: true,
+            //             ajax: {
+            //                 url: '/reports/tax-details',
+            //                 data: function(d) {
+            //                     d.type = 'expense';
+            //                     d.location_id = $('#tax_report_location_id').val();
+            //                     var start = $('input#tax_report_date_range')
+            //                         .data('daterangepicker')
+            //                         .startDate.format('YYYY-MM-DD');
+            //                     var end = $('input#tax_report_date_range')
+            //                         .data('daterangepicker')
+            //                         .endDate.format('YYYY-MM-DD');
+            //                     d.start_date = start;
+            //                     d.end_date = end;
+            //                 }
+            //             },
+            //             columns: [
+            //                 { data: 'transaction_date', name: 'transaction_date' },
+            //                 { data: 'ref_no', name: 'ref_no' },
+            //                 { data: 'tax_number', name: 'c.tax_number' },
+            //                 { data: 'total_before_tax', name: 'total_before_tax' },
+            //                 @foreach($taxes as $tax)
+            //                 { data: "tax_{{$tax['id']}}", searchable: false, orderable: false },
+            //                 @endforeach
+            //             ],
+            //             fnDrawCallback: function(oSettings) {
+            //                 $('#expense_total').text(
+            //                     sum_table_col($('#expense_tax_table'), 'total_before_tax')
+            //                 );
+            //                 @foreach($taxes as $tax)
+            //                     $("#total_expense_{{$tax['id']}}").text(
+            //                         sum_table_col($('#expense_tax_table'), "tax_{{$tax['id']}}")
+            //                     );
+            //                 @endforeach
+            //                 __currency_convert_recursively($('#expense_tax_table'));
+            //             },
+            //         });
+            //     }
+            // }
+        // });
         
         $('#tax_report_date_range, #tax_report_location_id').change( function(){
-            if ($("#input_tax_tab").hasClass('active')) {
-                input_tax_table.ajax.reload();
-            }
+            // if ($("#input_tax_tab").hasClass('active')) {
+            //     input_tax_table.ajax.reload();
+            // }
             if ($("#output_tax_tab").hasClass('active')) {
                 output_tax_datatable.ajax.reload();
             }
-            if ($("#expense_tax_tab").hasClass('active')) {
-                expense_tax_datatable.ajax.reload();
-            }
+            // if ($("#expense_tax_tab").hasClass('active')) {
+            //     expense_tax_datatable.ajax.reload();
+            // }
         });
     });
 </script>

@@ -101,6 +101,11 @@
 					</div>
 				</div>
 			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					<button type="submit" id="save_stock_transfer" class="btn btn-primary pull-right">@lang('messages.save')</button>
+				</div>
+			</div>
 		</div>
 	</div> <!--box end-->
 	<div class="box box-solid">
@@ -119,11 +124,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-sm-12">
-					<button type="submit" id="save_stock_transfer" class="btn btn-primary pull-right">@lang('messages.save')</button>
-				</div>
-			</div>
+			
 
 		</div>
 	</div> <!--box end-->

@@ -100,7 +100,7 @@
                                         <th>@lang('sale.unit_price')</th>
                                         <th>@lang('sale.discount')</th>
                                         <th>@lang('sale.tax')</th>
-                                        <th>@lang('sale.price_inc_tax')</th>
+                                        {{-- <th>@lang('sale.price_inc_tax')</th> --}}
                                         <th>@lang('sale.total')</th>
                                     </tr>
                                 </thead>
@@ -111,7 +111,7 @@
                                         <td></td>
                                         <td></td>
                                         <td id="footer_tax"></td>
-                                        <td></td>
+                                        {{-- <td></td> --}}
                                         <td><span class="display_currency" id="footer_subtotal" data-currency_symbol ="true"></span></td>
                                     </tr>
                                 </tfoot>

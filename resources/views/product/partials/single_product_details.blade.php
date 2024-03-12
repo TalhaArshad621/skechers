@@ -37,7 +37,8 @@
 						</td>
 						@endcan
 						<td>
-							<span class="display_currency" data-currency_symbol="true">{{ $variation->default_sell_price }}</span>
+							{{-- {{ dd($variation) }} --}}
+							<span class="display_currency" data-currency_symbol="true">{{ $variation->sell_price_inc_tax }}</span>
 						</td>
 						{{-- <td>
 							<span class="display_currency" data-currency_symbol="true">{{ $variation->sell_price_inc_tax }}</span>
