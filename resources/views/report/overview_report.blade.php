@@ -38,14 +38,14 @@
         </div>
     </div>
     
-
+{{-- 
     <div class="row no-print">
         <div class="col-sm-12">
             <button type="button" class="btn btn-primary pull-right" 
             aria-label="Print" onclick="window.print();"
             ><i class="fa fa-print"></i> @lang( 'messages.print' )</button>
         </div>
-    </div>
+    </div> --}}
     <br>
     {{-- <div class="row no-print">
         <div class="col-xs-12">
@@ -86,11 +86,11 @@
                     </div>
 
                     <div class="tab-pane" id="buy_overview">
-                        @include('report.partials.profit_by_categories')
+                        @include('report.partials.buy_overview_report')
                     </div>
 
                     <div class="tab-pane" id="ecommerce">
-                        @include('report.partials.profit_by_brands')
+                        @include('report.partials.ecommerce_overview_report')
                     </div>
 
                 </div>
@@ -158,7 +158,6 @@
                 d.location_id = $('#profit_loss_location_filter').val();
             },
             success: function (response) {
-                console.log(response);
                 $("#return-invoices").html(__currency_trans_from_en(response.return_invoices));
                 $("#return-amount").html(__currency_trans_from_en(response.return_amount));
                 $("#return-items").html(response.return_items);
@@ -179,59 +178,43 @@
             var target = $(e.target).attr('href');
             if ( target == '#buy_overview') {
                 if(typeof profit_by_categories_datatable == 'undefined') {
-                    profit_by_categories_datatable = $('#profit_by_categories_table').DataTable({
-                        processing: true,
-                        serverSide: true,
-                        "ajax": {
-                            "url": "/reports/get-profit/category",
-                            "data": function ( d ) {
-                                d.start_date = $('#profit_tabs_filter_overview')
-                                    .data('daterangepicker')
-                                    .startDate.format('YYYY-MM-DD');
-                                d.end_date = $('#profit_tabs_filter_overview')
-                                    .data('daterangepicker')
-                                    .endDate.format('YYYY-MM-DD');
-                            }
+                    profit_by_categories_datatable =  $.ajax({
+                        type: "GET",
+                        url: "/reports/get-buy-overview",
+                        data: function ( d ){
+                            d.start_date = $('#profit_tabs_filter_overview')
+                                .data('daterangepicker')
+                                .startDate.format('YYYY-MM-DD');
+                            d.end_date = $('#profit_tabs_filter_overview')
+                                .data('daterangepicker')
+                                .endDate.format('YYYY-MM-DD');
+                            d.location_id = $('#profit_loss_location_filter').val();
                         },
-                        columns: [
-                            { data: 'category', name: 'C.name'  },
-                            { data: 'gross_profit', "searchable": false},
-                        ],
-                        fnDrawCallback: function(oSettings) {
-                            var total_profit = sum_table_col($('#profit_by_categories_table'), 'gross-profit');
-                            $('#profit_by_categories_table .footer_total').text(total_profit);
-
-                            __currency_convert_recursively($('#profit_by_categories_table'));
+                        success: function (response) {
+                            $("#buy-total-items").html(response.total_items);
+                            $("#buy-amount").html(__currency_trans_from_en(response.total_buy_amount));
+                            $("#total-cost-amount").html(__currency_trans_from_en(response.total_cost_amount));
+                            $("#total-purchase-amount").html(__currency_trans_from_en(response.total_purchase_amount));
                         },
                     });
                 } else {
-                    profit_by_categories_datatable.ajax.reload();
+                    profit_by_categories_datatable.reload();
                 }
-            } else if (target == '#profit_by_brands') {
+            } else if (target == '#ecommerce') {
                 if(typeof profit_by_brands_datatable == 'undefined') {
-                    profit_by_brands_datatable = $('#profit_by_brands_table').DataTable({
-                        processing: true,
-                        serverSide: true,
-                        "ajax": {
-                            "url": "/reports/get-profit/brand",
-                            "data": function ( d ) {
-                                d.start_date = $('#profit_tabs_filter_overview')
-                                    .data('daterangepicker')
-                                    .startDate.format('YYYY-MM-DD');
-                                d.end_date = $('#profit_tabs_filter_overview')
-                                    .data('daterangepicker')
-                                    .endDate.format('YYYY-MM-DD');
-                            }
+                    profit_by_brands_datatable = $.ajax({
+                        type: "GET",
+                        url: "/reports/get-ecommerce-overview",
+                        data: function ( d ){
+                            d.start_date = $('#profit_tabs_filter_overview')
+                                .data('daterangepicker')
+                                .startDate.format('YYYY-MM-DD');
+                            d.end_date = $('#profit_tabs_filter_overview')
+                                .data('daterangepicker')
+                                .endDate.format('YYYY-MM-DD');
                         },
-                        columns: [
-                            { data: 'brand', name: 'B.name'  },
-                            { data: 'gross_profit', "searchable": false},
-                        ],
-                        fnDrawCallback: function(oSettings) {
-                            var total_profit = sum_table_col($('#profit_by_brands_table'), 'gross-profit');
-                            $('#profit_by_brands_table .footer_total').text(total_profit);
-
-                            __currency_convert_recursively($('#profit_by_brands_table'));
+                        success: function (response) {
+                           console.log(response);
                         },
                     });
                 } else {
