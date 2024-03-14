@@ -67,22 +67,22 @@
                     id="product_purchase_report_table">
                         <thead>
                             <tr>
-                                <th>@lang('sale.product')</th>
+                                {{-- <th>@lang('sale.product')</th> --}}
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('purchase.supplier')</th>
                                 <th>@lang('purchase.ref_no')</th>
                                 <th>@lang('messages.date')</th>
                                 <th>@lang('sale.qty')</th>
-                                <th>@lang('lang_v1.total_unit_adjusted')</th>
+                                {{-- <th>@lang('lang_v1.total_unit_adjusted')</th> --}}
                                 <th>@lang('lang_v1.unit_perchase_price')</th>
                                 <th>@lang('sale.subtotal')</th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
-                                <td colspan="5"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="4"><strong>@lang('sale.total'):</strong></td>
                                 <td id="footer_total_purchase"></td>
-                                <td id="footer_total_adjusted"></td>
+                                {{-- <td id="footer_total_adjusted"></td> --}}
                                 <td></td>
                                 <td><span class="display_currency" id="footer_subtotal" data-currency_symbol ="true"></span></td>
                             </tr>

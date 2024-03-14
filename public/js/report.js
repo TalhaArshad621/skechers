@@ -645,13 +645,13 @@ $(document).ready(function() {
             },
         },
         columns: [
-            { data: 'product_name', name: 'p.name' },
+            // { data: 'product_name', name: 'p.name' },
             { data: 'sub_sku', name: 'v.sub_sku' },
             { data: 'supplier', name: 'c.name' },
             { data: 'ref_no', name: 't.ref_no' },
             { data: 'transaction_date', name: 't.transaction_date' },
             { data: 'purchase_qty', name: 'purchase_lines.quantity' },
-            { data: 'quantity_adjusted', name: 'purchase_lines.quantity_adjusted' },
+            // { data: 'quantity_adjusted', name: 'purchase_lines.quantity_adjusted' },
             { data: 'unit_purchase_price', name: 'purchase_lines.purchase_price_inc_tax' },
             { data: 'subtotal', name: 'subtotal', searchable: false },
         ],
@@ -767,7 +767,7 @@ $(document).ready(function() {
             },
         },
         columns: [
-            { data: 'product_name', name: 'p.name' },
+            // { data: 'product_name', name: 'p.name' },
             { data: 'sub_sku', name: 'v.sub_sku' },
             { data: 'customer', name: 'c.name' },
             { data: 'contact_id', name: 'c.contact_id' },
@@ -874,7 +874,7 @@ $(document).ready(function() {
             },
         },
         columns: [
-            { data: 'product_name', name: 'p.name' },
+            // { data: 'product_name', name: 'p.name' },
             { data: 'sub_sku', name: 'v.sub_sku' },
             { data: 'customer', name: 'c.name' },
             { data: 'invoice_no', name: 't.invoice_no' },
@@ -920,7 +920,7 @@ $(document).ready(function() {
             },
         },
         columns: [
-            { data: 'product_name', name: 'p.name' },
+            // { data: 'product_name', name: 'p.name' },
             { data: 'sub_sku', name: 'v.sub_sku' },
             { data: 'transaction_date', name: 't.transaction_date' },
             { data: 'current_stock', name: 'current_stock', searchable: false, orderable: false },

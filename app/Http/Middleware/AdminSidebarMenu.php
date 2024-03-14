@@ -635,11 +635,11 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-arrow-circle-up', 'active' => request()->segment(2) == 'product-sell-grouped-report-detailed']
                             );
 
-                            $sub->url(
-                                action('ReportController@purchasePaymentReport'),
-                                __('lang_v1.purchase_payment_report'),
-                                ['icon' => 'fa fas fa-search-dollar', 'active' => request()->segment(2) == 'purchase-payment-report']
-                            );
+                            // $sub->url(
+                            //     action('ReportController@purchasePaymentReport'),
+                            //     __('lang_v1.purchase_payment_report'),
+                            //     ['icon' => 'fa fas fa-search-dollar', 'active' => request()->segment(2) == 'purchase-payment-report']
+                            // );
 
                             $sub->url(
                                 action('ReportController@sellPaymentReport'),
@@ -667,13 +667,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-briefcase', 'active' => request()->segment(2) == 'register-report']
                             );
                         }
-                        if (auth()->user()->can('sales_representative.view')) {
-                            $sub->url(
-                                action('ReportController@getSalesRepresentativeReport'),
-                                __('report.sales_representative'),
-                                ['icon' => 'fa fas fa-user', 'active' => request()->segment(2) == 'sales-representative-report']
-                            );
-                        }
+                        // if (auth()->user()->can('sales_representative.view')) {
+                        //     $sub->url(
+                        //         action('ReportController@getSalesRepresentativeReport'),
+                        //         __('report.sales_representative'),
+                        //         ['icon' => 'fa fas fa-user', 'active' => request()->segment(2) == 'sales-representative-report']
+                        //     );
+                        // }
                         if (auth()->user()->can('purchase_n_sell_report.view') && in_array('tables', $enabled_modules)) {
                             $sub->url(
                                 action('ReportController@getTableReport'),
