@@ -646,6 +646,12 @@ class AdminSidebarMenu
                                 __('lang_v1.sell_payment_report'),
                                 ['icon' => 'fa fas fa-search-dollar', 'active' => request()->segment(2) == 'sell-payment-report']
                             );
+
+                            $sub->url(
+                                action('ReportController@getbrandfolioReport'),
+                                __('Brandfolio Report'),
+                                ['icon' => 'fa fas fa-search-dollar', 'active' => request()->segment(2) == 'brandfolio-report']
+                            );
                         }
                         if (in_array('expenses', $enabled_modules) && auth()->user()->can('expense_report.view')) {
                             $sub->url(

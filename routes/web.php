@@ -221,6 +221,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/reports/get-sell-overview', 'ReportController@getSellOverviewReport');
     Route::get('/reports/get-buy-overview', 'ReportController@getBuyOverviewReport');
     Route::get('/reports/get-ecommerce-overview', 'ReportController@getEcommerceOverviewReport');
+    Route::get('/reports/brandfolio-report','ReportController@getbrandfolioReport');
     
     Route::get('business-location/activate-deactivate/{location_id}', 'BusinessLocationController@activateDeactivateLocation');
 

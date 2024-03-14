@@ -5399,7 +5399,7 @@ class TransactionUtil extends Util
                     ->first();
 
         $gross_profit = !empty($gross_profit_obj->gross_profit) ? $gross_profit_obj->gross_profit : 0;
-        
+
         //Deduct the sell transaction discounts.
         $transaction_totals = $this->getTransactionTotals($business_id, ['sell'], $start_date, $end_date, $location_id, $user_id);
         $sell_discount = !empty($transaction_totals['total_sell_discount']) ? $transaction_totals['total_sell_discount'] : 0;
@@ -5440,6 +5440,43 @@ class TransactionUtil extends Util
         //KNOWS ISSUE: If products are returned then also the discount gets applied for it.
 
         return $gross_profit + $stock_disabled_product_profit - $sell_discount;
+    }
+
+    public function getEcommerceGrossProfit($business_id, $start_date = null, $end_date = null, $location_id = null, $user_id = null)
+    {
+        $query = TransactionSellLinesPurchaseLines::join('ecommerce_sell_lines 
+                        as SL', 'SL.id', '=', 'transaction_sell_lines_purchase_lines.sell_line_id')
+                    ->join('ecommerce_transactions as sale', 'SL.ecommerce_transaction_id', '=', 'sale.id')
+                    ->leftjoin('purchase_lines as PL', 'PL.id', '=', 'transaction_sell_lines_purchase_lines.purchase_line_id')
+                    ->join('variations as v', 'SL.variation_id', '=', 'v.id')
+                    ->where('sale.business_id', $business_id);
+
+        if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+            $query->whereDate('sale.transaction_date', '>=', $start_date)
+                ->whereDate('sale.transaction_date', '<=', $end_date);
+        }
+        if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+            $query->whereDate('sale.transaction_date', $end_date);
+        }
+
+        //Filter by the location
+        if (!empty($location_id)) {
+            $query->where('sale.location_id', $location_id);
+        }
+
+        if (!empty($user_id)) {
+            $query->where('sale.created_by', $user_id);
+        }
+
+        $gross_profit_obj = $query->select(DB::raw('SUM( 
+                        (transaction_sell_lines_purchase_lines.quantity - transaction_sell_lines_purchase_lines.qty_returned) * (SL.unit_price_inc_tax - IFNULL(PL.purchase_price_inc_tax, v.default_purchase_price) ) ) as gross_profit'))
+                    ->first();
+
+        $gross_profit = !empty($gross_profit_obj->gross_profit) ? $gross_profit_obj->gross_profit : 0;
+
+        //KNOWS ISSUE: If products are returned then also the discount gets applied for it.
+
+        return $gross_profit;
     }
 
     /**

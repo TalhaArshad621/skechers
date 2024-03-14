@@ -2662,6 +2662,7 @@ class ReportController extends Controller
             ->where('sale.status', 'final')
             ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
             ->where('sale.business_id', $business_id)
+            ->where('sale.location_id', '<>', 9)
             ->where('transaction_sell_lines.children_type', '!=', 'combo');
         //If type combo: find childrens, sale price parent - get PP of childrens
         $query->select(DB::raw('SUM(IF (TSPL.id IS NULL AND P.type="combo", ( 
@@ -4011,13 +4012,13 @@ class ReportController extends Controller
     
 
             $received_mount =  $query2->select(
-                DB::raw('SUM(ecommerce_transactions.final_total) as total_order_amount')
+                DB::raw('SUM(ecommerce_transactions.final_total) as total_received_amount')
             )
             ->first();
             
             // Total Items
             $query3 = DB::table('ecommerce_sell_lines')
-            ->join('ecommerce_transactions', 'ecommerce_transactions.id','ecommerce_sell_lines.transaction_id')
+            ->join('ecommerce_transactions', 'ecommerce_transactions.id','ecommerce_sell_lines.ecommerce_transaction_id')
             ->where('ecommerce_transactions.type', 'sell')
             ->where('ecommerce_transactions.status', 'final')
             ->where('ecommerce_transactions.business_id', $business_id);
@@ -4036,7 +4037,347 @@ class ReportController extends Controller
             )
             ->first();
 
-            dd($total_orders, $received_mount, $total_items);
+
+            //  New Orders
+            $query4 = DB::table('ecommerce_transactions')
+            ->where('ecommerce_transactions.type', 'sell')
+            ->where('ecommerce_transactions.status', 'final')
+            ->where('shipping_status', 'ordered')
+            ->where('ecommerce_transactions.business_id', $business_id);
+            
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query4->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query4->whereDate('ecommerce_transactions.transaction_date', $end_date);
+            }
+    
+
+            $new_orders =  $query4->select(
+                DB::raw('Count(ecommerce_transactions.id) as new_orders'),
+            )
+            ->first();
+
+            // $profit_loss =  EcommerceSellLine::join('purchase_lines','purchase_lines.product_id',)
+            $gross_profit = $this->transactionUtil->getEcommerceGrossProfit($business_id,$start_date, $end_date);
+
+
+            // Completed Orders
+             $query5 = DB::table('ecommerce_transactions')
+             ->where('ecommerce_transactions.type', 'sell')
+             ->where('ecommerce_transactions.status', 'final')
+             ->where('shipping_status', 'delivered')
+             ->where('ecommerce_transactions.business_id', $business_id);
+             
+             if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                 $query5->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                     ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+             }
+             if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                 $query5->whereDate('ecommerce_transactions.transaction_date', $end_date);
+             }
+     
+ 
+             $completed_orders =  $query5->select(
+                 DB::raw('Count(ecommerce_transactions.id) as completed'),
+             )
+             ->first();
+
+            // Dispatched Orders
+             $query6 = DB::table('ecommerce_transactions')
+             ->where('ecommerce_transactions.type', 'sell')
+             ->where('ecommerce_transactions.status', 'final')
+             ->where('shipping_status', 'shipped')
+             ->where('ecommerce_transactions.business_id', $business_id);
+             
+             if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                 $query6->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                     ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+             }
+             if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                 $query6->whereDate('ecommerce_transactions.transaction_date', $end_date);
+             }
+     
+ 
+             $dispatched_orders =  $query6->select(
+                 DB::raw('Count(ecommerce_transactions.id) as dispached'),
+             )
+             ->first();
+            
+            // Exchanged Orders
+             $query7 = DB::table('ecommerce_transactions')
+             ->where('ecommerce_transactions.type', 'sell_return')
+             ->where('ecommerce_transactions.status', 'final')
+             ->where('ecommerce_transactions.business_id', $business_id);
+             
+             if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                 $query7->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                     ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+             }
+             if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                 $query7->whereDate('ecommerce_transactions.transaction_date', $end_date);
+             }
+     
+ 
+             $exchanged_orders =  $query7->select(
+                 DB::raw('Count(ecommerce_transactions.id) as exchanged_orders'),
+             )
+             ->first();
+            
+            
+            //  Cancelled Items
+            $query8 = DB::table('ecommerce_sell_lines')
+            ->join('ecommerce_transactions','ecommerce_transactions.id','ecommerce_sell_lines.ecommerce_transaction_id')
+            ->where('ecommerce_transactions.type', 'sell')
+            ->where('ecommerce_transactions.status', 'final')
+            ->where('ecommerce_transactions.shipping_status', 'cancelled')
+            ->where('ecommerce_transactions.business_id', $business_id);
+            
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query8->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query8->whereDate('ecommerce_transactions.transaction_date', $end_date);
+            }
+    
+
+            $cancelled_items =  $query8->select(
+                DB::raw('SUM(ecommerce_sell_lines.quantity) as cancelled_quantity'),
+            )
+            ->first();
+
+            // Discount Amount
+            $query9 = DB::table('ecommerce_sell_lines')
+            ->join('ecommerce_transactions','ecommerce_transactions.id','ecommerce_sell_lines.ecommerce_transaction_id')
+            ->where('ecommerce_transactions.type', 'sell')
+            ->where('ecommerce_transactions.status', 'final')
+            ->where('ecommerce_transactions.business_id', $business_id);
+            
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query9->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query9->whereDate('ecommerce_transactions.transaction_date', $end_date);
+            }
+    
+
+            $discount_amount =  $query9->select(
+                DB::raw('SUM(ecommerce_sell_lines.line_discount_amount) as discount_amount'),
+            )
+            ->first();
+
+
+             
+            // Cancelled Orders
+            $query10 = DB::table('ecommerce_transactions')
+            ->where('ecommerce_transactions.type', 'sell')
+            ->where('ecommerce_transactions.status', 'final')
+            ->where('ecommerce_transactions.shipping_status', 'cancelled')
+            ->where('ecommerce_transactions.business_id', $business_id);
+            
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query10->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query10->whereDate('ecommerce_transactions.transaction_date', $end_date);
+            }
+    
+
+            $cancelled_orders =  $query10->select(
+                DB::raw('Count(ecommerce_transactions.id) as cancelled_orders'),
+            )
+            ->first();
+             
+            // Cancelled Orders Amount
+            $query11 = DB::table('ecommerce_transactions')
+            ->where('ecommerce_transactions.type', 'sell')
+            ->where('ecommerce_transactions.status', 'final')
+            ->where('ecommerce_transactions.shipping_status', 'cancelled')
+            ->where('ecommerce_transactions.business_id', $business_id);
+            
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query11->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query11->whereDate('ecommerce_transactions.transaction_date', $end_date);
+            }
+    
+
+            $cancelled_order_amount =  $query11->select(
+                DB::raw('SUM(ecommerce_transactions.final_total) as cancelled_order_amount'),
+            )
+            ->first();
+             
+            // Excahnged Orders Amount
+            $query11 = DB::table('ecommerce_transactions')
+            ->where('ecommerce_transactions.type', 'sell_return')
+            ->where('ecommerce_transactions.status', 'final')
+            ->where('ecommerce_transactions.business_id', $business_id);
+            
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query11->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query11->whereDate('ecommerce_transactions.transaction_date', $end_date);
+            }
+    
+
+            $exchanged_order_amount =  $query11->select(
+                DB::raw('SUM(ecommerce_transactions.final_total) as exchanged_order_amount'),
+            )
+            ->first();
+             
+            // Completed Orders Amount
+            $query11 = DB::table('ecommerce_transactions')
+            ->where('ecommerce_transactions.type', 'sell')
+            ->where('ecommerce_transactions.status', 'final')
+            ->where('ecommerce_transactions.shipping_status', 'delivered')
+            ->where('ecommerce_transactions.business_id', $business_id);
+            
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query11->whereDate('ecommerce_transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('ecommerce_transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query11->whereDate('ecommerce_transactions.transaction_date', $end_date);
+            }
+    
+
+            $completed_order_amount =  $query11->select(
+                DB::raw('SUM(ecommerce_transactions.final_total) as completed_order_amount'),
+            )
+            ->first();
+
+            return response()->json([
+                'total_orders' => $total_orders->total_orders,
+                'total_items' => $total_items->total_items,
+                'new_orders' => $new_orders->new_orders,
+                'total_received_amount' => $received_mount->total_received_amount,
+                'total_order_amount' => $total_orders->total_order_amount,
+                'profit_loss' => $gross_profit,
+                'completed_orders' => $completed_orders->completed,
+                'dispatched_order' => $dispatched_orders->dispached,
+                'exchanged_orders' => $exchanged_orders->exchanged_orders,
+                'cancelled_items' => $cancelled_items->cancelled_quantity,
+                'discount_amount' => $discount_amount->discount_amount,
+                'cancelled_orders' => $cancelled_orders->cancelled_orders,
+                'cancelled_order_amount' => $cancelled_order_amount->cancelled_order_amount,
+                'exchanged_order_amount' => $exchanged_order_amount->exchanged_order_amount,
+                'completed_order_amount' => $completed_order_amount->completed_order_amount
+            ]);
         }
+    }
+
+    public function getbrandfolioReport(Request $request)
+    {
+        $business_id = $request->session()->get('user.business_id');
+        if ($request->ajax()) {
+            $variation_id = $request->get('variation_id', null);
+            $query = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.id'
+            )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('contacts as c', 't.contact_id', '=', 'c.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->leftjoin('tax_rates', 'transaction_sell_lines.tax_id', '=', 'tax_rates.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->join('business_locations as bl','bl.id','t.location_id')
+                ->join('categories','categories.id','p.category_id')
+                ->leftjoin('variation_location_details as vld', 'vld.product_id','transaction_sell_lines.product_id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell')
+                ->where('t.status', 'final')
+                ->select(
+                    'v.sub_sku',
+                    'c.name as customer',
+                    'c.supplier_business_name',
+                    'c.contact_id',
+                    't.id as transaction_id',
+                    't.transaction_date as transaction_date',
+                    'v.sell_price_inc_tax as unit_price',
+                    'transaction_sell_lines.unit_price_inc_tax as unit_sale_price',
+                    DB::raw('(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as sell_qty'),
+                    DB::raw('((transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    'bl.name as location_name',
+                    'categories.name as category_name',
+                )
+                // ->get();
+                // dd($query);
+                ->groupBy('transaction_sell_lines.id');
+
+            if (!empty($variation_id)) {
+                $query->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $query->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query->whereIn('t.location_id', $permitted_locations);
+            }
+
+            $location_id = $request->get('location_id', null);
+            if (!empty($location_id)) {
+                $query->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $query->where('t.contact_id', $customer_id);
+            }
+
+            return Datatables::of($query)
+                 ->editColumn('distributor', function ($row) {
+                     return 'BrandFolio';
+                 })
+                ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
+                ->editColumn('unit_sale_price', function ($row) {
+                    return '<span class="display_currency" data-currency_symbol = true>' . $row->unit_sale_price . '</span>';
+                })
+                ->editColumn('sell_qty', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->sell_qty . '" data-unit="' . $row->unit . '" >' . (float) $row->sell_qty . '</span> ' .$row->unit;
+                })
+                ->editColumn('closing_stock', function ($row) {
+                    return 0;
+                })
+                 ->editColumn('subtotal', function ($row) {
+                     return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
+                 })
+                ->editColumn('country', function ($row) {
+                    return 'Pakistan';
+                })
+                ->editColumn('store', function ($row) {
+                    return $row->location_name;
+                })
+                ->editColumn('category', function ($row) {
+                    return $row->category_name;
+                })
+                ->rawColumns(['subtotal', 'sell_qty'])
+                ->make(true);
+        }
+
+        $business_locations = BusinessLocation::forDropdown($business_id);
+        $customers = Contact::customersDropdown($business_id);
+
+        return view('report.brandfolio_report');
     }
 }

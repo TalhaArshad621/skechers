@@ -789,6 +789,58 @@ $(document).ready(function() {
             __currency_convert_recursively($('#product_sell_report_table'));
         },
     });
+    brandfolio_report = $('table#brandfolio_report_table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '/reports/brandfolio-report',
+            data: function(d) {
+                var start = '';
+                var end = '';
+                var start_time = $('#product_sr_start_time').val();
+                var end_time = $('#product_sr_end_time').val();
+
+                if ($('#product_sr_date_filter').val()) {
+                    start = $('input#product_sr_date_filter')
+                        .data('daterangepicker')
+                        .startDate.format('YYYY-MM-DD');
+
+                    start = moment(start + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                    end = $('input#product_sr_date_filter')
+                        .data('daterangepicker')
+                        .endDate.format('YYYY-MM-DD');
+                    end = moment(end + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                }
+                d.start_date = start;
+                d.end_date = end;
+
+                d.variation_id = $('#variation_id').val();
+                d.customer_id = $('select#customer_id').val();
+                d.location_id = $('select#location_id').val();
+            },
+        },
+        columns: [
+            // { data: 'product_name', name: 'p.name' },
+            { data: 'sub_sku', name: 'v.sub_sku' },
+            { data: 'distributor', name: 'distributor' },
+            { data: 'country', name: 'country' },
+            { data: 'transaction_date', name: 't.transaction_date' },
+            { data: 'store', name: 'bl.name' },
+            { data: 'category', name: 'categories.name' },
+            { data: 'sell_qty', name: 'transaction_sell_lines.quantity' },
+            // { data: 'tax', name: 'tax_rates.name' },
+            { data: 'subtotal', name: 'subtotal', searchable: false },
+            { data: 'closing_stock', name: 'closing_stock' },
+        ],
+        // fnDrawCallback: function(oSettings) {
+        //     $('#footer_subtotal').text(
+        //         sum_table_col($('#product_sell_report_table'), 'row_subtotal')
+        //     );
+        //     $('#footer_total_sold').html(__sum_stock($('#product_sell_report_table'), 'sell_qty'));
+        //     $('#footer_tax').html(__sum_stock($('#product_sell_report_table'), 'tax', 'left'));
+        //     __currency_convert_recursively($('#product_sell_report_table'));
+        // },
+    });
 
     var is_lot_enabled = $('#lot_enabled').length > 0 ? true : false;
     product_sell_report_with_purchase_table = $('table#product_sell_report_with_purchase_table').DataTable({
