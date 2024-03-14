@@ -32,19 +32,19 @@
                         {!! Form::select('sub_category', array(), null, ['placeholder' => __('messages.all'), 'class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'sub_category_id']); !!}
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3" style="display: none;">
                     <div class="form-group">
                         {!! Form::label('brand', __('product.brand') . ':') !!}
                         {!! Form::select('brand', $brands, null, ['placeholder' => __('messages.all'), 'class' => 'form-control select2', 'style' => 'width:100%']); !!}
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3" style="display: none;">
                     <div class="form-group">
                         {!! Form::label('unit', __('product.unit') . ':') !!}
                         {!! Form::select('unit', $units, null, ['placeholder' => __('messages.all'), 'class' => 'form-control select2', 'style' => 'width:100%']); !!}
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3" style="display: none;">
                     <div class="form-group">
                         {!! Form::label('trending_product_date_range',__('report.date_range') .  ':') !!}
                         {!! Form::text('date_range', null, ['placeholder' => __('lang_v1.select_a_date_range'), 'class' => 'form-control', 'id' => 'trending_product_date_range', 'readonly']); !!}
@@ -56,7 +56,7 @@
                         {!! Form::number('limit', 5, ['placeholder' => __('lang_v1.no_of_products'), 'class' => 'form-control', 'min' => 1]); !!}
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3" style="display:none;">
                     <div class="form-group">
                         {!! Form::label('product_type', __('product.product_type') . ':') !!}
                         {!! Form::select('product_type', ['single' => __('lang_v1.single'), 'variable' => __('lang_v1.variable'), 'combo' => __('lang_v1.combo')], request()->input('product_type'), ['placeholder' => __('messages.all'), 'class' => 'form-control select2', 'style' => 'width:100%']); !!}

@@ -222,7 +222,7 @@
                 <td> <span class="display_currency pull-right" data-currency_symbol="true">{{ $sell->rp_redeemed_amount }}</span></td>
               </tr>
             @endif
-            <tr>
+            <tr style="display: none;">
               <th>{{ __('sale.order_tax') }}:</th>
               <td><b>(+)</b></td>
               <td class="text-right">
@@ -235,12 +235,12 @@
                 @endif
               </td>
             </tr>
-            <tr>
+            <tr style="display: none;">
               <th>{{ __('sale.shipping') }}: @if($sell->shipping_details)({{$sell->shipping_details}}) @endif</th>
               <td><b>(+)</b></td>
               <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $sell->shipping_charges }}</span></td>
             </tr>
-            <tr>
+            <tr style="display:none;">
               <th>{{ __('lang_v1.round_off') }}: </th>
               <td></td>
               <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $sell->round_off_amount }}</span></td>
@@ -280,7 +280,7 @@
           @endif
         </p>
       </div>
-      <div class="col-sm-6">
+      <div class="col-sm-6" style="display: none;">
         <strong>{{ __( 'sale.staff_note')}}:</strong><br>
         <p class="well well-sm no-shadow bg-gray">
           @if($sell->staff_note)

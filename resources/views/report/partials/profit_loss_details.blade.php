@@ -160,7 +160,7 @@
     @endcomponent
 </div>
 <br>
-<div class="col-xs-12">
+<div class="col-xs-12" style="display: none;">
     @component('components.widget')
         <h3 class="text-muted mb-0">
             {{ __('lang_v1.gross_profit') }}: 

@@ -78,6 +78,7 @@ class ImportProductsController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request);
         if (!auth()->user()->can('product.create')) {
             abort(403, 'Unauthorized action.');
         }
@@ -94,11 +95,14 @@ class ImportProductsController extends Controller
 
             if ($request->hasFile('products_csv')) {
                 $file = $request->file('products_csv');
+                // dd("got");
 
                 $parsed_array = Excel::toArray([], $file);
+                // dd($parsed_array);
 
                 //Remove header row
                 $imported_data = array_splice($parsed_array[0], 1);
+                // dd($imported_data);
 
                 $business_id = $request->session()->get('user.business_id');
                 $user_id = $request->session()->get('user.id');
@@ -123,7 +127,7 @@ class ImportProductsController extends Controller
                 foreach ($imported_data as $key => $value) {
 
                     //Check if any column is missing
-                    if (count($value) < 36) {
+                    if (count($value) < 8) {
                         $is_valid =  false;
                         $error_msg = "Some of the columns are missing. Please, use latest CSV file template.";
                         break;
@@ -145,103 +149,114 @@ class ImportProductsController extends Controller
                     }
                     
                     //image name
-                    $image_name = trim($value[28]);
-                    if (!empty($image_name)) {
-                        $product_array['image'] = $image_name;
-                    } else {
-                        $product_array['image'] = '';
-                    }
+                    // $image_name = trim($value[28]);
+                    // if (!empty($image_name)) {
+                    //     $product_array['image'] = $image_name;
+                    // } else {
+                    //     $product_array['image'] = '';
+                    // }
 
-                    $product_array['product_description'] = isset($value[29]) ? $value[29] : null;
+                    // $product_array['product_description'] = isset($value[29]) ? $value[29] : null;
 
                     //Custom fields
-                    if (isset($value[30])) {
-                        $product_array['product_custom_field1'] = trim($value[30]);
-                    } else {
-                        $product_array['product_custom_field1'] = '';
-                    }
-                    if (isset($value[31])) {
-                        $product_array['product_custom_field2'] = trim($value[31]);
-                    } else {
-                        $product_array['product_custom_field2'] = '';
-                    }
-                    if (isset($value[32])) {
-                        $product_array['product_custom_field3'] = trim($value[32]);
-                    } else {
-                        $product_array['product_custom_field3'] = '';
-                    }
-                    if (isset($value[33])) {
-                        $product_array['product_custom_field4'] = trim($value[33]);
-                    } else {
-                        $product_array['product_custom_field4'] = '';
-                    }
+                    // if (isset($value[30])) {
+                    //     $product_array['product_custom_field1'] = trim($value[30]);
+                    // } else {
+                    //     $product_array['product_custom_field1'] = '';
+                    // }
+                    // if (isset($value[31])) {
+                    //     $product_array['product_custom_field2'] = trim($value[31]);
+                    // } else {
+                    //     $product_array['product_custom_field2'] = '';
+                    // }
+                    // if (isset($value[32])) {
+                    //     $product_array['product_custom_field3'] = trim($value[32]);
+                    // } else {
+                    //     $product_array['product_custom_field3'] = '';
+                    // }
+                    // if (isset($value[33])) {
+                    //     $product_array['product_custom_field4'] = trim($value[33]);
+                    // } else {
+                    //     $product_array['product_custom_field4'] = '';
+                    // }
 
                     //Add not for selling
-                    $product_array['not_for_selling'] = !empty($value[34]) && $value[34] == 1 ? 1 : 0;
+                    // $product_array['not_for_selling'] = !empty($value[34]) && $value[34] == 1 ? 1 : 0;
 
                     //Add enable stock
-                    $enable_stock = trim($value[7]);
-                    if (in_array($enable_stock, [0,1])) {
-                        $product_array['enable_stock'] = $enable_stock;
-                    } else {
-                        $is_valid =  false;
-                        $error_msg = "Invalid value for MANAGE STOCK in row no. $row_no";
-                        break;
-                    }
+                    $product_array['enable_stock'] = 1;
+
+                    // $enable_stock = trim($value[7]);
+                    // if (in_array($enable_stock, [0,1])) {
+                    //     $product_array['enable_stock'] = $enable_stock;
+                    // } else {
+                    //     $is_valid =  false;
+                    //     $error_msg = "Invalid value for MANAGE STOCK in row no. $row_no";
+                    //     break;
+                    // }
 
                     //Add product type
-                    $product_type = strtolower(trim($value[13]));
-                    if (in_array($product_type, ['single','variable'])) {
-                        $product_array['type'] = $product_type;
-                    } else {
-                        $is_valid =  false;
-                        $error_msg = "Invalid value for PRODUCT TYPE in row no. $row_no";
-                        break;
-                    }
+                    $product_array['type'] = 'single';
+
+                    // $product_type = strtolower(trim($value[13]));
+                    // if (in_array($product_type, ['single','variable'])) {
+                    //     $product_array['type'] = $product_type;
+                    // } else {
+                    //     $is_valid =  false;
+                    //     $error_msg = "Invalid value for PRODUCT TYPE in row no. $row_no";
+                    //     break;
+                    // }
 
                     //Add unit
-                    $unit_name = trim($value[2]);
-                    if (!empty($unit_name)) {
-                        $unit = Unit::where('business_id', $business_id)
-                                    ->where(function ($query) use ($unit_name) {
-                                        $query->where('short_name', $unit_name)
-                                              ->orWhere('actual_name', $unit_name);
-                                    })->first();
-                        if (!empty($unit)) {
-                            $product_array['unit_id'] = $unit->id;
-                        } else {
-                            $is_valid = false;
-                            $error_msg = "Unit with name $unit_name not found in row no. $row_no. You can add unit from Products > Units";
-                            break;
-                        }
-                    } else {
-                        $is_valid =  false;
-                        $error_msg = "UNIT is required in row no. $row_no";
-                        break;
-                    }
+                    $product_array['unit_id'] = $business_id;
+
+                    // $unit_name = trim($value[2]);
+                    // if (!empty($unit_name)) {
+                    //     $unit = Unit::where('business_id', $business_id)
+                    //                 ->where(function ($query) use ($unit_name) {
+                    //                     $query->where('short_name', $unit_name)
+                    //                           ->orWhere('actual_name', $unit_name);
+                    //                 })->first();
+                    //     if (!empty($unit)) {
+                    //         $product_array['unit_id'] = $unit->id;
+                    //     } else {
+                    //         $is_valid = false;
+                    //         $error_msg = "Unit with name $unit_name not found in row no. $row_no. You can add unit from Products > Units";
+                    //         break;
+                    //     }
+                    // } else {
+                    //     $is_valid =  false;
+                    //     $error_msg = "UNIT is required in row no. $row_no";
+                    //     break;
+                    // }
 
                     //Add barcode type
-                    $barcode_type = strtoupper(trim($value[6]));
-                    if (empty($barcode_type)) {
-                        $product_array['barcode_type'] = 'C128';
-                    } elseif (array_key_exists($barcode_type, $this->barcode_types)) {
-                        $product_array['barcode_type'] = $barcode_type;
-                    } else {
-                        $is_valid = false;
-                        $error_msg = "$barcode_type barcode type is not valid in row no. $row_no. Please, check for allowed barcode types in the instructions";
-                        break;
-                    }
+                    $product_array['barcode_type'] = 'C128';
+
+                    // $barcode_type = strtoupper(trim($value[6]));
+                    // if (empty($barcode_type)) {
+                    //     $product_array['barcode_type'] = 'C128';
+                    // } elseif (array_key_exists($barcode_type, $this->barcode_types)) {
+                    //     $product_array['barcode_type'] = $barcode_type;
+                    // } else {
+                    //     $is_valid = false;
+                    //     $error_msg = "$barcode_type barcode type is not valid in row no. $row_no. Please, check for allowed barcode types in the instructions";
+                    //     break;
+                    // }
 
                     //Add Tax
-                    $tax_name = trim($value[11]);
+                    $tax_name = trim($value[4]);
+                    // dd($tax_name);
                     $tax_amount = 0;
                     if (!empty($tax_name)) {
                         $tax = TaxRate::where('business_id', $business_id)
                                         ->where('name', $tax_name)
                                         ->first();
+                                        // dd($tax);
                         if (!empty($tax)) {
                             $product_array['tax'] = $tax->id;
                             $tax_amount = $tax->amount;
+                            // dd($tax_amount);
                         } else {
                             $is_valid = false;
                             $error_msg = "Tax with name $tax_name in row no. $row_no not found. You can add tax from Settings > Tax Rates";
@@ -250,35 +265,43 @@ class ImportProductsController extends Controller
                     }
 
                     //Add tax type
-                    $tax_type = strtolower(trim($value[12]));
-                    if (in_array($tax_type, ['inclusive', 'exclusive'])) {
-                        $product_array['tax_type'] = $tax_type;
-                    } else {
-                        $is_valid = false;
-                        $error_msg = "Invalid value for Selling Price Tax Type in row no. $row_no";
-                        break;
-                    }
+                    $product_array['tax_type'] = 'inclusive';
+                    $tax_type = strtolower('inclusive');
+
+                    // $tax_type = strtolower(trim($value[12]));
+                    // if (in_array($tax_type, ['inclusive', 'exclusive'])) {
+                    //     $product_array['tax_type'] = $tax_type;
+                    // } else {
+                    //     $is_valid = false;
+                    //     $error_msg = "Invalid value for Selling Price Tax Type in row no. $row_no";
+                    //     break;
+                    // }
 
                     //Add alert quantity
-                    if ($product_array['enable_stock'] == 1) {
-                        $product_array['alert_quantity'] = trim($value[8]);
-                    }
+                    // if ($product_array['enable_stock'] == 1) {
+                    //     $product_array['alert_quantity'] = trim($value[8]);
+                    // }
                     
 
                     //Add brand
                     //Check if brand exists else create new
-                    $brand_name = trim($value[1]);
-                    if (!empty($brand_name)) {
-                        $brand = Brands::firstOrCreate(
-                            ['business_id' => $business_id, 'name' => $brand_name],
-                            ['created_by' => $user_id]
-                        );
-                        $product_array['brand_id'] = $brand->id;
-                    }
+
+                    $product_array['brand_id'] = 1;
+
+                    // $brand_name = trim($value[1]);
+                    // if (!empty($brand_name)) {
+                    //     $brand = Brands::firstOrCreate(
+                    //         ['business_id' => $business_id, 'name' => $brand_name],
+                    //         ['created_by' => $user_id]
+                    //     );
+                    //     $product_array['brand_id'] = $brand->id;
+                    // }
+                    // dd($product_array);
 
                     //Add Category
                     //Check if category exists else create new
-                    $category_name = trim($value[3]);
+                    $category_name = trim($value[1]);
+                    // dd($category_name);
                     if (!empty($category_name)) {
                         $category = Category::firstOrCreate(
                             ['business_id' => $business_id, 'name' => $category_name, 'category_type' => 'product'],
@@ -288,7 +311,7 @@ class ImportProductsController extends Controller
                     }
 
                     //Add Sub-Category
-                    $sub_category_name = trim($value[4]);
+                    $sub_category_name = trim($value[2]);
                     if (!empty($sub_category_name)) {
                         $sub_category = Category::firstOrCreate(
                             ['business_id' => $business_id, 'name' => $sub_category_name, 'category_type' => 'product'],
@@ -298,7 +321,7 @@ class ImportProductsController extends Controller
                     }
 
                     //Add SKU
-                    $sku = trim($value[5]);
+                    $sku = trim($value[3]);
                     if (!empty($sku)) {
                         $product_array['sku'] = $sku;
                         //Check if product with same SKU already exist
@@ -314,52 +337,84 @@ class ImportProductsController extends Controller
                         $product_array['sku'] = ' ';
                     }
 
+
                     //Add product expiry
-                    $expiry_period = trim($value[9]);
-                    $expiry_period_type = strtolower(trim($value[10]));
-                    if (!empty($expiry_period) && in_array($expiry_period_type, ['months', 'days'])) {
-                        $product_array['expiry_period'] = $expiry_period;
-                        $product_array['expiry_period_type'] = $expiry_period_type;
-                    } else {
-                        //If Expiry Date is set then make expiry_period 12 months.
-                        if (!empty($value[22])) {
-                            $product_array['expiry_period'] = 12;
-                            $product_array['expiry_period_type'] = 'months';
-                        }
-                    }
+                    // $expiry_period = trim($value[9]);
+                    // $expiry_period_type = strtolower(trim($value[10]));
+                    // if (!empty($expiry_period) && in_array($expiry_period_type, ['months', 'days'])) {
+                    //     $product_array['expiry_period'] = $expiry_period;
+                    //     $product_array['expiry_period_type'] = $expiry_period_type;
+                    // } else {
+                    //     //If Expiry Date is set then make expiry_period 12 months.
+                    //     if (!empty($value[22])) {
+                    //         $product_array['expiry_period'] = 12;
+                    //         $product_array['expiry_period_type'] = 'months';
+                    //     }
+                    // }
 
                     //Enable IMEI or Serial Number
-                    $enable_sr_no = trim($value[23]);
-                    if (in_array($enable_sr_no, [0,1])) {
-                        $product_array['enable_sr_no'] = $enable_sr_no;
-                    } elseif (empty($enable_sr_no)) {
-                        $product_array['enable_sr_no'] = 0;
-                    } else {
-                        $is_valid =  false;
-                        $error_msg = "Invalid value for ENABLE IMEI OR SERIAL NUMBER  in row no. $row_no";
-                        break;
-                    }
+                    $product_array['enable_sr_no'] = 0;
+
+                    // $enable_sr_no = trim($value[23]);
+                    // if (in_array($enable_sr_no, [0,1])) {
+                    //     $product_array['enable_sr_no'] = $enable_sr_no;
+                    // } elseif (empty($enable_sr_no)) {
+                    //     $product_array['enable_sr_no'] = 0;
+                    // } else {
+                    //     $is_valid =  false;
+                    //     $error_msg = "Invalid value for ENABLE IMEI OR SERIAL NUMBER  in row no. $row_no";
+                    //     break;
+                    // }
 
                     //Weight
-                    if (isset($value[24])) {
-                        $product_array['weight'] = trim($value[24]);
-                    } else {
-                        $product_array['weight'] = '';
-                    }
+                    // if (isset($value[24])) {
+                    //     $product_array['weight'] = trim($value[24]);
+                    // } else {
+                    //     $product_array['weight'] = '';
+                    // }
 
                     if ($product_array['type'] == 'single') {
+
+
+                        // dd($tax_amount);
+
+                    $tax =  ($tax_amount/100) + 1;
+                    // dd($tax);
+
+                    $purchase_price_from_excel_inc_tax = trim($value[5]);
+                    // dd($purchase_price_from_excel_inc_tax);
+
+                    $purchase_price_without_tax = $purchase_price_from_excel_inc_tax/$tax;
+                    // dd($purchase_price_without_tax);
+                    $amount_of_tax = $purchase_price_from_excel_inc_tax - $purchase_price_without_tax;
+                    // dd($amount_of_tax);
+                    $selling_price_from_excel_inc_tax = trim($value[6]);
+
+                    $selling_price_without_tax = $selling_price_from_excel_inc_tax/$tax;
+                    // dd($selling_price_without_tax);
+                    /*
+                    profit margin percent formula:
+
+                        [(sell_price - purchase_price)/purchase_price]*100 
+
+                    */
+                    $profit_margin_percent = ($selling_price_from_excel_inc_tax - $purchase_price_from_excel_inc_tax)/$purchase_price_from_excel_inc_tax * 100;
+                    // dd($profit_margin_percent);
+
+
+
                         //Calculate profit margin
-                        $profit_margin = trim($value[18]);
-                        if (empty($profit_margin)) {
-                            $profit_margin = $default_profit_percent;
-                        } else {
-                            $profit_margin = trim($value[18]);
-                        }
-                        $product_array['variation']['profit_percent'] = $profit_margin;
+                        // $profit_margin = trim($value[5]);
+                        // if (empty($profit_margin)) {
+                            // $profit_margin = $default_profit_percent;
+                        // } else {
+                            // $profit_margin = trim($value[5]);
+                        // }
+                        $product_array['variation']['profit_percent'] = $profit_margin_percent;
 
                         //Calculate purchase price
-                        $dpp_inc_tax = trim($value[16]);
-                        $dpp_exc_tax = trim($value[17]);
+                        $dpp_inc_tax = trim($value[5]);
+                        $dpp_exc_tax = $purchase_price_without_tax;
                         if ($dpp_inc_tax == '' && $dpp_exc_tax == '') {
                             $is_valid = false;
                             $error_msg = "PURCHASE PRICE is required in row no. $row_no";
@@ -370,10 +425,10 @@ class ImportProductsController extends Controller
                         }
 
                         //Calculate Selling price
-                        $selling_price = !empty(trim($value[19])) ? trim($value[19]) : 0 ;
+                        $selling_price = !empty(trim($value[6])) ? trim($value[6]) : 0 ;
 
                         //Calculate product prices
-                        $product_prices = $this->calculateVariationPrices($dpp_exc_tax, $dpp_inc_tax, $selling_price, $tax_amount, $tax_type, $profit_margin);
+                        $product_prices = $this->calculateVariationPrices($dpp_exc_tax, $dpp_inc_tax, $selling_price, $tax_amount, $tax_type, $profit_margin_percent);
 
                         //Assign Values
                         $product_array['variation']['dpp_inc_tax'] = $product_prices['dpp_inc_tax'];
@@ -382,35 +437,35 @@ class ImportProductsController extends Controller
                         $product_array['variation']['dsp_exc_tax'] = $product_prices['dsp_exc_tax'];
                         
                         //Opening stock
-                        if (!empty($value[20]) && $enable_stock == 1) {
-                            $product_array['opening_stock_details']['quantity'] = trim($value[20]);
+                        // if (!empty($value[20]) && $enable_stock == 1) {
+                        //     $product_array['opening_stock_details']['quantity'] = trim($value[20]);
 
-                            if (!empty(trim($value[21]))) {
-                                $location_name = trim($value[21]);
-                                $location = BusinessLocation::where('name', $location_name)
-                                                            ->where('business_id', $business_id)
-                                                            ->first();
-                                if (!empty($location)) {
-                                    $product_array['opening_stock_details']['location_id'] = $location->id;
-                                } else {
-                                    $is_valid = false;
-                                    $error_msg = "No location with name '$location_name' found in row no. $row_no";
-                                    break;
-                                }
-                            } else {
-                                $location = BusinessLocation::where('business_id', $business_id)->first();
-                                $product_array['opening_stock_details']['location_id'] = $location->id;
-                            }
+                        //     if (!empty(trim($value[21]))) {
+                        //         $location_name = trim($value[21]);
+                        //         $location = BusinessLocation::where('name', $location_name)
+                        //                                     ->where('business_id', $business_id)
+                        //                                     ->first();
+                        //         if (!empty($location)) {
+                        //             $product_array['opening_stock_details']['location_id'] = $location->id;
+                        //         } else {
+                        //             $is_valid = false;
+                        //             $error_msg = "No location with name '$location_name' found in row no. $row_no";
+                        //             break;
+                        //         }
+                        //     } else {
+                        //         $location = BusinessLocation::where('business_id', $business_id)->first();
+                        //         $product_array['opening_stock_details']['location_id'] = $location->id;
+                        //     }
 
-                            $product_array['opening_stock_details']['expiry_date'] = null;
+                        //     $product_array['opening_stock_details']['expiry_date'] = null;
 
-                            //Stock expiry date
-                            if (!empty($value[22])) {
-                                $product_array['opening_stock_details']['exp_date'] = \Carbon::createFromFormat('m-d-Y', trim($value[22]))->format('Y-m-d');
-                            } else {
-                                $product_array['opening_stock_details']['exp_date'] = null;
-                            }
-                        }
+                        //     //Stock expiry date
+                        //     if (!empty($value[22])) {
+                        //         $product_array['opening_stock_details']['exp_date'] = \Carbon::createFromFormat('m-d-Y', trim($value[22]))->format('Y-m-d');
+                        //     } else {
+                        //         $product_array['opening_stock_details']['exp_date'] = null;
+                        //     }
+                        // }
                     } elseif ($product_array['type'] == 'variable') {
                         $variation_name = trim($value[14]);
                         if (empty($variation_name)) {
@@ -578,6 +633,7 @@ class ImportProductsController extends Controller
                     //Assign to formated array
                     $formated_data[] = $product_array;
                 }
+                // dd($formated_data);
 
                 if (!$is_valid) {
                     throw new \Exception($error_msg);
@@ -606,18 +662,18 @@ class ImportProductsController extends Controller
                         }
 
                         //Rack, Row & Position.
-                        $this->rackDetails(
-                            $imported_data[$index][25],
-                            $imported_data[$index][26],
-                            $imported_data[$index][27],
-                            $business_id,
-                            $product->id,
-                            $index+1
-                        );
+                        // $this->rackDetails(
+                        //     $imported_data[$index][25],
+                        //     $imported_data[$index][26],
+                        //     $imported_data[$index][27],
+                        //     $business_id,
+                        //     $product->id,
+                        //     $index+1
+                        // );
 
                         //Product locations
-                        if (!empty($imported_data[$index][35])) {
-                            $locations_array = explode(',', $imported_data[$index][35]);
+                        if (!empty($imported_data[$index][7])) {
+                            $locations_array = explode(',', $imported_data[$index][7]);
                             $location_ids = [];
                             foreach ($locations_array as $business_location) {
                                 foreach ($business_locations as $loc) {
@@ -630,6 +686,7 @@ class ImportProductsController extends Controller
                                 $product->product_locations()->sync($location_ids);
                             }
                         }
+                        
 
                         //Create single product variation
                         if ($product->type == 'single') {
