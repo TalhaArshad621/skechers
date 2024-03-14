@@ -2491,6 +2491,37 @@ function updateOverView(start = null, end = null, location_id = null, selector =
             $("#total-purchase-amount").html(__currency_trans_from_en(response.total_purchase_amount));
         },
     });
+
+    $.ajax({
+        type: "GET",
+        url: "/reports/get-ecommerce-overview",
+        data: function ( d ){
+            d.start_date = $('#profit_tabs_filter_overview')
+                .data('daterangepicker')
+                .startDate.format('YYYY-MM-DD');
+            d.end_date = $('#profit_tabs_filter_overview')
+                .data('daterangepicker')
+                .endDate.format('YYYY-MM-DD');
+        },
+        success: function (response) {
+           $("#total-orders").html(response.total_orders);
+           $("#total-ecommerce-items").html(response.total_items);
+           $("#new-orders").html(response.new_orders);
+           $("#total-received-amount").html(__currency_trans_from_en(response.total_received_amount));
+           $("#total-order-amount").html(__currency_trans_from_en(response.total_order_amount));
+           $("#ecommerce-profit-loss").html(__currency_trans_from_en(response.profit_loss));
+           $("#completed-orders").html(response.completed_orders);
+           $("#dispatched-orders").html(response.dispatched_order);
+           $("#exchanged-orders").html(response.exchanged_orders);
+           $("#cancelled-items").html(response.cancelled_items);
+           $("#ecommerce-discount-amount").html(__currency_trans_from_en(response.discount_amount));
+           $("#cancelled-orders").html(response.cancelled_orders);
+           $("#cancelled-orders-amount").html(__currency_trans_from_en(response.cancelled_order_amount));
+           $("#exchanged-orders-amount").html(__currency_trans_from_en(response.exchanged_order_amount));
+           $("#completed-orders-amount").html(__currency_trans_from_en(response.completed_order_amount));
+
+        },
+    });
 }
 
 $(document).on('click', 'button.activate-deactivate-location', function(){

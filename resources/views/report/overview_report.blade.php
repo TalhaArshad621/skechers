@@ -214,11 +214,26 @@
                                 .endDate.format('YYYY-MM-DD');
                         },
                         success: function (response) {
-                           console.log(response);
+                           $("#total-orders").html(response.total_orders);
+                           $("#total-ecommerce-items").html(response.total_items);
+                           $("#new-orders").html(response.new_orders);
+                           $("#total-received-amount").html(__currency_trans_from_en(response.total_received_amount));
+                           $("#total-order-amount").html(__currency_trans_from_en(response.total_order_amount));
+                           $("#ecommerce-profit-loss").html(__currency_trans_from_en(response.profit_loss));
+                           $("#completed-orders").html(response.completed_orders);
+                           $("#dispatched-orders").html(response.dispatched_order);
+                           $("#exchanged-orders").html(response.exchanged_orders);
+                           $("#cancelled-items").html(response.cancelled_items);
+                           $("#ecommerce-discount-amount").html(__currency_trans_from_en(response.discount_amount));
+                           $("#cancelled-orders").html(response.cancelled_orders);
+                           $("#cancelled-orders-amount").html(__currency_trans_from_en(response.cancelled_order_amount));
+                           $("#exchanged-orders-amount").html(__currency_trans_from_en(response.exchanged_order_amount));
+                           $("#completed-orders-amount").html(__currency_trans_from_en(response.completed_order_amount));
+
                         },
                     });
                 } else {
-                    profit_by_brands_datatable.ajax.reload();
+                    profit_by_brands_datatable.reload();
                 }
             } else if (target == '#profit_by_locations') {
                 if(typeof profit_by_locations_datatable == 'undefined') {
