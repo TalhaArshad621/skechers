@@ -89,8 +89,10 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/products/warehouse-to-store-history', 'ProductController@productWarehouseToStoreHistory');
     Route::get('/products/adjustment-history', 'ProductController@productAdjustmentHistory');
 
-    Route::get('/products-audit', 'ProductController@productAudit');
     Route::get('/products-list', 'ProductController@productList');
+    
+    // Product Audit 
+    Route::get('/products-audit', 'AuditController@productAudit');
 
     Route::get('/delete-media/{media_id}', 'ProductController@deleteMedia');
     Route::post('/products/mass-deactivate', 'ProductController@massDeactivate');
