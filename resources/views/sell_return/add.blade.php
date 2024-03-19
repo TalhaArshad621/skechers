@@ -88,6 +88,7 @@
 					                }
 
 					            @endphp
+								{{-- {{ dd($sell_line->unit_price_inc_tax, $sell_line->id, $loop->index) }} --}}
 				            <tr>
 				              	<td>{{ $loop->iteration }}</td>
 				              	<td>
@@ -102,7 +103,7 @@
 				              	
 				              	<td>
 						            <input type="text" name="products[{{$loop->index}}][quantity]" value="{{@format_quantity($sell_line->quantity_returned)}}"
-						            class="form-control input-sm input_number return_qty input_quantity"
+						            class="form-control input-sm input_number return_qty input_quantity" id="return_quantity"
 						            data-rule-abs_digit="{{$check_decimal}}" 
 						            data-msg-abs_digit="@lang('lang_v1.decimal_value_not_allowed')"
 			              			data-rule-max-value="{{$sell_line->quantity}}"
@@ -147,6 +148,170 @@
 			{!! Form::hidden('tax_id', $sell->tax_id); !!}
 			{!! Form::hidden('tax_amount', 0, ['id' => 'tax_amount']); !!}
 			{!! Form::hidden('tax_percent', $tax_percent, ['id' => 'tax_percent']); !!}
+		</div>
+	</div>
+	<div class="box box-solid">
+		<div class="box-body">
+			<div class="col-sm-10 col-sm-offset-1">
+				<div class="form-group">
+					<div class="input-group">
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-default bg-white btn-flat" data-toggle="modal" data-target="#configure_search_modal" title="{{__('lang_v1.configure_product_search')}}"><i class="fa fa-barcode"></i></button>
+						</div>
+						{!! Form::text('search_product', null, ['class' => 'form-control mousetrap', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'),
+						'disabled' => is_null($default_location)? true : false,
+						'autofocus' => is_null($default_location)? false : true,
+						]); !!}
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action('ProductController@quickAdd')}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12 pos_product_div">
+					<input type="hidden" name="sell_price_tax" id="sell_price_tax" value="{{$business_details->sell_price_tax}}">
+			
+					<!-- Keeps count of product rows -->
+					<input type="hidden" id="product_row_count" 
+						value="0">
+					@php
+						$hide_tax = '';
+						if( session()->get('business.enable_inline_tax') == 0){
+							$hide_tax = 'hide';
+						}
+					@endphp
+					<table class="table table-condensed table-bordered table-striped table-responsive" id="pos_table">
+						<thead>
+							<tr>
+								<th class="tex-center @if(!empty($pos_settings['inline_service_staff'])) col-md-3 @else col-md-4 @endif">	
+									@lang('sale.product') @show_tooltip(__('lang_v1.tooltip_sell_product_column'))
+								</th>
+								<th class="text-center col-md-2">
+									@lang('sale.qty')
+								</th>
+								@if(!empty($pos_settings['inline_service_staff']))
+									<th class="text-center col-md-2">
+										@lang('restaurant.service_staff')
+									</th>
+								@endif
+								<th class="text-center col-md-2">
+									@lang('Original Amount')
+								</th>
+								<th class="text-center col-md-2">
+									@lang('Discount Amount')
+								</th>
+								<th class="text-center col-md-2 {{$hide_tax}}">
+									@lang('sale.price_inc_tax')
+								</th>
+								<th class="text-center col-md-2">
+									@lang('sale.subtotal')
+								</th>
+								<th class="text-center"><i class="fas fa-times" aria-hidden="true"></i></th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<table class="table table-condensed">
+						<tr>
+							<td><b>@lang('sale.item'):</b>&nbsp;
+								<span class="total_quantity">0</span>
+							</td>
+							<td>
+								<b>@lang('sale.total'):</b> &nbsp;
+								<span class="price_total" id="sale_total">0</span>
+							</td>
+						</tr>
+						<tr style="display: none;">
+							<td>
+								<b>
+									{{-- @if($is_discount_enabled)
+										@lang('sale.discount')
+										@show_tooltip(__('tooltip.sale_discount'))
+									@endif --}}
+									{{-- @if($is_rp_enabled)
+										{{session('business.rp_name')}}
+									@endif --}}
+									(-):
+									<i class="fas fa-edit cursor-pointer" id="pos-edit-discount" title="@lang('sale.edit_discount')" aria-hidden="true" data-toggle="modal" data-target="#posEditDiscountModal"></i>
+										<span id="total_discount">0</span>
+										<input type="hidden" name="discount_type" id="discount_type" value="@if(empty($edit)){{'percentage'}}@else{{$transaction->discount_type}}@endif" data-default="percentage">
+			
+										<input type="hidden" name="discount_amount" id="discount_amount" value="@if(empty($edit)) {{@num_format($business_details->default_sales_discount)}} @else {{@num_format($transaction->discount_amount)}} @endif" data-default="{{$business_details->default_sales_discount}}">
+			
+										<input type="hidden" name="rp_redeemed" id="rp_redeemed" value="@if(empty($edit)){{'0'}}@else{{$transaction->rp_redeemed}}@endif">
+			
+										<input type="hidden" name="rp_redeemed_amount" id="rp_redeemed_amount" value="@if(empty($edit)){{'0'}}@else {{$transaction->rp_redeemed_amount}} @endif">
+			
+										</span>
+								</b> 
+							</td>
+							<td class="@if($pos_settings['disable_order_tax'] != 0) hide @endif">
+								<span>
+									<b>@lang('sale.order_tax')(+): @show_tooltip(__('tooltip.sale_tax'))</b>
+									<i class="fas fa-edit cursor-pointer" title="@lang('sale.edit_order_tax')" aria-hidden="true" data-toggle="modal" data-target="#posEditOrderTaxModal" id="pos-edit-tax" ></i> 
+									<span id="order_tax">
+										@if(empty($edit))
+											0
+										@else
+											{{$transaction->tax_amount}}
+										@endif
+									</span>
+			
+									<input type="hidden" name="tax_rate_id" 
+										id="tax_rate_id" 
+										value="@if(empty($edit)) {{$business_details->default_sales_tax}} @else {{$transaction->tax_id}} @endif" 
+										data-default="{{$business_details->default_sales_tax}}">
+			
+									<input type="hidden" name="tax_calculation_amount" id="tax_calculation_amount" 
+										value="@if(empty($edit)) {{@num_format($business_details->tax_calculation_amount)}} @else {{@num_format(optional($transaction->tax)->amount)}} @endif" data-default="{{$business_details->tax_calculation_amount}}">
+			
+								</span>
+							</td>
+							<td class="@if($pos_settings['disable_discount'] != 0) hide @endif">
+								<span>
+			
+									<b>@lang('sale.shipping')(+): @show_tooltip(__('tooltip.shipping'))</b> 
+									<i class="fas fa-edit cursor-pointer"  title="@lang('sale.shipping')" aria-hidden="true" data-toggle="modal" data-target="#posShippingModal"></i>
+									<span id="shipping_charges_amount">0</span>
+									<input type="hidden" name="shipping_details" id="shipping_details" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_details}}@endif" data-default="">
+			
+									<input type="hidden" name="shipping_address" id="shipping_address" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_address}}@endif">
+			
+									<input type="hidden" name="shipping_status" id="shipping_status" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_status}}@endif">
+			
+									<input type="hidden" name="delivered_to" id="delivered_to" value="@if(empty($edit)){{''}}@else{{$transaction->delivered_to}}@endif">
+			
+									<input type="hidden" name="shipping_charges" id="shipping_charges" value="@if(empty($edit)){{@num_format(0.00)}} @else{{@num_format($transaction->shipping_charges)}} @endif" data-default="0.00">
+								</span>
+							</td>
+							@if(in_array('types_of_service', $enabled_modules))
+								<td class="col-sm-3 col-xs-6 d-inline-table">
+									<b>@lang('lang_v1.packing_charge')(+):</b>
+									<i class="fas fa-edit cursor-pointer service_modal_btn"></i> 
+									<span id="packing_charge_text">
+										0
+									</span>
+								</td>
+							@endif
+							@if(!empty($pos_settings['amount_rounding_method']) && $pos_settings['amount_rounding_method'] > 0)
+							<td>
+								<b id="round_off">@lang('lang_v1.round_off'):</b> <span id="round_off_text">0</span>								
+								<input type="hidden" name="round_off_amount" id="round_off_amount" value=0>
+							</td>
+							@endif
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="box box-solid">
+		<div class="box-body">
 			<div class="row">
 				<div class="col-sm-12 text-right">
 					<strong>@lang('lang_v1.total_return_discount'):</strong> 
@@ -160,6 +325,17 @@
 					<strong>@lang('lang_v1.return_total'): </strong>&nbsp;
 					<span id="net_return">0</span> 
 				</div>
+				<div class="col-sm-12 text-right"><b>Exchange Total:</b>&nbsp;
+					<span id="exchange_total" class="price_total">0</span>
+				</div>
+				<div class="col-sm-12 text-right"><b>Sub Total:</b>&nbsp;
+					<span id="subtotal_field"></span>
+				</div>
+				<input name="sub_total" type="hidden" type="text" id="subtotal_input">
+
+				{{-- <div class="col-sm-12 text-right"><b>Sub Total:</b>&nbsp;
+					<span id="sub_total" class="price_total">0</span>
+				</div> --}}
 			</div>
 			<br>
 			<div class="row">
@@ -174,6 +350,9 @@
 </section>
 @stop
 @section('javascript')
+<script src="{{ asset('js/pos_for_return.js?v=' . $asset_v) }}"></script>
+<script src="{{ asset('js/product.js?v=' . $asset_v) }}"></script>
+<script src="{{ asset('js/opening_stock.js?v=' . $asset_v) }}"></script>
 <script src="{{ asset('js/printer.js?v=' . $asset_v) }}"></script>
 <script src="{{ asset('js/sell_return.js?v=' . $asset_v) }}"></script>
 <script type="text/javascript">
@@ -217,5 +396,56 @@
 		$('span#total_return_tax').text(__currency_trans_from_en(total_tax, true));
 		$('span#net_return').text(__currency_trans_from_en(net_return_inc_tax, true));
 	}
+</script>
+
+<script>
+    var saleTotal;
+    var netReturnCleaned; // Define netReturnCleaned outside the MutationObserver
+
+    $('#search_product').on('focus', function() {
+        // Fetch the value from the span element
+        saleTotal = parseFloat($('#sale_total').text().replace(/[^\d.]/g, '').trim());
+        
+        // Check if both netReturnCleaned and saleTotal are available
+        if (netReturnCleaned !== undefined && saleTotal !== undefined) {
+            calculateSubTotal(netReturnCleaned, saleTotal);
+        }
+    });
+
+    // Select the target node
+    var targetNode = document.getElementById('net_return');
+
+    // Callback function to execute when mutations are observed
+    var callback = function(mutationsList, observer) {
+        for (var mutation of mutationsList) {
+            if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                // Fetch the value from the span element
+                var netReturnValue = $('#net_return').text().trim();
+                netReturnCleaned = parseFloat(netReturnValue.replace(/[^\d.]/g, '').trim());
+
+                // Check if both netReturnCleaned and saleTotal are available
+                if (netReturnCleaned !== undefined && saleTotal !== undefined) {
+                    calculateSubTotal(netReturnCleaned, saleTotal);
+                }
+            }
+        }
+    };
+
+    // Create an observer instance linked to the callback function
+    var observer = new MutationObserver(callback);
+
+    // Configuration of the observer
+    var config = { attributes: true, childList: true, subtree: true, characterData: true };
+
+    // Start observing the target node for configured mutations
+    observer.observe(targetNode, config);
+
+    function calculateSubTotal(netReturnCleaned, saleTotal) {
+        var sub_total =  saleTotal - netReturnCleaned;
+        console.log("Sub Total value:", sub_total);
+		$('#subtotal_input').val(sub_total);
+		$('#subtotal_field').text(sub_total);
+
+    }
 </script>
 @endsection

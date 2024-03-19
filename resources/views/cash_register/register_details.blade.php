@@ -85,7 +85,7 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_advance }}</span>
               </td>
             </tr> --}}
-            @if(array_key_exists('custom_pay_1', $payment_types))
+            {{-- @if(array_key_exists('custom_pay_1', $payment_types))
               <tr>
                 <td>
                   {{$payment_types['custom_pay_1']}}:
@@ -154,7 +154,7 @@
                   <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_custom_pay_7 }}</span>
                 </td>
               </tr>
-            @endif
+            @endif --}}
             <tr>
               <td>
                 @lang('cash_register.other_payments'):
