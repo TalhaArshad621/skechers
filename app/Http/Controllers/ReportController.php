@@ -1560,6 +1560,7 @@ class ReportController extends Controller
                 ->where('t.status', 'final')
                 ->select(
                     'p.name as product_name',
+                    'p.image as product_image',
                     'p.type as product_type',
                     'pv.name as product_variation',
                     'v.name as variation_name',
@@ -1612,6 +1613,17 @@ class ReportController extends Controller
             }
 
             return Datatables::of($query)
+                ->editColumn('product_image', function ($row) {
+                    $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
+                    
+                    if (!empty($row->product_image)) {
+                        $imagePath = asset('uploads/img/' . $row->product_image);
+                    } else {
+                        $imagePath = asset('img/default.png');
+                    }
+                
+                    return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+                })
                 ->editColumn('product_name', function ($row) {
                     $product_name = $row->product_name;
                     if ($row->product_type == 'variable') {
@@ -1650,7 +1662,7 @@ class ReportController extends Controller
                        '</span>'.'<br>'.'<span class="tax" data-orig-value="'.(float)$row->item_tax.'" data-unit="'.$row->tax.'"><small>('.$row->tax.')</small></span>';
                 })
                 ->editColumn('customer', '@if(!empty($supplier_business_name)) {{$supplier_business_name}},<br>@endif {{$customer}}')
-                ->rawColumns(['invoice_no', 'unit_sale_price', 'subtotal', 'sell_qty', 'discount_amount', 'unit_price', 'tax', 'customer'])
+                ->rawColumns(['product_image','invoice_no', 'unit_sale_price', 'subtotal', 'sell_qty', 'discount_amount', 'unit_price', 'tax', 'customer'])
                 ->make(true);
         }
 

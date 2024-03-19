@@ -93,7 +93,11 @@ class HomeController extends Controller
         }
 
         //Get sell for indivisual locations
+        // dd($business_id);
         $all_locations = BusinessLocation::forDropdown($business_id)->toArray();
+        $business_locations = BusinessLocation::forDropdown($business_id, true);
+
+        // dd($all_locations);
         $location_sells = [];
         $sells_by_location = $this->transactionUtil->getSellsLast30Days($business_id, true);
         foreach ($all_locations as $loc_id => $loc_name) {
@@ -207,7 +211,7 @@ class HomeController extends Controller
             }
         }
 
-        return view('home.index', compact('date_filters', 'sells_chart_1', 'sells_chart_2', 'widgets', 'all_locations'));
+        return view('home.index', compact('date_filters', 'sells_chart_1', 'sells_chart_2', 'widgets', 'all_locations', 'business_locations'));
     }
 
     /**
