@@ -38,7 +38,7 @@
         @endcan
     @endcomponent
 
-    @component('components.widget', ['class' => 'box-primary'])
+    {{-- @component('components.widget', ['class' => 'box-primary'])
         @slot('title')
             @lang( 'tax_rate.tax_groups' ) ( @lang('lang_v1.combination_of_taxes') ) @show_tooltip(__('tooltip.tax_groups'))
         @endslot
@@ -66,7 +66,7 @@
                 </table>
             </div>
         @endcan
-    @endcomponent
+    @endcomponent --}}
     
     <div class="modal fade tax_rate_modal" tabindex="-1" role="dialog" 
     	aria-labelledby="gridSystemModalLabel">
