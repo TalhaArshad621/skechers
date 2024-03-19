@@ -41,12 +41,12 @@
 @endif
 @if(empty($only) || in_array('sales_cmsn_agnt', $only))
 @if(!empty($is_cmsn_agent_enabled))
-    <div class="col-md-3">
+    {{-- <div class="col-md-3">
         <div class="form-group">
             {!! Form::label('sales_cmsn_agnt',  __('lang_v1.sales_commission_agent') . ':') !!}
             {!! Form::select('sales_cmsn_agnt', $commission_agents, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
         </div>
-    </div>
+    </div> --}}
 @endif
 @endif
 @if(empty($only) || in_array('service_staffs', $only))
