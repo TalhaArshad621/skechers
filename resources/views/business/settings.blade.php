@@ -30,11 +30,11 @@
                     <a href="#" class="list-group-item text-center">@lang('business.dashboard')</a>
                     <a href="#" class="list-group-item text-center">@lang('business.system')</a>
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.prefixes')</a>
-                    <a href="#" class="list-group-item text-center">@lang('lang_v1.email_settings')</a>
+                    {{-- <a href="#" class="list-group-item text-center">@lang('lang_v1.email_settings')</a>
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.sms_settings')</a>
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.reward_point_settings')</a>
                     <a href="#" class="list-group-item text-center">@lang('lang_v1.modules')</a>
-                    <a href="#" class="list-group-item text-center">@lang('lang_v1.custom_labels')</a>
+                    <a href="#" class="list-group-item text-center">@lang('lang_v1.custom_labels')</a> --}}
                 </div>
             </div>
             <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 pos-tab">
