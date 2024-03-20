@@ -1,18 +1,18 @@
 @extends('layouts.app')
-@section('title', __('stock_adjustment.stock_adjustments'))
+@section('title', __('Complaint'))
 
 @section('content')
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>@lang('stock_adjustment.stock_adjustments')
+    <h1>@lang('Complaint')
         <small></small>
     </h1>
 </section>
 
 <!-- Main content -->
 <section class="content">
-    @component('components.widget', ['class' => 'box-primary', 'title' => __('stock_adjustment.all_stock_adjustments')])
+    @component('components.widget', ['class' => 'box-primary', 'title' => __('All Complaints')])
         @slot('tool')
             <div class="box-tools">
                 <a class="btn btn-block btn-primary" href="{{action('StockAdjustmentController@create')}}">

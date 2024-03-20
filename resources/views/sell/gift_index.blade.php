@@ -94,7 +94,7 @@
                 }
             },
             columnDefs: [ {
-                "targets": [7, 8],
+                // "targets": [7, 8],
                 "orderable": false,
                 "searchable": false
             } ],
@@ -106,7 +106,7 @@
                 { data: 'business_location', name: 'bl.name'},
                 { data: 'payment_status', name: 'payment_status'},
                 { data: 'final_total', name: 'final_total'},
-                { data: 'payment_due', name: 'payment_due'},
+                // { data: 'payment_due', name: 'payment_due'},
                 { data: 'action', name: 'action'}
             ],
             "fnDrawCallback": function (oSettings) {
@@ -115,8 +115,8 @@
                 
                 $('#footer_payment_status_count_sr').html(__sum_status_html($('#gift_table'), 'payment-status-label'));
 
-                var total_due = sum_table_col($('#gift_table'), 'payment_due');
-                $('#footer_total_due_sr').text(total_due);
+                // var total_due = sum_table_col($('#gift_table'), 'payment_due');
+                // $('#footer_total_due_sr').text(total_due);
 
                 __currency_convert_recursively($('#gift_table'));
             },

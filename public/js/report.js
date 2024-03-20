@@ -767,7 +767,7 @@ $(document).ready(function() {
             },
         },
         columns: [
-            // { data: 'product_name', name: 'p.name' },
+            { data: 'product_image', name: 'product_image' },
             { data: 'sub_sku', name: 'v.sub_sku' },
             { data: 'customer', name: 'c.name' },
             { data: 'contact_id', name: 'c.contact_id' },
@@ -1168,7 +1168,7 @@ $(document).ready(function() {
             { data: 'paid_on', name: 'paid_on' },
             { data: 'amount', name: 'transaction_payments.amount' },
             { data: 'customer', orderable: false, searchable: false },
-            { data: 'customer_group', name: 'customer_group', searchable: false},
+            // { data: 'customer_group', name: 'customer_group', searchable: false},
             { data: 'method', name: 'method' },
             { data: 'invoice_no', name: 't.invoice_no' },
             { data: 'action', orderable: false, searchable: false },
