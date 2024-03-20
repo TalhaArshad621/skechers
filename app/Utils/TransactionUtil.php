@@ -7071,6 +7071,7 @@ class TransactionUtil extends Util
         }
 
         if (empty($sell_return)) {
+            
             $sell_return_data['transaction_date'] = $sell_return_data['transaction_date'] ?? \Carbon::now();
             $sell_return_data['business_id'] = $business_id;
             $sell_return_data['location_id'] = ($location_id_new == "all" )?  $sell->location_id : $location_id_new[0];

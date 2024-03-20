@@ -802,10 +802,15 @@ class EcommerceController extends Controller
 
             $transaction = EcommerceTransaction::where('business_id', $business_id)
                                 ->findOrFail($id);
+            dd($transaction, $request);
 
-            $transaction_before = $transaction->replicate();
+            // $transaction_before = $transaction->replicate();
 
-            $transaction->update($input);
+            // $transaction->update($input);
+            
+            if($request->shipping_status == "cancelled") {
+
+            }
 
             $this->transactionUtil->activityLog($transaction, 'shipping_edited', $transaction_before);
 
@@ -874,7 +879,7 @@ class EcommerceController extends Controller
                     $inputs['transaction_type'] = $sell_return->type;
                     event(new EcommercePaymentAdded($tp, $inputs));
                 }
-                
+                    
                 EcommerceTransaction::where('id', $sell_return->id)
                 ->update(['payment_status' => 'paid']);
                 
