@@ -178,11 +178,10 @@ class SellPosController extends Controller
         $payment_lines[] = $this->dummyPaymentLine;
 
         $default_location = !empty($register_details->location_id) ? BusinessLocation::findOrFail($register_details->location_id) : null;
-
         $business_locations = BusinessLocation::forDropdown($business_id, false, true);
         $bl_attributes = $business_locations['attributes'];
         $business_locations = $business_locations['locations'];
-
+        
         //set first location as default locaton
         if (empty($default_location)) {
             foreach ($business_locations as $id => $name) {
@@ -190,7 +189,7 @@ class SellPosController extends Controller
                 break;
             }
         }
-
+        
         $payment_types = $this->productUtil->payment_types(null, true, $business_id);
 
         //Shortcuts

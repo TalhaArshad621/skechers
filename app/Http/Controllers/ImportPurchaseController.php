@@ -71,7 +71,7 @@ class ImportPurchaseController extends Controller
                             'msg' => 'Please install/enable PHP Zip archive for import'
                         ];
 
-        $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+        $business_locations = BusinessLocation::fortransferDropdown($business_id, false, true);
         $bl_attributes = $business_locations['attributes'];
         $business_locations = $business_locations['locations'];
             return view('import_purchase.index')
@@ -93,7 +93,7 @@ class ImportPurchaseController extends Controller
                             ->ExcludeForTaxGroup()
                             ->get();
             $orderStatuses = $this->productUtil->orderStatuses();
-            $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+            $business_locations = BusinessLocation::fortransferDropdown($business_id, false, true);
             $bl_attributes = $business_locations['attributes'];
             $business_locations = $business_locations['locations'];
     

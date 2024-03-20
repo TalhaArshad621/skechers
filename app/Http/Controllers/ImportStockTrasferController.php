@@ -162,7 +162,7 @@ class ImportStockTrasferController extends Controller
             return $this->moduleUtil->expiredResponse(action('StockTransferController@index'));
         }
 
-        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_locations = BusinessLocation::fortransferDropdown($business_id);
 
         $statuses = $this->stockTransferStatuses();
 

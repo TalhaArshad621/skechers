@@ -374,7 +374,7 @@ class ProductController extends Controller
         $default_profit_percent = request()->session()->get('business.default_profit_percent');;
 
         //Get all business locations
-        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_locations = BusinessLocation::fortransferDropdown($business_id);
 
         //Duplicate product
         $duplicate_product = null;
@@ -624,7 +624,7 @@ class ProductController extends Controller
         $sub_units = $this->productUtil->getSubUnits($business_id, $product->unit_id, true);
         
         //Get all business locations
-        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_locations = BusinessLocation::fortransferDropdown($business_id);
         //Rack details
         $rack_details = $this->productUtil->getRackDetails($business_id, $id);
 
