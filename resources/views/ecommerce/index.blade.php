@@ -53,7 +53,7 @@
                         <th>@lang('sale.total_amount')</th>
                         <th>@lang('sale.total_paid')</th>
                         <th>@lang('lang_v1.sell_due')</th>
-                        <th>@lang('lang_v1.sell_return_due')</th>
+                        {{-- <th>@lang('lang_v1.sell_return_due')</th> --}}
                         <th>@lang('lang_v1.shipping_status')</th>
                         <th>@lang('lang_v1.total_items')</th>
                         <th>@lang('lang_v1.types_of_service')</th>
@@ -75,7 +75,7 @@
                         <td class="footer_sale_total"></td>
                         <td class="footer_total_paid"></td>
                         <td class="footer_total_remaining"></td>
-                        <td class="footer_total_sell_return_due"></td>
+                        {{-- <td class="footer_total_sell_return_due"></td> --}}
                         <td colspan="2"></td>
                         <td class="service_type_count"></td>
                         <td colspan="6"></td>
@@ -170,7 +170,7 @@ $(document).ready( function(){
             { data: 'final_total', name: 'final_total'},
             { data: 'total_paid', name: 'total_paid', "searchable": false},
             { data: 'total_remaining', name: 'total_remaining'},
-            { data: 'return_due', orderable: false, "searchable": false},
+            // { data: 'return_due', orderable: false, "searchable": false},
             { data: 'shipping_status', name: 'shipping_status'},
             { data: 'total_items', name: 'total_items', "searchable": false},
             { data: 'types_of_service_name', name: 'tos.name', @if(empty($is_types_service_enabled)) visible: false @endif},

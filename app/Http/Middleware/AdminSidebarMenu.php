@@ -199,7 +199,7 @@ class AdminSidebarMenu
                         }
                         if (auth()->user()->can('product.create')) {
                             $sub->url(
-                                action('ProductController@productAudit'),
+                                action('AuditController@productAudit'),
                                 __('Audit'),
                                 ['icon' => 'fa fas fa-gem', 'active' => request()->segment(1) == 'products-audit']
                             );

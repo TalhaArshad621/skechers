@@ -2787,20 +2787,32 @@ class ProductController extends Controller
     }
     public function productList(Request $request)
     {
-        $query = Variation::
-                join('products', 'products.id', '=', 'variations.product_id')
-                ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
-                ->where('variations.sub_sku', $request->barcode)
-                ->select(
-                    'products.id',
-                    'products.name as product',
-                    'products.type',
-                    'categories.name as category',
-                    'products.sku',
-                    'products.image'
-                )
-                ->first();
-            return $query;
+
+        $permitted_locations = auth()->user()->permitted_locations();
+
+        
+        $query = Product::
+        leftJoin('categories', 'products.category_id', '=', 'categories.id')
+        ->join('variation_location_details','variation_location_details.product_id','products.id')
+        ->where('products.sku', $request->barcode);
+        
+        if($permitted_locations != "all"){
+            $query->whereIn('variation_location_details.location_id',$permitted_locations);
+        }
+        $product = $query->select(
+            'products.id',
+            'products.name as product',
+            'products.type',
+            'categories.name as category',
+            'products.sku',
+            'products.image',
+            DB::raw('CAST(SUM(variation_location_details.qty_available) AS UNSIGNED) as available_qty')
+            )
+            ->first();
+
+            return response()->json([
+                'data' => $product
+            ]);
     }
 
 }
