@@ -706,7 +706,7 @@ class Util
         
         $uploaded_file_name = null;
         if ($request->hasFile($file_name) && $request->file($file_name)->isValid()) {
-            dd("in");
+            // dd("in");
             
             //Check if mime type is image
             if ($file_type == 'image') {

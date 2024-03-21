@@ -14,6 +14,14 @@
           <table class="table">
             <tr>
               <td>
+                Opening Balance:
+              </td>
+              <td>
+                <span class="display_currency" data-currency_symbol="true">{{ 12000 }}</span>
+              </td>
+            </tr>
+            <tr>
+              <td>
                 @lang('cash_register.cash_in_hand'):
               </td>
               <td>
@@ -28,7 +36,7 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash }}</span>
               </td>
             </tr>
-            <tr>
+            <tr style="display: none;">
               <td>
                 @lang('cash_register.checque_payment'):
               </td>
@@ -52,7 +60,7 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_bank_transfer }}</span>
               </td>
             </tr>
-            <tr>
+            <tr style="display: none;">
               <td>
                 @lang('lang_v1.advance_payment'):
               </td>
@@ -130,7 +138,7 @@
                 </td>
               </tr>
             @endif
-            <tr>
+            <tr style="display: none;">
               <td>
                 @lang('cash_register.other_payments'):
               </td>
@@ -146,7 +154,7 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_sale }}</span>
               </td>
             </tr>
-            <tr class="success">
+            <tr class="success" style="display: none;">
               <th>
                 @lang('cash_register.total_refund')
               </th>
@@ -223,7 +231,7 @@
               {!! Form::number('total_card_slips', $register_details->total_card_slips, ['class' => 'form-control', 'required', 'placeholder' => __( 'cash_register.total_card_slips' ), 'min' => 0 ]); !!}
           </div>
         </div> 
-        <div class="col-sm-4">
+        <div class="col-sm-4" style="display: none;">
           <div class="form-group">
             {!! Form::label('total_cheques', __( 'cash_register.total_cheques' ) . ':*') !!} @show_tooltip(__('tooltip.total_cheques'))
               {!! Form::number('total_cheques', $register_details->total_cheques, ['class' => 'form-control', 'required', 'placeholder' => __( 'cash_register.total_cheques' ), 'min' => 0 ]); !!}

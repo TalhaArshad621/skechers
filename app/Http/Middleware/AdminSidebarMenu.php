@@ -318,7 +318,7 @@ class AdminSidebarMenu
                         if (auth()->user()->can('access_sell_return')) {
                             $sub->url(
                                 action('SellReturnController@newSellReturn'),
-                                __('Add  Sell Return'),
+                                __('Add Exchange'),
                                 ['icon' => 'fa fas fa-undo', 'active' => request()->segment(1) == 'sell-return-new' && request()->segment(2) == null]
                             );
                         }
@@ -326,7 +326,7 @@ class AdminSidebarMenu
                         if (auth()->user()->can('access_sell_return')) {
                             $sub->url(
                                 action('SellReturnController@index'),
-                                __('lang_v1.list_sell_return'),
+                                __('List Exchange'),
                                 ['icon' => 'fa fas fa-undo', 'active' => request()->segment(1) == 'sell-return' && request()->segment(2) == null]
                             );
                         }

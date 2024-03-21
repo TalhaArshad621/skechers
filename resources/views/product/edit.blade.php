@@ -110,7 +110,7 @@
 
             <div class="clearfix"></div>
             
-            <div class="col-sm-4">
+            <div class="col-sm-4" style="display: none;">
               <div class="form-group">
               <br>
                 <label>
@@ -118,7 +118,7 @@
                 </label>@show_tooltip(__('tooltip.enable_stock')) <p class="help-block"><i>@lang('product.enable_stock_help')</i></p>
               </div>
             </div>
-            <div class="col-sm-4" id="alert_quantity_div" @if(!$product->enable_stock) style="display:none" @endif>
+            <div class="col-sm-4" id="alert_quantity_div" style="display: none;" @if(!$product->enable_stock) style="display:none" @endif>
               <div class="form-group">
                 {!! Form::label('alert_quantity', __('product.alert_quantity') . ':') !!} @show_tooltip(__('tooltip.alert_quantity'))
                 {!! Form::number('alert_quantity', $product->alert_quantity, ['class' => 'form-control',
@@ -142,7 +142,7 @@
                 @endforeach
             @endif
             <div class="clearfix"></div>
-            <div class="col-sm-8">
+            <div class="col-sm-8" style="display: none;">
               <div class="form-group">
                 {!! Form::label('product_description', __('lang_v1.product_description') . ':') !!}
                   {!! Form::textarea('product_description', $product->product_description, ['class' => 'form-control']); !!}
@@ -156,7 +156,7 @@
               </div>
             </div>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-4" style="display: none;">
               <div class="form-group">
                 {!! Form::label('product_brochure', __('lang_v1.product_brochure') . ':') !!}
                 {!! Form::file('product_brochure', ['id' => 'product_brochure', 'accept' => implode(',', array_keys(config('constants.document_upload_mimes_types')))]); !!}
@@ -171,6 +171,7 @@
             </div>
     @endcomponent
 
+    <div style="display: none;">
     @component('components.widget', ['class' => 'box-primary'])
         <div class="row">
         @if(session('business.enable_product_expiry'))
@@ -312,6 +313,7 @@
         @include('layouts.partials.module_form_part')
         </div>
     @endcomponent
+    </div>
 
     @component('components.widget', ['class' => 'box-primary'])
         <div class="row">

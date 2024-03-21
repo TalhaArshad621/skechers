@@ -60,8 +60,10 @@ class CashRegisterController extends Controller
         }
         $business_id = request()->session()->get('user.business_id');
         $business_locations = BusinessLocation::forDropdown($business_id);
+        $defaultAmount = 12000;
 
-        return view('cash_register.create')->with(compact('business_locations', 'sub_type'));
+
+        return view('cash_register.create')->with(compact('business_locations', 'sub_type', 'defaultAmount'));
     }
 
     /**
@@ -72,6 +74,7 @@ class CashRegisterController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->input('amount'));
         //like:repair
         $sub_type = request()->get('sub_type');
             

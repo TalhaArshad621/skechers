@@ -50,18 +50,18 @@
         <strong><i class="fa fa-backward fa-lg"></i></strong>
       </a>
       @can('close_cash_register')
-      <button type="button" id="close_register" title="{{ __('cash_register.close_register') }}" class="btn btn-danger btn-flat m-6 btn-xs m-5 btn-modal pull-right" data-container=".close_register_modal" 
+      <button type="button" id="close_register" title="{{ __('Register Details') }}" class="btn btn-danger btn-flat m-6 btn-xs m-5 btn-modal pull-right" data-container=".close_register_modal" 
           data-href="{{ action('CashRegisterController@getCloseRegister')}}">
             <strong><i class="fa fa-window-close fa-lg"></i></strong>
       </button>
       @endcan
       
-      @can('view_cash_register')
+      {{-- @can('view_cash_register')
       <button type="button" id="register_details" title="{{ __('cash_register.register_details') }}" class="btn btn-success btn-flat m-6 btn-xs m-5 btn-modal pull-right" data-container=".register_details_modal" 
           data-href="{{ action('CashRegisterController@getRegisterDetails')}}">
             <strong><i class="fa fa-briefcase fa-lg" aria-hidden="true"></i></strong>
       </button>
-      @endcan
+      @endcan --}}
 
       {{-- <button title="@lang('lang_v1.calculator')" id="btnCalculator" type="button" class="btn btn-success btn-flat pull-right m-5 btn-xs mt-10 popover-default" data-toggle="popover" data-trigger="click" data-content='@include("layouts.partials.calculator")' data-html="true" data-placement="bottom">
             <strong><i class="fa fa-calculator fa-lg" aria-hidden="true"></i></strong>

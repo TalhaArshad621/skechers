@@ -274,7 +274,7 @@ class StockTransferController extends Controller
     {
         return [
             'pending' => __('lang_v1.pending'),
-            'in_transit' => __('lang_v1.in_transit'),
+            // 'in_transit' => __('lang_v1.in_transit'),
             'completed' => __('restaurant.completed')
         ];
     }

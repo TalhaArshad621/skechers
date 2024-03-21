@@ -1918,6 +1918,7 @@ class ProductUtil extends Util
     {
         $query = Variation::join('products as p', 'p.id', '=', 'variations.product_id')
                 ->join('categories', 'p.category_id', '=', 'categories.id')
+                ->leftJoin('categories as c2', 'p.sub_category_id', '=', 'c2.id')
                   ->join('units', 'p.unit_id', '=', 'units.id')
                   ->leftjoin('variation_location_details as vld', 'variations.id', '=', 'vld.variation_id')
                   ->leftjoin('business_locations as l', 'vld.location_id', '=', 'l.id')
@@ -2028,7 +2029,8 @@ class ProductUtil extends Util
             'l.name as location_name',
             'l.id as location_id',
             'variations.id as variation_id',
-            'categories.name as category_name'
+            'categories.name as category_name',
+            'c2.name as sub_category'
         )->groupBy('variations.id', 'vld.location_id');
             
         if (isset($filters['show_manufacturing_data']) && $filters['show_manufacturing_data']) {
