@@ -656,7 +656,7 @@ class SellController extends Controller
         $is_warranty_enabled = !empty($common_settings['enable_product_warranty']) ? true : false;
 
         $statuses = Transaction::getSellStatuses();
-
+        // dd($sell);
         return view('sale_pos.show')
             ->with(compact(
                 'taxes',

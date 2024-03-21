@@ -281,7 +281,7 @@
 	@endif
 	{{-- {{ dd($product) }} --}}
 	<td class="{{$hide_tax}}">
-		<input type="text" name="exchange_products[{{$row_count}}][unit_price_inc_tax]" class="form-control original_amount input_number" value="{{@num_format($unit_price_inc_tax)}}" @if(!$edit_price) readonly @endif @if(!empty($pos_settings['enable_msp'])) data-rule-min-value="{{$product->sell_price_inc_tax}}" data-msg-min-value="{{__('lang_v1.minimum_selling_price_error_msg', ['price' => @num_format($unit_price_inc_tax)])}}" @endif>
+		<input type="text" name="exchange_products[{{$row_count}}][unit_price_inc_tax]" class="form-control original_amount input_number" value="{{@num_format($unit_price_inc_tax)}}" @if(!$edit_price) readonly @endif @if(!empty($pos_settings['enable_msp'])) data-rule-min-value="{{$product->sell_price_inc_tax}}" data-msg-min-value="{{__('lang_v1.minimum_selling_price_error_msg', ['price' => @num_format($unit_price_inc_tax)])}}" @endif readonly>
 	</td>
 	@if ( $discount && $discount->discount_type == 'fixed')
 		<td class="text-center">
@@ -300,7 +300,7 @@
 		</td>
 	@endif
 	<td class="{{$hide_tax}}">
-		<input type="text" name="exchange_products[{{$row_count}}][unit_price_inc_tax]" class="form-control pos_unit_price_inc_tax input_number" value="{{@num_format($unit_price_inc_tax)}}" @if(!$edit_price) readonly @endif @if(!empty($pos_settings['enable_msp'])) data-rule-min-value="{{$unit_price_inc_tax}}" data-msg-min-value="{{__('lang_v1.minimum_selling_price_error_msg', ['price' => @num_format($unit_price_inc_tax)])}}" @endif>
+		<input type="text" name="exchange_products[{{$row_count}}][unit_price_inc_tax]" class="form-control pos_unit_price_inc_tax input_number" value="{{@num_format($unit_price_inc_tax)}}" @if(!$edit_price) readonly @endif @if(!empty($pos_settings['enable_msp'])) data-rule-min-value="{{$unit_price_inc_tax}}" data-msg-min-value="{{__('lang_v1.minimum_selling_price_error_msg', ['price' => @num_format($unit_price_inc_tax)])}}" @endif readonly>
 	</td>
 	<td class="text-center">
 		@php

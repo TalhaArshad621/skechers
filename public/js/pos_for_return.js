@@ -239,9 +239,9 @@ $(document).ready(function() {
 
     //Update line total and check for quantity not greater than max quantity
     $('table#pos_table tbody').on('change', 'input.pos_quantity', function() {
-        if (sell_form_validator) {
-            sell_form_validator.element($(this));
-        }
+        // if (sell_form_validator) {
+        //     sell_form_validator.element($(this));
+        // }
         if (pos_form_validator) {
             pos_form_validator.element($(this));
         }
@@ -1575,9 +1575,36 @@ function pos_each_row(row_obj) {
     __write_number(row_obj.find('input.item_tax'), unit_price_inc_tax - discounted_unit_price);
 }
 
+function returned_amount()
+{
+    var net_return = 0;
+		$('table#sell_return_table tbody tr').each( function(){
+			var quantity = __read_number($(this).find('input.return_qty'));
+			var unit_price = __read_number($(this).find('input.unit_price'));
+			var subtotal = quantity * unit_price;
+			$(this).find('.return_subtotal').text(__currency_trans_from_en(subtotal, true));
+			net_return += subtotal;
+		});
+		var discount = 0;
+		if($('#discount_type').val() == 'fixed'){
+			discount = __read_number($("#discount_amount"));
+		} else if($('#discount_type').val() == 'percentage'){
+			var discount_percent = __read_number($("#discount_amount"));
+			discount = __calculate_amount('percentage', discount_percent, net_return);
+		}
+		discounted_net_return = net_return - discount;
+
+		var tax_percent = $('input#tax_percent').val();
+		var total_tax = __calculate_amount('percentage', tax_percent, discounted_net_return);
+		var net_return_inc_tax = total_tax + discounted_net_return;
+        console.log(net_return_inc_tax);
+        return net_return_inc_tax;
+}
+
 function pos_total_row() {
     var total_quantity = 0;
     var price_total = get_subtotal();
+    var return_total = returned_amount();
     $('table#pos_table tbody tr').each(function() {
         total_quantity = total_quantity + __read_number($(this).find('input.pos_quantity'));
     });
@@ -1592,7 +1619,16 @@ function pos_total_row() {
     });
 
     //$('span.unit_price_total').html(unit_price_total);
+    // console.log(price_total);
+    // returned_amount();
     $('span.price_total').html(__currency_trans_from_en(price_total, false));
+    var subtotal = price_total - return_total;
+    // Fix the subtotal to 2 decimal places
+    subtotal = subtotal.toFixed(2);
+
+    $('#subtotal_input').val(subtotal);
+    $('#subtotal_field').text(subtotal);
+
     calculate_billing_details(price_total);
 }
 
@@ -1610,7 +1646,6 @@ function get_subtotal() {
         var modifier_subtotal = modifier_price * modifier_quantity;
         price_total = price_total + modifier_subtotal;
     });
-
     return price_total;
 }
 

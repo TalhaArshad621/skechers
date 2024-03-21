@@ -26,13 +26,20 @@
     <input type="hidden" name="sub_type" value="{{$sub_type}}">
       <div class="row">
         @if($business_locations->count() > 0)
-        <div class="col-sm-8 col-sm-offset-2">
+        <div class="col-sm-8 col-sm-offset-2" style="display: none;">
+          <div class="form-group">
+              {!! Form::label('amount', __('cash_register.cash_in_hand') . ':*') !!}
+              <!-- Add a hidden input field to pass the default value -->
+              {!! Form::hidden('amount', $defaultAmount, ['class' => 'hidden-field']) !!}
+          </div>
+        </div>
+        {{-- <div class="col-sm-8 col-sm-offset-2">
           <div class="form-group">
             {!! Form::label('amount', __('cash_register.cash_in_hand') . ':*') !!}
             {!! Form::text('amount', null, ['class' => 'form-control input_number',
               'placeholder' => __('cash_register.enter_amount'), 'required']); !!}
           </div>
-        </div>
+        </div> --}}
         @if(count($business_locations) > 1)
         <div class="clearfix"></div>
         <div class="col-sm-8 col-sm-offset-2">

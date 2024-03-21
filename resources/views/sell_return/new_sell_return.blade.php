@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', __('lang_v1.sell_return'))
+@section('title', __('Product Exchange'))
 
 @section('content')
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>@lang('lang_v1.sell_return')</h1>
+    <h1>@lang('Product Exchange')</h1>
 </section>
 
 <!-- Main content -->
@@ -133,14 +133,14 @@
 					// $discount_type = !empty($sell->return_parent->discount_type) ? $sell->return_parent->discount_type : $sell->discount_type;
 					// $discount_amount = !empty($sell->return_parent->discount_amount) ? $sell->return_parent->discount_amount : $sell->discount_amount;
 				@endphp
-				<div class="col-sm-4">
+				<div class="col-sm-4" style="display: none;">
 					<div class="form-group">
 						{!! Form::label('discount_type', __( 'purchase.discount_type' ) . ':') !!}
                         <input class="form-control" name="discount_type" id="discount_type" type="text">
 						{{-- {!! Form::select('discount_type', [ '' => __('lang_v1.none'), 'fixed' => __( 'lang_v1.fixed' ), 'percentage' => __( 'lang_v1.percentage' )], $discount_type, ['class' => 'form-control']); !!} --}}
 					</div>
 				</div>
-				<div class="col-sm-4">
+				<div class="col-sm-4" style="display: none;">
 					<div class="form-group">
 						{!! Form::label('discount_amount', __( 'purchase.discount_amount' ) . ':') !!}
 						{{-- {!! Form::text('discount_amount', @num_format($discount_amount), ['class' => 'form-control input_number']); !!} --}}
@@ -386,10 +386,10 @@
 @stop
 @section('javascript')
 <script src="{{ asset('js/pos_for_return.js?v=' . $asset_v) }}"></script>
-<script src="{{ asset('js/product.js?v=' . $asset_v) }}"></script>
-<script src="{{ asset('js/opening_stock.js?v=' . $asset_v) }}"></script>
+{{-- <script src="{{ asset('js/product.js?v=' . $asset_v) }}"></script> --}}
+{{-- <script src="{{ asset('js/opening_stock.js?v=' . $asset_v) }}"></script>
 <script src="{{ asset('js/printer.js?v=' . $asset_v) }}"></script>
-<script src="{{ asset('js/sell_return.js?v=' . $asset_v) }}"></script>
+<script src="{{ asset('js/sell_return.js?v=' . $asset_v) }}"></script> --}}
 <script type="text/javascript">
 	$(document).ready( function(){
 		$('form#sell_return_form_new').validate();
@@ -424,8 +424,8 @@
 
 		var tax_percent = $('input#tax_percent').val();
 		var total_tax = __calculate_amount('percentage', tax_percent, discounted_net_return);
+		var exchanged_amount = get_subtotal();
 		var net_return_inc_tax = total_tax + discounted_net_return;
-
 		$('input#tax_amount').val(total_tax);
 		$('span#total_return_discount').text(__currency_trans_from_en(discount, true));
 		$('span#total_return_tax').text(__currency_trans_from_en(total_tax, true));
@@ -439,32 +439,85 @@
             var invoiceNumber = $('#old_invoice_number').val();
 
             // Send an Ajax request to your controller
-            $.ajax({
-                type: 'POST', // or 'GET' depending on your controller method
-                url: '/get-sell-return-data', // Replace with the actual route
-                data: {
-                    invoice_number: invoiceNumber
-                    // Add any other data you want to send to the controller
-                },
-                success: function(response) {
-                    // Handle the success response from the controller
-                    console.log(response);
-                    if (response.success) {
-                    // Update your view with the received data
-                    // Assuming you have a function to update the view, you can replace it with your logic
-                    updateView(response.sell);
-					update_sell_return_total();
-                } else {
-                    // Handle the case where the transaction is not found
-                    console.log(response.message);
-                }
+			$.ajax({
+				type: 'POST',
+				url: '/get-sell-return-data',
+				data: {
+					invoice_number: invoiceNumber
+					// Add any other data you want to send to the controller
+				},
+				success: function(response) {
+					// Handle the success response from the controller
+					console.log(response);
+					if (response.success) {
+						// Update your view with the received data
+						updateView(response.sell);
+						update_sell_return_total();
+					} else {
+						// Display error message using confirm dialog
+						var confirmation = confirm(response.message);
+						if (confirmation) {
+							location.reload(); // Reload the page if user clicks OK
+						}
+					}
+				},
+				error: function(xhr, status, error) {
+					// Handle the error response
+					console.log(error);
+				}
+			});
 
-                },
-                error: function(error) {
-                    // Handle the error response
-                    console.log(error);
-                }
-            });
+			// $.ajax({
+			// 	type: 'POST',
+			// 	url: '/get-sell-return-data',
+			// 	data: {
+			// 		invoice_number: invoiceNumber
+			// 		// Add any other data you want to send to the controller
+			// 	},
+			// 	success: function(response) {
+			// 		// Handle the success response from the controller
+			// 		console.log(response);
+			// 		if (response.success) {
+			// 			// Update your view with the received data
+			// 			updateView(response.sell);
+			// 			update_sell_return_total();
+			// 		} else {
+			// 			// Display error message
+			// 			alert(response.message);
+			// 		}
+			// 	},
+			// 	error: function(xhr, status, error) {
+			// 		// Handle the error response
+			// 		console.log(error);
+			// 	}
+			// });
+
+            // $.ajax({
+            //     type: 'POST', // or 'GET' depending on your controller method
+            //     url: '/get-sell-return-data', // Replace with the actual route
+            //     data: {
+            //         invoice_number: invoiceNumber
+            //         // Add any other data you want to send to the controller
+            //     },
+            //     success: function(response) {
+            //         // Handle the success response from the controller
+            //         console.log(response);
+            //         if (response.success) {
+            //         // Update your view with the received data
+            //         // Assuming you have a function to update the view, you can replace it with your logic
+            //         updateView(response.sell);
+			// 		update_sell_return_total();
+            //     } else {
+            //         // Handle the case where the transaction is not found
+            //         console.log(response.message);
+            //     }
+
+            //     },
+            //     error: function(error) {
+            //         // Handle the error response
+            //         console.log(error);
+            //     }
+            // });
         });
         function formatDate(dateString) {
         var date = new Date(dateString);
@@ -547,8 +600,8 @@
 
     function updateView(sellData) {
             // Implement your logic to update the view with the received sellData
-            console.log(sellData);
-            console.log(sellData.id)
+            // console.log(sellData);
+            // console.log(sellData.id)
             $('#transaction_id').val(sellData.id ? sellData.id : '');
             $('#transaction_date').text(sellData.transaction_date ? formatDate(sellData.transaction_date) : '');
             $('#business_location').text(sellData.location ? sellData.location.name : '');
@@ -630,14 +683,16 @@
 				if (result.success == 1) {
                             toastr.success(result.msg);
                             //Check if enabled or not
-                            if (result.receipt.is_enabled) {
-                                pos_print(result.receipt);
-                            }
+                            // if (result.receipt.is_enabled) {
+                            //     pos_print(result.receipt);
+                            // }
+							window.location.href = '/sell-return';
+
                         } else {
                             toastr.error(result.msg);
                         }
 
-                console.log(response);
+                // console.log(response);
             },
             error: function(error) {
                 console.error('Error:', error);
@@ -702,37 +757,38 @@
         }
     });
 
-    // Select the target node
-    var targetNode = document.getElementById('net_return');
+    // // Select the target node
+    // var targetNode = document.getElementById('net_return');
 
-    // Callback function to execute when mutations are observed
-    var callback = function(mutationsList, observer) {
-        for (var mutation of mutationsList) {
-            if (mutation.type === 'childList' || mutation.type === 'characterData') {
-                // Fetch the value from the span element
-                var netReturnValue = $('#net_return').text().trim();
-                netReturnCleaned = parseFloat(netReturnValue.replace(/[^\d.]/g, '').trim());
+    // // Callback function to execute when mutations are observed
+    // var callback = function(mutationsList, observer) {
+    //     for (var mutation of mutationsList) {
+    //         if (mutation.type === 'childList' || mutation.type === 'characterData') {
+    //             // Fetch the value from the span element
+    //             var netReturnValue = $('#net_return').text().trim();
+    //             netReturnCleaned = parseFloat(netReturnValue.replace(/[^\d.]/g, '').trim());
 
-                // Check if both netReturnCleaned and saleTotal are available
-                if (netReturnCleaned !== undefined && saleTotal !== undefined) {
-                    calculateSubTotal(netReturnCleaned, saleTotal);
-                }
-            }
-        }
-    };
+    //             // Check if both netReturnCleaned and saleTotal are available
+    //             if (netReturnCleaned !== undefined && saleTotal !== undefined) {
+    //                 calculateSubTotal(netReturnCleaned, saleTotal);
+    //             }
+    //         }
+    //     }
+    // };
 
-    // Create an observer instance linked to the callback function
-    var observer = new MutationObserver(callback);
+    // // Create an observer instance linked to the callback function
+    // var observer = new MutationObserver(callback);
 
-    // Configuration of the observer
-    var config = { attributes: true, childList: true, subtree: true, characterData: true };
+    // // Configuration of the observer
+    // var config = { attributes: true, childList: true, subtree: true, characterData: true };
 
-    // Start observing the target node for configured mutations
-    observer.observe(targetNode, config);
+    // // Start observing the target node for configured mutations
+    // observer.observe(targetNode, config);
 
     function calculateSubTotal(netReturnCleaned, saleTotal) {
         var sub_total =  saleTotal - netReturnCleaned;
-        console.log("Sub Total value:", sub_total);
+		sub_total = sub_total.toFixed(2);
+        // console.log("Sub Total value:", sub_total);
 		$('#subtotal_input').val(sub_total);
 		$('#subtotal_field').text(sub_total);
 

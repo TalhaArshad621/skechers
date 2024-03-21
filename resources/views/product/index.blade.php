@@ -127,6 +127,7 @@
                                     <th>SKU</th>
                                     {{-- <th>@lang('business.product')</th> --}}
                                     <th>Category</th>
+                                    <th>Sub Category</th>
                                     <th>@lang('report.total_unit_sold')</th>
                                     <th>@lang('report.current_stock')</th>
                                     <th>@lang('sale.location')</th>
@@ -149,7 +150,7 @@
                                     {{-- <td></td> --}}
                                     <td></td>
                                     <td></td>
-                                    <td><strong>@lang('sale.total'):</strong></td>
+                                    <td colspan="2"><strong>@lang('sale.total'):</strong></td>
                                     <td class="footer_total_sold"></td>
                                     <td class="footer_total_stock"></td>
                                     <td></td>
@@ -586,6 +587,7 @@
                         { data: 'sku', name: 'variations.sub_sku' },
                         // { data: 'product', name: 'p.name' },
                         { data: 'category_name', name: 'categories.name' },
+                        { data: 'sub_category', name: 'c2.name' },
                         { data: 'total_sold', name: 'total_sold', searchable: false },
                         { data: 'stock', name: 'stock', searchable: false },
                         { data: 'location_name', name: 'l.name' },

@@ -1,6 +1,7 @@
 <div class="modal-dialog modal-xl no-print" role="document">
   <div class="modal-content">
     <div class="modal-header">
+      {{-- {{ dd($sell) }} --}}
     <button type="button" class="close no-print" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
     <h4 class="modal-title" id="modalTitle"> @lang('lang_v1.sell_return') (<b>@lang('sale.invoice_no'):</b> {{ $sell->return_parent->invoice_no }})
     </h4>
@@ -76,24 +77,154 @@
     </div>
   </div>
   <div class="row">
+    <div class="col-sm-12">
+      <br>
+      <table class="table bg-gray">
+        <tr class="bg-green">
+        <th>#</th>
+        <th>{{ __('SKU') }}</th>
+        @if( session()->get('business.enable_lot_number') == 1)
+            <th>{{ __('lang_v1.lot_n_expiry') }}</th>
+        @endif
+        <th>{{ __('sale.qty') }}</th>
+        @if(!empty($pos_settings['inline_service_staff']))
+            <th>
+                @lang('restaurant.service_staff')
+            </th>
+        @endif
+        <th>{{ __('sale.unit_price') }}</th>
+        {{-- <th>{{ __('sale.discount') }}</th> --}}
+        <th>{{ __('sale.tax') }}</th>
+        <th>{{ __('sale.price_inc_tax') }}</th>
+        <th>{{ __('sale.subtotal') }}</th>
+    </tr>
+    @foreach($exchangedSale as $sell_line)
+        <tr>
+            <td>{{ $loop->iteration }}</td>
+            <td>
+                {{ $sell_line->sku }}
+                {{-- @if( $sell_line->product->type == 'variable')
+                - {{ $sell_line->variations->product_variation->name ?? ''}}
+                - {{ $sell_line->variations->name ?? ''}},
+                @endif --}}
+                {{-- {{ $sell_line->variations->sub_sku ?? ''}} --}}
+                {{-- @php
+                $brand = $sell_line->product->brand;
+                @endphp
+                @if(!empty($brand->name))
+                , {{$brand->name}}
+                @endif --}}
+
+                {{-- @if(!empty($sell_line->sell_line_note))
+                <br> {{$sell_line->sell_line_note}}
+                @endif --}}
+                {{-- @if($is_warranty_enabled && !empty($sell_line->warranties->first()) )
+                    <br><small>{{$sell_line->warranties->first()->display_name ?? ''}} - {{ @format_date($sell_line->warranties->first()->getEndDate($sell->transaction_date))}}</small>
+                    @if(!empty($sell_line->warranties->first()->description))
+                    <br><small>{{$sell_line->warranties->first()->description ?? ''}}</small>
+                    @endif
+                @endif --}}
+
+                {{-- @if(in_array('kitchen', $enabled_modules))
+                    <br><span class="label @if($sell_line->res_line_order_status == 'cooked' ) bg-red @elseif($sell_line->res_line_order_status == 'served') bg-green @else bg-light-blue @endif">@lang('restaurant.order_statuses.' . $sell_line->res_line_order_status) </span>
+                @endif --}}
+            </td>
+            {{-- @if( session()->get('business.enable_lot_number') == 1)
+                <td>{{ $sell_line->lot_details->lot_number ?? '--' }}
+                    @if( session()->get('business.enable_product_expiry') == 1 && !empty($sell_line->lot_details->exp_date))
+                    ({{@format_date($sell_line->lot_details->exp_date)}})
+                    @endif
+                </td>
+            @endif --}}
+            <td>
+                <span class="display_currency" data-currency_symbol="false" data-is_quantity="true">{{ $sell_line->sold_quantity }}</span>
+            </td>
+            @if(!empty($pos_settings['inline_service_staff']))
+                <td>
+                {{ $sell_line->service_staff->user_full_name ?? '' }}
+                </td>
+            @endif
+            <td>
+                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->unit_price }}</span>
+            </td>
+            {{-- <td>
+                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->get_discount_amount() }}</span> @if($sell_line->line_discount_type == 'percentage') ({{$sell_line->line_discount_amount}}%) @endif
+            </td> --}}
+            <td>
+                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->item_tax }}</span> 
+                @if(!empty($taxes[$sell_line->tax_id]))
+                ( {{ $taxes[$sell_line->tax_id]}} )
+                @endif
+            </td>
+            <td>
+                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->sell_price_inc_tax }}</span>
+            </td>
+            <td>
+                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->sold_quantity * $sell_line->sell_price_inc_tax }}</span>
+            </td>
+        </tr>
+        @if(!empty($sell_line->modifiers))
+        @foreach($sell_line->modifiers as $modifier)
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    {{ $modifier->product->name }} - {{ $modifier->variations->name ?? ''}},
+                    {{ $modifier->variations->sub_sku ?? ''}}
+                </td>
+                @if( session()->get('business.enable_lot_number') == 1)
+                    <td>&nbsp;</td>
+                @endif
+                <td>{{ $modifier->quantity }}</td>
+                <td>
+                    <span class="display_currency" data-currency_symbol="true">{{ $modifier->unit_price }}</span>
+                </td>
+                <td>
+                    &nbsp;
+                </td>
+                <td>
+                    <span class="display_currency" data-currency_symbol="true">{{ $modifier->item_tax }}</span> 
+                    @if(!empty($taxes[$modifier->tax_id]))
+                    ( {{ $taxes[$modifier->tax_id]}} )
+                    @endif
+                </td>
+                <td>
+                    <span class="display_currency" data-currency_symbol="true">{{ $modifier->unit_price_inc_tax }}</span>
+                </td>
+                <td>
+                    <span class="display_currency" data-currency_symbol="true">{{ $modifier->quantity * $modifier->unit_price_inc_tax }}</span>
+                </td>
+            </tr>
+            @endforeach
+        @endif
+    @endforeach
+</table>
+    </div>
+  </div>
+  <div class="row">
     <div class="col-sm-6 col-sm-offset-6 col-xs-6 col-xs-offset-6">
       <table class="table">
         <tr>
-          <th>@lang('purchase.net_total_amount'): </th>
+          <th>Exchange Amount: </th>
           <td></td>
-          <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $total_before_tax }}</span></td>
+          <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $sell_line->sold_quantity * $sell_line->sell_price_inc_tax }}</span></td>
         </tr>
-
         <tr>
+          <th>Return Amount: </th>
+          <td></td>
+          <td><span class="display_currency pull-right" data-currency_symbol="true">-{{ $total_before_tax }}</span></td>
+        </tr>
+        
+
+        {{-- <tr>
           <th>@lang('lang_v1.return_discount'): </th>
           <td><b>(-)</b></td>
           <td class="text-right">@if($sell->return_parent->discount_type == 'percentage')
               @<strong><small>{{$sell->return_parent->discount_amount}}%</small></strong> -
               @endif
           <span class="display_currency pull-right" data-currency_symbol="true">{{ $total_discount }}</span></td>
-        </tr>
+        </tr> --}}
         
-        <tr>
+        {{-- <tr>
           <th>@lang('lang_v1.total_return_tax'):</th>
           <td><b>(+)</b></td>
           <td class="text-right">
@@ -105,7 +236,7 @@
               0.00
               @endif
             </td>
-        </tr>
+        </tr> --}}
         <tr>
           <th>@lang('lang_v1.return_total'):</th>
           <td></td>

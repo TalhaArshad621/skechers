@@ -53,7 +53,7 @@
             <strong><i class="fa fa-calculator fa-lg" aria-hidden="true"></i></strong>
         </button> --}}
         
-        @if($request->segment(1) == 'pos')
+        {{-- @if($request->segment(1) == 'pos')
           @can('view_cash_register')
           <button type="button" id="register_details" title="{{ __('cash_register.register_details') }}" data-toggle="tooltip" data-placement="bottom" class="btn btn-success btn-flat pull-left m-8 btn-sm mt-10 btn-modal" data-container=".register_details_modal" 
           data-href="{{ action('CashRegisterController@getRegisterDetails')}}">
@@ -66,7 +66,7 @@
             <strong><i class="fa fa-window-close fa-lg"></i></strong>
           </button>
           @endcan
-        @endif
+        @endif --}}
 
         @if(in_array('pos_sale', $enabled_modules))
           @can('sell.create')

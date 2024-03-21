@@ -299,6 +299,10 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::post('/import-opening-stock/store', 'ImportOpeningStockController@store');
 
     //Sell return
+
+    Route::get('/merged-receipt/{id}', 'SellReturnController@showMergedReceipt')->name('merged-receipt.show');
+
+
     Route::resource('sell-return', 'SellReturnController');
     Route::get('sell-return/get-product-row', 'SellReturnController@getProductRow');
     Route::get('/sell-return/print/{id}', 'SellReturnController@printInvoice');
