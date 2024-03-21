@@ -28,14 +28,14 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash }}</span>
               </td>
             </tr>
-            <tr>
+            {{-- <tr>
               <td>
                 @lang('cash_register.checque_payment'):
               </td>
               <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cheque }}</span>
               </td>
-            </tr>
+            </tr> --}}
             <tr>
               <td>
                 @lang('cash_register.card_payment'):
@@ -44,7 +44,7 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_card }}</span>
               </td>
             </tr>
-            <tr>
+            {{-- <tr>
               <td>
                 @lang('cash_register.bank_transfer'):
               </td>
@@ -59,8 +59,8 @@
               <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_advance }}</span>
               </td>
-            </tr>
-            @if(array_key_exists('custom_pay_1', $payment_types))
+            </tr> --}}
+            {{-- @if(array_key_exists('custom_pay_1', $payment_types))
               <tr>
                 <td>
                   {{$payment_types['custom_pay_1']}}:
@@ -137,7 +137,7 @@
               <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_other }}</span>
               </td>
-            </tr>
+            </tr> --}}
             <tr>
               <td>
                 @lang('cash_register.total_sales'):
@@ -146,7 +146,7 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_sale }}</span>
               </td>
             </tr>
-            <tr class="success">
+            {{-- <tr class="success">
               <th>
                 @lang('cash_register.total_refund')
               </th>
@@ -179,7 +179,7 @@
                 @endif
                 </small>
               </td>
-            </tr>
+            </tr> --}}
             <tr class="success">
               <th>
                 @lang('lang_v1.total_payment')
@@ -188,14 +188,14 @@
                 <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->cash_in_hand + $register_details->total_cash - $register_details->total_cash_refund }}</span></b>
               </td>
             </tr>
-            <tr class="success">
+            {{-- <tr class="success">
               <th>
                 @lang('lang_v1.credit_sales'):
               </th>
               <td>
                 <b><span class="display_currency" data-currency_symbol="true">{{ $details['transaction_details']->total_sales - $register_details->total_sale }}</span></b>
               </td>
-            </tr>
+            </tr> --}}
             <tr class="success">
               <th>
                 @lang('cash_register.total_sales'):
@@ -223,7 +223,7 @@
               {!! Form::number('total_card_slips', $register_details->total_card_slips, ['class' => 'form-control', 'required', 'placeholder' => __( 'cash_register.total_card_slips' ), 'min' => 0 ]); !!}
           </div>
         </div> 
-        <div class="col-sm-4">
+        <div class="col-sm-4" style="display: none">
           <div class="form-group">
             {!! Form::label('total_cheques', __( 'cash_register.total_cheques' ) . ':*') !!} @show_tooltip(__('tooltip.total_cheques'))
               {!! Form::number('total_cheques', $register_details->total_cheques, ['class' => 'form-control', 'required', 'placeholder' => __( 'cash_register.total_cheques' ), 'min' => 0 ]); !!}

@@ -1,15 +1,15 @@
-$(document).ready(function() {
+$(document).ready(function () {
     var start = $('input[name="date-filter"]:checked').data('start');
     var end = $('input[name="date-filter"]:checked').data('end');
     update_statistics(start, end);
-    $(document).on('change', 'input[name="date-filter"], #dashboard_location', function() {
+    $(document).on('change', 'input[name="date-filter"], #dashboard_location', function () {
         var start = $('input[name="date-filter"]:checked').data('start');
         var end = $('input[name="date-filter"]:checked').data('end');
         update_statistics(start, end);
         if ($('#quotation_table').length && $('#dashboard_location').length) {
             quotation_datatable.ajax.reload();
         }
-        
+
     });
 
     //atock alert datatables
@@ -18,13 +18,13 @@ $(document).ready(function() {
         serverSide: true,
         ordering: false,
         searching: false,
-        scrollY:        "75vh",
-        scrollX:        true,
+        scrollY: "75vh",
+        scrollX: true,
         scrollCollapse: true,
         fixedHeader: false,
         dom: 'Btirp',
         ajax: '/home/product-stock-alert',
-        fnDrawCallback: function(oSettings) {
+        fnDrawCallback: function (oSettings) {
             __currency_convert_recursively($('#stock_alert_table'));
         },
     });
@@ -34,13 +34,13 @@ $(document).ready(function() {
         serverSide: true,
         ordering: false,
         searching: false,
-        scrollY:        "75vh",
-        scrollX:        true,
+        scrollY: "75vh",
+        scrollX: true,
         scrollCollapse: true,
         fixedHeader: false,
         dom: 'Btirp',
         ajax: '/home/purchase-payment-dues',
-        fnDrawCallback: function(oSettings) {
+        fnDrawCallback: function (oSettings) {
             __currency_convert_recursively($('#purchase_payment_dues_table'));
         },
     });
@@ -51,13 +51,13 @@ $(document).ready(function() {
         serverSide: true,
         ordering: false,
         searching: false,
-        scrollY:        "75vh",
-        scrollX:        true,
+        scrollY: "75vh",
+        scrollX: true,
         scrollCollapse: true,
         fixedHeader: false,
         dom: 'Btirp',
         ajax: '/home/sales-payment-dues',
-        fnDrawCallback: function(oSettings) {
+        fnDrawCallback: function (oSettings) {
             __currency_convert_recursively($('#sales_payment_dues_table'));
         },
     });
@@ -67,14 +67,14 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
         searching: false,
-        scrollY:        "75vh",
-        scrollX:        true,
+        scrollY: "75vh",
+        scrollX: true,
         scrollCollapse: true,
         fixedHeader: false,
         dom: 'Btirp',
         ajax: {
             url: '/reports/stock-expiry',
-            data: function(d) {
+            data: function (d) {
                 d.exp_date_filter = $('#stock_expiry_alert_days').val();
             },
         },
@@ -85,7 +85,7 @@ $(document).ready(function() {
             { data: 'stock_left', name: 'stock_left' },
             { data: 'exp_date', name: 'exp_date' },
         ],
-        fnDrawCallback: function(oSettings) {
+        fnDrawCallback: function (oSettings) {
             __show_date_diff_for_human($('#stock_expiry_alert_table'));
             __currency_convert_recursively($('#stock_expiry_alert_table'));
         },
@@ -98,24 +98,49 @@ $(document).ready(function() {
             aaSorting: [[0, 'desc']],
             "ajax": {
                 "url": '/sells/draft-dt?is_quotation=1',
-                "data": function ( d ) {
+                "data": function (d) {
                     if ($('#dashboard_location').length > 0) {
                         d.location_id = $('#dashboard_location').val();
                     }
                 }
             },
-            columnDefs: [ {
+            columnDefs: [{
                 "targets": 4,
                 "orderable": false,
                 "searchable": false
-            } ],
+            }],
             columns: [
-                { data: 'transaction_date', name: 'transaction_date'  },
-                { data: 'invoice_no', name: 'invoice_no'},
-                { data: 'name', name: 'contacts.name'},
-                { data: 'business_location', name: 'bl.name'},
-                { data: 'action', name: 'action'}
-            ]            
+                { data: 'transaction_date', name: 'transaction_date' },
+                { data: 'invoice_no', name: 'invoice_no' },
+                { data: 'name', name: 'contacts.name' },
+                { data: 'business_location', name: 'bl.name' },
+                { data: 'action', name: 'action' }
+            ]
+        });
+    }
+
+    if ($('#dashboard_stock_report_table').length) {
+        quotation_datatable = $('#dashboard_stock_report_table').DataTable({
+            processing: true,
+            serverSide: true,
+            aaSorting: [[0, 'desc']],
+            "ajax": {
+                "url": '/reports/dashboard-stock-report',
+                "data": function (d) {
+                    if ($('#dashboard_location').length > 0) {
+                        d.location_id = $('#dashboard_location').val();
+                    }
+                }
+            },
+            columns: [
+                { data: 'categories', name: 'categories' },
+                { data: 'stock', name: 'stock' },
+                { data: 'total_sold', name: 'total_sold' },
+                { data: 'stock_price', name: 'stock_price' },
+                { data: 'stock_value_by_sale_price', name: 'stock_value_by_sale_price' },
+                { data: 'cost_of_sold', name: 'cost_of_sold' },
+                { data: 'sale_price_of_sold', name: 'sale_price_of_sold' },
+            ]
         });
     }
 });
@@ -138,7 +163,7 @@ function update_statistics(start, end) {
         url: '/home/get-totals',
         dataType: 'json',
         data: data,
-        success: function(data) {
+        success: function (data) {
             //purchase details
             $('.total_purchase').html(__currency_trans_from_en(data.total_purchase, true));
             $('.purchase_due').html(__currency_trans_from_en(data.purchase_due, true));

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\BusinessLocation;
-
+use App\Category;
 use App\Charts\CommonChart;
 use App\Currency;
 use App\Transaction;
@@ -20,6 +20,7 @@ use App\Utils\RestaurantUtil;
 use App\User;
 use Illuminate\Notifications\DatabaseNotification;
 use App\Media;
+use App\Utils\ProductUtil;
 
 class HomeController extends Controller
 {
@@ -32,6 +33,7 @@ class HomeController extends Controller
     protected $moduleUtil;
     protected $commonUtil;
     protected $restUtil;
+    protected $productUtil;
 
     /**
      * Create a new controller instance.
@@ -43,13 +45,15 @@ class HomeController extends Controller
         TransactionUtil $transactionUtil,
         ModuleUtil $moduleUtil,
         Util $commonUtil,
-        RestaurantUtil $restUtil
+        RestaurantUtil $restUtil,
+        ProductUtil $productUtil
     ) {
         $this->businessUtil = $businessUtil;
         $this->transactionUtil = $transactionUtil;
         $this->moduleUtil = $moduleUtil;
         $this->commonUtil = $commonUtil;
         $this->restUtil = $restUtil;
+        $this->productUtil = $productUtil;
     }
 
     /**
@@ -641,5 +645,104 @@ class HomeController extends Controller
 
             return $output;
         }
+    }
+
+
+    public function getStockDetail(Request $request)
+    {
+
+        if($request->ajax()) {
+
+            $business_id = $request->session()->get('user.business_id');
+    
+            $query = Category::join('products as p', 'p.category_id', '=', 'categories.id')
+            ->join('variations as v', 'v.product_id', '=', 'p.id')
+              ->leftjoin('variation_location_details as vld', 'v.id', '=', 'vld.variation_id')
+              ->leftjoin('business_locations as l', 'vld.location_id', '=', 'l.id')
+              ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+              ->where('p.business_id', $business_id)
+              ->whereIn('p.type', ['single', 'variable']);
+    
+              $pl_query_string = $this->productUtil->get_pl_quantity_sum_string('pl');
+    
+              $products = $query->select(
+                // DB::raw("(SELECT SUM(quantity) FROM transaction_sell_lines LEFT JOIN transactions ON transaction_sell_lines.transaction_id=transactions.id WHERE transactions.status='final' $location_filter AND
+                //     transaction_sell_lines.product_id=products.id) as total_sold"),
+    
+                DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
+                      JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
+                      WHERE transactions.status='final' AND transactions.type='sell' AND transactions.location_id=vld.location_id
+                      AND TSL.variation_id=v.id) as total_sold"),
+                DB::raw("(SELECT SUM(IF(transactions.type='sell_transfer', TSL.quantity, 0) ) FROM transactions 
+                      JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
+                      WHERE transactions.status='final' AND transactions.type='sell_transfer' AND transactions.location_id=vld.location_id AND (TSL.variation_id=v.id)) as total_transfered"),
+                DB::raw("(SELECT SUM(IF(transactions.type='stock_adjustment', SAL.quantity, 0) ) FROM transactions 
+                      JOIN stock_adjustment_lines AS SAL ON transactions.id=SAL.transaction_id
+                      WHERE transactions.type='stock_adjustment' AND transactions.location_id=vld.location_id 
+                        AND (SAL.variation_id=v.id)) as total_adjusted"),
+                DB::raw("(SELECT SUM( COALESCE(pl.quantity - ($pl_query_string), 0) * purchase_price_inc_tax) FROM transactions 
+                      JOIN purchase_lines AS pl ON transactions.id=pl.transaction_id
+                      WHERE transactions.status='received' AND transactions.location_id=vld.location_id 
+                      AND (pl.variation_id=v.id)) as stock_price"),
+                DB::raw("SUM(vld.qty_available) as stock"),
+                'v.sell_price_inc_tax as unit_price',
+                'categories.name as category_name'
+            )->groupBy('categories.id')->get();
+            
+            // dd($products);
+            $datatable =  Datatables::of($products)
+            ->editColumn('stock', function ($row) {
+                // if ($row->enable_stock) {
+                    $stock = $row->stock ? $row->stock : 0 ;
+                    return  '<span data-is_quantity="true" class="current_stock display_currency" data-orig-value="' . (float)$stock . '" data-currency_symbol=false > ' . (float)$stock . '</span>';
+                // } else {
+                //     return '--';
+                // }
+            })
+            ->editColumn('categories', function ($row) {
+                $name = $row->category_name;
+                return $name;
+            })
+            ->editColumn('total_sold', function ($row) {
+                $total_sold = 0;
+                if ($row->total_sold) {
+                    $total_sold =  (float)$row->total_sold;
+                }
+    
+                return '<span data-is_quantity="true" class="display_currency total_sold" data-currency_symbol=false data-orig-value="' . $total_sold . '" >' . $total_sold . '</span> ';
+            })
+            
+            ->editColumn('stock_price', function ($row) {
+                $stock = $row->stock ? $row->stock : 0 ;
+
+                $html = '<span class="display_currency total_stock_price" data-currency_symbol=true data-orig-value="'
+                    . $row->stock_price * $stock . '">'
+                    . $row->stock_price  * $stock . '</span>';
+    
+                return $html;
+            })
+            ->editColumn('stock_value_by_sale_price', function ($row) {
+                $stock = $row->stock ? $row->stock : 0 ;
+                $unit_selling_price = (float)$row->group_price > 0 ? $row->group_price : $row->unit_price;
+                $stock_price = $stock * $unit_selling_price;
+                return  '<span class="stock_value_by_sale_price display_currency" data-orig-value="' . (float)$stock_price . '" data-currency_symbol=true > ' . (float)$stock_price . '</span>';
+            })
+            ->addColumn('cost_of_sold', function ($row) {
+                $sold = $row->total_sold ? $row->total_sold : 0 ;
+                $unit_stock_price = $row->stock_price;
+                $cost_of_sold = $sold * $unit_stock_price;
+                return  '<span class="potential_profit display_currency" data-orig-value="' . (float)$cost_of_sold . '" data-currency_symbol=true > ' . (float)$cost_of_sold . '</span>';
+            })
+            ->addColumn('sale_price_of_sold', function ($row) {
+                $sold = $row->total_sold ? $row->total_sold : 0 ;
+                $unit_selling_price = (float)$row->group_price > 0 ? $row->group_price : $row->unit_price;
+                $sale_price = $sold * $unit_selling_price;
+                return  '<span class="potential_profit display_currency" data-orig-value="' . (float)$sale_price . '" data-currency_symbol=true > ' . (float)$sale_price . '</span>';
+            });
+    
+            $raw_columns  = [ 'total_sold', 'stock', 'stock_price', 'stock_value_by_sale_price', 'cost_of_sold','sale_price_of_sold'];
+            return $datatable->rawColumns($raw_columns)->make(true);
+        }
+
     }
 }
