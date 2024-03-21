@@ -37,13 +37,14 @@
               </td>
             </tr>
             <tr style="display: none;">
+
               <td>
                 @lang('cash_register.checque_payment'):
               </td>
               <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cheque }}</span>
               </td>
-            </tr>
+            </tr> --}}
             <tr>
               <td>
                 @lang('cash_register.card_payment'):
@@ -52,7 +53,7 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_card }}</span>
               </td>
             </tr>
-            <tr>
+            {{-- <tr>
               <td>
                 @lang('cash_register.bank_transfer'):
               </td>
@@ -67,8 +68,8 @@
               <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_advance }}</span>
               </td>
-            </tr>
-            @if(array_key_exists('custom_pay_1', $payment_types))
+            </tr> --}}
+            {{-- @if(array_key_exists('custom_pay_1', $payment_types))
               <tr>
                 <td>
                   {{$payment_types['custom_pay_1']}}:
@@ -187,7 +188,7 @@
                 @endif
                 </small>
               </td>
-            </tr>
+            </tr> --}}
             <tr class="success">
               <th>
                 @lang('lang_v1.total_payment')
@@ -196,14 +197,14 @@
                 <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->cash_in_hand + $register_details->total_cash - $register_details->total_cash_refund }}</span></b>
               </td>
             </tr>
-            <tr class="success">
+            {{-- <tr class="success">
               <th>
                 @lang('lang_v1.credit_sales'):
               </th>
               <td>
                 <b><span class="display_currency" data-currency_symbol="true">{{ $details['transaction_details']->total_sales - $register_details->total_sale }}</span></b>
               </td>
-            </tr>
+            </tr> --}}
             <tr class="success">
               <th>
                 @lang('cash_register.total_sales'):
