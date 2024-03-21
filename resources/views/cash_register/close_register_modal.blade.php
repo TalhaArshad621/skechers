@@ -146,7 +146,7 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_other }}</span>
               </td>
             </tr>
-            <tr>
+            <tr style="display: none;">
               <td>
                 @lang('cash_register.total_sales'):
               </td>

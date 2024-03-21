@@ -758,6 +758,10 @@ class SellReturnController extends Controller
                             'msg' => $msg
                         ];
         }
+        // dd("done");
+        // return redirect()
+        // ->action('SellReturnController@index')
+        // ->with('status', $output);
 
         return $output;
     }

@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', __('lang_v1.sell_return'))
+@section('title', __('Product Exchange'))
 
 @section('content')
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>@lang('lang_v1.sell_return')</h1>
+    <h1>@lang('Product Exchange')</h1>
 </section>
 
 <!-- Main content -->
@@ -683,14 +683,16 @@
 				if (result.success == 1) {
                             toastr.success(result.msg);
                             //Check if enabled or not
-                            if (result.receipt.is_enabled) {
-                                pos_print(result.receipt);
-                            }
+                            // if (result.receipt.is_enabled) {
+                            //     pos_print(result.receipt);
+                            // }
+							window.location.href = '/sell-return';
+
                         } else {
                             toastr.error(result.msg);
                         }
 
-                console.log(response);
+                // console.log(response);
             },
             error: function(error) {
                 console.error('Error:', error);
