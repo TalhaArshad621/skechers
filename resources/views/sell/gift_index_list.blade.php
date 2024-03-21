@@ -9,7 +9,7 @@
                 <th>@lang('sale.location')</th>
                 <th>@lang('purchase.payment_status')</th>
                 <th>@lang('sale.total_amount')</th>
-                <th>@lang('purchase.payment_due')</th>
+                {{-- <th>@lang('purchase.payment_due')</th> --}}
                 <th>@lang('messages.action')</th>
             </tr>
         </thead>
@@ -18,7 +18,7 @@
                 <td colspan="5"><strong>@lang('sale.total'):</strong></td>
                 <td id="footer_payment_status_count_sr"></td>
                 <td><span class="display_currency" id="footer_sell_return_total" data-currency_symbol ="true"></span></td>
-                <td><span class="display_currency" id="footer_total_due_sr" data-currency_symbol ="true"></span></td>
+                {{-- <td><span class="display_currency" id="footer_total_due_sr" data-currency_symbol ="true"></span></td> --}}
                 <td></td>
             </tr>
         </tfoot>

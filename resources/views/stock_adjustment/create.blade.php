@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('title', __('stock_adjustment.add'))
+@section('title', __('Add Complaint'))
 
 @section('content')
 
 <!-- Content Header (Page header) -->
 <section class="content-header">
 <br>
-    <h1>@lang('stock_adjustment.add')</h1>
+    <h1>@lang('Add Complaint')</h1>
     <!-- <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
         <li class="active">Here</li>

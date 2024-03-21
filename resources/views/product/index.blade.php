@@ -125,7 +125,7 @@
                                 <tr>
                                     <th>Product ID</th>
                                     <th>SKU</th>
-                                    <th>@lang('business.product')</th>
+                                    {{-- <th>@lang('business.product')</th> --}}
                                     <th>Category</th>
                                     <th>@lang('report.total_unit_sold')</th>
                                     <th>@lang('report.current_stock')</th>
@@ -146,7 +146,7 @@
                             </thead>
                             <tfoot>
                                 <tr class="bg-gray font-17 text-center footer-total">
-                                    <td></td>
+                                    {{-- <td></td> --}}
                                     <td></td>
                                     <td></td>
                                     <td><strong>@lang('sale.total'):</strong></td>
@@ -252,7 +252,7 @@
                         { data: 'sub_category', name: 'c2.name'},
                         // { data: 'brand', name: 'brands.name'},
                         // { data: 'tax', name: 'tax_rates.name', searchable: false},
-                        { data: 'product', name: 'products.name'  }
+                        // { data: 'product', name: 'products.name'  }
                         // { data: 'product_custom_field1', name: 'products.product_custom_field1'  },
                         // { data: 'product_custom_field2', name: 'products.product_custom_field2'  },
                         // { data: 'product_custom_field3', name: 'products.product_custom_field3'  },
@@ -584,7 +584,7 @@
                     var stock_report_cols = [
                         { data: 'product_id', name: 'product_id' },
                         { data: 'sku', name: 'variations.sub_sku' },
-                        { data: 'product', name: 'p.name' },
+                        // { data: 'product', name: 'p.name' },
                         { data: 'category_name', name: 'categories.name' },
                         { data: 'total_sold', name: 'total_sold', searchable: false },
                         { data: 'stock', name: 'stock', searchable: false },

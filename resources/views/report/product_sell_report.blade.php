@@ -91,6 +91,7 @@
                                 <thead>
                                     <tr>
                                         {{-- <th>@lang('sale.product')</th> --}}
+                                        <th>Image</th>
                                         <th>@lang('product.sku')</th>
                                         <th>@lang('sale.customer_name')</th>
                                         <th>@lang('lang_v1.contact_id')</th>

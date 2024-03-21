@@ -431,19 +431,19 @@ class AdminSidebarMenu
             //stock adjustment dropdown
             if (in_array('stock_adjustment', $enabled_modules) && (auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create'))) {
                 $menu->dropdown(
-                    __('stock_adjustment.stock_adjustment'),
+                    __('Complaint'),
                     function ($sub) {
                         if (auth()->user()->can('purchase.view')) {
                             $sub->url(
                                 action('StockAdjustmentController@index'),
-                                __('stock_adjustment.list'),
+                                __('List Complaints'),
                                 ['icon' => 'fa fas fa-list', 'active' => request()->segment(1) == 'stock-adjustments' && request()->segment(2) == null]
                             );
                         }
                         if (auth()->user()->can('purchase.create')) {
                             $sub->url(
                                 action('StockAdjustmentController@create'),
-                                __('stock_adjustment.add'),
+                                __('Add Complaint'),
                                 ['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'stock-adjustments' && request()->segment(2) == 'create']
                             );
                         }
@@ -667,13 +667,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-briefcase', 'active' => request()->segment(2) == 'register-report']
                             );
                         }
-                        // if (auth()->user()->can('sales_representative.view')) {
-                        //     $sub->url(
-                        //         action('ReportController@getSalesRepresentativeReport'),
-                        //         __('report.sales_representative'),
-                        //         ['icon' => 'fa fas fa-user', 'active' => request()->segment(2) == 'sales-representative-report']
-                        //     );
-                        // }
+                        if (auth()->user()->can('sales_representative.view')) {
+                            $sub->url(
+                                action('ReportController@getSalesRepresentativeReport'),
+                                __('report.sales_representative'),
+                                ['icon' => 'fa fas fa-user', 'active' => request()->segment(2) == 'sales-representative-report']
+                            );
+                        }
                         if (auth()->user()->can('purchase_n_sell_report.view') && in_array('tables', $enabled_modules)) {
                             $sub->url(
                                 action('ReportController@getTableReport'),
@@ -727,9 +727,9 @@ class AdminSidebarMenu
             }
 
             //Notification template menu
-            if (auth()->user()->can('send_notifications')) {
-                $menu->url(action('NotificationTemplateController@index'), __('lang_v1.notification_templates'), ['icon' => 'fa fas fa-envelope', 'active' => request()->segment(1) == 'notification-templates'])->order(80);
-            }
+            // if (auth()->user()->can('send_notifications')) {
+            //     $menu->url(action('NotificationTemplateController@index'), __('lang_v1.notification_templates'), ['icon' => 'fa fas fa-envelope', 'active' => request()->segment(1) == 'notification-templates'])->order(80);
+            // }
 
             //Gift Module
                 $menu->dropdown(
@@ -738,7 +738,7 @@ class AdminSidebarMenu
                         if (auth()->user()->can('purchase.create')) {
                             $sub->url(
                                 action('GiftController@create'),
-                                __('Gift'),
+                                __('Add Gift'),
                                 ['icon' => 'fa fas fa-gift', 'active' => request()->segment(1) == 'gift-create']
                             );
                         }
