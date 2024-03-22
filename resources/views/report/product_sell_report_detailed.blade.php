@@ -9,8 +9,8 @@
 </section>
 
 <!-- Main content -->
-<section class="content no-print">
-    <div class="row">
+<section class="content">
+    <div class="row no-print">
         <div class="col-md-12">
             @component('components.filters', ['title' => __('report.filters')])
               {!! Form::open(['url' => action('ReportController@getStockReport'), 'method' => 'get', 'id' => 'product_sell_report_form' ]) !!}
@@ -32,10 +32,18 @@
                     </div>
                 </div>
                 {!! Form::close() !!}
+                <div class="row no-print">
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-primary pull-right" 
+                        aria-label="Print" onclick="window.print();"
+                        ><i class="fa fa-print"></i> @lang( 'messages.print' )</button>
+                    </div>
+                </div>
             @endcomponent
+
         </div>
     </div>
-    <div class="row">
+    <div class="row ">
         <div class="col-md-12">
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs" style="display: none;">
@@ -53,8 +61,8 @@
                                     <tr>
                                         <th>Image</th>
                                         <th>@lang('messages.date')</th>
-                                        <th>@lang('Category')</th>
-                                        <th>@lang('Sub Category')</th>
+                                        <th>Category</th>
+                                        <th>Sub Category</th>
                                         <th>@lang('product.sku')</th>
                                         <th>@lang('report.total_unit_sold')</th>
                                         <th>@lang('sale.total')</th>
@@ -81,9 +89,9 @@
                                     <tr>
                                         <th>Image</th>
                                         <th>@lang('messages.date')</th>
-                                        <th>@lang('Category')</th>
+                                        <th>Category</th>
                                         <th>@lang('product.sku')</th>
-                                        <th>@lang('Total Unit Returned')</th>
+                                        <th>Total Unit Returned</th>
                                         <th>@lang('sale.total')</th>
                                     </tr>
                                 </thead>
@@ -107,8 +115,9 @@
                                 <thead>
                                     <tr>
                                         <th>Image</th>
-                                        <th>@lang('Category')</th>
+                                        <th>Category</th>
                                         <th>@lang('report.total_unit_sold')</th>
+                                        <th>@lang('sale.total')</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
@@ -116,6 +125,7 @@
                                         <td></td>
                                         <td></td>
                                         <td id="footer_total_grouped_sold_category"></td>
+                                        <td><span class="display_currency" id="footer_grouped_category_subtotal" data-currency_symbol ="true"></span></td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -131,8 +141,8 @@
                                 <thead>
                                     <tr>
                                         <th>Image</th>
-                                        <th>@lang('Category')</th>
-                                        <th>@lang('Total Unit Returned')</th>
+                                        <th>Category</th>
+                                        <th>Total Unit Returned</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
@@ -142,6 +152,29 @@
                                         <td id="footer_total_grouped_sold_return_category"></td>
                                     </tr>
                                 </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="psr_grouped_tab">
+                        <h3 style="margin-top:10px; margin-left:15px; margin-bottom:20px;">Product And Category Report</h3>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped" 
+                            id="product_and_category_table" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Category</th>
+                                        <th>Sub Category</th>
+                                        <th>Total Unit Sold</th>
+                                        <th>Total Unit Returned</th>
+                                        <th>Total Net Unit</th>
+                                        <th>Total value sale</th>
+                                        <th>Total value Return</th>
+                                        <th>Net Value</th>
+                                    </tr>
+                                </thead>
                             </table>
                         </div>
                     </div>
@@ -172,6 +205,7 @@
                 product_sell_grouped_report_2nd.ajax.reload();
                 product_sell_grouped_report_category.ajax.reload();
                 product_sell_grouped_report_return_category.ajax.reload();
+                detail_product_and_category.ajax.reload();
             }
         );
         $('#product_sr_date_filter').on('cancel.daterangepicker', function(ev, picker) {
@@ -180,6 +214,7 @@
             product_sell_grouped_report_category.ajax.reload();
             product_sell_report_with_purchase_table.ajax.reload();
             product_sell_grouped_report_return_category.ajax.reload();
+            detail_product_and_category.ajax.reload();
         });
 
         $('#product_sr_start_time, #product_sr_end_time').datetimepicker({
@@ -190,6 +225,7 @@
             product_sell_grouped_report_2nd.ajax.reload();
             product_sell_grouped_report_category.ajax.reload();
             product_sell_grouped_report_return_category.ajax.reload();
+            detail_product_and_category.ajax.reload();
 
         });
     }
@@ -334,8 +370,12 @@
             { data: 'product_image', name: 'product_image' },
             { data: 'category_name', name: 'category_name' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
+            { data: 'subtotal', name: 'subtotal', searchable: false },
         ],
         fnDrawCallback: function(oSettings) {
+            $('#footer_grouped_category_subtotal').text(
+                sum_table_col($('#category_wise_sale'), 'row_subtotal')
+            );
             $('#footer_total_grouped_sold_category').html(
                 __sum_stock($('#category_wise_sale'), 'sell_qty')
             );
@@ -462,6 +502,70 @@
         },
     });
 
+    detail_product_and_category = $('table#product_and_category_table').DataTable({
+        processing: true,
+        serverSide: true,
+        aaSorting: [[1, 'desc']],
+        ajax: {
+            url: '/reports/detailed_product_category',
+            data: function(d) {
+                var start = '';
+                var end = '';
+                var start_time = $('#product_sr_start_time').val();
+                var end_time = $('#product_sr_end_time').val();
+                var currentDate = moment().format('YYYY-MM-DD'); // Get current date in 'YYYY-MM-DD' format
+                var yesterdayDate = moment().subtract(1, 'days').format('YYYY-MM-DD'); // Get yesterday's date in 'YYYY-MM-DD' format
+
+                if ($('#product_sr_date_filter').val()) {
+                    var selectedStartDate = $('input#product_sr_date_filter')
+                        .data('daterangepicker')
+                        .startDate.format('YYYY-MM-DD');
+                    var selectedEndDate = $('input#product_sr_date_filter')
+                        .data('daterangepicker')
+                        .endDate.format('YYYY-MM-DD');
+
+                    // If selected start and end dates are today or yesterday, use specific time range
+                    if (selectedStartDate === currentDate) {
+                        start = moment().startOf('day').format('YYYY-MM-DD HH:mm'); // Today's start time (00:00:00)
+                        end = moment().endOf('day').format('YYYY-MM-DD HH:mm'); // Today's end time (23:59:59)
+                    } else if (selectedStartDate === yesterdayDate) {
+                        start = moment().subtract(1, 'days').startOf('day').format('YYYY-MM-DD HH:mm'); // Yesterday's start time (00:00:00)
+                        end = moment().subtract(1, 'days').endOf('day').format('YYYY-MM-DD HH:mm'); // Yesterday's end time (23:59:59)
+                    } else {
+                        start = moment(selectedStartDate + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                        end = moment(selectedEndDate + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                    }
+                    console.log(start, end);
+                }
+                d.start_date = start;
+                d.end_date = end;
+
+                d.variation_id = $('#variation_id').val();
+                d.customer_id = $('select#customer_id').val();
+                d.location_id = $('select#location_id').val();
+            },
+        },
+        columns: [
+            { data: 'product_image', name: 'product_image' },
+            { data: 'category_name', name: 'category_name' },
+            { data: 'sub_category', name: 'sub_category' },
+            { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
+            { data: 'total_qty_returned', name: 'total_qty_returned', searchable: false },
+            { data: 'total_net_qty', name: 'total_net_qty', searchable: false },
+            { data: 'sale_value', name: 'sale_value', searchable: false },
+            { data: 'return_value', name: 'return_value', searchable: false },
+            { data: 'subtotal', name: 'subtotal', searchable: false },
+            
+        ],
+        // fnDrawCallback: function(oSettings) {
+        //     $('#footer_total_grouped_sold_return_category').html(
+        //         __sum_stock($('#category_wise_return'), 'sell_qty')
+        //     );
+        //     __currency_convert_recursively($('#category_wise_return'));
+        // },
+    });
+
+
 
     $(
         '#product_sell_report_form #variation_id, #product_sell_report_form #location_id, #product_sell_report_form #customer_id'
@@ -470,6 +574,7 @@
         product_sell_grouped_report_2nd.ajax.reload();
         product_sell_grouped_report_category.ajax.reload();
         product_sell_grouped_report_return_category.ajax.reload();
+        detail_product_and_category.ajax.reload();
 
     });
 

@@ -208,6 +208,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/reports/product-sell-grouped-report-detailed-category', 'ReportController@getproductSellGroupedReportDetailedCategory');
     Route::get('/reports/product-sell-grouped-report-detailed-returns', 'ReportController@getproductSellGroupedReportDetailedReturns');
     Route::get('/reports/product-sell-grouped-report-detailed-returns-category', 'ReportController@getproductSellGroupedReportDetailedReturnsCategory');
+    Route::get('/reports/detailed_product_category','ReportController@getDetailedProductCategory');
+
 
     Route::get('/reports/product-sell-report-with-purchase', 'ReportController@getproductSellReportWithPurchase');
     Route::get('/reports/product-sell-grouped-report', 'ReportController@getproductSellGroupedReport');

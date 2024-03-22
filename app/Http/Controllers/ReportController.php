@@ -3359,12 +3359,13 @@ class ReportController extends Controller
                     'p.image as product_image',
                     DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
                     DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as total_sale'),
                     'cat.name as category_name',
                     'cat.id as category_id'
                 )
-                ->groupBy('category_name');
+                ->groupBy('category_name')->get();
 
-            if (!empty($variation_id)) {
+                if (!empty($variation_id)) {
                 $query->where('transaction_sell_lines.variation_id', $variation_id);
             }
             $start_date = $request->get('start_date');
@@ -3416,7 +3417,7 @@ class ReportController extends Controller
                     return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
                 })
                 ->editColumn('subtotal', function ($row) {
-                    return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
+                    return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->total_sale . '">' . $row->total_sale . '</span>';
                 })
                 
                 ->rawColumns(['product_image','subtotal', 'total_qty_sold'])
@@ -4391,5 +4392,129 @@ class ReportController extends Controller
         $customers = Contact::customersDropdown($business_id);
 
         return view('report.brandfolio_report');
+    }
+
+    public function getDetailedProductCategory(Request $request)
+    {
+
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        $location_id = $request->get('location_id', null);
+        
+        $vld_str = '';
+        if (!empty($location_id)) {
+            $vld_str = "AND vld.location_id=$location_id";
+        }
+
+        if ($request->ajax() || true) {
+            $variation_id = $request->get('variation_id', null);
+
+            $query = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftJoin('categories as c2', 'p.sub_category_id', '=', 'c2.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->whereIN('t.type', ['sell','sell_return'])
+                ->where('t.status', 'final')
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_returned_quantity'),
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_net_unit'),
+                    DB::raw('IF(t.type="sell",SUM(transaction_sell_lines.unit_price_inc_tax), 0) as sale_value'),
+                    DB::raw('IF(t.type="sell_return",SUM(transaction_sell_lines.unit_price_inc_tax), 0) as return_value'),
+                    'cat.name as category_name',
+                    'c2.name as sub_category',
+                    'cat.id as category_id'
+                )
+                ->groupBy('cat.id')->get();
+            
+            if (!empty($variation_id)) {
+                $query->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $query->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $query->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $query->where('t.contact_id', $customer_id);
+            }
+
+            return Datatables::of($query)
+            ->editColumn('product_image', function ($row) {
+                $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
+                
+                if (!empty($row->product_image)) {
+                    $imagePath = asset('uploads/img/' . $row->product_image);
+                } else {
+                    $imagePath = asset('img/default.png');
+                }
+            
+                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+              })
+                ->addColumn('category_name', function ($row) {
+                    return $row->category_name;
+                })
+                ->editColumn('sub_category', function ($row) {
+                    $sub_category = $row->sub_category;
+                    if(!empty($sub_category)){
+                        return $sub_category;
+                    }
+                    else
+                        return "--";
+                }) 
+                ->editColumn('total_qty_sold', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                })
+                ->editColumn('total_qty_returned', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency return_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_returned_quantity . '" data-unit="' . $row->unit . '" >' . (float) $row->total_returned_quantity . '</span> ' .$row->unit;
+                })
+                ->editColumn('total_net_qty', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency net_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_net_unit . '" data-unit="' . $row->unit . '" >' . (float) $row->total_net_unit . '</span> ' .$row->unit;
+                })
+                ->editColumn('sale_value', function ($row) {
+                    return '<span class="display_currency sale_value" data-currency_symbol = true data-orig-value="' . $row->sale_value . '">' . $row->sale_value . '</span>';
+                })
+                ->editColumn('return_value', function ($row) {
+                    return '<span class="display_currency return_value" data-currency_symbol = true data-orig-value="' . $row->return_value . '">' . $row->return_value . '</span>';
+                })
+                ->editColumn('subtotal', function ($row) {
+                    $net_total = $row->sale_value - $row->return_value;
+                    return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $net_total . '">' . $net_total . '</span>';
+                })
+                
+                ->rawColumns(['product_image','subtotal', 'total_qty_sold','total_qty_returned','total_net_qty','sale_value','return_value'])
+                ->make(true);
+        }
     }
 }
