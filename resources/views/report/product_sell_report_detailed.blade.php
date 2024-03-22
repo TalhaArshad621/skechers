@@ -117,6 +117,7 @@
                                         <th>Image</th>
                                         <th>Category</th>
                                         <th>@lang('report.total_unit_sold')</th>
+                                        <th>@lang('sale.total')</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
@@ -124,6 +125,7 @@
                                         <td></td>
                                         <td></td>
                                         <td id="footer_total_grouped_sold_category"></td>
+                                        <td><span class="display_currency" id="footer_grouped_category_subtotal" data-currency_symbol ="true"></span></td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -156,10 +158,10 @@
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane active" id="psr_grouped_tab">
-                        <h3 style="margin-top:10px; margin-left:15px; margin-bottom:20px;">Category Return Report</h3>
+                        <h3 style="margin-top:10px; margin-left:15px; margin-bottom:20px;">Product And Category Report</h3>
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped" 
-                            id="product_and_category" style="width: 100%;">
+                            id="product_and_category_table" style="width: 100%;">
                                 <thead>
                                     <tr>
                                         <th>Image</th>
@@ -173,13 +175,6 @@
                                         <th>Net Value</th>
                                     </tr>
                                 </thead>
-                                {{-- <tfoot>
-                                    <tr class="bg-gray font-17 footer-total text-center">
-                                        <td></td>
-                                        <td></td>
-                                        <td id="footer_total_grouped_sold_return_category"></td>
-                                    </tr>
-                                </tfoot> --}}
                             </table>
                         </div>
                     </div>
@@ -210,6 +205,7 @@
                 product_sell_grouped_report_2nd.ajax.reload();
                 product_sell_grouped_report_category.ajax.reload();
                 product_sell_grouped_report_return_category.ajax.reload();
+                detail_product_and_category.ajax.reload();
             }
         );
         $('#product_sr_date_filter').on('cancel.daterangepicker', function(ev, picker) {
@@ -218,6 +214,7 @@
             product_sell_grouped_report_category.ajax.reload();
             product_sell_report_with_purchase_table.ajax.reload();
             product_sell_grouped_report_return_category.ajax.reload();
+            detail_product_and_category.ajax.reload();
         });
 
         $('#product_sr_start_time, #product_sr_end_time').datetimepicker({
@@ -228,6 +225,7 @@
             product_sell_grouped_report_2nd.ajax.reload();
             product_sell_grouped_report_category.ajax.reload();
             product_sell_grouped_report_return_category.ajax.reload();
+            detail_product_and_category.ajax.reload();
 
         });
     }
@@ -372,8 +370,12 @@
             { data: 'product_image', name: 'product_image' },
             { data: 'category_name', name: 'category_name' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
+            { data: 'subtotal', name: 'subtotal', searchable: false },
         ],
         fnDrawCallback: function(oSettings) {
+            $('#footer_grouped_category_subtotal').text(
+                sum_table_col($('#category_wise_sale'), 'row_subtotal')
+            );
             $('#footer_total_grouped_sold_category').html(
                 __sum_stock($('#category_wise_sale'), 'sell_qty')
             );
@@ -500,12 +502,12 @@
         },
     });
 
-    detail_product_and_category = $('table#product_and_category').DataTable({
+    detail_product_and_category = $('table#product_and_category_table').DataTable({
         processing: true,
         serverSide: true,
         aaSorting: [[1, 'desc']],
         ajax: {
-            url: '/reports/product-sell-grouped-report-detailed-returns-category',
+            url: '/reports/detailed_product_category',
             data: function(d) {
                 var start = '';
                 var end = '';
@@ -546,15 +548,23 @@
         columns: [
             { data: 'product_image', name: 'product_image' },
             { data: 'category_name', name: 'category_name' },
+            { data: 'sub_category', name: 'sub_category' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
+            { data: 'total_qty_returned', name: 'total_qty_returned', searchable: false },
+            { data: 'total_net_qty', name: 'total_net_qty', searchable: false },
+            { data: 'sale_value', name: 'sale_value', searchable: false },
+            { data: 'return_value', name: 'return_value', searchable: false },
+            { data: 'subtotal', name: 'subtotal', searchable: false },
+            
         ],
-        fnDrawCallback: function(oSettings) {
-            $('#footer_total_grouped_sold_return_category').html(
-                __sum_stock($('#category_wise_return'), 'sell_qty')
-            );
-            __currency_convert_recursively($('#category_wise_return'));
-        },
+        // fnDrawCallback: function(oSettings) {
+        //     $('#footer_total_grouped_sold_return_category').html(
+        //         __sum_stock($('#category_wise_return'), 'sell_qty')
+        //     );
+        //     __currency_convert_recursively($('#category_wise_return'));
+        // },
     });
+
 
 
     $(
@@ -564,6 +574,7 @@
         product_sell_grouped_report_2nd.ajax.reload();
         product_sell_grouped_report_category.ajax.reload();
         product_sell_grouped_report_return_category.ajax.reload();
+        detail_product_and_category.ajax.reload();
 
     });
 
