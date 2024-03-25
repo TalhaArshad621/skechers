@@ -904,13 +904,13 @@ class ReportController extends Controller
                         return '';
                     }
                 })
-                ->editColumn('total_cheques', function ($row) {
-                    if ($row->status == 'close') {
-                        return $row->total_cheques;
-                    } else {
-                        return '';
-                    }
-                })
+                // ->editColumn('total_cheques', function ($row) {
+                //     if ($row->status == 'close') {
+                //         return $row->total_cheques;
+                //     } else {
+                //         return '';
+                //     }
+                // })
                 ->editColumn('closed_at', function ($row) {
                     if ($row->status == 'close') {
                         return $this->productUtil->format_date($row->closed_at, true);
@@ -3224,7 +3224,8 @@ class ReportController extends Controller
                 ->leftJoin('categories as c2', 'p.sub_category_id', '=', 'c2.id')
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
-                ->where('t.type', 'sell')
+                // ->where('t.type', 'sell')
+                ->whereIN('t.type', ['sell','sell_return'])
                 ->where('t.status', 'final')
                 ->select(
                     'p.image as product_image',
@@ -3237,12 +3238,16 @@ class ReportController extends Controller
                     't.id as transaction_id',
                     't.transaction_date as transaction_date',
                     DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
-                    DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_qty_sold'),
+
+                    // DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
                     'u.short_name as unit',
                     DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
                     'cat.name as category_name',
                     'c2.name as sub_category'
                 )
+                ->whereRaw('transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned <> 0')
+
                 ->groupBy('v.id')
                 ->groupBy('formated_date');
 
@@ -3353,17 +3358,28 @@ class ReportController extends Controller
                 ->join('categories as cat', 'p.category_id', '=', 'cat.id')
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
-                ->where('t.type', 'sell')
+                // ->where('t.type', 'sell')
+                ->whereIN('t.type', ['sell','sell_return'])
+
                 ->where('t.status', 'final')
                 ->select(
                     'p.image as product_image',
                     DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
-                    DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
-                    DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+                    // DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_qty_sold'),
+
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+
                     'cat.name as category_name',
                     'cat.id as category_id'
                 )
-                ->groupBy('category_name')->get();
+                ->whereRaw('transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned <> 0')
+
+                // ->groupBy('v.id')
+                ->groupBy('category_name')
+                ->get();
+                // dd($query);
 
                 if (!empty($variation_id)) {
                 $query->where('transaction_sell_lines.variation_id', $variation_id);
@@ -3390,17 +3406,17 @@ class ReportController extends Controller
             }
 
             return Datatables::of($query)
-            ->editColumn('product_image', function ($row) {
-                $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
+            // ->editColumn('product_image', function ($row) {
+            //     $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
                 
-                if (!empty($row->product_image)) {
-                    $imagePath = asset('uploads/img/' . $row->product_image);
-                } else {
-                    $imagePath = asset('img/default.png');
-                }
+            //     if (!empty($row->product_image)) {
+            //         $imagePath = asset('uploads/img/' . $row->product_image);
+            //     } else {
+            //         $imagePath = asset('img/default.png');
+            //     }
             
-                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
-              })
+            //     return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            //   })
                 ->editColumn('product_name', function ($row) {
                     $product_name = $row->product_name;
                     if ($row->product_type == 'variable') {
@@ -3475,7 +3491,8 @@ class ReportController extends Controller
                     DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
                     DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_sold'),
                     'u.short_name as unit',
-                    DB::raw('transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax as subtotal'),
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    // DB::raw('transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax as subtotal'),
                     'cat.name as category_name'
                 )
                 ->groupBy('v.id')
@@ -3581,8 +3598,12 @@ class ReportController extends Controller
                     'p.image as product_image',
                     DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
                     DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_sold'),
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
                     'cat.name as category_name'
                 )
+                // ->get();
+                // dd($query);
                 ->groupBy('category_name');
 
             if (!empty($variation_id)) {
@@ -3610,17 +3631,17 @@ class ReportController extends Controller
             }
 
             return Datatables::of($query)
-            ->editColumn('product_image', function ($row) {
-                $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
+            // ->editColumn('product_image', function ($row) {
+            //     $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
                 
-                if (!empty($row->product_image)) {
-                    $imagePath = asset('uploads/img/' . $row->product_image);
-                } else {
-                    $imagePath = asset('img/default.png');
-                }
+            //     if (!empty($row->product_image)) {
+            //         $imagePath = asset('uploads/img/' . $row->product_image);
+            //     } else {
+            //         $imagePath = asset('img/default.png');
+            //     }
             
-                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
-              })
+            //     return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            //   })
                 ->editColumn('product_name', function ($row) {
                     $product_name = $row->product_name;
                     if ($row->product_type == 'variable') {
@@ -4418,7 +4439,7 @@ class ReportController extends Controller
                 '=',
                 't.id'
                 )
-                ->join(
+                ->leftJoin(
                     'variations as v',
                     'transaction_sell_lines.variation_id',
                     '=',
@@ -4435,16 +4456,20 @@ class ReportController extends Controller
                 ->select(
                     'p.image as product_image',
                     DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
-                    DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    // DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_qty_sold'),
                     DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_returned_quantity'),
                     DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_net_unit'),
                     DB::raw('IF(t.type="sell",SUM(transaction_sell_lines.unit_price_inc_tax), 0) as sale_value'),
-                    DB::raw('IF(t.type="sell_return",SUM(transaction_sell_lines.unit_price_inc_tax), 0) as return_value'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as return_value'),
+
+                    // DB::raw('IF(t.type="sell_return",SUM(transaction_sell_lines.unit_price_inc_tax), 0) as return_value'),
                     'cat.name as category_name',
                     'c2.name as sub_category',
                     'cat.id as category_id'
                 )
                 ->groupBy('cat.id')->get();
+                // dd($query);
             
             if (!empty($variation_id)) {
                 $query->where('transaction_sell_lines.variation_id', $variation_id);

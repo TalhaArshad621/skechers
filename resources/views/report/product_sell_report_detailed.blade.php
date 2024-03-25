@@ -114,7 +114,7 @@
                             id="category_wise_sale" style="width: 100%;">
                                 <thead>
                                     <tr>
-                                        <th>Image</th>
+                                        {{-- <th>Image</th> --}}
                                         <th>Category</th>
                                         <th>@lang('report.total_unit_sold')</th>
                                         <th>@lang('sale.total')</th>
@@ -122,7 +122,7 @@
                                 </thead>
                                 <tfoot>
                                     <tr class="bg-gray font-17 footer-total text-center">
-                                        <td></td>
+                                        {{-- <td></td> --}}
                                         <td></td>
                                         <td id="footer_total_grouped_sold_category"></td>
                                         <td><span class="display_currency" id="footer_grouped_category_subtotal" data-currency_symbol ="true"></span></td>
@@ -140,23 +140,25 @@
                             id="category_wise_return" style="width: 100%;">
                                 <thead>
                                     <tr>
-                                        <th>Image</th>
+                                        {{-- <th>Image</th> --}}
                                         <th>Category</th>
+                                        <th>Total Unit Returned</th>
                                         <th>Total Unit Returned</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
                                     <tr class="bg-gray font-17 footer-total text-center">
-                                        <td></td>
+                                        {{-- <td></td> --}}
                                         <td></td>
                                         <td id="footer_total_grouped_sold_return_category"></td>
+                                        <td><span class="display_currency" id="footer_total_grouped_sold_return_category_subtotal" data-currency_symbol ="true"></span></td>
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
                     </div>
                 </div>
-                <div class="tab-content">
+            <div class="tab-content" style="display: none;">
                     <div class="tab-pane active" id="psr_grouped_tab">
                         <h3 style="margin-top:10px; margin-left:15px; margin-bottom:20px;">Product And Category Report</h3>
                         <div class="table-responsive">
@@ -175,6 +177,17 @@
                                         <th>Net Value</th>
                                     </tr>
                                 </thead>
+                                <tfoot>
+                                    <tr class="bg-gray font-17 footer-total text-center">
+                                        <td colspan="3"></td>
+                                        <td id="total_sold"></td>
+                                        <td id="total_returned"></td>
+                                        <td id="net_unit"></td>
+                                        <td><span class="display_currency" id="sale_value" data-currency_symbol ="true"></span></td>
+                                        <td id="return_value"></td>
+                                        <td id="net_value"></td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
@@ -367,7 +380,7 @@
             },
         },
         columns: [
-            { data: 'product_image', name: 'product_image' },
+            // { data: 'product_image', name: 'product_image' },
             { data: 'category_name', name: 'category_name' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
             { data: 'subtotal', name: 'subtotal', searchable: false },
@@ -490,11 +503,15 @@
             },
         },
         columns: [
-            { data: 'product_image', name: 'product_image' },
+            // { data: 'product_image', name: 'product_image' },
             { data: 'category_name', name: 'category_name' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
+            { data: 'subtotal', name: 'subtotal', searchable: false },
         ],
         fnDrawCallback: function(oSettings) {
+            $('#footer_total_grouped_sold_return_category_subtotal').text(
+                sum_table_col($('#category_wise_return'), 'row_subtotal')
+            );
             $('#footer_total_grouped_sold_return_category').html(
                 __sum_stock($('#category_wise_return'), 'sell_qty')
             );
@@ -558,11 +575,28 @@
             
         ],
         // fnDrawCallback: function(oSettings) {
-        //     $('#footer_total_grouped_sold_return_category').html(
-        //         __sum_stock($('#category_wise_return'), 'sell_qty')
+        //     $('#sale_value').text(
+        //         sum_table_col($('#product_and_category_table'), 'row_subtotal')
         //     );
-        //     __currency_convert_recursively($('#category_wise_return'));
+        //     $('#return_value').text(
+        //         sum_table_col($('#product_and_category_table'), 'row_subtotal')
+        //     );
+        //     $('#net_value').text(
+        //         sum_table_col($('#product_and_category_table'), 'row_subtotal')
+        //     );
+        //     $('#total_sold').html(
+        //         __sum_stock($('#product_and_category_table'), 'sell_qty')
+        //     );
+        //     $('#total_returned').html(
+        //         __sum_stock($('#product_and_category_table'), 'sell_qty')
+        //     );
+        //     $('#net_unit').html(
+        //         __sum_stock($('#product_and_category_table'), 'sell_qty')
+        //     );
+
+        //     __currency_convert_recursively($('#product_and_category_table'));
         // },
+
     });
 
 
