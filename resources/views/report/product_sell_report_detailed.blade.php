@@ -582,17 +582,17 @@
             $('#return_value').text(
                 sum_table_col($('#product_and_category_table'), 'return_value')
             );
-            $('#net_value').text(
-                sum_table_col($('#product_and_category_table'), 'subtotal')
-            );
             $('#total_sold').html(
-                __sum_stock($('#product_and_category_table'), 'sell_qty')
+                __sum_stock($('#product_and_category_table'), 'total_qty_sold')
             );
             $('#total_returned').html(
-                __sum_stock($('#product_and_category_table'), 'sell_qty')
+                __sum_stock($('#product_and_category_table'), 'total_qty_returned')
             );
             $('#net_unit').html(
-                __sum_stock($('#product_and_category_table'), 'sell_qty')
+                __sum_stock($('#product_and_category_table'), 'total_net_qty')
+            );
+            $('#net_value').text(
+                sum_table_col($('#product_and_category_table'), 'subtotal')
             );
 
             __currency_convert_recursively($('#product_and_category_table'));

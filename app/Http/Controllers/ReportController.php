@@ -4519,13 +4519,13 @@ class ReportController extends Controller
                         return "--";
                 }) 
                 ->editColumn('total_qty_sold', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                    return '<span data-is_quantity="true" class="display_currency total_qty_sold" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
                 })
                 ->editColumn('total_qty_returned', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency return_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_returned_quantity . '" data-unit="' . $row->unit . '" >' . (float) $row->total_returned_quantity . '</span> ' .$row->unit;
+                    return '<span data-is_quantity="true" class="display_currency total_qty_returned" data-currency_symbol=false data-orig-value="' . (float)$row->total_returned_quantity . '" data-unit="' . $row->unit . '" >' . (float) $row->total_returned_quantity . '</span> ' .$row->unit;
                 })
                 ->editColumn('total_net_qty', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency net_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_net_unit . '" data-unit="' . $row->unit . '" >' . (float) $row->total_net_unit . '</span> ' .$row->unit;
+                    return '<span data-is_quantity="true" class="display_currency total_net_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_net_unit . '" data-unit="' . $row->unit . '" >' . (float) $row->total_net_unit . '</span> ' .$row->unit;
                 })
                 ->editColumn('sale_value', function ($row) {
                     return '<span class="display_currency sale_value" data-currency_symbol = true data-orig-value="' . $row->sale_value . '">' . $row->sale_value . '</span>';
@@ -4535,7 +4535,7 @@ class ReportController extends Controller
                 })
                 ->editColumn('subtotal', function ($row) {
                     $net_total = $row->sale_value - $row->return_value;
-                    return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $net_total . '">' . $net_total . '</span>';
+                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $net_total . '" data-unit="' . $row->unit . '">' . $net_total . '</span>' . $row->unit;
                 })
                 
                 ->rawColumns(['product_image','subtotal', 'total_qty_sold','total_qty_returned','total_net_qty','sale_value','return_value'])
