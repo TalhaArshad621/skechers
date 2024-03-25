@@ -448,7 +448,6 @@
 				},
 				success: function(response) {
 					// Handle the success response from the controller
-					console.log(response);
 					if (response.success) {
 						// Update your view with the received data
 						updateView(response.sell);
@@ -680,13 +679,18 @@
             data: data,
 			dataType: 'json',
 			success: function(result) {
+				console.log(result);
 				if (result.success == 1) {
                             toastr.success(result.msg);
                             //Check if enabled or not
-                            // if (result.receipt.is_enabled) {
-                            //     pos_print(result.receipt);
-                            // }
-							window.location.href = '/sell-return';
+
+							if (result.receipt.is_enabled) {
+                                pos_print(result.receipt);
+                            }
+
+							setTimeout(function() {
+								window.location.href = '/sell-return';
+							}, 3000); // 3000 milliseconds = 3 seconds
 
                         } else {
                             toastr.error(result.msg);
