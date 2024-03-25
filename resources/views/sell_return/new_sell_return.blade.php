@@ -324,14 +324,14 @@
 	<div class="box box-solid">
 		<div class="box-body">
 			<div class="row">
-				<div class="col-sm-12 text-right">
+				{{-- <div class="col-sm-12 text-right">
 					<strong>@lang('lang_v1.total_return_discount'):</strong> 
 					&nbsp;(-) <span id="total_return_discount"></span>
 				</div>
 				<div class="col-sm-12 text-right">
 					<strong>@lang('lang_v1.total_return_tax') - @if(!empty($sell->tax))({{$sell->tax->name}} - {{$sell->tax->amount}}%)@endif : </strong> 
 					&nbsp;(+) <span id="total_return_tax"></span>
-				</div>
+				</div> --}}
 				<div class="col-sm-12 text-right">
 					<strong>@lang('lang_v1.return_total'): </strong>&nbsp;
 					<span id="net_return">0</span> 
