@@ -793,5 +793,20 @@
 		$('#subtotal_field').text(sub_total);
 
     }
+	$(document).ready(function() {
+		// Initially disable the button
+		$('button[type="submit"]').prop('disabled', true);
+
+		// Monitor changes to the content of the span element
+		$('#subtotal_field').on('DOMSubtreeModified', function() {
+			var subTotal = parseFloat($(this).text()); // Get the content of the span and convert to float
+			if (subTotal >= 0) {
+				$('button[type="submit"]').prop('disabled', false); // Enable the button
+			} else {
+				$('button[type="submit"]').prop('disabled', true); // Disable the button
+			}
+		});
+	});
+
 </script>
 @endsection

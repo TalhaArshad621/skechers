@@ -188,7 +188,7 @@
                 @endif
                 </small>
               </td>
-            </tr> --}}
+            </tr>
             <tr class="success">
               <th>
                 @lang('lang_v1.total_payment')

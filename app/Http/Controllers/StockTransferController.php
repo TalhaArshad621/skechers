@@ -256,6 +256,7 @@ class StockTransferController extends Controller
         }
 
         $business_id = request()->session()->get('user.business_id');
+        // dd($business_id);
 
         //Check if subscribed or not
         if (!$this->moduleUtil->isSubscribed($business_id)) {
@@ -263,11 +264,21 @@ class StockTransferController extends Controller
         }
 
         $business_locations = BusinessLocation::fortransferDropdown($business_id);
+        
+        $all_business_locations = BusinessLocation::all()->mapWithKeys(function ($location) {
+            return [$location->id => $location->name ];
+        });
+        
+        $formatted_business_locations = $all_business_locations->forget([1, 2, 3]);
+
+        // $all_business_locations = BusinessLocation::fortransferDropdown($business_id);
+        // dd($business_locations);
+
 
         $statuses = $this->stockTransferStatuses();
 
         return view('stock_transfer.create')
-                ->with(compact('business_locations', 'statuses'));
+                ->with(compact('business_locations', 'statuses', 'formatted_business_locations'));
     }
 
     private function stockTransferStatuses()
@@ -287,6 +298,7 @@ class StockTransferController extends Controller
      */
     public function store(Request $request)
     {
+        dd($request);
         if (!auth()->user()->can('purchase.create')) {
             abort(403, 'Unauthorized action.');
         }

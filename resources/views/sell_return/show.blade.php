@@ -24,6 +24,7 @@
     <div class="row">
       <div class="col-sm-12">
         <br>
+        <h4>Returned Product(s):</h4>
         <table class="table bg-gray">
           <thead>
             <tr class="bg-green">
@@ -37,6 +38,7 @@
         <tbody>
             @php
               $total_before_tax = 0;
+              $exchange_total = 0;
             @endphp
             @foreach($sell->sell_lines as $sell_line)
 
@@ -79,6 +81,7 @@
   <div class="row">
     <div class="col-sm-12">
       <br>
+      <h4>Exchanged Product(s):</h4>
       <table class="table bg-gray">
         <tr class="bg-green">
         <th>#</th>
@@ -160,6 +163,10 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $sell_line->sell_price_inc_tax }}</span>
             </td>
             <td>
+              @php
+                $exchange_line_total = $sell_line->sold_quantity * $sell_line->sell_price_inc_tax;
+                $exchange_total += $exchange_line_total ;
+              @endphp
                 <span class="display_currency" data-currency_symbol="true">{{ $sell_line->sold_quantity * $sell_line->sell_price_inc_tax }}</span>
             </td>
         </tr>
@@ -206,7 +213,7 @@
         <tr>
           <th>Exchange Amount: </th>
           <td></td>
-          <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $sell_line->sold_quantity * $sell_line->sell_price_inc_tax }}</span></td>
+          <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $exchange_total }}</span></td>
         </tr>
         <tr>
           <th>Return Amount: </th>

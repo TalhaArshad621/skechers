@@ -3819,6 +3819,27 @@ class TransactionUtil extends Util
 
         return $status;
     }
+    public function calculatePaymentStatusForReturn($transaction_id, $final_amount = null)
+    {
+        // dd($transaction_id, $final_amount);
+        $total_paid = $this->getTotalPaid($transaction_id);
+        // dd($total_paid);
+
+        if (is_null($final_amount)) {
+            $final_amount = Transaction::find($transaction_id)->final_total;
+            dd($final_amount);
+        }
+
+        $status = 'paid';
+        // dd($status);
+        // if ($final_amount <= $total_paid) {
+        //     $status = 'paid';
+        // } elseif ($total_paid > 0 && $final_amount > $total_paid) {
+        //     $status = 'partial';
+        // }
+
+        return $status;
+    }
     /**
      * Calculates the payment status and returns back.
      *
@@ -3861,6 +3882,16 @@ class TransactionUtil extends Util
         return $status;
     }
 
+    public function updatePaymentStatusForReturn($transaction_id, $final_amount = null)
+    {
+        $status = $this->calculatePaymentStatusForReturn($transaction_id, $final_amount);
+        Transaction::where('id', $transaction_id)
+            ->update(['payment_status' => $status]);
+
+        return $status;
+    }
+
+    
     /**
      * Update the payment status for purchase or sell transactions. Returns
      * the status
@@ -7111,7 +7142,31 @@ class TransactionUtil extends Util
         // $transaction->save();
         // $status  =  Transaction::where('id', $sell_return->id)->update(['payment_status' => 'paid']);
         // dd($status);        // ->update(['payment_status' => 'paid']);
-        $this->updatePaymentStatus($sell_return->id, $sell_return->final_total);
+        $this->updatePaymentStatusForReturn($sell_return->id, $sell_return->final_total);
+
+        $prefix_type = 'sell_payment';
+
+        $ref_count = $this->setAndGetReferenceCount($prefix_type);
+        //Generate reference number
+        $payment_ref_no = $this->generateReferenceNumber($prefix_type, $ref_count);
+
+        $transaction = Transaction::where('business_id', $business_id)
+        ->with(['contact', 'location'])
+        ->findOrFail($sell_return['id']);
+
+        $amount = $transaction->final_total;
+        // dd($amount ,$payment_ref_no, $sell_return->id, $sell_return->business_id, $sell_return->created_by, $sell_return->contact_id);
+
+        TransactionPayment::create([
+            'payment_ref_no' => $payment_ref_no,
+            'amount' => $amount,
+            'method' => 'cash',
+            'paid_on' => now()->toDateTimeString(),
+            'transaction_id' => $sell_return->id,
+            'business_id' => $sell_return->business_id,
+            'created_by' => $sell_return->created_by,
+            'payment_for' => $sell_return->contact_id
+        ]);
 
         //Update quantity returned in sell line
         $returns = [];
