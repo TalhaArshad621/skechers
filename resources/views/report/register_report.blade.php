@@ -48,7 +48,7 @@
                                 <th>@lang('sale.location')</th>
                                 <th>@lang('report.user')</th>
                                 <th>@lang('cash_register.total_card_slips')</th>
-                                <th>@lang('cash_register.total_cheques')</th>
+                                {{-- <th>@lang('cash_register.total_cheques')</th> --}}
                                 <th>@lang('cash_register.total_cash')</th>
                                 <th>@lang('messages.action')</th>
                             </tr>

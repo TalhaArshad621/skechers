@@ -25,7 +25,8 @@
                 @lang('cash_register.cash_in_hand'):
               </td>
               <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $register_details->cash_in_hand }}</span>
+                {{-- {{ dd($details) }} --}}
+                <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + 12000 + $details['exchanged_product_details']->total_amount }}</span>
               </td>
             </tr>
             <tr>
@@ -33,7 +34,7 @@
                 @lang('cash_register.cash_payment'):
               </th>
               <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash }}</span>
+                <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + $details['exchanged_product_details']->total_amount }}</span>
               </td>
             </tr>
             <tr style="display: none;">
@@ -44,7 +45,7 @@
               <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cheque }}</span>
               </td>
-            </tr> --}}
+            </tr>
             <tr>
               <td>
                 @lang('cash_register.card_payment'):
@@ -210,7 +211,7 @@
                 @lang('cash_register.total_sales'):
               </th>
               <td>
-                <b><span class="display_currency" data-currency_symbol="true">{{ $details['transaction_details']->total_sales }}</span></b>
+                <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + $details['exchanged_product_details']->total_amount  }}</span></b>
               </td>
             </tr>
           </table>
@@ -223,7 +224,7 @@
         <div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('closing_amount', __( 'cash_register.total_cash' ) . ':*') !!}
-              {!! Form::text('closing_amount', @num_format($register_details->cash_in_hand + $register_details->total_cash - $register_details->total_cash_refund), ['class' => 'form-control input_number', 'required', 'placeholder' => __( 'cash_register.total_cash' ) ]); !!}
+              {!! Form::text('closing_amount', @num_format($register_details->total_cash + $details['exchanged_product_details']->total_amount ), ['class' => 'form-control input_number', 'required', 'placeholder' => __( 'cash_register.total_cash' ) ]); !!}
           </div>
         </div>
         <div class="col-sm-4">

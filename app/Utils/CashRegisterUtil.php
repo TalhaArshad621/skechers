@@ -361,7 +361,8 @@ class CashRegisterUtil extends Util
     {
         $product_details = Transaction::where('transactions.created_by', $user_id)
                 ->whereBetween('transaction_date', [$open_time, $close_time])
-                ->where('transactions.type', 'sell')
+                ->whereIN('transactions.type', ['sell','sell_return'])
+                // ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
                 ->where('transactions.is_direct_sale', 0)
                 ->join('transaction_sell_lines AS TSL', 'transactions.id', '=', 'TSL.transaction_id')
@@ -372,13 +373,45 @@ class CashRegisterUtil extends Util
                     'transactions.id',
                     'B.name as brand_name',
                     DB::raw('SUM(TSL.quantity) as total_quantity'),
-                    DB::raw('SUM(TSL.unit_price_inc_tax*TSL.quantity) as total_amount')
+                    // DB::raw('SUM(TSL.quantity - TSL.quantity_returned) as total_qty_sold'),
+
+                    DB::raw('SUM((TSL.quantity) * TSL.unit_price_inc_tax) as total_amount'),
+
+                    // DB::raw('SUM(TSL.unit_price_inc_tax*TSL.quantity) as total_amount')
                 )
+                ->whereRaw('TSL.quantity - TSL.quantity_returned <> 0')
+
                 ->orderByRaw('CASE WHEN brand_name IS NULL THEN 2 ELSE 1 END, brand_name')
                 ->get();
                 // dd($product_details);
                 // $transactionIds = $product_details->pluck('id')->toArray();
                 // dd($transactionIds);
+
+
+                $exchanged_product_details = Transaction::where('transactions.created_by', $user_id)
+                ->whereBetween('transaction_date', [$open_time, $close_time])
+                ->where('transactions.type','sell_return')
+                ->where('transactions.status', 'final')
+                ->where('transactions.is_direct_sale', 0)
+                // ->join('transaction_sell_lines AS TSL', 'transactions.id', '=', 'TSL.transaction_id')
+                // ->join('products AS P', 'TSL.product_id', '=', 'P.id')
+                // ->leftjoin('brands AS B', 'P.brand_id', '=', 'B.id')
+                // ->groupBy('B.id')
+                ->select(
+                    // 'transactions.id',
+                    // 'B.name as brand_name',
+                    // DB::raw('SUM(TSL.quantity) as total_quantity'),
+                    // DB::raw('SUM(TSL.quantity - TSL.quantity_returned) as total_qty_sold'),
+
+                    DB::raw('SUM(transactions.final_total) as total_amount'),
+
+                    // DB::raw('SUM(TSL.unit_price_inc_tax*TSL.quantity) as total_amount')
+                )
+                // ->whereRaw('TSL.quantity - TSL.quantity_returned <> 0')
+
+                // ->orderByRaw('CASE WHEN brand_name IS NULL THEN 2 ELSE 1 END, brand_name')
+                ->first();
+                // dd($exchanged_product_details);
 
 
         $return_product_details_id = Transaction::where('transactions.created_by', $user_id)
@@ -471,7 +504,8 @@ class CashRegisterUtil extends Util
         return ['product_details' => $product_details,
                 'return_product_details' => $return_product_details,
                 'transaction_details' => $transaction_details,
-                'types_of_service_details' => $types_of_service_details
+                'types_of_service_details' => $types_of_service_details,
+                'exchanged_product_details' => $exchanged_product_details
             ];
     }
 
