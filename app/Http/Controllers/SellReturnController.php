@@ -706,7 +706,7 @@ class SellReturnController extends Controller
                 $msg = trans("sale.pos_sale_added");
                 $receipt = '';
                 $invoice_layout_id = $request->input('invoice_layout_id');
-                $print_invoice = false;
+                $print_invoice = true;
                 // if (!$is_direct_sale) {
                 //     if ($input['status'] == 'draft') {
                 //         $msg = trans("sale.draft_added");
@@ -725,7 +725,7 @@ class SellReturnController extends Controller
                 }
 
                 if (!auth()->user()->can("print_invoice")) {
-                    $print_invoice = false;
+                    $print_invoice = true;
                 }
                 
                 if ($print_invoice) {
@@ -1194,6 +1194,7 @@ class SellReturnController extends Controller
 
             $receipt_details = $this->transactionUtil->getReceiptDetails($transaction_id, $location_id, $invoice_layout, $business_details, $location_details, $receipt_printer_type);
             
+            dd($receipt_details);
             //If print type browser - return the content, printer - return printer config data, and invoice format config
             if ($receipt_printer_type == 'printer') {
                 $output['print_type'] = 'printer';

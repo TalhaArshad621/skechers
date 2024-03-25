@@ -271,17 +271,7 @@
 	                        	{{$loop->iteration}}
 	                        </td>
 	                        <td class="description">
-	                        	{{$line['name']}} {{$line['product_variation']}} {{$line['variation']}} 
-	                        	@if(!empty($line['sub_sku'])), {{$line['sub_sku']}} @endif @if(!empty($line['brand'])), {{$line['brand']}} @endif @if(!empty($line['cat_code'])), {{$line['cat_code']}}@endif
-	                        	@if(!empty($line['product_custom_fields'])), {{$line['product_custom_fields']}} @endif
-	                        	@if(!empty($line['sell_line_note']))
-	                        	<br>
-	                        	<span class="f-8">
-	                        	{{$line['sell_line_note']}}
-	                        	</span>
-	                        	@endif 
-	                        	@if(!empty($line['lot_number']))<br> {{$line['lot_number_label']}}:  {{$line['lot_number']}} @endif 
-	                        	@if(!empty($line['product_expiry'])), {{$line['product_expiry_label']}}:  {{$line['product_expiry']}} @endif
+	                        	@if(!empty($line['sub_sku'])) {{$line['sub_sku']}} @endif
 	                        </td>
 	                        <td class="quantity text-right">{{$line['quantity']}} {{$line['units']}}</td>
 	                        @if(empty($receipt_details->hide_price))
@@ -289,25 +279,6 @@
 	                        <td class="price text-right">{{$line['line_total']}}</td>
 	                        @endif
 	                    </tr>
-	                    @if(!empty($line['modifiers']))
-							@foreach($line['modifiers'] as $modifier)
-								<tr>
-									<td>
-										&nbsp;
-									</td>
-									<td>
-			                            {{$modifier['name']}} {{$modifier['variation']}} 
-			                            @if(!empty($modifier['sub_sku'])), {{$modifier['sub_sku']}} @endif @if(!empty($modifier['cat_code'])), {{$modifier['cat_code']}}@endif
-			                            @if(!empty($modifier['sell_line_note']))({{$modifier['sell_line_note']}}) @endif 
-			                        </td>
-									<td class="text-right">{{$modifier['quantity']}} {{$modifier['units']}} </td>
-									@if(empty($receipt_details->hide_price))
-									<td class="text-right">{{$modifier['unit_price_inc_tax']}}</td>
-									<td class="text-right">{{$modifier['line_total']}}</td>
-									@endif
-								</tr>
-							@endforeach
-						@endif
                     @endforeach
                     <tr>
                     	<td colspan="5">&nbsp;</td>

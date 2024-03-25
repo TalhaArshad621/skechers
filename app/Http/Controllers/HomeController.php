@@ -671,7 +671,7 @@ class HomeController extends Controller
     
                 DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
                       JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
-                      WHERE transactions.status='final' AND transactions.type='sell' AND transactions.location_id=vld.location_id
+                      WHERE transactions.status='final' AND transactions.type='sell'
                       AND TSL.variation_id=v.id) as total_sold"),
                 DB::raw("(SELECT SUM(IF(transactions.type='sell_transfer', TSL.quantity, 0) ) FROM transactions 
                       JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id

@@ -239,7 +239,6 @@
 							{{$loop->iteration}}
 						</td>
 						<td>
-                            {{$line['name']}} {{$line['variation']}} 
                             @if(!empty($line['sub_sku'])), {{$line['sub_sku']}} @endif @if(!empty($line['brand'])), {{$line['brand']}} @endif
                             @if(!empty($line['sell_line_note']))({{$line['sell_line_note']}}) @endif 
                         </td>
