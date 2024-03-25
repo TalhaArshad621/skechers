@@ -1744,6 +1744,8 @@ class TransactionUtil extends Util
             }
         } elseif ($transaction_type == 'sell_return') {
             $parent_sell = Transaction::find($transaction->return_parent_id);
+            $return_sell = Transaction::find($transaction_id);
+            $return_lines = $return_sell->sell_lines;
             $lines = $parent_sell->sell_lines;
 
             foreach ($lines as $key => $value) {
