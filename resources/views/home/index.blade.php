@@ -484,7 +484,7 @@
                           </div>
                       </div>
                   </div>
-              <div class="tab-content" style="display: none;">
+              <div class="tab-content">
                       <div class="tab-pane active" id="psr_grouped_tab">
                           <h3 style="margin-top:10px; margin-left:15px; margin-bottom:20px;">Product And Category Report</h3>
                           <div class="table-responsive">
@@ -969,28 +969,28 @@
             { data: 'subtotal', name: 'subtotal', searchable: false },
             
         ],
-        // fnDrawCallback: function(oSettings) {
-        //     $('#sale_value').text(
-        //         sum_table_col($('#product_and_category_table'), 'row_subtotal')
-        //     );
-        //     $('#return_value').text(
-        //         sum_table_col($('#product_and_category_table'), 'row_subtotal')
-        //     );
-        //     $('#net_value').text(
-        //         sum_table_col($('#product_and_category_table'), 'row_subtotal')
-        //     );
-        //     $('#total_sold').html(
-        //         __sum_stock($('#product_and_category_table'), 'sell_qty')
-        //     );
-        //     $('#total_returned').html(
-        //         __sum_stock($('#product_and_category_table'), 'sell_qty')
-        //     );
-        //     $('#net_unit').html(
-        //         __sum_stock($('#product_and_category_table'), 'sell_qty')
-        //     );
+        fnDrawCallback: function(oSettings) {
+            $('#sale_value').text(
+                sum_table_col($('#product_and_category_table'), 'sale_value')
+            );
+            $('#return_value').text(
+                sum_table_col($('#product_and_category_table'), 'return_value')
+            );
+            $('#net_value').text(
+                sum_table_col($('#product_and_category_table'), 'subtotal')
+            );
+            $('#total_sold').html(
+                __sum_stock($('#product_and_category_table'), 'sell_qty')
+            );
+            $('#total_returned').html(
+                __sum_stock($('#product_and_category_table'), 'sell_qty')
+            );
+            $('#net_unit').html(
+                __sum_stock($('#product_and_category_table'), 'sell_qty')
+            );
 
-        //     __currency_convert_recursively($('#product_and_category_table'));
-        // },
+            __currency_convert_recursively($('#product_and_category_table'));
+        },
 
     });
 

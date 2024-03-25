@@ -3829,7 +3829,7 @@ class TransactionUtil extends Util
 
         if (is_null($final_amount)) {
             $final_amount = Transaction::find($transaction_id)->final_total;
-            dd($final_amount);
+            // dd($final_amount);
         }
 
         $status = 'paid';
