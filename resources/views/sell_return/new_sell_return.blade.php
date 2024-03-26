@@ -41,14 +41,14 @@
 	<div class="box box-solid">
 		<div class="box-body">
 			<div class="row">
-				<div class="col-sm-4">
+				<div class="col-sm-4" style="display: none">
 					<div class="form-group">
 						{!! Form::label('invoice_no', __('sale.invoice_no').':') !!}
                         <input id="invoice_no" class="form-control" name="invoice_no" type="text">
 						{{-- {!! Form::text('invoice_no', !empty($sell->return_parent->invoice_no) ? $sell->return_parent->invoice_no : null, ['class' => 'form-control']); !!} --}}
 					</div>
 				</div>
-				<div class="col-sm-3">
+				<div class="col-sm-3" style="display: none">
 					<div class="form-group">
 						{!! Form::label('transaction_date', __('messages.date') . ':*') !!}
 						<div class="input-group">
@@ -159,6 +159,8 @@
 			{{-- {!! Form::hidden('tax_id', $sell->tax_id); !!} --}}
 			{!! Form::hidden('tax_amount', 0, ['id' => 'tax_amount']); !!}
 			{!! Form::hidden('tax_percent', $tax_percent, ['id' => 'tax_percent']); !!}
+			<input type="hidden" name="final_total" 
+												id="final_total_input" value=0>
 		</div>
 	</div>
 	<div class="box box-solid">
@@ -351,7 +353,11 @@
 			<br>
 			<div class="row">
 				<div class="col-sm-12">
-					<button type="submit" class="btn btn-primary pull-right">@lang('messages.save')</button>
+					{{-- <button type="submit" class="btn btn-primary pull-right">@lang('messages.save')</button> --}}
+			@php
+				$is_mobile = false;
+			@endphp
+			<button type="button" class="btn bg-navy btn-default @if(!$is_mobile) @endif btn-flat no-print @if($pos_settings['disable_pay_checkout'] != 0) hide @endif @if($is_mobile) col-xs-6 @endif" id="pos-finalize" title="@lang('Payment')"><i class="fas fa-money-check-alt" aria-hidden="true"></i> @lang('Payment') </button>	
 				</div>
 			</div>
 		</div>
@@ -380,6 +386,9 @@
 			</div>
 		</div>
 	</div> --}}
+
+	@include('sale_pos.partials.payment_modal')
+
 	{!! Form::close() !!}
 
 </section>

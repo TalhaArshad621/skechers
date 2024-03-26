@@ -572,7 +572,7 @@
                 d.end_date = $('#profit_tabs_filter_overview')
                     .data('daterangepicker')
                     .endDate.format('YYYY-MM-DD');
-                d.location_id = $('#profit_loss_location_filter').val();
+                d.location_id = $('#overview_location_filter').val();
             },
             success: function (response) {
               var returnItemsFloat = parseFloat(response.return_items); // Convert float to integer
