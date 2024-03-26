@@ -101,6 +101,31 @@
                     </table>
                 </div>
                 <div class="table-responsive">
+                    <h4 class="purchase-wise-heading text-secondary font-weight-bold mb-4">Exchange Wise</h4>
+                    <table class="table table-bordered table-striped" 
+                    id="product_exchange_report_table">
+                        <thead>
+                            <tr>
+                                <th>@lang('product.sku')</th>
+                                <th>@lang('Invoice No.')</th>
+                                <th>Exchanged Quantity</th>
+                                <th>@lang('Store')</th>
+                                <th>@lang('Date')</th>
+                                <th>Created By</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr class="bg-gray font-17 footer-total text-center">
+                                <td colspan="2"><strong>@lang('sale.total'):</strong></td>
+                                <td id="product_exchange_report_table_footer"></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="table-responsive">
                     <h4 class="purchase-wise-heading text-secondary font-weight-bold mb-4">Gift Wise</h4>
                     <table class="table table-bordered table-striped" 
                     id="product_gift_report_table">
@@ -347,6 +372,33 @@
                     sum_table_col($('#product_sell_report_table'), 'sell_qty')
                 );
                 __currency_convert_recursively($('#product_sell_report_table'));
+            }
+        });
+
+        //exchange table js code
+        product_exchange_report_table = $('table#product_exchange_report_table').DataTable({
+            processing: true,
+            serverSide: true,
+            aaSorting: [[1, 'desc']],
+            ajax: {
+                url: '/products/exchange-history',
+                data: function (d) {
+                d.id = productId;
+                },
+            },
+            columns: [
+                { data: 'product_sku', name: 'product_sku' },
+                { data: 'invoice_no', name: 'invoice_no' },
+                { data: 'sell_quantity', name: 'sell_quantity' },
+                { data: 'store_name', name: 'store_name' },
+                { data: 'transaction_date', name: 'transaction_date' },
+                { data: 'full_name', name: 'full_name' }
+            ],
+            fnDrawCallback: function(oSettings) {
+                $('#product_exchange_report_table_footer').text(
+                    sum_table_col($('#product_exchange_report_table'), 'sell_qty')
+                );
+                __currency_convert_recursively($('#product_exchange_report_table'));
             }
         });
 
