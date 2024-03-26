@@ -1745,6 +1745,7 @@ class TransactionUtil extends Util
         } elseif ($transaction_type == 'sell_return') {
             $parent_sell = Transaction::find($transaction->return_parent_id);
             $return_sell = Transaction::find($transaction_id);
+
             $return_lines = $return_sell->sell_lines;
             $lines = $parent_sell->sell_lines;
 
@@ -1757,7 +1758,9 @@ class TransactionUtil extends Util
             }
 
             $details = $this->_receiptDetailsSellReturnLines($lines, $il, $business_details);
+            $excahnge_details = $this->_receiptDetailsSellExchangeLines($return_lines, $il, $business_details);
             $output['lines'] = $details['lines'];
+            $output['exchanges'] = $excahnge_details['lines'];
 
             $output['taxes'] = [];
             foreach ($details['lines'] as $line) {
@@ -3099,6 +3102,122 @@ class TransactionUtil extends Util
 
                 //Fields for 4th column
                 'line_total' => $this->num_f($line->unit_price_inc_tax * $line->quantity_returned, false, $business_details),
+            ];
+            $line_array['line_discount'] = 0;
+
+            //Group product taxes by name.
+            if (!empty($tax_details)) {
+                if ($tax_details->is_tax_group) {
+                    $group_tax_details = $this->groupTaxDetails($tax_details, $line->quantity * $line->item_tax);
+
+                    $line_array['group_tax_details'] = $group_tax_details;
+
+                    // foreach ($group_tax_details as $key => $value) {
+                    //     if (!isset($output_taxes['taxes'][$key])) {
+                    //         $output_taxes['taxes'][$key] = 0;
+                    //     }
+                    //     $output_taxes['taxes'][$key] += $value;
+                    // }
+                }
+                // else {
+                //     $tax_name = $tax_details->name;
+                //     if (!isset($output_taxes['taxes'][$tax_name])) {
+                //         $output_taxes['taxes'][$tax_name] = 0;
+                //     }
+                //     $output_taxes['taxes'][$tax_name] += ($line->quantity * $line->item_tax);
+                // }
+            }
+
+            if ($il->show_brand == 1) {
+                $line_array['brand'] = !empty($brand->name) ? $brand->name : '';
+            }
+            if ($il->show_sku == 1) {
+                $line_array['sub_sku'] = !empty($variation->sub_sku) ? $variation->sub_sku : '' ;
+            }
+            if ($il->show_cat_code == 1) {
+                $line_array['cat_code'] = !empty($cat->short_code) ? $cat->short_code : '';
+            }
+            if ($il->show_sale_description == 1) {
+                $line_array['sell_line_note'] = !empty($line->sell_line_note) ? $line->sell_line_note : '';
+            }
+            // if ($is_lot_number_enabled == 1 && $il->show_lot == 1) {
+            //     $line_array['lot_number'] = !empty($line->lot_details->lot_number) ? $line->lot_details->lot_number : null;
+            //     $line_array['lot_number_label'] = __('lang_v1.lot');
+            // }
+
+            // if ($is_product_expiry_enabled == 1 && $il->show_expiry == 1) {
+            //     $line_array['product_expiry'] = !empty($line->lot_details->exp_date) ? $this->format_date($line->lot_details->exp_date) : null;
+            //     $line_array['product_expiry_label'] = __('lang_v1.expiry');
+            // }
+
+            $output_lines[] = $line_array;
+        }
+
+        return ['lines' => $output_lines, 'taxes' => $output_taxes];
+    }
+
+    /**
+     * Returns each line details for sell return invoice display
+     *
+     * @return array
+     */
+    protected function _receiptDetailsSellExchangeLines($lines, $il, $business_details)
+    {
+        $is_lot_number_enabled = $business_details->enable_lot_number;
+        $is_product_expiry_enabled = $business_details->enable_product_expiry;
+
+        $output_lines = [];
+        $output_taxes = ['taxes' => []];
+        foreach ($lines as $line) {
+            //Group product taxes by name.
+            $tax_details = TaxRate::find($line->tax_id);
+            // if (!empty($tax_details)) {
+            //     if ($tax_details->is_tax_group) {
+            //         $group_tax_details = $this->groupTaxDetails($tax_details, $line->quantity_returned * $line->item_tax);
+            //         foreach ($group_tax_details as $key => $value) {
+            //             if (!isset($output_taxes['taxes'][$key])) {
+            //                 $output_taxes['taxes'][$key] = 0;
+            //             }
+            //             $output_taxes['taxes'][$key] += $value;
+            //         }
+            //     } else {
+            //         $tax_name = $tax_details->name;
+            //         if (!isset($output_taxes['taxes'][$tax_name])) {
+            //             $output_taxes['taxes'][$tax_name] = 0;
+            //         }
+            //         $output_taxes['taxes'][$tax_name] += ($line->quantity_returned * $line->item_tax);
+            //     }
+            // }
+
+            $product = $line->product;
+            $variation = $line->variations;
+            $unit = $line->product->unit;
+            $brand = $line->product->brand;
+            $cat = $line->product->category;
+
+            $unit_name = !empty($unit->short_name) ? $unit->short_name : '';
+            if (!empty($line->sub_unit->short_name)) {
+                $unit_name = $line->sub_unit->short_name;
+            }
+
+            $line_array = [
+                //Field for 1st column
+                'name' => $product->name,
+                'variation' => (empty($variation->name) || $variation->name == 'DUMMY') ? '' : $variation->name,
+                //Field for 2nd column
+                'quantity' => $this->num_f($line->quantity, false, $business_details, true),
+                'units' => $unit_name,
+
+                'unit_price' => $this->num_f($line->unit_price, false, $business_details),
+                'tax' => $this->num_f($line->item_tax, false, $business_details),
+                'tax_name' => !empty($tax_details) ? $tax_details->name: null,
+
+                //Field for 3rd column
+                'unit_price_inc_tax' => $this->num_f($line->unit_price_inc_tax, false, $business_details),
+                'unit_price_exc_tax' => $this->num_f($line->unit_price, false, $business_details),
+
+                //Fields for 4th column
+                'line_total' => $this->num_f($line->unit_price_inc_tax, false, $business_details),
             ];
             $line_array['line_discount'] = 0;
 

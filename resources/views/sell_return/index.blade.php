@@ -94,7 +94,7 @@
                 }
             },
             columnDefs: [ {
-                "targets": [7, 8],
+                "targets": [6, 7],
                 "orderable": false,
                 "searchable": false
             } ],
@@ -106,7 +106,7 @@
                 { data: 'business_location', name: 'bl.name'},
                 { data: 'payment_status', name: 'payment_status'},
                 { data: 'final_total', name: 'final_total'},
-                { data: 'payment_due', name: 'payment_due'},
+                // { data: 'payment_due', name: 'payment_due'},
                 { data: 'action', name: 'action'}
             ],
             "fnDrawCallback": function (oSettings) {
