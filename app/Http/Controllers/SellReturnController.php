@@ -56,6 +56,8 @@ class SellReturnController extends Controller
             'delivered' => 'bg-green',
             'cancelled' => 'bg-red',
         ];
+        $this->dummyPaymentLine = ['method' => 'cash', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+        'is_return' => 0, 'transaction_no' => ''];
     }
 
     /**
@@ -244,7 +246,13 @@ class SellReturnController extends Controller
         $business_details = $this->businessUtil->getDetails($business_id);
         $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
-        return view('sell_return.new_sell_return',compact('sell','default_location','business_details','pos_settings'));
+        $payment_lines[] = $this->dummyPaymentLine;
+
+        $payment_types = $this->productUtil->payment_types(null, true, $business_id);
+        $change_return = $this->dummyPaymentLine;
+
+
+        return view('sell_return.new_sell_return',compact('sell','default_location','business_details','pos_settings','payment_lines','payment_types','change_return'));
     }
 
 
