@@ -4479,7 +4479,8 @@ class ReportController extends Controller
                     DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_qty_sold'),
                     DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_returned_quantity'),
                     DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) - SUM(transaction_sell_lines.quantity_returned) as total_net_unit'),
-                    DB::raw('IF(t.type="sell",SUM(transaction_sell_lines.unit_price_inc_tax), 0) as sale_value'),
+                    DB::raw('IF(t.type="sell",SUM( (transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned ) *  transaction_sell_lines.unit_price_inc_tax), 0) as sale_value'),
+                    // DB::raw('SUM(t.final_total) as sale_value'),
                     DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as return_value'),
 
                     // DB::raw('IF(t.type="sell_return",SUM(transaction_sell_lines.unit_price_inc_tax), 0) as return_value'),

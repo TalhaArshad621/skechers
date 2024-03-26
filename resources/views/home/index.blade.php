@@ -545,7 +545,7 @@
         {!! $sells_chart_2->script() !!}
     @endif
 
-    <script src="{{ asset('js/report.js?v=' . $asset_v) }}"></script>
+    {{-- <script src="{{ asset('js/report.js?v=' . $asset_v) }}"></script> --}}
 
 <script type="text/javascript">
     $(document).ready( function() {
