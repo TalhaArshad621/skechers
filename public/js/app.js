@@ -2462,11 +2462,14 @@ function updateOverView(start = null, end = null, location_id = null, selector =
         url: '/reports/get-sell-overview',
         data: data,
         success: function(response) {
+            var returnItemsFloat = parseFloat(response.return_items); // Convert float to integer
+            var soldItemsFloat = parseFloat(response.total_item_sold); // Convert float to integer
+
             // selector.html(response);
-            $("#return-invoices").html(__currency_trans_from_en(response.return_invoices));
+            $("#return-invoices").html(response.return_invoices);
             $("#return-amount").html(__currency_trans_from_en(response.return_amount));
-            $("#return-items").html(response.return_items);
-            $("#total-items-sold").html(response.total_item_sold);
+            $("#return-items").html(returnItemsFloat);
+            $("#total-items-sold").html(soldItemsFloat);
             $("#invoice-amount").html(__currency_trans_from_en(response.invoice_amount));
             $("#discount").html(__currency_trans_from_en(response.total_sell_discount));
             $("#cash-payment").html(__currency_trans_from_en(response.cash_amount));

@@ -308,6 +308,23 @@
                 @endcomponent
             </div>
         </div> --}}
+
+        <div class="row">
+            <div class="col-md-12">
+                @component('components.filters', ['title' => __('report.filters')])
+                  {!! Form::open(['url' => action('HomeController@getStockDetail'), 'method' => 'get', 'id' => 'stock_report_filter_form' ]) !!}
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            {!! Form::label('location_id',  __('purchase.business_location') . ':') !!}
+                            {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
+                        </div>
+                    </div>
+                    {!! Form::close() !!}
+                @endcomponent
+            </div>
+        </div>
+
+
         <div class="row">
             <div class="@if((session('business.enable_product_expiry') != 1) && auth()->user()->can('stock_report.view')) col-sm-12 @else col-sm-6 @endif">
                 @component('components.widget', ['class' => 'box-warning'])
@@ -572,7 +589,7 @@
                 d.end_date = $('#profit_tabs_filter_overview')
                     .data('daterangepicker')
                     .endDate.format('YYYY-MM-DD');
-                d.location_id = $('#overview_location_filter').val();
+                d.location_id = $('#profit_loss_location_filter').val();
             },
             success: function (response) {
               var returnItemsFloat = parseFloat(response.return_items); // Convert float to integer
