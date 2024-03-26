@@ -3472,8 +3472,9 @@ class TransactionUtil extends Util
         $output['total_sell_exc_tax'] = $sell_details->sum('total_before_tax');
         $output['invoice_due'] = $sell_details->sum('final_total') - $sell_details->sum('total_paid');
         $output['total_shipping_charges'] = $sell_details->sum('shipping_charges');
-
+        // dd($output);
         return $output;
+
     }
 
     /**

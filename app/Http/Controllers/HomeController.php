@@ -104,6 +104,7 @@ class HomeController extends Controller
         // dd($all_locations);
         $location_sells = [];
         $sells_by_location = $this->transactionUtil->getSellsLast30Days($business_id, true);
+        // dd($sells_by_location);
         foreach ($all_locations as $loc_id => $loc_name) {
             $values = [];
             foreach ($dates as $date) {
@@ -113,6 +114,7 @@ class HomeController extends Controller
                 });
                 
                 if (!empty($sell)) {
+                    // dd($sell->total_sells);
                     $values[] = (float) $sell->total_sells;
                 } else {
                     $values[] = 0;
@@ -662,6 +664,30 @@ class HomeController extends Controller
               ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
               ->where('p.business_id', $business_id)
               ->whereIn('p.type', ['single', 'variable']);
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            $location_filter = '';
+
+            if ($permitted_locations != 'all') {
+                $query->whereIn('vld.location_id', $permitted_locations);
+
+                $locations_imploded = implode(', ', $permitted_locations);
+                $location_filter .= "AND transactions.location_id IN ($locations_imploded) ";
+            }
+
+            if (!empty($filters['location_id'])) {
+                $location_id = $filters['location_id'];
+
+                $query->where('vld.location_id', $location_id);
+
+                $location_filter .= "AND transactions.location_id=$location_id";
+
+                //If filter by location then hide products not available in that location
+                $query->join('product_locations as pl', 'pl.product_id', '=', 'p.id')
+                    ->where(function ($q) use ($location_id) {
+                        $q->where('pl.location_id', $location_id);
+                    });
+            }
     
               $pl_query_string = $this->productUtil->get_pl_quantity_sum_string('pl');
     
@@ -671,8 +697,12 @@ class HomeController extends Controller
     
                 DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
                       JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
-                      WHERE transactions.status='final' AND transactions.type='sell'
+                      WHERE transactions.status='final' AND (transactions.type='sell' OR transactions.type='sell_return')
                       AND TSL.variation_id=v.id) as total_sold"),
+                // DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
+                //       JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
+                //       WHERE transactions.status='final' AND transactions.type='sell'
+                //       AND TSL.variation_id=v.id) as total_sold"),
                 DB::raw("(SELECT SUM(IF(transactions.type='sell_transfer', TSL.quantity, 0) ) FROM transactions 
                       JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
                       WHERE transactions.status='final' AND transactions.type='sell_transfer' AND transactions.location_id=vld.location_id AND (TSL.variation_id=v.id)) as total_transfered"),
@@ -715,11 +745,12 @@ class HomeController extends Controller
             ->editColumn('stock_price', function ($row) {
                 $stock = $row->stock ? $row->stock : 0 ;
 
-                $html = '<span class="display_currency total_stock_price" data-currency_symbol=true data-orig-value="'
-                    . $row->stock_price * $stock . '">'
-                    . $row->stock_price  * $stock . '</span>';
+                return (float)$row->stock_price;
+                // $html = '<span class="display_currency total_stock_price" data-currency_symbol=true data-orig-value="'
+                //     . $row->stock_price * $stock . '">'
+                //     . $row->stock_price  * $stock . '</span>';
     
-                return $html;
+                // return $html;
             })
             ->editColumn('stock_value_by_sale_price', function ($row) {
                 $stock = $row->stock ? $row->stock : 0 ;
