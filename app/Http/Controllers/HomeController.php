@@ -104,6 +104,7 @@ class HomeController extends Controller
         // dd($all_locations);
         $location_sells = [];
         $sells_by_location = $this->transactionUtil->getSellsLast30Days($business_id, true);
+        // dd($sells_by_location);
         foreach ($all_locations as $loc_id => $loc_name) {
             $values = [];
             foreach ($dates as $date) {
@@ -113,6 +114,7 @@ class HomeController extends Controller
                 });
                 
                 if (!empty($sell)) {
+                    // dd($sell->total_sells);
                     $values[] = (float) $sell->total_sells;
                 } else {
                     $values[] = 0;
@@ -695,8 +697,12 @@ class HomeController extends Controller
     
                 DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
                       JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
-                      WHERE transactions.status='final' AND transactions.type='sell'
+                      WHERE transactions.status='final' AND (transactions.type='sell' OR transactions.type='sell_return')
                       AND TSL.variation_id=v.id) as total_sold"),
+                // DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
+                //       JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
+                //       WHERE transactions.status='final' AND transactions.type='sell'
+                //       AND TSL.variation_id=v.id) as total_sold"),
                 DB::raw("(SELECT SUM(IF(transactions.type='sell_transfer', TSL.quantity, 0) ) FROM transactions 
                       JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
                       WHERE transactions.status='final' AND transactions.type='sell_transfer' AND transactions.location_id=vld.location_id AND (TSL.variation_id=v.id)) as total_transfered"),

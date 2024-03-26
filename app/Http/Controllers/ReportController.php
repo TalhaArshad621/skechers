@@ -3847,7 +3847,7 @@ class ReportController extends Controller
                 // Cash Payment
                 $query4 = DB::table('cash_register_transactions')->leftJoin('transactions', 'cash_register_transactions.transaction_id', 'transactions.id')
                 ->where('transactions.business_id', $business_id)
-                ->where('transactions.type', 'sell')
+                ->whereIn('transactions.type', ['sell','sell_return'])
                 ->where('transactions.status', 'final')
                 ->where('cash_register_transactions.pay_method', 'cash')
                 ->where('cash_register_transactions.transaction_type','sell');
@@ -3871,7 +3871,7 @@ class ReportController extends Controller
 
                 $query5 = DB::table('transactions')->leftJoin('transaction_payments','transactions.id','transaction_payments.transaction_id')
                 ->where('transactions.business_id', $business_id)
-                ->where('transactions.type', 'sell')
+                ->whereIn('transactions.type', ['sell','sell_return'])
                 ->where('transactions.status', 'final')
                 ->where('transaction_payments.method', 'card');
                 if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
@@ -3955,18 +3955,17 @@ class ReportController extends Controller
                 ->first();
 
             // dd($return_data, $return_items, $invoice_data, $cash_payment, $card_payment, $gross_profit, $gift_amount, $gift_items, $gst_tax);
-
             return response()->json([
                 'return_invoices' => $return_data->return_invoices,
                 'return_amount' => $return_data->returned_amount ? $return_data->returned_amount : 0.000 ,
                 'return_items' => $return_items->returned_items ? $return_items->returned_items : 0.000,
                 'total_item_sold' => $invoice_data['total_item_sold'],
                 // 'invoice_amount' => $invoice_data['invoice_amount'],
-                'invoice_amount' => ($cash_payment->cash_amount) + ($card_payment->card_amount),
+                'invoice_amount' => ($cash_payment->cash_amount) + ($card_payment->card_amount) - ($return_data->returned_amount ? $return_data->returned_amount : 0.000),
                 'total_sell_discount' => $invoice_data['total_sell_discount'],
                 'cash_amount' => $cash_payment->cash_amount,
                 'card_amount' => $card_payment->card_amount,
-                'total_received' => ($return_data->returned_amount ? $return_data->returned_amount : 0.000) + ($cash_payment->cash_amount) + ($card_payment->card_amount),
+                'total_received' => ($cash_payment->cash_amount) + ($card_payment->card_amount),
                 // 'total_received' => $invoice_data['invoice_amount'],
                 'profit_loss' => $gross_profit,
                 'total_gift_amount' => $gift_amount->amount,

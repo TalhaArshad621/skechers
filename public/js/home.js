@@ -133,7 +133,7 @@ $(document).ready(function () {
                 }
             },
             columns: [
-                { data: 'categories', name: 'categories' },
+                { data: 'category_name', name: 'category_name' },
                 { data: 'stock', name: 'stock' },
                 { data: 'total_sold', name: 'total_sold' },
                 { data: 'stock_price', name: 'stock_price' },
