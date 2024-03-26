@@ -2252,7 +2252,7 @@ class ProductController extends Controller
                 ->join('products', 'transaction_sell_lines.product_id', '=', 'products.id')
                 ->join('business_locations', 'transactions.location_id', '=', 'business_locations.id')
                 ->join('users','transactions.created_by', '=', 'users.id')
-                ->where('transactions.type', 'sell')
+                ->whereIn('transactions.type', ['sell','sell_return'])
                 ->where('transactions.status', 'final')
                 ->where('transaction_sell_lines.product_id', $request->id)
 
@@ -2262,6 +2262,71 @@ class ProductController extends Controller
                     'transactions.invoice_no',
                     'transactions.transaction_date as transaction_date',
                     'transaction_sell_lines.quantity as sell_quantity',
+                    'business_locations.name as store_name',
+                    DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                )
+                ->get();
+
+            return Datatables::of($query)
+            // ->editColumn('product_image', function ($row) {
+            //     $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
+                
+            //     if (!empty($row->product_image)) {
+            //         $imagePath = asset('uploads/img/' . $row->product_image);
+            //     } else {
+            //         $imagePath = asset('img/default.png');
+            //     }
+            
+            //     return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            // })
+            ->editColumn('product_sku', function ($row) {
+                $product_sku = $row->product_sku;
+
+                return $product_sku;
+            })
+            ->editColumn('invoice_no', function ($row) {
+                $invoice_no = $row->invoice_no;
+
+                return $invoice_no;
+            })
+            ->editColumn('sell_quantity', function ($row) {
+                return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->sell_quantity . '" >' . (float) $row->sell_quantity . '</span> ';
+
+            })
+            ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+            ->editColumn('store_name', function ($row) {
+                $store_name = $row->store_name;
+
+                return $store_name;
+            })
+            ->rawColumns(['product_sku', 'invoice_no', 'sell_quantity', 'transaction_date','store_name'])
+            ->make(true);
+        }
+    }
+
+    public function productExchangeHistory(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        if ($request->ajax()) {
+            // $variation_id = $request->get('variation_id', null);
+            $query = TransactionSellLine::join('transactions', 'transaction_sell_lines.transaction_id','=','transactions.id')
+                ->join('products', 'transaction_sell_lines.product_id', '=', 'products.id')
+                ->join('business_locations', 'transactions.location_id', '=', 'business_locations.id')
+                ->join('users','transactions.created_by', '=', 'users.id')
+                ->where('transactions.type', 'sell')
+                ->where('transactions.status', 'final')
+                ->where('transaction_sell_lines.product_id', $request->id)
+
+                ->select(
+                    'products.sku as product_sku',
+                    'products.image as product_image',
+                    'transactions.invoice_no',
+                    'transactions.transaction_date as transaction_date',
+                    'transaction_sell_lines.quantity_returned as sell_quantity',
                     'business_locations.name as store_name',
                     DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
                 )

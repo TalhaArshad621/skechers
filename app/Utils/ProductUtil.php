@@ -2002,7 +2002,7 @@ class ProductUtil extends Util
 
             DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
                   JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
-                  WHERE transactions.status='final' AND transactions.type='sell' AND transactions.location_id=vld.location_id
+                  WHERE transactions.status='final' AND (transactions.type='sell' OR transactions.type='sell_return') AND transactions.location_id=vld.location_id
                   AND TSL.variation_id=variations.id) as total_sold"),
             DB::raw("(SELECT SUM(IF(transactions.type='sell_transfer', TSL.quantity, 0) ) FROM transactions 
                   JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
