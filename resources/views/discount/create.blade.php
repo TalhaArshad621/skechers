@@ -35,10 +35,18 @@
           </div>
         </div>
         <div class="clearfix"></div>
+
+        {{-- <div class="col-sm-4">
+          <div class="form-group">
+            {!! Form::label('product_locations', __('business.business_locations') . ':') !!} @show_tooltip(__('lang_v1.product_location_help'))
+              {!! Form::select('product_locations[]', $business_locations, $default_location, ['class' => 'form-control select2', 'multiple', 'id' => 'product_locations']); !!}
+          </div>
+        </div> --}}
+
         <div class="col-sm-6">
           <div class="form-group">
             {!! Form::label('location_id', __('sale.location') . ':*') !!}
-              {!! Form::select('location_id', $locations, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2', 'required']); !!}
+            {!! Form::select('location_ids[]', $locations, null, ['class' => 'form-control select2', 'multiple', 'required']) !!}
           </div>
         </div>
         <div class="col-md-6">

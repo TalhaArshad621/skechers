@@ -10,12 +10,12 @@
             <th>@lang('sale.customer_name')</th>
             {{-- <th>@lang('lang_v1.contact_no')</th> --}}
             <th>@lang('sale.location')</th>
-            <th>@lang('sale.payment_status')</th>
+            {{-- <th>@lang('sale.payment_status')</th> --}}
             <th>@lang('lang_v1.payment_method')</th>
             <th>@lang('sale.total_amount')</th>
             <th>@lang('sale.total_paid')</th>
             {{-- <th>@lang('lang_v1.sell_due')</th> --}}
-            <th>@lang('lang_v1.sell_return_due')</th>
+            {{-- <th>@lang('lang_v1.sell_return_due')</th> --}}
             {{-- <th>@lang('lang_v1.shipping_status')</th> --}}
             <th>@lang('lang_v1.total_items')</th>
             {{-- <th>@lang('lang_v1.types_of_service')</th>
@@ -31,12 +31,12 @@
     <tfoot>
         <tr class="bg-gray font-17 footer-total text-center">
             <td colspan="5"><strong>@lang('sale.total'):</strong></td>
-            <td class="footer_payment_status_count"></td>
+            {{-- <td class="footer_payment_status_count"></td> --}}
             <td class="payment_method_count"></td>
             <td class="footer_sale_total"></td>
             <td class="footer_total_paid"></td>
             {{-- <td class="footer_total_remaining"></td> --}}
-            <td class="footer_total_sell_return_due"></td>
+            {{-- <td class="footer_total_sell_return_due"></td> --}}
             {{-- <td colspan="2"></td> --}}
             {{-- <td class="service_type_count"></td> --}}
             <td colspan="2"></td>

@@ -874,14 +874,20 @@ class ReportController extends Controller
                     '=',
                     'cash_registers.location_id'
                 )
+                ->leftJoin('cash_register_transactions', 'cash_register_transactions.cash_register_id', '=', 'cash_registers.id')
+
                 ->where('cash_registers.business_id', $business_id)
+                ->where('cash_register_transactions.pay_method', 'card')
                 ->select(
                     'cash_registers.*',
                     DB::raw(
                         "CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) as user_name"
                     ),
-                    'bl.name as location_name'
+                    'bl.name as location_name',
+                    DB::raw('SUM(cash_register_transactions.amount) as card_amount') // Corrected syntax
                 );
+                // ->groupBy('cash_registers.id');
+                // dd($registers);
 
             if (!empty($request->input('user_id'))) {
                 $registers->where('cash_registers.user_id', $request->input('user_id'));
@@ -897,20 +903,20 @@ class ReportController extends Controller
                         ->whereDate('cash_registers.created_at', '<=', $end_date);
             }
             return Datatables::of($registers)
-                ->editColumn('total_card_slips', function ($row) {
-                    if ($row->status == 'close') {
-                        return $row->total_card_slips;
-                    } else {
-                        return '';
-                    }
-                })
-                // ->editColumn('total_cheques', function ($row) {
+                // ->editColumn('total_card_slips', function ($row) {
                 //     if ($row->status == 'close') {
-                //         return $row->total_cheques;
+                //         return $row->total_card_slips;
                 //     } else {
                 //         return '';
                 //     }
                 // })
+                ->editColumn('card_amount', function ($row) {
+                    if ($row->status == 'close') {
+                        return $row->card_amount;
+                    } else {
+                        return $row->card_amount;
+                    }
+                })
                 ->editColumn('closed_at', function ($row) {
                     if ($row->status == 'close') {
                         return $this->productUtil->format_date($row->closed_at, true);
@@ -1556,7 +1562,8 @@ class ReportController extends Controller
                 ->leftjoin('tax_rates', 'transaction_sell_lines.tax_id', '=', 'tax_rates.id')
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
-                ->where('t.type', 'sell')
+                // ->where('t.type', 'sell')
+                ->whereIN('t.type', ['sell','sell_return'])
                 ->where('t.status', 'final')
                 ->select(
                     'p.name as product_name',
@@ -1574,7 +1581,9 @@ class ReportController extends Controller
                     'v.sell_price_inc_tax as unit_price',
                     // 'transaction_sell_lines.unit_price_before_discount as unit_price',
                     'transaction_sell_lines.unit_price_inc_tax as unit_sale_price',
-                    DB::raw('(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as sell_qty'),
+                    // DB::raw('(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as sell_qty'),
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as sell_qty'),
+
                     'transaction_sell_lines.line_discount_type as discount_type',
                     // 'transaction_sell_lines.line_discount_amount as discount_amount',
                     'transaction_sell_lines.item_tax',
@@ -1723,7 +1732,9 @@ class ReportController extends Controller
                 ->join('products as p', 'pv.product_id', '=', 'p.id')
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
-                ->where('t.type', 'sell')
+                // ->where('t.type', 'sell')
+                ->whereIN('t.type', ['sell','sell_return'])
+
                 ->where('t.status', 'final')
                 ->select(
                     'p.name as product_name',
@@ -1736,7 +1747,9 @@ class ReportController extends Controller
                     't.id as transaction_id',
                     't.invoice_no',
                     't.transaction_date as transaction_date',
-                    'tspl.quantity as purchase_quantity',
+                    // 'tspl.quantity as purchase_quantity',
+                    DB::raw('tspl.quantity - tspl.qty_returned as purchase_quantity'),
+
                     'u.short_name as unit',
                     'supplier.name as supplier_name',
                     'purchase.ref_no as ref_no',
@@ -3794,7 +3807,9 @@ class ReportController extends Controller
                     't.id'
                 )
                 ->where('t.business_id', $business_id)
-                ->where('t.type', 'sell')
+                // ->where('t.type', 'sell')
+                ->whereIN('t.type', ['sell','sell_return'])
+
                 ->where('t.status', 'final');
                 if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
                     $query3->whereDate('t.transaction_date', '>=', $start_date)
@@ -3810,6 +3825,8 @@ class ReportController extends Controller
                 }
                 $invoice_data =   $query3->select(
                     DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_item_sold'),
+
+                    // DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_item_sold'),
                     DB::raw('SUM((transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax) as invoice_amount'),
                     DB::raw("SUM(
                         IF(
@@ -3944,11 +3961,13 @@ class ReportController extends Controller
                 'return_amount' => $return_data->returned_amount ? $return_data->returned_amount : 0.000 ,
                 'return_items' => $return_items->returned_items ? $return_items->returned_items : 0.000,
                 'total_item_sold' => $invoice_data['total_item_sold'],
-                'invoice_amount' => $invoice_data['invoice_amount'],
+                // 'invoice_amount' => $invoice_data['invoice_amount'],
+                'invoice_amount' => ($cash_payment->cash_amount) + ($card_payment->card_amount),
                 'total_sell_discount' => $invoice_data['total_sell_discount'],
                 'cash_amount' => $cash_payment->cash_amount,
                 'card_amount' => $card_payment->card_amount,
-                'total_received' => $invoice_data['invoice_amount'],
+                'total_received' => ($return_data->returned_amount ? $return_data->returned_amount : 0.000) + ($cash_payment->cash_amount) + ($card_payment->card_amount),
+                // 'total_received' => $invoice_data['invoice_amount'],
                 'profit_loss' => $gross_profit,
                 'total_gift_amount' => $gift_amount->amount,
                 'total_gift_items' => $gift_items['gift_items'],

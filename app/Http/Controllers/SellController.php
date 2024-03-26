@@ -369,13 +369,13 @@ class SellController extends Controller
                     }
                 )
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
-                ->editColumn(
-                    'payment_status',
-                    function ($row) {
-                        $payment_status = Transaction::getPaymentStatus($row);
-                        return (string) view('sell.partials.payment_status', ['payment_status' => $payment_status, 'id' => $row->id]);
-                    }
-                )
+                // ->editColumn(
+                //     'payment_status',
+                //     function ($row) {
+                //         $payment_status = Transaction::getPaymentStatus($row);
+                //         return (string) view('sell.partials.payment_status', ['payment_status' => $payment_status, 'id' => $row->id]);
+                //     }
+                // )
                 ->editColumn(
                     'types_of_service_name',
                     '<span class="service-type-label" data-orig-value="{{$types_of_service_name}}" data-status-name="{{$types_of_service_name}}">{{$types_of_service_name}}</span>'
@@ -387,15 +387,15 @@ class SellController extends Controller
                     
                     return $total_remaining_html;
                 })
-                ->addColumn('return_due', function ($row) {
-                    $return_due_html = '';
-                    if (!empty($row->return_exists)) {
-                        $return_due = $row->amount_return - $row->return_paid;
-                        $return_due_html .= '<a href="' . action("TransactionPaymentController@show", [$row->return_transaction_id]) . '" class="view_purchase_return_payment_modal"><span class="sell_return_due" data-orig-value="' . $return_due . '">' . $this->transactionUtil->num_f($return_due, true) . '</span></a>';
-                    }
+                // ->addColumn('return_due', function ($row) {
+                //     $return_due_html = '';
+                //     if (!empty($row->return_exists)) {
+                //         $return_due = $row->amount_return - $row->return_paid;
+                //         $return_due_html .= '<a href="' . action("TransactionPaymentController@show", [$row->return_transaction_id]) . '" class="view_purchase_return_payment_modal"><span class="sell_return_due" data-orig-value="' . $return_due . '">' . $this->transactionUtil->num_f($return_due, true) . '</span></a>';
+                //     }
 
-                    return $return_due_html;
-                })
+                //     return $return_due_html;
+                // })
                 ->editColumn('invoice_no', function ($row) {
                     $invoice_no = $row->invoice_no;
                     if (!empty($row->woocommerce_order_id)) {
