@@ -244,6 +244,25 @@ class User extends Authenticatable
 
         return $users;
     }
+    public static function allUsersEmployeeDropdown($business_id, $prepend_none = true, $prepend_all = false)
+    {
+        $all_users = User::where('business_id', $business_id)->where('allow_login', 0)
+                        ->select('id', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"));
+
+        $users = $all_users->pluck('full_name', 'id');
+
+        //Prepend none
+        if ($prepend_none) {
+            $users = $users->prepend(__('lang_v1.none'), '');
+        }
+
+        //Prepend all
+        if ($prepend_all) {
+            $users = $users->prepend(__('lang_v1.all'), '');
+        }
+
+        return $users;
+    }
 
     /**
      * Get the user's full name.

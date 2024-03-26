@@ -963,8 +963,9 @@ class ReportController extends Controller
         }
 
         $business_id = $request->session()->get('user.business_id');
+        $commission_agent = User::forDropdown($business_id, false);
 
-        $users = User::allUsersDropdown($business_id, false);
+        $users = User::allUsersEmployeeDropdown($business_id, false);
         $business_locations = BusinessLocation::forDropdown($business_id, true);
 
         return view('report.sales_representative')
@@ -4561,5 +4562,65 @@ class ReportController extends Controller
                 ->rawColumns(['product_image','subtotal', 'total_qty_sold','total_qty_returned','total_net_qty','sale_value','return_value'])
                 ->make(true);
         }
+    }
+
+    public function employeeReport(Request $request)
+    {
+        $business_id = $request->session()->get('user.business_id');
+        $location_id = $request->get('location_id', null);
+        $start_date  = $request->get('start_date', null);
+        $end_date    = $request->get('end_date', null);
+        $commission_agent = $request->get('commission_agent', null);
+        
+        if($request->ajax() || true){
+            $query = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
+            ->join('users','users.id','transactions.commission_agent')
+            ->where('transactions.type','sell')
+            ->select(
+                DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
+                DB::raw('COUNT(transactions.id) as total_invoices'),
+                DB::raw('SUM(tsl.quantity) as total_items'),
+                DB::raw('SUM(transactions.final_total) as total_sales')
+            );
+            if (!empty($start_date) && !empty($end_date)) {
+                $query->where('transactions.transaction_date', '>=', $start_date)
+                    ->where('transactions.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query->whereIn('transactions.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $query->where('transactions.location_id', $location_id);
+            }
+
+            if (!empty($commission_agent)) {
+                $query->where('transactions.commission_agent', $commission_agent);
+            }
+
+            $result = $query->groupBy('transactions.commission_agent')
+            ->get();
+            
+            return Datatables::of($result)
+                ->addColumn('employee_name', function ($row) {
+                    return $row->user_name;
+                })
+                
+                ->editColumn('total_invoices', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency total_invoices" data-currency_symbol=false data-orig-value="' . (float)$row->total_invoices . '" >' . (float) $row->total_invoices . '</span> ';
+                })
+                ->editColumn('total_items', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency total_items" data-currency_symbol=false data-orig-value="' . (float)$row->total_items . '" >' . (float) $row->total_items . '</span> ';
+                })
+                ->editColumn('total_sales', function ($row) {
+                    return '<span class="display_currency total_sales" data-currency_symbol = true data-orig-value="' . $row->total_sales . '">' . $row->total_sales . '</span>';
+                })
+                
+                ->rawColumns([ 'total_invoices','total_items','total_sales'])
+                ->make(true);
+        }
+        
     }
 }

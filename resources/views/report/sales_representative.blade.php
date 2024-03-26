@@ -40,41 +40,6 @@
         </div>
     </div>
 
-    <!-- Summary -->
-    <div class="row">
-        <div class="col-sm-12">
-            @component('components.widget', ['title' => __('report.summary')])
-                <h3 class="text-muted">
-                    {{ __('report.total_sell') }} - {{ __('lang_v1.total_sales_return') }}: 
-                    <span id="sr_total_sales">
-                        <i class="fas fa-sync fa-spin fa-fw"></i>
-                    </span>
-                    -
-                    <span id="sr_total_sales_return">
-                        <i class="fas fa-sync fa-spin fa-fw"></i>
-                    </span>
-                    =
-                    <span id="sr_total_sales_final">
-                        <i class="fas fa-sync fa-spin fa-fw"></i>
-                    </span>
-                </h3>
-                <div class="hide" id="total_commission_div">
-                    <h3 class="text-muted">
-                        {{ __('lang_v1.total_sale_commission') }}: 
-                        <span id="sr_total_commission">
-                            <i class="fas fa-sync fa-spin fa-fw"></i>
-                        </span>
-                    </h3>
-                </div>
-                <h3 class="text-muted">
-                    {{ __('report.total_expense') }}: 
-                    <span id="sr_total_expenses">
-                        <i class="fas fa-sync fa-spin fa-fw"></i>
-                    </span>
-                </h3>
-            @endcomponent
-        </div>
-    </div>
 
     <div class="row">
         <div class="col-md-12">
@@ -82,29 +47,13 @@
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs">
                     <li class="active">
-                        <a href="#sr_sales_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cog" aria-hidden="true"></i> @lang('lang_v1.sales_added')</a>
-                    </li>
-
-                    <li>
-                        <a href="#sr_commission_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cog" aria-hidden="true"></i> @lang('lang_v1.sales_with_commission')</a>
-                    </li>
-
-                    <li>
-                        <a href="#sr_expenses_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cog" aria-hidden="true"></i> @lang('expense.expenses')</a>
+                        <a href="#sr_sales_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cog" aria-hidden="true"></i> Employee Report</a>
                     </li>
                 </ul>
 
                 <div class="tab-content">
                     <div class="tab-pane active" id="sr_sales_tab">
-                        @include('report.partials.sales_representative_sales')
-                    </div>
-
-                    <div class="tab-pane" id="sr_commission_tab">
                         @include('report.partials.sales_representative_commission')
-                    </div>
-
-                    <div class="tab-pane" id="sr_expenses_tab">
-                        @include('report.partials.sales_representative_expenses')
                     </div>
                 </div>
 

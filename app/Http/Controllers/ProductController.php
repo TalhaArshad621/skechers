@@ -2320,6 +2320,7 @@ class ProductController extends Controller
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
                 ->where('transaction_sell_lines.product_id', $request->id)
+                ->whereRaw("transaction_sell_lines.quantity_returned > 0")
 
                 ->select(
                     'products.sku as product_sku',
