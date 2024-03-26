@@ -116,51 +116,51 @@ class PurchaseController extends Controller
                     if (auth()->user()->can("purchase.view")) {
                         $html .= '<li><a href="#" class="print-invoice" data-href="' . action('PurchaseController@printInvoice', [$row->id]) . '"><i class="fas fa-print" aria-hidden="true"></i>'. __("messages.print") .'</a></li>';
                     }
-                    if (auth()->user()->can("purchase.update")) {
-                        $html .= '<li><a href="' . action('PurchaseController@edit', [$row->id]) . '"><i class="fas fa-edit"></i>' . __("messages.edit") . '</a></li>';
-                    }
-                    if (auth()->user()->can("purchase.delete")) {
-                        $html .= '<li><a href="' . action('PurchaseController@destroy', [$row->id]) . '" class="delete-purchase"><i class="fas fa-trash"></i>' . __("messages.delete") . '</a></li>';
-                    }
+                    // if (auth()->user()->can("purchase.update")) {
+                    //     $html .= '<li><a href="' . action('PurchaseController@edit', [$row->id]) . '"><i class="fas fa-edit"></i>' . __("messages.edit") . '</a></li>';
+                    // }
+                    // if (auth()->user()->can("purchase.delete")) {
+                    //     $html .= '<li><a href="' . action('PurchaseController@destroy', [$row->id]) . '" class="delete-purchase"><i class="fas fa-trash"></i>' . __("messages.delete") . '</a></li>';
+                    // }
 
-                    $html .= '<li><a href="' . action('LabelsController@show') . '?purchase_id=' . $row->id . '" data-toggle="tooltip" title="' . __('lang_v1.label_help') . '"><i class="fas fa-barcode"></i>' . __('barcode.labels') . '</a></li>';
+                    // $html .= '<li><a href="' . action('LabelsController@show') . '?purchase_id=' . $row->id . '" data-toggle="tooltip" title="' . __('lang_v1.label_help') . '"><i class="fas fa-barcode"></i>' . __('barcode.labels') . '</a></li>';
 
-                    if (auth()->user()->can("purchase.view") && !empty($row->document)) {
-                        $document_name = !empty(explode("_", $row->document, 2)[1]) ? explode("_", $row->document, 2)[1] : $row->document ;
-                        $html .= '<li><a href="' . url('uploads/documents/' . $row->document) .'" download="' . $document_name . '"><i class="fas fa-download" aria-hidden="true"></i>' . __("purchase.download_document") . '</a></li>';
-                        if (isFileImage($document_name)) {
-                            $html .= '<li><a href="#" data-href="' . url('uploads/documents/' . $row->document) .'" class="view_uploaded_document"><i class="fas fa-image" aria-hidden="true"></i>' . __("lang_v1.view_document") . '</a></li>';
-                        }
-                    }
+                    // if (auth()->user()->can("purchase.view") && !empty($row->document)) {
+                    //     $document_name = !empty(explode("_", $row->document, 2)[1]) ? explode("_", $row->document, 2)[1] : $row->document ;
+                    //     $html .= '<li><a href="' . url('uploads/documents/' . $row->document) .'" download="' . $document_name . '"><i class="fas fa-download" aria-hidden="true"></i>' . __("purchase.download_document") . '</a></li>';
+                    //     if (isFileImage($document_name)) {
+                    //         $html .= '<li><a href="#" data-href="' . url('uploads/documents/' . $row->document) .'" class="view_uploaded_document"><i class="fas fa-image" aria-hidden="true"></i>' . __("lang_v1.view_document") . '</a></li>';
+                    //     }
+                    // }
                                         
-                    if (auth()->user()->can("purchase.create")) {
-                        $html .= '<li class="divider"></li>';
-                        if ($row->payment_status != 'paid') {
-                            $html .= '<li><a href="' . action('TransactionPaymentController@addPayment', [$row->id]) . '" class="add_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true"></i>' . __("purchase.add_payment") . '</a></li>';
-                        }
-                        $html .= '<li><a href="' . action('TransactionPaymentController@show', [$row->id]) .
-                        '" class="view_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true" ></i>' . __("purchase.view_payments") . '</a></li>';
-                    }
+                    // if (auth()->user()->can("purchase.create")) {
+                    //     $html .= '<li class="divider"></li>';
+                    //     if ($row->payment_status != 'paid') {
+                    //         $html .= '<li><a href="' . action('TransactionPaymentController@addPayment', [$row->id]) . '" class="add_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true"></i>' . __("purchase.add_payment") . '</a></li>';
+                    //     }
+                    //     $html .= '<li><a href="' . action('TransactionPaymentController@show', [$row->id]) .
+                    //     '" class="view_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true" ></i>' . __("purchase.view_payments") . '</a></li>';
+                    // }
 
-                    if (auth()->user()->can("purchase.update")) {
-                        $html .= '<li><a href="' . action('PurchaseReturnController@add', [$row->id]) .
-                        '"><i class="fas fa-undo" aria-hidden="true" ></i>' . __("lang_v1.purchase_return") . '</a></li>';
-                    }
+                    // if (auth()->user()->can("purchase.update")) {
+                    //     $html .= '<li><a href="' . action('PurchaseReturnController@add', [$row->id]) .
+                    //     '"><i class="fas fa-undo" aria-hidden="true" ></i>' . __("lang_v1.purchase_return") . '</a></li>';
+                    // }
 
-                    if (auth()->user()->can("purchase.update") || auth()->user()->can("purchase.update_status")) {
-                        $html .= '<li><a href="#" data-purchase_id="' . $row->id .
-                        '" data-status="' . $row->status . '" class="update_status"><i class="fas fa-edit" aria-hidden="true" ></i>' . __("lang_v1.update_status") . '</a></li>';
-                    }
+                    // if (auth()->user()->can("purchase.update") || auth()->user()->can("purchase.update_status")) {
+                    //     $html .= '<li><a href="#" data-purchase_id="' . $row->id .
+                    //     '" data-status="' . $row->status . '" class="update_status"><i class="fas fa-edit" aria-hidden="true" ></i>' . __("lang_v1.update_status") . '</a></li>';
+                    // }
 
-                    if ($row->status == 'ordered') {
-                        $html .= '<li><a href="#" data-href="' . action('NotificationController@getTemplate', ["transaction_id" => $row->id,"template_for" => "new_order"]) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope" aria-hidden="true"></i> ' . __("lang_v1.new_order_notification") . '</a></li>';
-                    } elseif ($row->status == 'received') {
-                        $html .= '<li><a href="#" data-href="' . action('NotificationController@getTemplate', ["transaction_id" => $row->id,"template_for" => "items_received"]) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope" aria-hidden="true"></i> ' . __("lang_v1.item_received_notification") . '</a></li>';
-                    } elseif ($row->status == 'pending') {
-                        $html .= '<li><a href="#" data-href="' . action('NotificationController@getTemplate', ["transaction_id" => $row->id,"template_for" => "items_pending"]) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope" aria-hidden="true"></i> ' . __("lang_v1.item_pending_notification") . '</a></li>';
-                    }
+                    // if ($row->status == 'ordered') {
+                    //     $html .= '<li><a href="#" data-href="' . action('NotificationController@getTemplate', ["transaction_id" => $row->id,"template_for" => "new_order"]) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope" aria-hidden="true"></i> ' . __("lang_v1.new_order_notification") . '</a></li>';
+                    // } elseif ($row->status == 'received') {
+                    //     $html .= '<li><a href="#" data-href="' . action('NotificationController@getTemplate', ["transaction_id" => $row->id,"template_for" => "items_received"]) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope" aria-hidden="true"></i> ' . __("lang_v1.item_received_notification") . '</a></li>';
+                    // } elseif ($row->status == 'pending') {
+                    //     $html .= '<li><a href="#" data-href="' . action('NotificationController@getTemplate', ["transaction_id" => $row->id,"template_for" => "items_pending"]) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope" aria-hidden="true"></i> ' . __("lang_v1.item_pending_notification") . '</a></li>';
+                    // }
 
-                    $html .=  '</ul></div>';
+                    // $html .=  '</ul></div>';
                     return $html;
                 })
                 ->removeColumn('id')

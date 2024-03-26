@@ -127,6 +127,7 @@ class DiscountController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
     public function store(Request $request)
     {
         // dd($request);
@@ -136,7 +137,7 @@ class DiscountController extends Controller
 
         try {
             $input = $request->only(['name', 'brand_id', 'category_id',
-                'location_id', 'priority', 'discount_type', 'discount_amount']);
+                'priority', 'discount_type', 'discount_amount']);
 
             $business_id = $request->session()->get('user.business_id');
             $input['business_id'] = $business_id;
@@ -148,33 +149,95 @@ class DiscountController extends Controller
                 unset($input['category_id']);
             }
 
-            $input['starts_at'] = $request->has('starts_at') ? $this->commonUtil->uf_date($request->input('starts_at'), true) : null;
-            $input['ends_at'] = $request->has('ends_at') ? $this->commonUtil->uf_date($request->input('ends_at'), true) : null;
+            $starts_at = $request->has('starts_at') ? $this->commonUtil->uf_date($request->input('starts_at'), true) : null;
+            $ends_at = $request->has('ends_at') ? $this->commonUtil->uf_date($request->input('ends_at'), true) : null;
             $checkboxes = ['is_active', 'applicable_in_spg', 'applicable_in_cg'];
 
             foreach ($checkboxes as $checkbox) {
                 $input[$checkbox] = $request->has($checkbox) ? 1 : 0;
             }
 
-            $discount = Discount::create($input);
+            $location_ids = $request->input('location_ids'); // Assuming location_ids is an array
 
-            if (!empty($variation_ids)) {
-                $discount->variations()->sync($variation_ids);
+            // Create discounts for each location
+            // $outputs = [];
+            foreach ($location_ids as $location_id) {
+                $input['location_id'] = $location_id;
+                $input['starts_at'] = $starts_at;
+                $input['ends_at'] = $ends_at;
+
+                $discount = Discount::create($input);
+
+                if (!empty($variation_ids)) {
+                    $discount->variations()->sync($variation_ids);
+                }
+
+                $output[] = [
+                    'success' => true,
+                    'msg' => __("lang_v1.added_success")
+                ];
             }
-
-            $output = ['success' => true,
-                            'msg' => __("lang_v1.added_success")
-                        ];
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
             
-            $output = ['success' => false,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+            $output[] = [
+                'success' => false,
+                'msg' => __("messages.something_went_wrong")
+            ];
         }
 
         return $output;
     }
+
+
+    // public function store(Request $request)
+    // {
+    //     // dd($request);
+    //     if (!auth()->user()->can('discount.access')) {
+    //         abort(403, 'Unauthorized action.');
+    //     }
+
+    //     try {
+    //         $input = $request->only(['name', 'brand_id', 'category_id',
+    //             'location_id', 'priority', 'discount_type', 'discount_amount']);
+
+    //         $business_id = $request->session()->get('user.business_id');
+    //         $input['business_id'] = $business_id;
+
+    //         $variation_ids = $request->input('variation_ids');
+
+    //         if (!empty($variation_ids)) {
+    //             unset($input['brand_id']);
+    //             unset($input['category_id']);
+    //         }
+
+    //         $input['starts_at'] = $request->has('starts_at') ? $this->commonUtil->uf_date($request->input('starts_at'), true) : null;
+    //         $input['ends_at'] = $request->has('ends_at') ? $this->commonUtil->uf_date($request->input('ends_at'), true) : null;
+    //         $checkboxes = ['is_active', 'applicable_in_spg', 'applicable_in_cg'];
+
+    //         foreach ($checkboxes as $checkbox) {
+    //             $input[$checkbox] = $request->has($checkbox) ? 1 : 0;
+    //         }
+
+    //         $discount = Discount::create($input);
+
+    //         if (!empty($variation_ids)) {
+    //             $discount->variations()->sync($variation_ids);
+    //         }
+
+    //         $output = ['success' => true,
+    //                         'msg' => __("lang_v1.added_success")
+    //                     ];
+    //     } catch (\Exception $e) {
+    //         \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            
+    //         $output = ['success' => false,
+    //                         'msg' => __("messages.something_went_wrong")
+    //                     ];
+    //     }
+
+    //     return $output;
+    // }
 
     /**
      * Show the form for editing the specified resource.
