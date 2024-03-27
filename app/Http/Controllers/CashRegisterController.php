@@ -195,6 +195,7 @@ class CashRegisterController extends Controller
 
         $business_id = request()->session()->get('user.business_id');
         $register_details =  $this->cashRegisterUtil->getRegisterDetails($id);
+        $sell_return =  $this->cashRegisterUtil->getSaleReturnDetails($register_details->location_id);
 
         $user_id = $register_details->user_id;
         $open_time = $register_details['open_time'];
@@ -206,7 +207,7 @@ class CashRegisterController extends Controller
         
         $payment_types = $this->cashRegisterUtil->payment_types($register_details->location_id, true, $business_id);
         return view('cash_register.close_register_modal')
-                    ->with(compact('register_details', 'details', 'payment_types'));
+                    ->with(compact('register_details', 'details', 'payment_types', 'sell_return'));
     }
 
     /**

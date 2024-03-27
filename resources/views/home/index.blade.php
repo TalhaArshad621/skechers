@@ -310,22 +310,6 @@
         </div> --}}
 
         <div class="row">
-            <div class="col-md-12">
-                @component('components.filters', ['title' => __('report.filters')])
-                  {!! Form::open(['url' => action('HomeController@getStockDetail'), 'method' => 'get', 'id' => 'stock_report_filter_form' ]) !!}
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            {!! Form::label('location_id',  __('purchase.business_location') . ':') !!}
-                            {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
-                        </div>
-                    </div>
-                    {!! Form::close() !!}
-                @endcomponent
-            </div>
-        </div>
-
-
-        <div class="row">
             <div class="@if((session('business.enable_product_expiry') != 1) && auth()->user()->can('stock_report.view')) col-sm-12 @else col-sm-6 @endif">
                 @component('components.widget', ['class' => 'box-warning'])
                   @slot('icon')
@@ -346,12 +330,23 @@
                         <th>Price of Sold Qty</th>
                       </tr>
                     </thead>
+                    <tfoot>
+                        <tr class="bg-gray font-17 footer-total text-center">
+                            <td><strong>@lang('sale.total'):</strong></td>
+                            <td id="available_quantity"></td>
+                            <td id="sold_quantity"></td>
+                            <td id="cost_of_qty"></td>
+                            <td id="price_of_qty"></td>
+                            <td id="cost_of_sold"></td>
+                            <td id="price_of_sold"></td>
+                        </tr>
+                    </tfoot>
                   </table>
                 @endcomponent
             </div>
       	</div>
 
-        <div class="row no-print">
+        <div class="row no-print" style="display: none;">
           <div class="col-md-12">
               @component('components.filters', ['title' => __('report.filters')])
                 {!! Form::open(['url' => action('ReportController@getStockReport'), 'method' => 'get', 'id' => 'product_sell_report_form' ]) !!}
@@ -386,7 +381,7 @@
       </div>
 
         {{-- hehe --}}
-        <div class="row ">
+        <div class="row" style="display: none;">
           <div class="col-md-12">
               <div class="nav-tabs-custom">
                   <ul class="nav nav-tabs" style="display: none;">
@@ -538,6 +533,12 @@
               </div>
           </div>
       </div>
+
+        <div id="button-container" style="text-align: center;">
+            <button class="btn btn-primary" onclick="window.open('/reports/product-sell-grouped-report-detailed', '_blank')">Product Sell Report</button>
+        </div>
+
+
         @if(!empty($widgets['after_dashboard_reports']))
           @foreach($widgets['after_dashboard_reports'] as $widget)
             {!! $widget !!}
@@ -594,6 +595,7 @@
             success: function (response) {
               var returnItemsFloat = parseFloat(response.return_items); // Convert float to integer
               var soldItemsFloat = parseFloat(response.total_item_sold); // Convert float to integer
+              var giftItemsFloat = parseFloat(response.total_gift_items); // Convert float to integer
 
               console.log(response);
                 $("#return-invoices").html(response.return_invoices);
@@ -607,7 +609,7 @@
                 $("#total-received").html(__currency_trans_from_en(response.total_received));
                 $("#profit-loss").html(__currency_trans_from_en(response.profit_loss));
                 $("#total-gift-amount").html(__currency_trans_from_en(response.total_gift_amount));
-                $("#total-gift-items").html(response.total_gift_items);
+                $("#total-gift-items").html(giftItemsFloat);
                 $("#gst-tax").html(__currency_trans_from_en(response.gst_tax));
             },
         });

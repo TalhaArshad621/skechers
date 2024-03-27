@@ -2464,6 +2464,7 @@ function updateOverView(start = null, end = null, location_id = null, selector =
         success: function(response) {
             var returnItemsFloat = parseFloat(response.return_items); // Convert float to integer
             var soldItemsFloat = parseFloat(response.total_item_sold); // Convert float to integer
+            var giftItemsFloat = parseFloat(response.total_gift_items); // Convert float to integer
 
             // selector.html(response);
             $("#return-invoices").html(response.return_invoices);
@@ -2477,7 +2478,7 @@ function updateOverView(start = null, end = null, location_id = null, selector =
             $("#total-received").html(__currency_trans_from_en(response.total_received));
             $("#profit-loss").html(__currency_trans_from_en(response.profit_loss));
             $("#total-gift-amount").html(__currency_trans_from_en(response.total_gift_amount));
-            $("#total-gift-items").html(response.total_gift_items);
+            $("#total-gift-items").html(giftItemsFloat);
             $("#gst-tax").html(__currency_trans_from_en(response.gst_tax));
             __currency_convert_recursively(selector);
         },
