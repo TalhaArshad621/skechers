@@ -544,9 +544,12 @@ class TransactionUtil extends Util
                  $uf_quantity = $uf_data ? $this->num_uf($product['quantity']) : $product['quantity'];
                  $uf_item_tax = $uf_data ?$this->num_uf($product['item_tax']) : $product['item_tax'];
                  $uf_unit_price_inc_tax = $uf_data ? $this->num_uf($product['unit_price_inc_tax']) : $product['unit_price_inc_tax'];
+                 $category = DB::table('products')->select('category_id')->where('id',$product['product_id'])->first();
+
                  $line = [
                      'product_id' => $product['product_id'],
                      'variation_id' => $product['variation_id'],
+                     'category_id' => $category->category_id,
                      'quantity' =>  $uf_quantity * $multiplier,
                      'unit_price_before_discount' => $unit_price_before_discount,
                      'unit_price' => $unit_price,
@@ -760,9 +763,11 @@ class TransactionUtil extends Util
                 $uf_quantity = $uf_data ? $this->num_uf($product['quantity']) : $product['quantity'];
                 $uf_item_tax = $uf_data ?$this->num_uf($product['item_tax']) : $product['item_tax'];
                 $uf_unit_price_inc_tax = $uf_data ? $this->num_uf($product['unit_price_inc_tax']) : $product['unit_price_inc_tax'];
+                $category = DB::table('products')->select('category_id')->where('id',$product['product_id'])->first();
                 $line = [
                     'product_id' => $product['product_id'],
                     'variation_id' => $product['variation_id'],
+                    'category_id' => $category->category_id,
                     'quantity' =>  $uf_quantity * $multiplier,
                     'unit_price_before_discount' => $unit_price_before_discount,
                     'unit_price' => $unit_price,
