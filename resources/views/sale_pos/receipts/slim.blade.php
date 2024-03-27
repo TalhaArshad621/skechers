@@ -467,6 +467,10 @@
 					{!! $receipt_details->footer_text !!}
 				</p>
 			@endif
+
+			<P class="centered">
+				
+			</P>
         </div>
         <!-- <button id="btnPrint" class="hidden-print">Print</button>
         <script src="script.js"></script> -->
