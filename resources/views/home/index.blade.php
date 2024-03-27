@@ -309,42 +309,44 @@
             </div>
         </div> --}}
 
-        <div class="row">
-            <div class="@if((session('business.enable_product_expiry') != 1) && auth()->user()->can('stock_report.view')) col-sm-12 @else col-sm-6 @endif">
-                @component('components.widget', ['class' => 'box-warning'])
-                  @slot('icon')
-                    {{-- <i class="fa fa-exclamation-triangle text-yellow" aria-hidden="true"></i> --}}
-                  @endslot
-                  @slot('title')
-                    {{ __('Stock Report') }}
-                  @endslot
-                  <table class="table table-bordered table-striped" id="dashboard_stock_report_table" style="width: 100%;">
-                    <thead>
-                      <tr>
-                        <th>Categories</th>
-                        <th>Available Qty</th>
-                        <th>Sold Qty</th>
-                        <th>Cost of Available Qty </th>
-                        <th>Price of Available Qty</th>
-                        <th>Cost of Sold Qty</th>
-                        <th>Price of Sold Qty</th>
-                      </tr>
-                    </thead>
-                    <tfoot>
-                        <tr class="bg-gray font-17 footer-total text-center">
-                            <td><strong>@lang('sale.total'):</strong></td>
-                            <td id="available_quantity"></td>
-                            <td id="sold_quantity"></td>
-                            <td id="cost_of_qty"></td>
-                            <td id="price_of_qty"></td>
-                            <td id="cost_of_sold"></td>
-                            <td id="price_of_sold"></td>
+        @can("user.update")
+            <div class="row">
+                <div class="@if((session('business.enable_product_expiry') != 1) && auth()->user()->can('stock_report.view')) col-sm-12 @else col-sm-6 @endif">
+                    @component('components.widget', ['class' => 'box-warning'])
+                    @slot('icon')
+                        {{-- <i class="fa fa-exclamation-triangle text-yellow" aria-hidden="true"></i> --}}
+                    @endslot
+                    @slot('title')
+                        {{ __('Stock Report') }}
+                    @endslot
+                    <table class="table table-bordered table-striped" id="dashboard_stock_report_table" style="width: 100%;">
+                        <thead>
+                        <tr>
+                            <th>Categories</th>
+                            <th>Available Qty</th>
+                            <th>Sold Qty</th>
+                            <th>Cost of Available Qty </th>
+                            <th>Price of Available Qty</th>
+                            <th>Cost of Sold Qty</th>
+                            <th>Price of Sold Qty</th>
                         </tr>
-                    </tfoot>
-                  </table>
-                @endcomponent
+                        </thead>
+                        <tfoot>
+                            <tr class="bg-gray font-17 footer-total text-center">
+                                <td><strong>@lang('sale.total'):</strong></td>
+                                <td id="available_quantity"></td>
+                                <td id="sold_quantity"></td>
+                                <td id="cost_of_qty"></td>
+                                <td id="price_of_qty"></td>
+                                <td id="cost_of_sold"></td>
+                                <td id="price_of_sold"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    @endcomponent
+                </div>
             </div>
-      	</div>
+        @endcan
 
         <div class="row no-print" style="display: none;">
           <div class="col-md-12">

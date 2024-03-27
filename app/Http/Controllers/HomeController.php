@@ -251,50 +251,61 @@ class HomeController extends Controller
 
             
 
-                // Cash Payment
-                $query4 = DB::table('cash_register_transactions')->leftJoin('transactions', 'cash_register_transactions.transaction_id', 'transactions.id')
-                ->where('transactions.business_id', $business_id)
-                ->whereIn('transactions.type', ['sell','sell_return'])
-                ->where('transactions.status', 'final')
-                ->where('cash_register_transactions.pay_method', 'cash')
-                ->where('cash_register_transactions.transaction_type','sell');
-                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
-                    $query4->whereDate('transactions.transaction_date', '>=', $start_date)
-                        ->whereDate('transactions.transaction_date', '<=', $end_date);
-                }
-                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
-                    $query4->whereDate('transactions.transaction_date', $end_date);
-                }
-        
-                //Filter by the location
-                if (!empty($location_id)) {
-                    $query4->where('transactions.location_id', $location_id);
-                }
-                $cash_payment = $query4->select(DB::raw('SUM(cash_register_transactions.amount) as cash_amount'))
-                ->first();
+            // Cash Payment
+            $query4 = DB::table('cash_register_transactions')->leftJoin('transactions', 'cash_register_transactions.transaction_id', 'transactions.id')
+            ->where('transactions.business_id', $business_id)
+            ->whereIn('transactions.type', ['sell','sell_return'])
+            ->where('transactions.status', 'final')
+            ->where('cash_register_transactions.pay_method', 'cash')
+            ->where('cash_register_transactions.transaction_type','sell');
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query4->whereDate('transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query4->whereDate('transactions.transaction_date', $end_date);
+            }
+    
+             //Check for permitted locations of a user
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query4->whereIn('transactions.location_id', $permitted_locations);
+            }
+            //Filter by the location
+            if (!empty($location_id)) {
+                $query4->where('transactions.location_id', $location_id);
+            }
+            $cash_payment = $query4->select(DB::raw('SUM(cash_register_transactions.amount) as cash_amount'))
+            ->first();
 
 
-                // Card Payment
+            // Card Payment
 
-                $query5 = DB::table('transactions')->leftJoin('transaction_payments','transactions.id','transaction_payments.transaction_id')
-                ->where('transactions.business_id', $business_id)
-                ->whereIn('transactions.type', ['sell','sell_return'])
-                ->where('transactions.status', 'final')
-                ->where('transaction_payments.method', 'card');
-                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
-                    $query5->whereDate('transactions.transaction_date', '>=', $start_date)
-                        ->whereDate('transactions.transaction_date', '<=', $end_date);
-                }
-                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
-                    $query5->whereDate('transactions.transaction_date', $end_date);
-                }
-        
-                //Filter by the location
-                if (!empty($location_id)) {
-                    $query5->where('transactions.location_id', $location_id);
-                }
-                $card_payment = $query5->select(DB::raw('SUM(transaction_payments.amount) as card_amount'))
-                ->first();
+            $query5 = DB::table('transactions')->leftJoin('transaction_payments','transactions.id','transaction_payments.transaction_id')
+            ->where('transactions.business_id', $business_id)
+            ->whereIn('transactions.type', ['sell','sell_return'])
+            ->where('transactions.status', 'final')
+            ->where('transaction_payments.method', 'card');
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query5->whereDate('transactions.transaction_date', '>=', $start_date)
+                    ->whereDate('transactions.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query5->whereDate('transactions.transaction_date', $end_date);
+            }
+
+              //Check for permitted locations of a user
+              $permitted_locations = auth()->user()->permitted_locations();
+              if ($permitted_locations != 'all') {
+                  $query5->whereIn('transactions.location_id', $permitted_locations);
+              }
+    
+            //Filter by the location
+            if (!empty($location_id)) {
+                $query5->where('transactions.location_id', $location_id);
+            }
+            $card_payment = $query5->select(DB::raw('SUM(transaction_payments.amount) as card_amount'))
+            ->first();
 
             $total_purchase_inc_tax = !empty($purchase_details['total_purchase_inc_tax']) ? $purchase_details['total_purchase_inc_tax'] : 0;
             $total_purchase_return_inc_tax = $transaction_totals['total_purchase_return_inc_tax'];

@@ -3347,6 +3347,7 @@ class ReportController extends Controller
 
         $business_id = $request->session()->get('user.business_id');
         $location_id = $request->get('location_id', null);
+        // dd($location_id);
 
         $vld_str = '';
         if (!empty($location_id)) {
@@ -4531,14 +4532,14 @@ class ReportController extends Controller
                 ->addColumn('category_name', function ($row) {
                     return $row->category_name;
                 })
-                ->editColumn('sub_category', function ($row) {
-                    $sub_category = $row->sub_category;
-                    if(!empty($sub_category)){
-                        return $sub_category;
-                    }
-                    else
-                        return "--";
-                }) 
+                // ->editColumn('sub_category', function ($row) {
+                //     $sub_category = $row->sub_category;
+                //     if(!empty($sub_category)){
+                //         return $sub_category;
+                //     }
+                //     else
+                //         return "--";
+                // }) 
                 ->editColumn('total_qty_sold', function ($row) {
                     return '<span data-is_quantity="true" class="display_currency total_qty_sold" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
                 })
