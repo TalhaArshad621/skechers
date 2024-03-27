@@ -3389,11 +3389,7 @@ class ReportController extends Controller
                     'cat.name as category_name',
                     'cat.id as category_id'
                 )
-                ->whereRaw('transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned <> 0')
-
-                // ->groupBy('v.id')
-                ->groupBy('category_name')
-                ->get();
+                ->whereRaw('transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned <> 0');
                 // dd($query);
 
                 if (!empty($variation_id)) {
@@ -3419,6 +3415,9 @@ class ReportController extends Controller
             if (!empty($customer_id)) {
                 $query->where('t.contact_id', $customer_id);
             }
+
+            $query =   $query->groupBy('category_name')
+            ->get();
 
             return Datatables::of($query)
             // ->editColumn('product_image', function ($row) {
@@ -4488,8 +4487,7 @@ class ReportController extends Controller
                     'cat.name as category_name',
                     'c2.name as sub_category',
                     'cat.id as category_id'
-                )
-                ->groupBy('cat.id')->get();
+                );
                 // dd($query);
             
             if (!empty($variation_id)) {
@@ -4515,6 +4513,8 @@ class ReportController extends Controller
             if (!empty($customer_id)) {
                 $query->where('t.contact_id', $customer_id);
             }
+
+            $query = $query->groupBy('cat.id')->get();
 
             return Datatables::of($query)
             ->editColumn('product_image', function ($row) {
