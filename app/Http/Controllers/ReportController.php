@@ -2857,6 +2857,7 @@ class ReportController extends Controller
                 ->leftJoin('contacts as suppliers', 'purchase.contact_id', '=', 'suppliers.id')
                 ->leftJoin('contacts as customers', 'sale.contact_id', '=', 'customers.id')
                 ->where('purchase.business_id', $business_id)
+                ->whereIn('sale.type',['sell','sell_return'])
                 ->select(
                     'v.sub_sku as sku',
                     'p.type as product_type',
