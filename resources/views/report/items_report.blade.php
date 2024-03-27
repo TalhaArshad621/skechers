@@ -82,15 +82,15 @@
                     id="items_report_table">
                         <thead>
                             <tr>
-                                <th>@lang('sale.product')</th>
+                                {{-- <th>@lang('sale.product')</th> --}}
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('purchase.purchase_date')</th>
-                                <th>@lang('lang_v1.purchase')</th>
-                                <th>@lang('purchase.supplier')</th>
+                                {{-- <th>@lang('lang_v1.purchase')</th>
+                                <th>@lang('purchase.supplier')</th> --}}
                                 <th>@lang('lang_v1.purchase_price')</th>
                                 <th>@lang('lang_v1.sell_date')</th>
                                 <th>@lang('business.sale')</th>
-                                <th>@lang('contact.customer')</th>
+                                {{-- <th>@lang('contact.customer')</th> --}}
                                 <th>@lang('sale.location')</th>
                                 <th>@lang('lang_v1.quantity')</th>
                                 <th>@lang('lang_v1.selling_price')</th>
@@ -99,10 +99,10 @@
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 text-center footer-total">
-                                <td colspan="5"><strong>@lang('sale.total'):</strong></td>
+                                <td colspan="2"><strong>@lang('sale.total'):</strong></td>
                                 <td id="footer_total_pp" 
                                     class="display_currency" data-currency_symbol="true"></td>
-                                <td colspan="4"></td>
+                                <td colspan="3"></td>
                                 <td id="footer_total_qty"></td>
                                 <td id="footer_total_sp"
                                     class="display_currency" data-currency_symbol="true"></td>
