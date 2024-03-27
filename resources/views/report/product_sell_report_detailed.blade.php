@@ -168,7 +168,7 @@
                                     <tr>
                                         <th>Image</th>
                                         <th>Category</th>
-                                        <th>Sub Category</th>
+                                        {{-- <th>Sub Category</th> --}}
                                         <th>Total Unit Sold</th>
                                         <th>Total Unit Returned</th>
                                         <th>Total Net Unit</th>
@@ -179,7 +179,7 @@
                                 </thead>
                                 <tfoot>
                                     <tr class="bg-gray font-17 footer-total text-center">
-                                        <td colspan="3"></td>
+                                        <td colspan="2"></td>
                                         <td id="total_sold"></td>
                                         <td id="total_returned"></td>
                                         <td id="net_unit"></td>
@@ -565,7 +565,7 @@
         columns: [
             { data: 'product_image', name: 'product_image' },
             { data: 'category_name', name: 'category_name' },
-            { data: 'sub_category', name: 'sub_category' },
+            // { data: 'sub_category', name: 'sub_category' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
             { data: 'total_qty_returned', name: 'total_qty_returned', searchable: false },
             { data: 'total_net_qty', name: 'total_net_qty', searchable: false },
