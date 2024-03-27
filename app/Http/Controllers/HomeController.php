@@ -690,6 +690,7 @@ class HomeController extends Controller
             }
     
               $pl_query_string = $this->productUtil->get_pl_quantity_sum_string('pl');
+            //   dd($pl_query_string);
     
               $products = $query->select(
                 // DB::raw("(SELECT SUM(quantity) FROM transaction_sell_lines LEFT JOIN transactions ON transaction_sell_lines.transaction_id=transactions.id WHERE transactions.status='final' $location_filter AND
@@ -716,6 +717,7 @@ class HomeController extends Controller
                       AND (pl.variation_id=v.id)) as stock_price"),
                 DB::raw("SUM(vld.qty_available) as stock"),
                 'v.sell_price_inc_tax as unit_price',
+                'v.dpp_inc_tax as unit_price_default',
                 'categories.name as category_name'
             )->groupBy('categories.id')->get();
             
@@ -743,15 +745,22 @@ class HomeController extends Controller
             })
             
             ->editColumn('stock_price', function ($row) {
-                $stock = $row->stock ? $row->stock : 0 ;
-
-                return (float)$row->stock_price;
-                // $html = '<span class="display_currency total_stock_price" data-currency_symbol=true data-orig-value="'
-                //     . $row->stock_price * $stock . '">'
-                //     . $row->stock_price  * $stock . '</span>';
-    
-                // return $html;
+                $stock = $row->stock;
+                $purchase_price = $row->unit_price_default;
+                $stock_price = $stock * $purchase_price;
+                return '<span data-orig-value="' . $stock_price . '" class="display_currency total_stock_price">' . $stock_price . '</span>';
             })
+            
+            // ->editColumn('stock_price', function ($row) {
+            //     $stock = $row->stock ? $row->stock : 0 ;
+
+            //     return (float)$row->stock_price;
+            //     // $html = '<span class="display_currency total_stock_price" data-currency_symbol=true data-orig-value="'
+            //     //     . $row->stock_price * $stock . '">'
+            //     //     . $row->stock_price  * $stock . '</span>';
+    
+            //     // return $html;
+            // })
             ->editColumn('stock_value_by_sale_price', function ($row) {
                 $stock = $row->stock ? $row->stock : 0 ;
                 $unit_selling_price = (float)$row->group_price > 0 ? $row->group_price : $row->unit_price;
@@ -760,7 +769,7 @@ class HomeController extends Controller
             })
             ->addColumn('cost_of_sold', function ($row) {
                 $sold = $row->total_sold ? $row->total_sold : 0 ;
-                $unit_stock_price = $row->stock_price;
+                $unit_stock_price = $row->unit_price_default;
                 $cost_of_sold = $sold * $unit_stock_price;
                 return  '<span class="potential_profit display_currency" data-orig-value="' . (float)$cost_of_sold . '" data-currency_symbol=true > ' . (float)$cost_of_sold . '</span>';
             })
@@ -768,7 +777,7 @@ class HomeController extends Controller
                 $sold = $row->total_sold ? $row->total_sold : 0 ;
                 $unit_selling_price = (float)$row->group_price > 0 ? $row->group_price : $row->unit_price;
                 $sale_price = $sold * $unit_selling_price;
-                return  '<span class="potential_profit display_currency" data-orig-value="' . (float)$sale_price . '" data-currency_symbol=true > ' . (float)$sale_price . '</span>';
+                return  '<span class="potential_profit_2 display_currency" data-orig-value="' . (float)$sale_price . '" data-currency_symbol=true > ' . (float)$sale_price . '</span>';
             });
     
             $raw_columns  = [ 'total_sold', 'stock', 'stock_price', 'stock_value_by_sale_price', 'cost_of_sold','sale_price_of_sold'];

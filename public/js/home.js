@@ -140,7 +140,29 @@ $(document).ready(function () {
                 { data: 'stock_value_by_sale_price', name: 'stock_value_by_sale_price' },
                 { data: 'cost_of_sold', name: 'cost_of_sold' },
                 { data: 'sale_price_of_sold', name: 'sale_price_of_sold' },
-            ]
+            ],
+            fnDrawCallback: function(oSettings) {
+                $('#available_quantity').text(
+                    sum_table_col($('#dashboard_stock_report_table'), 'current_stock')
+                );
+                $('#sold_quantity').text(
+                    sum_table_col($('#dashboard_stock_report_table'), 'total_sold')
+                );
+                $('#cost_of_qty').html(
+                    sum_table_col($('#dashboard_stock_report_table'), 'total_stock_price')
+                );
+                $('#price_of_qty').html(
+                    sum_table_col($('#dashboard_stock_report_table'), 'stock_value_by_sale_price')
+                );
+                $('#cost_of_sold').html(
+                    sum_table_col($('#dashboard_stock_report_table'), 'potential_profit')
+                );
+                $('#price_of_sold').text(
+                    sum_table_col($('#dashboard_stock_report_table'), 'potential_profit_2')
+                );
+    
+                __currency_convert_recursively($('#product_and_category_table'));
+            },
         });
     }
 });

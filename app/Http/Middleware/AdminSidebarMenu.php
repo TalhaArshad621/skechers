@@ -670,7 +670,7 @@ class AdminSidebarMenu
                         if (auth()->user()->can('sales_representative.view')) {
                             $sub->url(
                                 action('ReportController@getSalesRepresentativeReport'),
-                                __('report.sales_representative'),
+                                __('Employee Report'),
                                 ['icon' => 'fa fas fa-user', 'active' => request()->segment(2) == 'sales-representative-report']
                             );
                         }

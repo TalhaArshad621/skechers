@@ -12,10 +12,18 @@
           <table class="table">
             <tr>
               <td>
+                Opening Balance:
+              </td>
+              <td>
+                <span class="display_currency" data-currency_symbol="true">{{ 12000 }}</span>
+              </td>
+            </tr>
+            <tr>
+              <td>
                 @lang('cash_register.cash_in_hand'):
               </td>
               <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $register_details->cash_in_hand }}</span>
+                <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + 12000 }}</span>
               </td>
             </tr>
             <tr>
@@ -44,7 +52,7 @@
             </tr>
             <tr>
               <td>
-                @lang('Sale Return'):
+                @lang('Exchange Amount'):
               </td>
               <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $sell_return->total_sale_return }}</span>
@@ -66,7 +74,26 @@
               </td>
               
               <td>
-                  <span class="display_currency" data-currency_symbol="true">{{ $returned_quantity }}</span>
+                <span>{{ $returned_quantity }}</span>
+              </td>
+            </tr>
+            <tr>
+              @php
+                  $total_quantity = 0;
+              @endphp
+          
+              @foreach($details['product_details'] as $detail)
+                  @php
+                    $total_quantity += $detail->total_quantity;
+                  @endphp
+              @endforeach
+          
+              <td>
+                  @lang('Sold Items'):
+              </td>
+              
+              <td>
+                  <span>{{ $total_quantity }}</span>
               </td>
             </tr>
             {{-- <tr>
@@ -155,7 +182,7 @@
                 </td>
               </tr>
             @endif --}}
-            <tr>
+            <tr style="display:none;">
               <td>
                 @lang('cash_register.other_payments'):
               </td>
@@ -163,7 +190,7 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_other }}</span>
               </td>
             </tr>
-            <tr class="success">
+            <tr class="success" style="display: none;">
               <th>
                 @lang('cash_register.total_refund')
               </th>
@@ -200,7 +227,7 @@
                 </small>
               </td>
             </tr>
-            <tr class="success">
+            <tr class="success" style="display: none;">
               <th>
                 @lang('lang_v1.total_payment')
               </th>
@@ -208,7 +235,7 @@
                 <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->cash_in_hand + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_sale_return }}</span></b>
               </td>
             </tr>
-            <tr class="success">
+            <tr class="success" style="display: none;">
               <th>
                 @lang('lang_v1.credit_sales'):
               </th>
@@ -221,10 +248,10 @@
                 @lang('cash_register.total_sales'):
               </th>
               <td>
-                <b><span class="display_currency" data-currency_symbol="true">{{ $details['transaction_details']->total_sales - $register_details->total_sale_return }}</span></b>
+                <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + $register_details->total_card  }}</span></b>
               </td>
             </tr>
-            <tr class="success">
+            <tr class="success" style="display: none;">
               <th>
                 @lang('lang_v1.gross_profit'):
               </th>
@@ -236,7 +263,7 @@
         </div>
       </div>
 
-      @include('cash_register.register_product_details')
+      {{-- @include('cash_register.register_product_details') --}}
       
       <div class="row">
         <div class="col-xs-6">

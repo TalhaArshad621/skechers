@@ -25,8 +25,8 @@
                 @lang('cash_register.cash_in_hand'):
               </td>
               <td>
-                {{-- {{ dd($details) }} --}}
-                <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + 12000 + $details['exchanged_product_details']->total_amount }}</span>
+                {{-- {{ dd($register_details) }} --}}
+                <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + 12000 }}</span>
               </td>
             </tr>
             <tr>
@@ -34,7 +34,7 @@
                 @lang('cash_register.cash_payment'):
               </th>
               <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + $details['exchanged_product_details']->total_amount }}</span>
+                <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash }}</span>
               </td>
             </tr>
             <tr style="display: none;">
@@ -52,6 +52,53 @@
               </td>
               <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_card }}</span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                @lang('Exchange Amount'):
+              </td>
+              <td>
+                <span class="display_currency" data-currency_symbol="true">{{ $sell_return->total_sale_return }}</span>
+              </td>
+            </tr>
+            <tr>
+              @php
+                  $returned_quantity = 0;
+              @endphp
+          
+              @foreach($details['return_product_details'] as $detail)
+                  @php
+                      $returned_quantity += $detail->returned_quantity;
+                  @endphp
+              @endforeach
+          
+              <td>
+                  @lang('Returned Items'):
+              </td>
+              
+              <td>
+                  <span>{{ $returned_quantity }}</span>
+              </td>
+            </tr>
+
+            <tr>
+              @php
+                  $total_quantity = 0;
+              @endphp
+          
+              @foreach($details['product_details'] as $detail)
+                  @php
+                    $total_quantity += $detail->total_quantity;
+                  @endphp
+              @endforeach
+          
+              <td>
+                  @lang('Sold Items'):
+              </td>
+              
+              <td>
+                  <span>{{ $total_quantity }}</span>
               </td>
             </tr>
             {{-- <tr>
@@ -211,16 +258,16 @@
                 @lang('cash_register.total_sales'):
               </th>
               <td>
-                <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + $details['exchanged_product_details']->total_amount  }}</span></b>
+                <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + $register_details->total_card  }}</span></b>
               </td>
             </tr>
           </table>
         </div>
       </div>
 
-      @include('cash_register.register_product_details')
+      {{-- @include('cash_register.register_product_details') --}}
 
-      <div class="row">
+      <div class="row" style="display: none;">
         <div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('closing_amount', __( 'cash_register.total_cash' ) . ':*') !!}
