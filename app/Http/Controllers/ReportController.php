@@ -2684,7 +2684,7 @@ class ReportController extends Controller
                 '=',
                 'PL.id'
             )
-            ->where('sale.type', 'sell')
+            ->whereIn('sale.type', ['sell','sell_return'])
             ->where('sale.status', 'final')
             ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
             ->where('sale.business_id', $business_id)

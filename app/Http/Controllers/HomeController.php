@@ -704,6 +704,7 @@ class HomeController extends Controller
         if($request->ajax()) {
 
             $business_id = $request->session()->get('user.business_id');
+            $location_id = $request->get('location_id', null);
     
             $query = Category::join('products as p', 'p.category_id', '=', 'categories.id')
             ->join('variations as v', 'v.product_id', '=', 'p.id')
@@ -723,8 +724,7 @@ class HomeController extends Controller
                 $location_filter .= "AND transactions.location_id IN ($locations_imploded) ";
             }
 
-            if (!empty($filters['location_id'])) {
-                $location_id = $filters['location_id'];
+            if ($location_id) {
 
                 $query->where('vld.location_id', $location_id);
 

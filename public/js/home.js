@@ -6,8 +6,19 @@ $(document).ready(function () {
         var start = $('input[name="date-filter"]:checked').data('start');
         var end = $('input[name="date-filter"]:checked').data('end');
         update_statistics(start, end);
-        if ($('#quotation_table').length && $('#dashboard_location').length) {
-            quotation_datatable.ajax.reload();
+        if (($('#quotation_table').length || $('#dashboard_stock_report_table').length) && $('#dashboard_location').length) {
+            // quotation_datatable.ajax.reload();
+            dashboard_stock_report_table.ajax.reload();
+        }
+
+    });
+    $(document).on('change', 'input[name="date-filter"], #overview_location_filter', function () {
+        var start = $('input[name="date-filter"]:checked').data('start');
+        var end = $('input[name="date-filter"]:checked').data('end');
+        update_statistics(start, end);
+        if (($('#dashboard_stock_report_table').length) && $('#overview_location_filter').length) {
+            // quotation_datatable.ajax.reload();
+            dashboard_stock_report_table.ajax.reload();
         }
 
     });
@@ -120,15 +131,15 @@ $(document).ready(function () {
     }
 
     if ($('#dashboard_stock_report_table').length) {
-        quotation_datatable = $('#dashboard_stock_report_table').DataTable({
+        dashboard_stock_report_table = $('#dashboard_stock_report_table').DataTable({
             processing: true,
             serverSide: true,
             aaSorting: [[0, 'desc']],
             "ajax": {
                 "url": '/reports/dashboard-stock-report',
                 "data": function (d) {
-                    if ($('#dashboard_location').length > 0) {
-                        d.location_id = $('#dashboard_location').val();
+                    if ($('#overview_location_filter').length > 0) {
+                        d.location_id = $('#overview_location_filter').val();
                     }
                 }
             },
@@ -141,7 +152,7 @@ $(document).ready(function () {
                 { data: 'cost_of_sold', name: 'cost_of_sold' },
                 { data: 'sale_price_of_sold', name: 'sale_price_of_sold' },
             ],
-            fnDrawCallback: function(oSettings) {
+            fnDrawCallback: function (oSettings) {
                 $('#available_quantity').text(
                     sum_table_col($('#dashboard_stock_report_table'), 'current_stock')
                 );
@@ -160,7 +171,7 @@ $(document).ready(function () {
                 $('#price_of_sold').text(
                     sum_table_col($('#dashboard_stock_report_table'), 'potential_profit_2')
                 );
-    
+
                 __currency_convert_recursively($('#product_and_category_table'));
             },
         });
