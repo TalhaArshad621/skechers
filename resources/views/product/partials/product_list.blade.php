@@ -7,26 +7,30 @@
         <thead>
             <tr>
                 <th><input type="checkbox" id="select-all-row" data-table-id="product_table"></th>
-                <th>&nbsp;</th>
-                <th>@lang('messages.action')</th>
+                <th>ID</th>
+                <th>Barcode</th>
                 <th>@lang('product.sku')</th>
-                <th>@lang('purchase.business_location') @show_tooltip(__('lang_v1.product_business_location_tooltip'))</th>
-                @can('view_purchase_price')
-                    @php 
-                        $colspan++;
-                    @endphp
-                    <th>@lang('lang_v1.unit_perchase_price')</th>
-                @endcan
-                @can('access_default_selling_price')
-                    @php 
-                        $colspan++;
-                    @endphp
-                    <th>@lang('lang_v1.selling_price')</th>
-                @endcan
-                <th>@lang('report.current_stock')</th>
-                {{-- <th>@lang('product.product_type')</th> --}}
                 <th>@lang('product.category')</th>
                 <th>@lang('product.sub_category')</th>
+                <th>Gender</th>
+                {{-- <th>@lang('purchase.business_location') @show_tooltip(__('lang_v1.product_business_location_tooltip'))</th> --}}
+                @can('view_purchase_price')
+                @php 
+                        $colspan++;
+                        @endphp
+                    <th>@lang('lang_v1.unit_perchase_price')</th>
+                    @endcan
+                    @can('access_default_selling_price')
+                    @php 
+                        $colspan++;
+                        @endphp
+                    <th>@lang('lang_v1.selling_price')</th>
+                    @endcan
+                <th>@lang('report.current_stock')</th>
+                <th>@lang('messages.action')</th>
+                <th>&nbsp;</th>
+
+                {{-- <th>@lang('product.product_type')</th> --}}
                 {{-- <th>@lang('product.brand')</th> --}}
                 {{-- <th>@lang('product.tax')</th> --}}
                 {{-- <th>@lang('sale.product')</th> --}}

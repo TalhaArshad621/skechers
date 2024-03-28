@@ -124,10 +124,12 @@
                             <thead>
                                 <tr>
                                     <th>Product ID</th>
+                                    <th>Barcode</th>
                                     <th>SKU</th>
                                     {{-- <th>@lang('business.product')</th> --}}
                                     <th>Category</th>
                                     <th>Sub Category</th>
+                                    <th>Gender</th>
                                     <th>@lang('report.total_unit_sold')</th>
                                     <th>@lang('report.current_stock')</th>
                                     <th>@lang('sale.location')</th>
@@ -150,7 +152,7 @@
                                     {{-- <td></td> --}}
                                     <td></td>
                                     <td></td>
-                                    <td colspan="2"><strong>@lang('sale.total'):</strong></td>
+                                    <td colspan="4"><strong>@lang('sale.total'):</strong></td>
                                     <td class="footer_total_sold"></td>
                                     <td class="footer_total_stock"></td>
                                     <td></td>
@@ -237,20 +239,23 @@
                 } ],
                 columns: [
                         { data: 'mass_delete'  },
-                        { data: 'image', name: 'products.image'  },
-                        { data: 'action', name: 'action'},
+                        { data:'id', name:'products.id'},
+                        { data: 'barcode', name: 'products.barcode'},
                         { data: 'sku', name: 'products.sku'},
-                        { data: 'product_locations', name: 'product_locations'  },
-                        @can('view_purchase_price')
-                            { data: 'purchase_price', name: 'max_purchase_price', searchable: false},
-                        @endcan
-                        @can('access_default_selling_price')
-                            { data: 'selling_price', name: 'max_price', searchable: false},
-                        @endcan
-                        { data: 'current_stock', searchable: false},
-                        // { data: 'type', name: 'products.type'},
                         { data: 'category', name: 'c1.name'},
                         { data: 'sub_category', name: 'c2.name'},
+                        { data: 'gender', name: 'products.gender'},
+                        // { data: 'product_locations', name: 'product_locations'  },
+                        @can('view_purchase_price')
+                        { data: 'purchase_price', name: 'max_purchase_price', searchable: false},
+                        @endcan
+                        @can('access_default_selling_price')
+                        { data: 'selling_price', name: 'max_price', searchable: false},
+                        @endcan
+                        { data: 'current_stock', searchable: false},
+                        { data: 'action', name: 'action'},
+                        { data: 'image', name: 'products.image'},
+                        // { data: 'type', name: 'products.type'},
                         // { data: 'brand', name: 'brands.name'},
                         // { data: 'tax', name: 'tax_rates.name', searchable: false},
                         // { data: 'product', name: 'products.name'  }
@@ -584,10 +589,12 @@
                     //Stock report table
                     var stock_report_cols = [
                         { data: 'product_id', name: 'product_id' },
+                        { data: 'barcode', name: 'p.barcode' },
                         { data: 'sku', name: 'variations.sub_sku' },
                         // { data: 'product', name: 'p.name' },
                         { data: 'category_name', name: 'categories.name' },
                         { data: 'sub_category', name: 'c2.name' },
+                        { data: 'gender', name: 'p.gender' },
                         { data: 'total_sold', name: 'total_sold', searchable: false },
                         { data: 'stock', name: 'stock', searchable: false },
                         { data: 'location_name', name: 'l.name' },

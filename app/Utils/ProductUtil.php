@@ -2019,6 +2019,8 @@ class ProductUtil extends Util
             'variations.sub_sku as sku',
             'p.name as product',
             'p.image as product_image',
+            'p.barcode as barcode',
+            'p.gender as gender',
             'p.type',
             'p.id as product_id',
             'units.short_name as unit',

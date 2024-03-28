@@ -2323,6 +2323,7 @@ class ReportController extends Controller
                 )
                 ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
                 ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories','p.category_id','categories.id')
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell')
@@ -2331,6 +2332,7 @@ class ReportController extends Controller
                     'p.name as product_name',
                     'p.enable_stock',
                     'p.type as product_type',
+                    'categories.name as category_name',
                     'pv.name as product_variation',
                     'v.name as variation_name',
                     'v.sub_sku',
@@ -2852,6 +2854,7 @@ class ReportController extends Controller
                     'v.id'
                     )
                 ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('variation_location_details as vld', 'vld.variation_id', '=', 'v.id')
                 ->join('products as p', 'PL.product_id', '=', 'p.id')
                 ->join('units as u', 'p.unit_id', '=', 'u.id')
                 ->leftJoin('contacts as suppliers', 'purchase.contact_id', '=', 'suppliers.id')
@@ -2862,6 +2865,7 @@ class ReportController extends Controller
                     'v.sub_sku as sku',
                     'p.type as product_type',
                     'p.name as product_name',
+                    'p.image as product_image',
                     'v.name as variation_name',
                     'pv.name as product_variation',
                     'u.short_name as unit',
@@ -2877,15 +2881,31 @@ class ReportController extends Controller
                     'stock_adjustment.ref_no as stock_adjustment_ref_no',
                     'customers.name as customer',
                     'customers.supplier_business_name as customer_business_name',
-                    'transaction_sell_lines_purchase_lines.quantity as quantity',
+                    DB::raw('SUM(SL.quantity - SL.quantity_returned) as quantity'),
+                    DB::raw("SUM(
+                        IF(
+                            sale.type = 'sell' AND sale.status = 'final' AND SL.line_discount_amount > 0,
+                            IF(
+                                SL.line_discount_type = 'percentage',
+                                COALESCE((COALESCE(SL.unit_price_inc_tax, 0) / (1 - (COALESCE(SL.line_discount_amount, 0) / 100)) - SL.unit_price_inc_tax ), 0),
+                                COALESCE(SL.line_discount_amount, 0)
+                            ),
+                            0
+                        )
+                    ) as total_sell_discount"),
+                    DB::raw("v.sell_price_inc_tax - v.dpp_inc_tax  as profit"),
+                    DB::raw("vld.qty_available as qty_available"),
+                    // 'transaction_sell_lines_purchase_lines.quantity as quantity',
                     'SL.unit_price_inc_tax as selling_price',
                     'SAL.unit_price as stock_adjustment_price',
                     'transaction_sell_lines_purchase_lines.stock_adjustment_line_id',
                     'transaction_sell_lines_purchase_lines.sell_line_id',
                     'transaction_sell_lines_purchase_lines.purchase_line_id',
-                    'transaction_sell_lines_purchase_lines.qty_returned',
+                    // 'transaction_sell_lines_purchase_lines.qty_returned',
+                    'SL.quantity_returned as qty_returned ',
                     'bl.name as location'
-                );
+                )
+                ->groupBy('v.id');
 
             if (!empty(request()->purchase_start) && !empty(request()->purchase_end)) {
                 $start = request()->purchase_start;
@@ -2936,6 +2956,9 @@ class ReportController extends Controller
 
                     return $product_name;
                 })
+                ->editColumn('image', function ($row) {
+                    return '<div style="display: flex;"><img src="' . $row->image_url . '" alt="Product image" class="product-thumbnail-small"></div>';
+                })
                 ->editColumn('purchase_date', '{{@format_datetime($purchase_date)}}')
                 ->editColumn('purchase_ref_no', function ($row) {
                     $html = $row->purchase_type == 'purchase' ? '<a data-href="' . action('PurchaseController@show', [$row->purchase_line_id])
@@ -2957,16 +2980,43 @@ class ReportController extends Controller
                 })
                 ->editColumn('quantity', function ($row) {
                     $html = '<span data-is_quantity="true" class="display_currency quantity" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" data-unit="' . $row->unit . '" >' . (float) $row->quantity . '</span> ' . $row->unit;
-                    if ($row->qty_returned > 0) {
-                        $html .= '<small><i>(<span data-is_quantity="true" class="display_currency" data-currency_symbol=false>' . '-' . (float) abs($row->qty_returned) . '</span> ' . $row->unit . ' ' . __('lang_v1.returned') . ')</i></small>';
-                    }
+                    // if ($row->qty_returned > 0) {
+                    //     $html .= '<small><i>(<span data-is_quantity="true" class="display_currency" data-currency_symbol=false>' . '</span> ' . $row->unit . ' ' . __('lang_v1.returned') . ')</i></small>';
+                    // }
 
                     return $html;
+                })
+                ->editColumn('qty_available', function ($row) {
+                    $html = '<span data-is_quantity="true" class="display_currency qty_available" data-currency_symbol=false data-orig-value="' . (float)$row->qty_available . '" data-unit="' . $row->unit . '" >' . (float) $row->qty_available . '</span> ' . $row->unit;
+                    // if ($row->qty_returned > 0) {
+                    //     $html .= '<small><i>(<span data-is_quantity="true" class="display_currency" data-currency_symbol=false>' . '</span> ' . $row->unit . ' ' . __('lang_v1.returned') . ')</i></small>';
+                    // }
+
+                    return $html;
+                })
+                ->editColumn('exchanged', function ($row) {
+                    return $row->qty_returned;
+                    // if($row->qty_returned > 0) {
+                    //     $html = "EX";
+                    // } else {
+                    //     $html = "--";
+                    // }
+                    // return $html;
                 })
                  ->editColumn('selling_price', function ($row) {
                      $selling_price = !empty($row->sell_line_id) ? $row->selling_price : $row->stock_adjustment_price;
 
                      return '<span class="display_currency row_selling_price" data-currency_symbol=true data-orig-value="' . $selling_price . '">' . $selling_price . '</span>';
+                 })
+                 ->editColumn('sell_discount', function ($row) {
+                     $selling_price = $row->total_sell_discount;
+
+                     return '<span class="display_currency row_sel_discount" data-currency_symbol=true data-orig-value="' . $selling_price . '">' . $selling_price . '</span>';
+                 })
+                 ->editColumn('profit', function ($row) {
+                     $selling_price = $row->profit;
+
+                     return '<span class="display_currency row_profit" data-currency_symbol=true data-orig-value="' . $selling_price . '">' . $selling_price . '</span>';
                  })
 
                  ->addColumn('subtotal', function ($row) {
@@ -2983,7 +3033,7 @@ class ReportController extends Controller
                           ->orWhere('stock_adjustment.ref_no', 'like', ["%{$keyword}%"]);
                 })
                 
-                ->rawColumns(['subtotal', 'selling_price', 'quantity', 'purchase_price', 'sale_invoice_no', 'purchase_ref_no', 'supplier', 'customer'])
+                ->rawColumns(['subtotal', 'selling_price', 'quantity', 'purchase_price', 'sale_invoice_no', 'purchase_ref_no', 'supplier', 'customer','sell_discount','profit', 'image' ,'qty_available'])
                 ->make(true);
         }
 
@@ -3506,7 +3556,7 @@ class ReportController extends Controller
                     DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
                     DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_sold'),
                     'u.short_name as unit',
-                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
                     // DB::raw('transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax as subtotal'),
                     'cat.name as category_name'
                 )

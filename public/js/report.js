@@ -910,8 +910,9 @@ $(document).ready(function () {
         },
         columns: [
             // { data: 'product_name', name: 'p.name' },
-            { data: 'sub_sku', name: 'v.sub_sku' },
             { data: 'transaction_date', name: 't.transaction_date' },
+            { data: 'sub_sku', name: 'v.sub_sku' },
+            { data: 'category_name', name: 'categories.name' },
             { data: 'current_stock', name: 'current_stock', searchable: false, orderable: false },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
             { data: 'subtotal', name: 'subtotal', searchable: false },
@@ -1296,17 +1297,23 @@ $(document).ready(function () {
         columns: [
             // { data: 'product_name', name: 'p.name' },
             { data: 'sku', name: 'v.sub_sku' },
+            // { data: 'exchanged', name: 'exchanged' },
             { data: 'purchase_date', name: 'purchase.transaction_date' },
             // { data: 'purchase_ref_no', name: 'purchase.ref_no' },
             // { data: 'supplier', name: 'suppliers.name' },
             { data: 'purchase_price', name: 'PL.purchase_price_inc_tax' },
             { data: 'sell_date', searchable: false },
-            { data: 'sale_invoice_no', name: 'sale_invoice_no' },
+            // { data: 'sale_invoice_no', name: 'sale_invoice_no' },
             // { data: 'customer', searchable: false },
             { data: 'location', name: 'bl.name' },
             { data: 'quantity', searchable: false },
             { data: 'selling_price', searchable: false },
-            { data: 'subtotal', searchable: false }
+            { data: 'sell_discount', searchable: false },
+            { data: 'profit', searchable: false },
+            // { data: 'qty_available', searchable: false },
+            { data: 'image', name: 'p.image' },
+
+            // { data: 'subtotal', searchable: false }
         ],
         fnDrawCallback: function (oSettings) {
             $('#footer_total_pp').html(sum_table_col($('#items_report_table'), 'purchase_price'));
@@ -1316,6 +1323,15 @@ $(document).ready(function () {
             );
             $('#footer_total_qty').html(
                 __sum_stock($('#items_report_table'), 'quantity')
+            );
+            // $('#footer_qty_available').html(
+            //     __sum_stock($('#items_report_table'), 'qty_available')
+            // );
+            $('#footer_total_discount').html(
+                sum_table_col($('#items_report_table'), 'row_sel_discount')
+            );
+            $('#footer_total_profit').html(
+                sum_table_col($('#items_report_table'), 'row_profit')
             );
 
             __currency_convert_recursively($('#items_report_table'));
