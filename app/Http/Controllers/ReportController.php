@@ -2684,7 +2684,7 @@ class ReportController extends Controller
                 '=',
                 'PL.id'
             )
-            ->where('sale.type', 'sell')
+            ->whereIn('sale.type', ['sell','sell_return'])
             ->where('sale.status', 'final')
             ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
             ->where('sale.business_id', $business_id)
@@ -3390,11 +3390,7 @@ class ReportController extends Controller
                     'cat.name as category_name',
                     'cat.id as category_id'
                 )
-                ->whereRaw('transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned <> 0')
-
-                // ->groupBy('v.id')
-                ->groupBy('category_name')
-                ->get();
+                ->whereRaw('transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned <> 0');
                 // dd($query);
 
                 if (!empty($variation_id)) {
@@ -3420,6 +3416,9 @@ class ReportController extends Controller
             if (!empty($customer_id)) {
                 $query->where('t.contact_id', $customer_id);
             }
+
+            $query =   $query->groupBy('category_name')
+            ->get();
 
             return Datatables::of($query)
             // ->editColumn('product_image', function ($row) {
@@ -4483,7 +4482,7 @@ class ReportController extends Controller
                     DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
                     DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_returned_quantity'),
                     DB::raw('SUM(transaction_sell_lines.quantity) - SUM(transaction_sell_lines.quantity_returned) as total_net_unit'),
-                    DB::raw('IF(t.type="sell",SUM( (transaction_sell_lines.quantity ) *  transaction_sell_lines.unit_price_inc_tax), 0) as sale_value'),
+                    DB::raw('SUM(transaction_sell_lines.quantity * transaction_sell_lines.unit_price_inc_tax) as sale_value'),
                     // DB::raw('SUM(t.final_total) as sale_value'),
                     DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as return_value'),
 
@@ -4491,8 +4490,7 @@ class ReportController extends Controller
                     'cat.name as category_name',
                     'c2.name as sub_category',
                     'cat.id as category_id'
-                )
-                ->groupBy('cat.id')->get();
+                );
                 // dd($query);
             
             if (!empty($variation_id)) {
@@ -4518,6 +4516,8 @@ class ReportController extends Controller
             if (!empty($customer_id)) {
                 $query->where('t.contact_id', $customer_id);
             }
+
+            $query = $query->groupBy('cat.id')->get();
 
             return Datatables::of($query)
             ->editColumn('product_image', function ($row) {
@@ -4552,7 +4552,8 @@ class ReportController extends Controller
                     return '<span data-is_quantity="true" class="display_currency total_net_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_net_unit . '" data-unit="' . $row->unit . '" >' . (float) $row->total_net_unit . '</span> ' .$row->unit;
                 })
                 ->editColumn('sale_value', function ($row) {
-                    return '<span class="display_currency sale_value" data-currency_symbol = true data-orig-value="' . $row->sale_value . '">' . $row->sale_value . '</span>';
+                    $sale = $row->sale_value;
+                    return '<span class="display_currency sale_value" data-currency_symbol = true data-orig-value="' . $sale . '">' . $sale . '</span>';
                 })
                 ->editColumn('return_value', function ($row) {
                     return '<span class="display_currency return_value" data-currency_symbol = true data-orig-value="' . $row->return_value . '">' . $row->return_value . '</span>';
@@ -4580,7 +4581,8 @@ class ReportController extends Controller
             ->join('users','users.id','transactions.commission_agent')
             ->where('transactions.type','sell')
             ->select(
-                DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
+                'users.first_name', 'users.last_name',
+                // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
                 DB::raw('COUNT(transactions.id) as total_invoices'),
                 DB::raw('SUM(tsl.quantity) as total_items'),
                 DB::raw('SUM(transactions.final_total) as total_sales')
@@ -4608,7 +4610,7 @@ class ReportController extends Controller
             
             return Datatables::of($result)
                 ->addColumn('employee_name', function ($row) {
-                    return $row->user_name;
+                    return $row->first_name . ' ' . $row->last_name;
                 })
                 
                 ->editColumn('total_invoices', function ($row) {

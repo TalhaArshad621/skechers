@@ -516,10 +516,10 @@ class EcommerceController extends Controller
         $url = "https://skechers-footwear.myshopify.com/admin/api/2022-04/orders.json";
 
         $client = new Client();
-
+        $_token = env('SHOPIFY_ACCESS_KEY');
             $response = $client->request('GET', $url, [
                 'headers' => [
-                    'X-Shopify-Access-Token' => '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',
+                    'X-Shopify-Access-Token' => $_token,
                     'Content-Type' => 'application/json',
                 ],
             ]);

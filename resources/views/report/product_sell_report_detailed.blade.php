@@ -277,7 +277,6 @@
                     start = moment(selectedStartDate + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
                     end = moment(selectedEndDate + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
                 }
-                console.log(start, end);
             }
             d.start_date = start;
             d.end_date = end;
@@ -306,7 +305,6 @@
 
             //         start = moment(start + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
             //         end = moment(end + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
-            //         console.log(start,end);
             //     }
             //     d.start_date = start;
             //     d.end_date = end;
@@ -369,7 +367,6 @@
                         start = moment(selectedStartDate + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
                         end = moment(selectedEndDate + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
                     }
-                    console.log(start, end);
                 }
                 d.start_date = start;
                 d.end_date = end;
@@ -377,6 +374,7 @@
                 d.variation_id = $('#variation_id').val();
                 d.customer_id = $('select#customer_id').val();
                 d.location_id = $('select#location_id').val();
+                console.log(d.location_id);
             },
         },
         columns: [
@@ -430,7 +428,6 @@
                         start = moment(selectedStartDate + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
                         end = moment(selectedEndDate + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
                     }
-                    console.log(start, end);
                 }
                 d.start_date = start;
                 d.end_date = end;
@@ -492,7 +489,6 @@
                         start = moment(selectedStartDate + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
                         end = moment(selectedEndDate + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
                     }
-                    console.log(start, end);
                 }
                 d.start_date = start;
                 d.end_date = end;
@@ -552,7 +548,6 @@
                         start = moment(selectedStartDate + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
                         end = moment(selectedEndDate + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
                     }
-                    console.log(start, end);
                 }
                 d.start_date = start;
                 d.end_date = end;
@@ -605,21 +600,6 @@
         // },
     });
 
-
-
-    $(
-        '#product_sell_report_form #variation_id, #product_sell_report_form #location_id, #product_sell_report_form #customer_id'
-    ).change(function() {
-        product_sell_grouped_report.ajax.reload();
-        product_sell_grouped_report_2nd.ajax.reload();
-        product_sell_grouped_report_category.ajax.reload();
-        product_sell_grouped_report_return_category.ajax.reload();
-        detail_product_and_category.ajax.reload();
-
-    });
-
-
-
     $(
         '#product_sell_report_form #variation_id, #product_sell_report_form #location_id, #product_sell_report_form #customer_id'
     ).change(function() {
@@ -641,31 +621,6 @@
                 .val('')
                 .change();
         }
-    });
-
-    $(document).on('click', '.remove_from_stock_btn', function() {
-        swal({
-            title: LANG.sure,
-            icon: 'warning',
-            buttons: true,
-            dangerMode: true,
-        }).then(willDelete => {
-            if (willDelete) {
-                $.ajax({
-                    method: 'GET',
-                    url: $(this).data('href'),
-                    dataType: 'json',
-                    success: function(result) {
-                        if (result.success == true) {
-                            toastr.success(result.msg);
-                            stock_expiry_report_table.ajax.reload();
-                        } else {
-                            toastr.error(result.msg);
-                        }
-                    },
-                });
-            }
-        });
     });
     });
     </script>
