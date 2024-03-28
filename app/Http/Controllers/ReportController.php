@@ -3244,7 +3244,13 @@ class ReportController extends Controller
             $filters
         );
         $potential_profit = $closing_stock_by_sp - $closing_stock_by_pp;
-        $profit_margin = empty($closing_stock_by_sp) ? 0 : ($potential_profit / $closing_stock_by_sp) * 100;
+        // $profit_margin = empty($closing_stock_by_sp) ? 0 : ($potential_profit / $closing_stock_by_sp) * 100;
+        if ($closing_stock_by_sp == 0) {
+            // Division by zero, handle this case
+            $profit_margin = 0; // Set to a default value or return null, depending on your requirement
+        } else {
+            $profit_margin = ($potential_profit / $closing_stock_by_sp) * 100;
+        }
 
         return [
             'closing_stock_by_pp' => $closing_stock_by_pp,

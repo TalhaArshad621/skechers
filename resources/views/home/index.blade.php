@@ -49,7 +49,7 @@
     	</div>
     	<br>
     	<div class="row row-custom">
-        	<div class="col-md-4 col-sm-6 col-xs-12 col-custom">
+        	<div class="col-md-3 col-sm-6 col-xs-12 col-custom">
     	      <div class="info-box info-box-new-style">
     	        <span class="info-box-icon bg-aqua"><i class="ion ion-cash"></i></span>
 
@@ -62,7 +62,7 @@
     	      <!-- /.info-box -->
     	    </div>
     	    <!-- /.col -->
-    	    <div class="col-md-4 col-sm-6 col-xs-12 col-custom">
+    	    <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
     	      <div class="info-box info-box-new-style">
     	        <span class="info-box-icon bg-aqua"><i class="ion ion-ios-cart-outline"></i></span>
 
@@ -74,8 +74,21 @@
     	      </div>
     	      <!-- /.info-box -->
     	    </div>
+            {{-- sold unit --}}
+            <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
+                <div class="info-box info-box-new-style">
+                  <span class="info-box-icon bg-aqua"><i class="ion ion-ios-cart-outline"></i></span>
+  
+                  <div class="info-box-content">
+                    <span class="info-box-text">{{ __('Total Items Sold	') }}</span>
+                    <span class="info-box-number total_item_sold"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
+                  </div>
+                  <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+              </div>
     	    <!-- /.col -->
-    	    <div class="col-md-4 col-sm-6 col-xs-12 col-custom">
+    	    <div class="col-md-3 col-sm-6 col-xs-12 col-custom">
     	      <div class="info-box info-box-new-style">
     	        <span class="info-box-icon bg-yellow">
     	        	<i class="fa fa-dollar"></i>

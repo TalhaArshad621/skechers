@@ -20,6 +20,7 @@ use App\Utils\RestaurantUtil;
 use App\User;
 use Illuminate\Notifications\DatabaseNotification;
 use App\Media;
+use App\TransactionSellLine;
 use App\Utils\ProductUtil;
 
 class HomeController extends Controller
@@ -249,6 +250,44 @@ class HomeController extends Controller
                 $location_id
             );
 
+             // Invoice Data
+             $query3 = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.id'
+            )
+            ->where('t.business_id', $business_id)
+            // ->where('t.type', 'sell')
+            ->whereIN('t.type', ['sell','sell_return'])
+
+            ->where('t.status', 'final');
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query3->whereDate('t.transaction_date', '>=', $start_date)
+                    ->whereDate('t.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query3->whereDate('t.transaction_date', $end_date);
+            }
+    
+             //Check for permitted locations of a user
+             $permitted_locations = auth()->user()->permitted_locations();
+             if ($permitted_locations != 'all') {
+                 $query3->whereIn('t.location_id', $permitted_locations);
+             }
+             //Filter by the location
+             if (!empty($location_id)) {
+                 $query3->where('t.location_id', $location_id);
+             }
+            $invoice_data =   $query3->select(
+                DB::raw('IF(SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) > 0,SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned),0) as total_item_sold'),
+            )
+            ->first();
+            
+
+
+
+
             
 
             // Cash Payment
@@ -322,7 +361,7 @@ class HomeController extends Controller
 
             $output['invoice_due'] = $sell_details['invoice_due'];
             $output['total_expense'] = $transaction_totals['total_expense'];
-            
+            $output['total_item_sold'] = $invoice_data->total_item_sold;
             return $output;
         }
     }
@@ -726,6 +765,7 @@ class HomeController extends Controller
               ->whereIn('p.type', ['single', 'variable']);
 
             $permitted_locations = auth()->user()->permitted_locations();
+            // dd($permitted_locations,$location_id);
             $location_filter = '';
 
             if ($permitted_locations != 'all') {
@@ -751,14 +791,34 @@ class HomeController extends Controller
               $pl_query_string = $this->productUtil->get_pl_quantity_sum_string('pl');
             //   dd($pl_query_string);
     
+            if ($location_id) {
+
               $products = $query->select(
                 // DB::raw("(SELECT SUM(quantity) FROM transaction_sell_lines LEFT JOIN transactions ON transaction_sell_lines.transaction_id=transactions.id WHERE transactions.status='final' $location_filter AND
                 //     transaction_sell_lines.product_id=products.id) as total_sold"),
     
+                // DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
+                // JOIN transaction_sell_lines AS TSL ON transactions.id = TSL.transaction_id 
+                // WHERE transactions.status = 'final' AND (transactions.type = 'sell' OR transactions.type = 'sell_return')) as total_sold"),
+            
+
+                // DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
+                //     JOIN transaction_sell_lines AS TSL ON transactions.id = TSL.transaction_id 
+                //     JOIN variations AS v ON TSL.variation_id = v.id
+                //     WHERE transactions.status = 'final' 
+                //         AND (transactions.type = 'sell' OR transactions.type = 'sell_return'
+                //         AND TSL.variation_id=v.id)) AS total_sold"),
+
+                // DB::raw('SUM(TSL.quantity - TSL.quantity_returned) as total_sold'),
+
+
+
                 DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
                       JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
                       WHERE transactions.status='final' AND (transactions.type='sell' OR transactions.type='sell_return')
+                      AND transactions.location_id=vld.location_id
                       AND TSL.category_id=p.category_id) as total_sold"),
+                
                 // DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
                 //       JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
                 //       WHERE transactions.status='final' AND transactions.type='sell'
@@ -778,7 +838,55 @@ class HomeController extends Controller
                 'v.sell_price_inc_tax as unit_price',
                 'v.dpp_inc_tax as unit_price_default',
                 'categories.name as category_name'
-            )->groupBy('categories.id')->get();
+            )->groupBy('categories.id');
+              }
+              else{
+                $products = $query->select(
+                    // DB::raw("(SELECT SUM(quantity) FROM transaction_sell_lines LEFT JOIN transactions ON transaction_sell_lines.transaction_id=transactions.id WHERE transactions.status='final' $location_filter AND
+                    //     transaction_sell_lines.product_id=products.id) as total_sold"),
+        
+                    // DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
+                    // JOIN transaction_sell_lines AS TSL ON transactions.id = TSL.transaction_id 
+                    // WHERE transactions.status = 'final' AND (transactions.type = 'sell' OR transactions.type = 'sell_return')) as total_sold"),
+                
+    
+                    // DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
+                    //     JOIN transaction_sell_lines AS TSL ON transactions.id = TSL.transaction_id 
+                    //     JOIN variations AS v ON TSL.variation_id = v.id
+                    //     WHERE transactions.status = 'final' 
+                    //         AND (transactions.type = 'sell' OR transactions.type = 'sell_return'
+                    //         AND TSL.variation_id=v.id)) AS total_sold"),
+    
+                    // DB::raw('SUM(TSL.quantity - TSL.quantity_returned) as total_sold'),
+    
+    
+    
+                    DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
+                          JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
+                          WHERE transactions.status='final' AND (transactions.type='sell' OR transactions.type='sell_return')
+                          AND TSL.category_id=p.category_id) as total_sold"),
+                    
+                    // DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
+                    //       JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
+                    //       WHERE transactions.status='final' AND transactions.type='sell'
+                    //       AND TSL.variation_id=v.id) as total_sold"),
+                    DB::raw("(SELECT SUM(IF(transactions.type='sell_transfer', TSL.quantity, 0) ) FROM transactions 
+                          JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
+                          WHERE transactions.status='final' AND transactions.type='sell_transfer' AND transactions.location_id=vld.location_id AND (TSL.variation_id=v.id)) as total_transfered"),
+                    DB::raw("(SELECT SUM(IF(transactions.type='stock_adjustment', SAL.quantity, 0) ) FROM transactions 
+                          JOIN stock_adjustment_lines AS SAL ON transactions.id=SAL.transaction_id
+                          WHERE transactions.type='stock_adjustment' AND transactions.location_id=vld.location_id 
+                            AND (SAL.variation_id=v.id)) as total_adjusted"),
+                    DB::raw("(SELECT SUM( COALESCE(pl.quantity - ($pl_query_string), 0) * purchase_price_inc_tax) FROM transactions 
+                          JOIN purchase_lines AS pl ON transactions.id=pl.transaction_id
+                          WHERE transactions.status='received' AND transactions.location_id=vld.location_id 
+                          AND (pl.variation_id=v.id)) as stock_price"),
+                    DB::raw("SUM(vld.qty_available) as stock"),
+                    'v.sell_price_inc_tax as unit_price',
+                    'v.dpp_inc_tax as unit_price_default',
+                    'categories.name as category_name'
+                )->groupBy('categories.id');
+              }
             
             // dd($products);
             $datatable =  Datatables::of($products)
