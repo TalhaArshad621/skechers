@@ -191,6 +191,7 @@ function update_statistics(start, end) {
     $('.total_sell').html(loader);
     $('.invoice_due').html(loader);
     $('.total_expense').html(loader);
+    $('.total_item_sold').html(loader);
     $.ajax({
         method: 'get',
         url: '/home/get-totals',
@@ -204,6 +205,7 @@ function update_statistics(start, end) {
             //sell details
             $('.total_sell').html(__currency_trans_from_en(data.total_sell, true));
             $('.invoice_due').html(__currency_trans_from_en(data.invoice_due, true));
+            $('.total_item_sold').html(parseInt(data.total_item_sold));
             //expense details
             $('.total_expense').html(__currency_trans_from_en(data.total_expense, true));
         },
