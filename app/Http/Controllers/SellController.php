@@ -359,13 +359,25 @@ class SellController extends Controller
                 ->editColumn(
                     'discount_amount',
                     function ($row) {
-                        $discount = !empty($row->discount_amount) ? $row->discount_amount : 0;
+                        $discount = !empty($row->total_sell_discount) ? $row->total_sell_discount : 0;
 
-                        if (!empty($discount) && $row->discount_type == 'percentage') {
-                            $discount = $row->total_before_tax * ($discount / 100);
-                        }
+                        // if (!empty($discount) && $row->discount_type == 'percentage') {
+                        //     $discount = $row->total_before_tax * ($discount / 100);
+                        // }
 
                         return '<span class="total-discount" data-orig-value="' . $discount . '">' . $this->transactionUtil->num_f($discount, true) . '</span>';
+                    }
+                )
+                ->editColumn(
+                    'original_amount',
+                    function ($row) {
+                        $original_amount = !empty($row->original_amount) ? $row->original_amount : 0;
+
+                        // if (!empty($original_amount) && $row->discount_type == 'percentage') {
+                        //     $original_amount = $row->total_before_tax * ($original_amount / 100);
+                        // }
+
+                        return '<span class="total-original-amount" data-orig-value="' . $original_amount . '">' . $this->transactionUtil->num_f($original_amount, true) . '</span>';
                     }
                 )
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
@@ -451,7 +463,7 @@ class SellController extends Controller
                         }
                     }]);
 
-            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'shipping_status', 'types_of_service_name', 'payment_methods', 'return_due', 'conatct_name'];
+            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'shipping_status', 'types_of_service_name', 'payment_methods', 'return_due', 'conatct_name','original_amount'];
                 
             return $datatable->rawColumns($rawColumns)
                       ->make(true);

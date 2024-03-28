@@ -410,6 +410,165 @@ class ReportController extends Controller
             ->with(compact('categories', 'brands', 'units', 'business_locations', 'show_manufacturing_data'));
     }
 
+    public function getSellReport(Request $request)
+    {
+        if (!auth()->user()->can('stock_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+
+        $selling_price_groups = SellingPriceGroup::where('business_id', $business_id)
+                                                ->get();
+        $allowed_selling_price_group = false;
+        foreach ($selling_price_groups as $selling_price_group) {
+            if (auth()->user()->can('selling_price_group.' . $selling_price_group->id)) {
+                $allowed_selling_price_group = true;
+                break;
+            }
+        }
+        if ($this->moduleUtil->isModuleInstalled('Manufacturing') && (auth()->user()->can('superadmin') || $this->moduleUtil->hasThePermissionInSubscription($business_id, 'manufacturing_module'))) {
+            $show_manufacturing_data = 1;
+        } else {
+            $show_manufacturing_data = 0;
+        }
+        if ($request->ajax()) {
+
+            $filters = request()->only(['location_id', 'category_id', 'sub_category_id', 'brand_id', 'unit_id', 'tax_id', 'type', 
+                'only_mfg_products', 'active_state',  'not_for_selling', 'repair_model_id', 'product_id', 'active_state']);
+
+            $filters['not_for_selling'] = isset($filters['not_for_selling']) && $filters['not_for_selling'] == 'true' ? 1 : 0;
+
+            $filters['show_manufacturing_data'] = $show_manufacturing_data;
+
+            //Return the details in ajax call
+            $for = request()->input('for') == 'view_product' ? 'view_product' :'datatables';
+
+            $products = $this->productUtil->getProductSellStockDetails($business_id, $filters, $for);
+            //To show stock details on view product modal
+            if ($for == 'view_product' && !empty(request()->input('product_id'))) {
+                $product_stock_details = $products;
+
+                return view('product.partials.product_stock_details')->with(compact('product_stock_details'));
+            }
+
+            $datatable =  Datatables::of($products)
+                ->editColumn('stock', function ($row) {
+                    if ($row->enable_stock) {
+                        $stock = $row->stock ? $row->stock : 0 ;
+                        return  '<span data-is_quantity="true" class="current_stock display_currency" data-orig-value="' . (float)$stock . '" data-unit="' . $row->unit . '" data-currency_symbol=false > ' . (float)$stock . '</span>' . ' ' . $row->unit ;
+                    } else {
+                        return '--';
+                    }
+                })
+                ->editColumn('product', function ($row) {
+                    $name = $row->product;
+                    if ($row->type == 'variable') {
+                        $name .= ' - ' . $row->product_variation . '-' . $row->variation_name;
+                    }
+                    return $name;
+                })
+                ->editColumn('created_at', function ($row) {
+                    return $row->created_at;
+                })
+                ->editColumn('total_sold', function ($row) {
+                    $total_sold = 0;
+                    if ($row->total_sold) {
+                        $total_sold =  (float)$row->total_sold;
+                    }
+
+                    return '<span data-is_quantity="true" class="display_currency total_sold" data-currency_symbol=false data-orig-value="' . $total_sold . '" data-unit="' . $row->unit . '" >' . $total_sold . '</span> ' . $row->unit;
+                })
+                ->editColumn('total_transfered', function ($row) {
+                    $total_transfered = 0;
+                    if ($row->total_transfered) {
+                        $total_transfered =  (float)$row->total_transfered;
+                    }
+
+                    return '<span data-is_quantity="true" class="display_currency total_transfered" data-currency_symbol=false data-orig-value="' . $total_transfered . '" data-unit="' . $row->unit . '" >' . $total_transfered . '</span> ' . $row->unit;
+                })
+                
+                ->editColumn('total_adjusted', function ($row) {
+                    $total_adjusted = 0;
+                    if ($row->total_adjusted) {
+                        $total_adjusted =  (float)$row->total_adjusted;
+                    }
+
+                    return '<span data-is_quantity="true" class="display_currency total_adjusted" data-currency_symbol=false  data-orig-value="' . $total_adjusted . '" data-unit="' . $row->unit . '" >' . $total_adjusted . '</span> ' . $row->unit;
+                })
+                ->editColumn('unit_price', function ($row) use ($allowed_selling_price_group) {
+                    $html = '';
+                    if (auth()->user()->can('access_default_selling_price')) {
+                        $html .= '<span class="display_currency" data-currency_symbol=true >'
+                        . $row->unit_price . '</span>';
+                    }
+
+                    if ($allowed_selling_price_group) {
+                        $html .= ' <button type="button" class="btn btn-primary btn-xs btn-modal no-print" data-container=".view_modal" data-href="' . action('ProductController@viewGroupPrice', [$row->product_id]) .'">' . __('lang_v1.view_group_prices') . '</button>';
+                    }
+
+                    return $html;
+                })
+                ->editColumn('stock_price', function ($row) {
+                    $html = '<span class="display_currency total_stock_price" data-currency_symbol=true data-orig-value="'
+                        . $row->stock_price . '">'
+                        . $row->stock_price . '</span>';
+
+                    return $html;
+                })
+                ->editColumn('total_sell_discount', function ($row) {
+                    $html = '<span class="display_currency total_sell_discount" data-currency_symbol=true data-orig-value="'
+                        . $row->total_sell_discount . '">'
+                        . +$row->total_sell_discount . '</span>';
+
+                    return $html;
+                })
+                ->editColumn('stock_value_by_sale_price', function ($row) {
+                    $stock = $row->stock_quantity ? $row->stock_quantity : 0 ;
+                    $unit_selling_price = (float)$row->group_price > 0 ? $row->group_price : $row->unit_price;
+                    $stock_price = $stock * $unit_selling_price;
+                    return  '<span class="stock_value_by_sale_price display_currency" data-orig-value="' . (float)$stock_price . '" data-currency_symbol=true > ' . (float)$stock_price . '</span>';
+                })
+                ->addColumn('potential_profit', function ($row) {
+                    // $stock = $row->stock_quantity ? $row->stock_quantity : 0 ;
+                    // $unit_selling_price = (float)$row->group_price > 0 ? $row->group_price : $row->unit_price;
+                    // $stock_price_by_sp = $stock * $unit_selling_price;
+                    $potential_profit = $row->unit_price;
+
+                    return  '<span class="potential_profit display_currency" data-orig-value="' . (float)$potential_profit . '" data-currency_symbol=true > ' . (float)$potential_profit . '</span>';
+                })
+                ->removeColumn('enable_stock')
+                ->removeColumn('unit')
+                ->removeColumn('id');
+
+            $raw_columns  = ['unit_price', 'total_transfered', 'total_sold',
+                    'total_adjusted', 'stock', 'stock_price', 'stock_value_by_sale_price', 'potential_profit','total_sell_discount'];
+
+            if ($show_manufacturing_data) {
+                $datatable->editColumn('total_mfg_stock', function ($row) {
+                    $total_mfg_stock = 0;
+                    if ($row->total_mfg_stock) {
+                        $total_mfg_stock =  (float)$row->total_mfg_stock;
+                    }
+
+                    return '<span data-is_quantity="true" class="display_currency total_mfg_stock" data-currency_symbol=false  data-orig-value="' . $total_mfg_stock . '" data-unit="' . $row->unit . '" >' . $total_mfg_stock . '</span> ' . $row->unit;
+                });
+                $raw_columns[] = 'total_mfg_stock';
+            }
+
+            return $datatable->rawColumns($raw_columns)->make(true);
+        }
+
+        $categories = Category::forDropdown($business_id, 'product');
+        $brands = Brands::forDropdown($business_id);
+        $units = Unit::where('business_id', $business_id)
+                            ->pluck('short_name', 'id');
+        $business_locations = BusinessLocation::forDropdown($business_id, true);
+
+        return view('report.sell_report')
+            ->with(compact('categories', 'brands', 'units', 'business_locations', 'show_manufacturing_data'));
+    }
+
     /**
      * Shows product stock details
      *
@@ -2844,6 +3003,7 @@ class ReportController extends Controller
                     as SAL', 'SAL.id', '=', 'transaction_sell_lines_purchase_lines.stock_adjustment_line_id')
                 ->leftJoin('transactions as sale', 'SL.transaction_id', '=', 'sale.id')
                 ->leftJoin('transactions as stock_adjustment', 'SAL.transaction_id', '=', 'stock_adjustment.id')
+                ->leftJoin('transaction_sell_lines as TSL','TSL.transaction_id','sale.id')
                 ->join('purchase_lines as PL', 'PL.id', '=', 'transaction_sell_lines_purchase_lines.purchase_line_id')
                 ->join('transactions as purchase', 'PL.transaction_id', '=', 'purchase.id')
                 ->join('business_locations as bl', 'purchase.location_id', '=', 'bl.id')

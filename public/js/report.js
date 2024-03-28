@@ -165,6 +165,108 @@ $(document).ready(function () {
         },
     });
 
+
+
+    var sell_report_cols = [
+        { data: 'sku', name: 'variations.sub_sku' },
+        { data: 'created_at', name: 'p.created_at' },
+        // { data: 'product', name: 'p.name' },
+        { data: 'location_name', name: 'l.name' },
+        { data: 'unit_price', name: 'variations.sell_price_inc_tax' },
+        { data: 'stock_price', name: 'stock_price', searchable: false },
+    ];
+    if ($('th.stock_price').length) {
+        // sell_report_cols.push({ data: 'stock_price', name: 'stock_price', searchable: false });
+        // sell_report_cols.push({ data: 'stock_value_by_sale_price', name: 'stock_value_by_sale_price', searchable: false, orderable: false });
+        sell_report_cols.push({ data: 'total_sell_discount', name: 'total_sell_discount', searchable: false, orderable: false });
+        sell_report_cols.push({ data: 'potential_profit', name: 'potential_profit', searchable: false, orderable: false });
+    }
+
+    sell_report_cols.push({ data: 'total_sold', name: 'total_sold', searchable: false });
+    sell_report_cols.push({ data: 'stock', name: 'stock', searchable: false });
+    // sell_report_cols.push({ data: 'total_transfered', name: 'total_transfered', searchable: false });
+    // sell_report_cols.push({ data: 'total_adjusted', name: 'total_adjusted', searchable: false });
+
+    if ($('th.current_stock_mfg').length) {
+        sell_report_cols.push({ data: 'total_mfg_stock', name: 'total_mfg_stock', searchable: false });
+    }
+
+    //Sell report table
+    sell_report_table = $('#sell_report_table').DataTable({
+        processing: true,
+        serverSide: true,
+        scrollY: "75vh",
+        scrollX: true,
+        scrollCollapse: true,
+        ajax: {
+            url: '/reports/product-sell-report',
+            data: function (d) {
+                d.location_id = $('#location_id').val();
+                d.category_id = $('#category_id').val();
+                d.sub_category_id = $('#sub_category_id').val();
+                d.brand_id = $('#brand').val();
+                d.unit_id = $('#unit').val();
+
+                d.only_mfg_products = $('#only_mfg_products').length && $('#only_mfg_products').is(':checked') ? 1 : 0;
+            },
+        },
+        columns: sell_report_cols,
+        fnDrawCallback: function (oSettings) {
+            __currency_convert_recursively($('#stock_report_table'));
+        },
+        "footerCallback": function (row, data, start, end, display) {
+            var footer_total_stock = 0;
+            var footer_total_sold = 0;
+            var footer_total_transfered = 0;
+            var total_adjusted = 0;
+            var total_stock_price = 0;
+            // var footer_stock_value_by_sale_price = 0;
+            var total_potential_profit = 0;
+            var total_sell_discount = 0;
+            var footer_total_mfg_stock = 0;
+            for (var r in data) {
+                footer_total_stock += $(data[r].stock).data('orig-value') ?
+                    parseFloat($(data[r].stock).data('orig-value')) : 0;
+
+                footer_total_sold += $(data[r].total_sold).data('orig-value') ?
+                    parseFloat($(data[r].total_sold).data('orig-value')) : 0;
+
+                footer_total_transfered += $(data[r].total_transfered).data('orig-value') ?
+                    parseFloat($(data[r].total_transfered).data('orig-value')) : 0;
+
+                total_adjusted += $(data[r].total_adjusted).data('orig-value') ?
+                    parseFloat($(data[r].total_adjusted).data('orig-value')) : 0;
+
+                total_stock_price += $(data[r].stock_price).data('orig-value') ?
+                    parseFloat($(data[r].stock_price).data('orig-value')) : 0;
+
+                // footer_stock_value_by_sale_price += $(data[r].stock_value_by_sale_price).data('orig-value') ?
+                //     parseFloat($(data[r].stock_value_by_sale_price).data('orig-value')) : 0;
+
+                total_potential_profit += $(data[r].potential_profit).data('orig-value') ?
+                    parseFloat($(data[r].potential_profit).data('orig-value')) : 0;
+
+                total_sell_discount += $(data[r].total_sell_discount).data('orig-value') ?
+                    parseFloat($(data[r].total_sell_discount).data('orig-value')) : 0;
+
+                footer_total_mfg_stock += $(data[r].total_mfg_stock).data('orig-value') ?
+                    parseFloat($(data[r].total_mfg_stock).data('orig-value')) : 0;
+            }
+
+            $('.footer_total_stock').html(__currency_trans_from_en(footer_total_stock, false));
+            $('.footer_total_stock_price').html(__currency_trans_from_en(total_stock_price));
+            $('.footer_total_sold').html(__currency_trans_from_en(footer_total_sold, false));
+            $('.footer_total_transfered').html(__currency_trans_from_en(footer_total_transfered, false));
+            $('.footer_total_adjusted').html(__currency_trans_from_en(total_adjusted, false));
+            // $('.footer_stock_value_by_sale_price').html(__currency_trans_from_en(footer_stock_value_by_sale_price));
+            $('.footer_discount_amount').html(__currency_trans_from_en(total_sell_discount));
+            $('.footer_potential_profit').html(__currency_trans_from_en(total_potential_profit));
+            if ($('th.current_stock_mfg').length) {
+                $('.footer_total_mfg_stock').html(__currency_trans_from_en(footer_total_mfg_stock, false));
+            }
+        },
+    });
+
     if ($('#trending_product_date_range').length == 1) {
         get_sub_categories();
         $('#trending_product_date_range').daterangepicker({
