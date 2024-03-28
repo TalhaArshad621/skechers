@@ -20,6 +20,7 @@ use App\Utils\RestaurantUtil;
 use App\User;
 use Illuminate\Notifications\DatabaseNotification;
 use App\Media;
+use App\TransactionSellLine;
 use App\Utils\ProductUtil;
 
 class HomeController extends Controller
@@ -249,6 +250,44 @@ class HomeController extends Controller
                 $location_id
             );
 
+             // Invoice Data
+             $query3 = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.id'
+            )
+            ->where('t.business_id', $business_id)
+            // ->where('t.type', 'sell')
+            ->whereIN('t.type', ['sell','sell_return'])
+
+            ->where('t.status', 'final');
+            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                $query3->whereDate('t.transaction_date', '>=', $start_date)
+                    ->whereDate('t.transaction_date', '<=', $end_date);
+            }
+            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                $query3->whereDate('t.transaction_date', $end_date);
+            }
+    
+             //Check for permitted locations of a user
+             $permitted_locations = auth()->user()->permitted_locations();
+             if ($permitted_locations != 'all') {
+                 $query3->whereIn('t.location_id', $permitted_locations);
+             }
+             //Filter by the location
+             if (!empty($location_id)) {
+                 $query3->where('t.location_id', $location_id);
+             }
+            $invoice_data =   $query3->select(
+                DB::raw('IF(SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) > 0,SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned),0) as total_item_sold'),
+            )
+            ->first();
+            
+
+
+
+
             
 
             // Cash Payment
@@ -322,7 +361,7 @@ class HomeController extends Controller
 
             $output['invoice_due'] = $sell_details['invoice_due'];
             $output['total_expense'] = $transaction_totals['total_expense'];
-            
+            $output['total_item_sold'] = $invoice_data->total_item_sold;
             return $output;
         }
     }
