@@ -107,6 +107,8 @@ class ProductController extends Controller
                 'products.id',
                 'products.name as product',
                 'products.type',
+                'products.barcode',
+                'products.gender',
                 'c1.name as category',
                 'c2.name as sub_category',
                 'units.actual_name as unit',
@@ -437,7 +439,7 @@ class ProductController extends Controller
 
         try {
             $business_id = $request->session()->get('user.business_id');
-            $form_fields = ['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'type', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids'];
+            $form_fields = ['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'type', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids', 'barcode' ,'gender'];
 
             $module_form_fields = $this->moduleUtil->getModuleFormField('product_form_fields');
             if (!empty($module_form_fields)) {
@@ -658,7 +660,7 @@ class ProductController extends Controller
 
         try {
             $business_id = $request->session()->get('user.business_id');
-            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids']);
+            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids','barcode']);
 
             DB::beginTransaction();
             
@@ -681,6 +683,7 @@ class ProductController extends Controller
             $product->tax = $product_details['tax'];
             $product->barcode_type = $product_details['barcode_type'];
             $product->sku = $product_details['sku'];
+            $product->barcode = $product_details['barcode'];
             $product->alert_quantity = $product_details['alert_quantity'];
             $product->tax_type = $product_details['tax_type'];
             $product->weight = $product_details['weight'];

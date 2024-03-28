@@ -372,14 +372,14 @@ class CashRegisterUtil extends Util
                 ->select(
                     'transactions.id',
                     'B.name as brand_name',
-                    DB::raw('SUM(TSL.quantity) as total_quantity'),
+                    DB::raw('SUM(TSL.quantity - TSL.quantity_returned) as total_quantity'),
                     // DB::raw('SUM(TSL.quantity - TSL.quantity_returned) as total_qty_sold'),
 
                     DB::raw('SUM((TSL.quantity) * TSL.unit_price_inc_tax) as total_amount'),
 
                     // DB::raw('SUM(TSL.unit_price_inc_tax*TSL.quantity) as total_amount')
                 )
-                ->whereRaw('TSL.quantity - TSL.quantity_returned <> 0')
+                // ->whereRaw('TSL.quantity - TSL.quantity_returned <> 0')
 
                 ->orderByRaw('CASE WHEN brand_name IS NULL THEN 2 ELSE 1 END, brand_name')
                 ->get();

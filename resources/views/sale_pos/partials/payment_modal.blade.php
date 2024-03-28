@@ -8,7 +8,7 @@
 			<div class="modal-body">
 				<div class="row">
 					<div class="col-md-12 mb-12">
-						<strong>@lang('lang_v1.advance_balance'):</strong> <span id="advance_balance_text"></span>
+						{{-- <strong>@lang('lang_v1.advance_balance'):</strong> <span id="advance_balance_text"></span> --}}
 						{!! Form::hidden('advance_balance', null, ['id' => 'advance_balance', 'data-error-msg' => __('lang_v1.required_advance_balance_not_available')]); !!}
 					</div>
 					<div class="col-md-9">

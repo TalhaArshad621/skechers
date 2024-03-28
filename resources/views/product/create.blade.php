@@ -116,6 +116,24 @@
             'placeholder' => __('product.alert_quantity'), 'min' => '0']); !!}
           </div>
         </div>
+        
+        <div class="col-sm-4" id="barcode_div">
+          <div class="form-group">
+            <label for="barcode">Barcode:*</label>
+            <input type="number" class="form-control" id="barcode" name="barcode" placeholder="Barcode" required >
+          </div>
+        </div>
+        
+        <div class="col-sm-4" id="product_gender_div">
+          <div class="form-group">
+            <label for="barcode select2">Gender:*</label>
+            <select class="form-control" name="gender" id="gender">
+              <option value="">Please Select</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+        </div>
         @if(!empty($common_settings['enable_product_warranty']))
         <div class="col-sm-4">
           <div class="form-group">
