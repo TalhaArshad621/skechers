@@ -68,20 +68,21 @@ sell_table = $('#sell_table').DataTable({
             }
         },
         columns: [
-            { data: 'action', name: 'action', orderable: false, "searchable": false},
             { data: 'transaction_date', name: 'transaction_date'  },
             { data: 'invoice_no', name: 'invoice_no'},
             { data: 'conatct_name', name: 'conatct_name'},
             // { data: 'mobile', name: 'contacts.mobile'},
             { data: 'business_location', name: 'bl.name'},
             // { data: 'payment_status', name: 'payment_status'},
-            { data: 'payment_methods', orderable: false, "searchable": false},
+            { data: 'original_amount', name: 'original_amount'},
+            { data: 'discount_amount', name: 'discount_amount'},
             { data: 'final_total', name: 'final_total'},
             { data: 'total_paid', name: 'total_paid', "searchable": false},
-            // { data: 'total_remaining', name: 'total_remaining'},
+            { data: 'payment_methods', orderable: false, "searchable": false},
+            { data: 'action', name: 'action', orderable: false, "searchable": false},
             // { data: 'return_due', orderable: false, "searchable": false},
             // { data: 'shipping_status', name: 'shipping_status'},
-            { data: 'total_items', name: 'total_items', "searchable": false},
+            // { data: 'total_items', name: 'total_items', "searchable": false},
             // { data: 'types_of_service_name', name: 'tos.name', @if(empty($is_types_service_enabled)) visible: false @endif},
             // { data: 'service_custom_field_1', name: 'service_custom_field_1', @if(empty($is_types_service_enabled)) visible: false @endif},
             // { data: 'added_by', name: 'u.first_name'},
@@ -97,13 +98,17 @@ sell_table = $('#sell_table').DataTable({
         "footerCallback": function ( row, data, start, end, display ) {
             var footer_sale_total = 0;
             var footer_total_paid = 0;
+            var footer_original_amount = 0;
             var footer_total_remaining = 0;
+            var footer_total_discount = 0;
             var footer_total_sell_return_due = 0;
             for (var r in data){
                 console.log(data[r]);
                 console.log($(data[r].return_due).data('orig-value'),data[r].return_due);
                 footer_sale_total += $(data[r].final_total).data('orig-value') ? parseFloat($(data[r].final_total).data('orig-value')) : 0;
+                footer_original_amount += $(data[r].original_amount).data('orig-value') ? parseFloat($(data[r].original_amount).data('orig-value')) : 0;
                 footer_total_paid += $(data[r].total_paid).data('orig-value') ? parseFloat($(data[r].total_paid).data('orig-value')) : 0;
+                footer_total_discount += $(data[r].discount_amount).data('orig-value') ? parseFloat($(data[r].discount_amount).data('orig-value')) : 0;
                 footer_total_remaining += $(data[r].total_remaining).data('orig-value') ? parseFloat($(data[r].total_remaining).data('orig-value')) : 0;
                 footer_total_sell_return_due += $(data[r].return_due).find('.sell_return_due').data('orig-value') ? parseFloat($(data[r].return_due).find('.sell_return_due').data('orig-value')) : 0;            }
 
@@ -111,6 +116,8 @@ sell_table = $('#sell_table').DataTable({
             $('.footer_total_remaining').html(__currency_trans_from_en(footer_total_remaining));
             $('.footer_total_paid').html(__currency_trans_from_en(footer_total_paid));
             $('.footer_sale_total').html(__currency_trans_from_en(footer_sale_total));
+            $('.footer_discount_total').html(__currency_trans_from_en(footer_total_discount));
+            $('.footer_sub_total').html(__currency_trans_from_en(footer_original_amount));
 
             $('.footer_payment_status_count').html(__count_status(data, 'payment_status'));
             // $('.service_type_count').html(__count_status(data, 'types_of_service_name'));

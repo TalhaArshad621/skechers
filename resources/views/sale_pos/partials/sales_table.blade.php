@@ -4,20 +4,21 @@
 <table class="table table-bordered table-striped ajax_view" id="sell_table">
     <thead>
         <tr>
-            <th>@lang('messages.action')</th>
             <th>@lang('messages.date')</th>
             <th>@lang('sale.invoice_no')</th>
             <th>@lang('sale.customer_name')</th>
             {{-- <th>@lang('lang_v1.contact_no')</th> --}}
             <th>@lang('sale.location')</th>
             {{-- <th>@lang('sale.payment_status')</th> --}}
-            <th>@lang('lang_v1.payment_method')</th>
-            <th>@lang('sale.total_amount')</th>
+            <th>Sub Total</th>
+            <th>Discount Amount</th>
+            <th>Invoice Amount</th>
             <th>@lang('sale.total_paid')</th>
-            {{-- <th>@lang('lang_v1.sell_due')</th> --}}
+            <th>@lang('lang_v1.payment_method')</th>
+            <th>@lang('messages.action')</th>
             {{-- <th>@lang('lang_v1.sell_return_due')</th> --}}
             {{-- <th>@lang('lang_v1.shipping_status')</th> --}}
-            <th>@lang('lang_v1.total_items')</th>
+            {{-- <th>@lang('lang_v1.total_items')</th> --}}
             {{-- <th>@lang('lang_v1.types_of_service')</th>
             <th>{{ $custom_labels['types_of_service']['custom_field_1'] ?? __('lang_v1.service_custom_field_1' )}}</th> --}}
             {{-- <th>@lang('lang_v1.added_by')</th>
@@ -30,11 +31,13 @@
     </thead>
     <tfoot>
         <tr class="bg-gray font-17 footer-total text-center">
-            <td colspan="5"><strong>@lang('sale.total'):</strong></td>
+            <td colspan="4"><strong>@lang('sale.total'):</strong></td>
             {{-- <td class="footer_payment_status_count"></td> --}}
-            <td class="payment_method_count"></td>
+            <td class="footer_sub_total"></td>
+            <td class="footer_discount_total"></td>
             <td class="footer_sale_total"></td>
             <td class="footer_total_paid"></td>
+            <td class="payment_method_count"></td>
             {{-- <td class="footer_total_remaining"></td> --}}
             {{-- <td class="footer_total_sell_return_due"></td> --}}
             {{-- <td colspan="2"></td> --}}

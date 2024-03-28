@@ -612,7 +612,7 @@ class AdminSidebarMenu
 
                         if (auth()->user()->can('purchase_n_sell_report.view')) {
                             $sub->url(
-                                action('ReportController@itemsReport'),
+                                action('ReportController@getSellReport'),
                                 __('lang_v1.product_sell_report'),
                                 ['icon' => 'fa fas fa-tasks', 'active' => request()->segment(2) == 'items-report']
                             );

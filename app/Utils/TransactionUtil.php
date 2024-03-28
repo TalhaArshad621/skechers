@@ -6283,7 +6283,29 @@ class TransactionUtil extends Util
                     'transactions.service_custom_field_1',
                     DB::raw('COUNT( DISTINCT tsl.id) as total_items'),
                     DB::raw("CONCAT(COALESCE(ss.surname, ''),' ',COALESCE(ss.first_name, ''),' ',COALESCE(ss.last_name,'')) as waiter"),
-                    'tables.name as table_name'
+                    'tables.name as table_name',
+                    DB::raw("SUM(
+                        IF(
+                            transactions.type = 'sell' AND transactions.status = 'final' AND tsl.line_discount_amount > 0,
+                            IF(
+                                tsl.line_discount_type = 'percentage',
+                                COALESCE((COALESCE(tsl.unit_price_inc_tax, 0) / (1 - (COALESCE(tsl.line_discount_amount, 0) / 100)) - tsl.unit_price_inc_tax ), 0),
+                                COALESCE(tsl.line_discount_amount, 0)
+                            ),
+                            0
+                        )
+                    ) as total_sell_discount"),
+                    DB::raw("SUM(
+                        IF(
+                            transactions.type = 'sell' AND transactions.status = 'final' AND tsl.line_discount_amount > 0,
+                            IF(
+                                tsl.line_discount_type = 'percentage',
+                                COALESCE((COALESCE(tsl.unit_price_inc_tax, 0) / (1 - (COALESCE(tsl.line_discount_amount, 0) / 100))), 0),
+                                COALESCE((COALESCE(tsl.unit_price_inc_tax, 0) / (1 - (COALESCE(tsl.line_discount_amount, 0)))), 0)
+                            ),
+                            tsl.unit_price_inc_tax
+                        )
+                    ) as original_amount")
                 );
 
         return $sells;
