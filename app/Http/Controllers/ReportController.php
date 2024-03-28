@@ -3939,7 +3939,9 @@ class ReportController extends Controller
                 // GST tax
                 $query8 = TransactionSellLine::join('transactions as t', 't.id', 'transaction_sell_lines.transaction_id')
                 ->where('t.business_id', $business_id)
-                ->where('t.type', 'sell')
+                ->whereIN('t.type', ['sell','sell_return'])
+                // ->where('t.type', 'sell')
+                ->where('transaction_sell_lines.quantity_returned' , 0)
                 ->where('t.status', 'final');
                 if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
                     $query8->whereDate('t.transaction_date', '>=', $start_date)
