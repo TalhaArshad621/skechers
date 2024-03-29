@@ -75,6 +75,13 @@
             </a>
           @endcan
         @endif
+        @if(in_array('pos_sale', $enabled_modules))
+          @can('sell.create')
+            <a href="{{action('SellReturnController@newSellReturn')}}" title="EX" data-toggle="tooltip" data-placement="bottom" class="btn btn-flat pull-left m-8 btn-sm mt-10 btn-success">
+              <strong><i class="fa fa-th-large"></i> &nbsp; Exchange</strong>
+            </a>
+          @endcan
+        @endif
 
         @if(Module::has('Repair'))
           @includeIf('repair::layouts.partials.header')

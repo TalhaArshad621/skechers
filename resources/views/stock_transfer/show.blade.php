@@ -76,6 +76,7 @@
 				          <th>@lang('sale.product')</th>
 				          <th>@lang('sale.qty')</th>
 				          <th>@lang('sale.subtotal')</th>
+						  <th>Image</th>
 				        </tr>
 				        @php 
 				          $total = 0.00;
@@ -104,6 +105,18 @@
 				            <td>
 				              <span class="display_currency" data-currency_symbol="true">{{ $sell_lines->unit_price_inc_tax * $sell_lines->quantity }}</span>
 				            </td>
+							<td>
+								@if (!empty($sell_lines->product->image))
+									<div style="display: flex; justify-content: center; align-items: center;">
+										<img src="{{ asset('uploads/img/' . $sell_lines->product->image) }}" alt="Product image" class="product-thumbnail-small">
+									</div>
+								@else
+									<!-- If the product doesn't have an image, display a default image -->
+									<div style="display: flex; justify-content: center; align-items: center;">
+										<img src="{{ asset('img/default.png') }}" alt="Default Product image" class="product-thumbnail-small">
+									</div>
+								@endif
+							</td>
 				          </tr>
 				          @php 
 				            $total += ($sell_lines->unit_price_inc_tax * $sell_lines->quantity);

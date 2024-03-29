@@ -409,7 +409,9 @@ class SellPosController extends Controller
                 $discount = ['discount_type' => $input['discount_type'],
                                 'discount_amount' => $input['discount_amount']
                             ];
+                // dd($input['products']);
                 $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'], $discount);
+
 
                 DB::beginTransaction();
 
@@ -494,6 +496,7 @@ class SellPosController extends Controller
                 //Upload Shipping documents
                 Media::uploadMedia($business_id, $transaction, $request, 'shipping_documents', false, 'shipping_document');
                 
+                // dd($$input['products']);
                 // Getting FBR LINES DATA FROM SELL LINES FUCNCTION
                 $fbr_lines =   $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id']);
                 

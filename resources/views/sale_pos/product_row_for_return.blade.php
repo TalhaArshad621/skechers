@@ -34,7 +34,7 @@
 				$tax_id = null;
 				$unit_price_inc_tax = $product->default_sell_price;
 			}
-
+			
 			$discount_type = !empty($product->line_discount_type) ? $product->line_discount_type : 'fixed';
 			$discount_amount = !empty($product->line_discount_amount) ? $product->line_discount_amount : 0;
 			
@@ -132,6 +132,9 @@
 		@endif
 
 		<input type="hidden" name="exchange_products[{{$row_count}}][product_id]" class="form-control product_id" value="{{$product->product_id}}">
+
+		<input type="hidden" name="exchange_products[{{$row_count}}][line_discount_amount]" class="form-control" value="{{$discount_amount}}">
+		<input type="hidden" name="exchange_products[{{$row_count}}][line_discount_type]" class="form-control" value="{{$discount_type}}">
 
 		<input type="hidden" value="{{$product->variation_id}}" 
 			name="exchange_products[{{$row_count}}][variation_id]" class="row_variation_id">
@@ -248,7 +251,7 @@
 					@endif
 
 			@endforeach
-		@endif
+		@endif		
 	</td>
 	@if(!empty($is_direct_sell))
 		<td @if(!auth()->user()->can('edit_product_price_from_sale_screen')) hide @endif">

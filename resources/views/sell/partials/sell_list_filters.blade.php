@@ -8,7 +8,7 @@
 </div>
 @endif
 @if(empty($only) || in_array('sell_list_filter_customer_id', $only))
-<div class="col-md-3">
+<div class="col-md-3" style="display: none;">
     <div class="form-group">
         {!! Form::label('sell_list_filter_customer_id',  __('contact.customer') . ':') !!}
         {!! Form::select('sell_list_filter_customer_id', $customers, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
@@ -16,7 +16,7 @@
 </div>
 @endif
 @if(empty($only) || in_array('sell_list_filter_payment_status', $only))
-<div class="col-md-3">
+<div class="col-md-3" style="display: none;">
     <div class="form-group">
         {!! Form::label('sell_list_filter_payment_status',  __('purchase.payment_status') . ':') !!}
         {!! Form::select('sell_list_filter_payment_status', ['paid' => __('lang_v1.paid'), 'due' => __('lang_v1.due'), 'partial' => __('lang_v1.partial'), 'overdue' => __('lang_v1.overdue')], null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}

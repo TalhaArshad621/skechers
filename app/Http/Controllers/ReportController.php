@@ -1036,31 +1036,32 @@ class ReportController extends Controller
                 ->leftJoin('cash_register_transactions', 'cash_register_transactions.cash_register_id', '=', 'cash_registers.id')
 
                 ->where('cash_registers.business_id', $business_id)
-                ->where('cash_register_transactions.pay_method', 'card')
+                ->where('cash_register_transactions.transaction_type', 'sell')
                 ->select(
                     'cash_registers.*',
                     DB::raw(
                         "CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) as user_name"
                     ),
                     'bl.name as location_name',
-                    DB::raw('SUM(cash_register_transactions.amount) as card_amount') // Corrected syntax
-                );
-                // ->groupBy('cash_registers.id');
-                // dd($registers);
+                    DB::raw('SUM(cash_register_transactions.amount) as card_amount')
+                )
+                ->groupBy('cash_registers.id');
+                
+                if ($request->input('user_id')){
+                    // dd($request->input('user_id'));
+                    $registers->where('cash_registers.user_id', $request->input('user_id'));
+                }
+                if (!empty($request->input('status'))) {
+                    $registers->where('cash_registers.status', $request->input('status'));
+                }
+                $start_date = $request->get('start_date');
+                $end_date = $request->get('end_date');
 
-            if (!empty($request->input('user_id'))) {
-                $registers->where('cash_registers.user_id', $request->input('user_id'));
-            }
-            if (!empty($request->input('status'))) {
-                $registers->where('cash_registers.status', $request->input('status'));
-            }
-            $start_date = $request->get('start_date');
-            $end_date = $request->get('end_date');
-
-            if (!empty($start_date) && !empty($end_date)) {
-                $registers->whereDate('cash_registers.created_at', '>=', $start_date)
-                        ->whereDate('cash_registers.created_at', '<=', $end_date);
-            }
+                if (!empty($start_date) && !empty($end_date)) {
+                    $registers->whereDate('cash_registers.created_at', '>=', $start_date)
+                    ->whereDate('cash_registers.created_at', '<=', $end_date);
+                }
+                // dd($registers,$request->input('user_id'));
             return Datatables::of($registers)
                 // ->editColumn('total_card_slips', function ($row) {
                 //     if ($row->status == 'close') {
@@ -3459,6 +3460,7 @@ class ReportController extends Controller
                 ->whereIN('t.type', ['sell','sell_return'])
                 ->where('t.status', 'final')
                 ->select(
+                    'p.gender as product_gender',
                     'p.image as product_image',
                     'p.name as product_name',
                     'p.enable_stock',
@@ -3469,7 +3471,7 @@ class ReportController extends Controller
                     't.id as transaction_id',
                     't.transaction_date as transaction_date',
                     DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
-                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
 
                     // DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
                     'u.short_name as unit',
@@ -3481,6 +3483,7 @@ class ReportController extends Controller
 
                 ->groupBy('v.id')
                 ->groupBy('formated_date');
+                // dd($query);
 
             if (!empty($variation_id)) {
                 $query->where('transaction_sell_lines.variation_id', $variation_id);
@@ -3537,6 +3540,9 @@ class ReportController extends Controller
                     else
                         return "--";
                 }) 
+                ->addColumn('product_gender', function ($row) {
+                    return ucwords($row->product_gender);
+                })
                 ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
                 ->editColumn('total_qty_sold', function ($row) {
                     return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
@@ -3704,12 +3710,14 @@ class ReportController extends Controller
                 ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
                 ->join('products as p', 'pv.product_id', '=', 'p.id')
                 ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftJoin('categories as c2', 'p.sub_category_id', '=', 'c2.id')
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell')
                 ->where('t.status', 'final')
                 ->where('transaction_sell_lines.quantity_returned', '>', 0)
                 ->select(
+                    'p.gender as product_gender',
                     'p.image as product_image',
                     'p.name as product_name',
                     'p.enable_stock',
@@ -3724,7 +3732,8 @@ class ReportController extends Controller
                     'u.short_name as unit',
                     DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
                     // DB::raw('transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax as subtotal'),
-                    'cat.name as category_name'
+                    'cat.name as category_name',
+                    'c2.name as sub_category'
                 )
                 ->groupBy('v.id')
                 ->groupBy('formated_date');
@@ -3775,7 +3784,19 @@ class ReportController extends Controller
                 })
                 ->addColumn('category_name', function ($row) {
                     return $row->category_name;
-                })                ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
+                })
+                ->editColumn('sub_category', function ($row) {
+                    $sub_category = $row->sub_category;
+                    if(!empty($sub_category)){
+                        return $sub_category;
+                    }
+                    else
+                        return "--";
+                })
+                ->addColumn('product_gender', function ($row) {
+                    return ucwords($row->product_gender);
+                })
+                ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
                 ->editColumn('total_qty_sold', function ($row) {
                     return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
                 })
