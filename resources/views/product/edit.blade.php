@@ -131,6 +131,18 @@
                 <input type="number" class="form-control" id="barcode" value="{{$product->barcode}}" name="barcode" placeholder="Barcode" required >
               </div>
             </div>
+            <div class="col-sm-4" id="gender_div">
+              <div class="form-group">
+                <label for="barcode">Gender:*</label>
+                <select class="form-control select2" name="gender" id="gender">
+                  <option value="">Select Gender</option>
+                  <option value="male" {{ $product->gender == "male" ? "selected" : "" }} >Male</option>
+                  <option value="female" {{ $product->gender == "female" ? "selected" : "" }}>Female</option>
+                  <option value="kids" {{ $product->gender == "kids" ? "selected" : "" }}>Kids</option>
+                  <option value="infant" {{ $product->gender == "infant" ? "selected" : "" }}>Infant</option>
+                </select>
+              </div>
+            </div>
             @if(!empty($common_settings['enable_product_warranty']))
             <div class="col-sm-4">
               <div class="form-group">

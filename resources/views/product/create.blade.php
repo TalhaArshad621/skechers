@@ -127,10 +127,12 @@
         <div class="col-sm-4" id="product_gender_div">
           <div class="form-group">
             <label for="barcode select2">Gender:*</label>
-            <select class="form-control" name="gender" id="gender">
+            <select class="form-control select2" name="gender" id="gender">
               <option value="">Please Select</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
+              <option value="kids">Kids</option>
+              <option value="infant">Infant</option>
             </select>
           </div>
         </div>
