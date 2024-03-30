@@ -19,7 +19,7 @@
                 {!! Form::select('sell_list_filter_location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all') ]); !!}
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3" style="display: none;">
             <div class="form-group">
                 {!! Form::label('sell_list_filter_customer_id',  __('contact.customer') . ':') !!}
                 {!! Form::select('sell_list_filter_customer_id', $customers, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
@@ -94,7 +94,7 @@
                 }
             },
             columnDefs: [ {
-                "targets": [6, 7],
+                "targets": [5, 6],
                 "orderable": false,
                 "searchable": false
             } ],
@@ -104,14 +104,23 @@
                 { data: 'parent_sale', name: 'T1.invoice_no'},
                 { data: 'name', name: 'contacts.name'},
                 { data: 'business_location', name: 'bl.name'},
-                { data: 'payment_status', name: 'payment_status'},
+                // { data: 'payment_status', name: 'payment_status'},
+                { data: 'original_amount', name: 'original_amount'},
+                { data: 'discount_amount', name: 'discount_amount'},
                 { data: 'final_total', name: 'final_total'},
                 // { data: 'payment_due', name: 'payment_due'},
+                { data: 'payment_methods', orderable: false, "searchable": false},
                 { data: 'action', name: 'action'}
             ],
             "fnDrawCallback": function (oSettings) {
                 var total_sell = sum_table_col($('#sell_return_table'), 'final_total');
                 $('#footer_sell_return_total').text(total_sell);
+
+                var total_sell = sum_table_col($('#sell_return_table'), 'total-discount');
+                $('#footer_discount_total').text(total_sell);
+
+                var total_sell = sum_table_col($('#sell_return_table'), 'total-original-amount');
+                $('#footer_invoice_total').text(total_sell);
                 
                 $('#footer_payment_status_count_sr').html(__sum_status_html($('#sell_return_table'), 'payment-status-label'));
 

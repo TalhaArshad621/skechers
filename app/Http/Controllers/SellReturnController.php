@@ -73,8 +73,13 @@ class SellReturnController extends Controller
 
         $business_id = request()->session()->get('user.business_id');
         if (request()->ajax()) {
+            $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
+
             $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
-                    
+                    ->leftJoin('transaction_sell_lines as tsl', function($join) {
+                        $join->on('transactions.id', '=', 'tsl.transaction_id')
+                            ->whereNull('tsl.parent_sell_line_id');
+                    })
                     ->join(
                         'business_locations AS bl',
                         'transactions.location_id',
@@ -101,12 +106,36 @@ class SellReturnController extends Controller
                         'transactions.transaction_date',
                         'transactions.invoice_no',
                         'contacts.name',
-                        'transactions.final_total',
+                        // 'transactions.final_total',
+                        DB::raw('(SELECT SUM(IF(TP.is_return = 1,-1*TP.amount,TP.amount)) FROM transaction_payments AS TP WHERE
+                        TP.transaction_id=transactions.id) as final_total'),
                         'transactions.payment_status',
                         'bl.name as business_location',
                         'T1.invoice_no as parent_sale',
                         'T1.id as parent_sale_id',
-                        DB::raw('SUM(TP.amount) as amount_paid')
+                        DB::raw('SUM(TP.amount) as amount_paid'),
+                        DB::raw("SUM(
+                            IF(
+                                transactions.type = 'sell_return' AND transactions.status = 'final' AND tsl.line_discount_amount > 0,
+                                IF(
+                                    tsl.line_discount_type = 'percentage',
+                                    COALESCE((COALESCE(tsl.unit_price_inc_tax, 0) / (1 - (COALESCE(tsl.line_discount_amount, 0) / 100)) - tsl.unit_price_inc_tax ), 0),
+                                    COALESCE(tsl.line_discount_amount, 0)
+                                ),
+                                0
+                            )
+                        ) as total_sell_discount"),
+                        // DB::raw("SUM(
+                        //     IF(
+                        //         transactions.type = 'sell_return' AND transactions.status = 'final' AND tsl.line_discount_amount > 0,
+                        //         IF(
+                        //             tsl.line_discount_type = 'percentage',
+                        //             COALESCE((COALESCE(tsl.unit_price_inc_tax, 0) / (1 - (COALESCE(tsl.line_discount_amount, 0) / 100))), 0),
+                        //             COALESCE((COALESCE(tsl.unit_price_inc_tax, 0) / (1 - (COALESCE(tsl.line_discount_amount, 0)))), 0)
+                        //         ),
+                        //         tsl.unit_price_inc_tax
+                        //     )
+                        // ) as original_amount")
                     );
 
             $permitted_locations = auth()->user()->permitted_locations();
@@ -167,6 +196,30 @@ class SellReturnController extends Controller
                 ->editColumn('parent_sale', function ($row) {
                     return '<button type="button" class="btn btn-link btn-modal" data-container=".view_modal" data-href="' . action('SellController@show', [$row->parent_sale_id]) . '">' . $row->parent_sale . '</button>';
                 })
+                ->editColumn(
+                    'discount_amount',
+                    function ($row) {
+                        $discount = !empty($row->total_sell_discount) ? $row->total_sell_discount : 0;
+
+                        // if (!empty($discount) && $row->discount_type == 'percentage') {
+                        //     $discount = $row->total_before_tax * ($discount / 100);
+                        // }
+
+                        return '<span class="total-discount" data-orig-value="' . $discount . '">' . $this->transactionUtil->num_f($discount, true) . '</span>';
+                    }
+                )
+                ->editColumn(
+                    'original_amount',
+                    function ($row) {
+                        $original_amount = !empty($row->final_total) ? $row->final_total : 0;
+
+                        // if (!empty($original_amount) && $row->discount_type == 'percentage') {
+                        //     $original_amount = $row->total_before_tax * ($original_amount / 100);
+                        // }
+
+                        return '<span class="total-original-amount" data-orig-value="' . $original_amount . '">' . $this->transactionUtil->num_f($original_amount, true) . '</span>';
+                    }
+                )
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
                 ->editColumn(
                     'payment_status',
@@ -176,6 +229,20 @@ class SellReturnController extends Controller
                     $due = $row->final_total - $row->amount_paid;
                     return '<span class="display_currency payment_due" data-currency_symbol="true" data-orig-value="' . $due . '">' . $due . '</sapn>';
                 })
+                ->addColumn('payment_methods', function ($row) use ($payment_types) {
+                    $methods = array_unique($row->payment_lines->pluck('method')->toArray());
+                    $count = count($methods);
+                    $payment_method = '';
+                    if ($count == 1) {
+                        $payment_method = $payment_types[$methods[0]];
+                    } elseif ($count > 1) {
+                        $payment_method = __('lang_v1.checkout_multi_pay');
+                    }
+
+                    $html = !empty($payment_method) ? '<span class="payment-method" data-orig-value="' . $payment_method . '" data-status-name="' . $payment_method . '">' . $payment_method . '</span>' : '';
+                    
+                    return $html;
+                })
                 ->setRowAttr([
                     'data-href' => function ($row) {
                         if (auth()->user()->can("sell.view")) {
@@ -184,7 +251,7 @@ class SellReturnController extends Controller
                             return '';
                         }
                     }])
-                ->rawColumns(['final_total', 'action', 'parent_sale', 'payment_status', 'payment_due'])
+                ->rawColumns(['final_total', 'action', 'parent_sale', 'payment_status', 'payment_due','discount_amount','original_amount','payment_methods'])
                 ->make(true);
         }
         $business_locations = BusinessLocation::forDropdown($business_id, false);
@@ -266,7 +333,9 @@ class SellReturnController extends Controller
             ->value('id');
     
         // Check if a matching transaction is found
+        // dd("hehe");
         if ($transactionId) {
+            // dd("hehe");
             // Check if the transaction ID is present in the return_parent_id column
             $hasReturnedProducts = Transaction::where('return_parent_id', $transactionId)
                 ->exists();
@@ -289,6 +358,8 @@ class SellReturnController extends Controller
     
                 $sell->sell_lines[$key]->formatted_qty = $this->transactionUtil->num_f($value->quantity, false, null, true);
             }
+            // dd($sell);
+            // dd($sell->sell_lines);
     
             return response()->json(['success' => true, 'sell' => $sell]);
         }
@@ -464,8 +535,8 @@ class SellReturnController extends Controller
                         ];
             }
 
+            // dd($input['exchange_products']);
             foreach ($input['exchange_products'] as $key => $product) {
-                // dd($product);
 
                 // Assuming you are using Eloquent ORM to fetch data from the database
                 $variationId = $product['variation_id'];
@@ -485,8 +556,8 @@ class SellReturnController extends Controller
                 $input['exchange_products'][$key]['default_sell_price'] = $defaultSellPrice;
                 $input['exchange_products'][$key]['item_tax'] = $itemTax;
                 $input['exchange_products'][$key]['tax_id'] = $taxId;
-                $input['exchange_products'][$key]['line_discount_type'] = 'fixed';
-                $input['exchange_products'][$key]['line_discount_amount'] = 0;
+                // $input['exchange_products'][$key]['line_discount_type'] = 'fixed';
+                // $input['exchange_products'][$key]['line_discount_amount'] = 0;
                 $input['exchange_products'][$key]['sell_line_note'] = null;
 
             }
@@ -512,6 +583,7 @@ class SellReturnController extends Controller
                 $discount = ['discount_type' => $input['discount_type'],
                                 'discount_amount' => $input['discount_amount']
                             ];
+                // $input['exchange_products'];
                 $invoice_total = $this->productUtil->calculateInvoiceTotal($input['exchange_products'], $input['tax_rate_id'], $discount);
 
                 DB::beginTransaction();
@@ -599,7 +671,7 @@ class SellReturnController extends Controller
                 
                 // Getting FBR LINES DATA FROM SELL LINES FUCNCTION4
                 // dd($sell_return);
-                // dd($input);
+                // dd($input['exchange_products']);
 
                 $fbr_lines =   $this->transactionUtil->createOrUpdateSellLinesReturn($sell_return, $input['exchange_products'], $sell_return->location_id);
                 

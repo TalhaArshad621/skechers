@@ -470,6 +470,8 @@ class StockTransferController extends Controller
                                 'sell_lines.product.unit'
                             )
                             ->first();
+                            // dd($sell_transfer->sell_lines);
+                            // dd($sell_transfer->location['name']);
 
         $purchase_transfer = Transaction::where('business_id', $business_id)
                     ->where('transfer_parent_id', $sell_transfer->id)
