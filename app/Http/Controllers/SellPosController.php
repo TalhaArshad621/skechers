@@ -493,7 +493,7 @@ class SellPosController extends Controller
 
                 //Upload Shipping documents
                 Media::uploadMedia($business_id, $transaction, $request, 'shipping_documents', false, 'shipping_document');
-                
+
                 // Getting FBR LINES DATA FROM SELL LINES FUCNCTION
                 $fbr_lines =   $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id']);
                 

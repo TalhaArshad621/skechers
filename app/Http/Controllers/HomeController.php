@@ -836,6 +836,10 @@ class HomeController extends Controller
                       AND (pl.variation_id=v.id)) as stock_price"),
                 DB::raw("SUM(vld.qty_available) as stock"),
                 'v.sell_price_inc_tax as unit_price',
+                DB::raw("(SELECT SUM( (TSL.quantity - TSL.quantity_returned )* TSL.unit_price_inc_tax) FROM transaction_sell_lines as TSL 
+                JOIN transactions on transactions.id = TSL.transaction_id
+                WHERE transactions.type IN ('sell','sell_return') AND transactions.status = 'final' AND TSL.category_id = p.category_id
+                ) as sold_price "),
                 'v.dpp_inc_tax as unit_price_default',
                 'categories.name as category_name'
             )->groupBy('categories.id');
@@ -882,6 +886,12 @@ class HomeController extends Controller
                           WHERE transactions.status='received' AND transactions.location_id=vld.location_id 
                           AND (pl.variation_id=v.id)) as stock_price"),
                     DB::raw("SUM(vld.qty_available) as stock"),
+                    
+                    DB::raw("(SELECT SUM( (TSL.quantity - TSL.quantity_returned )* TSL.unit_price_inc_tax) FROM transaction_sell_lines as TSL 
+                    JOIN transactions on transactions.id = TSL.transaction_id
+                    WHERE transactions.type IN ('sell','sell_return') AND transactions.status = 'final' AND TSL.category_id = p.category_id
+                    ) as sold_price "),
+                    
                     'v.sell_price_inc_tax as unit_price',
                     'v.dpp_inc_tax as unit_price_default',
                     'categories.name as category_name'
@@ -943,7 +953,8 @@ class HomeController extends Controller
             ->addColumn('sale_price_of_sold', function ($row) {
                 $sold = $row->total_sold ? $row->total_sold : 0 ;
                 $unit_selling_price = (float)$row->group_price > 0 ? $row->group_price : $row->unit_price;
-                $sale_price = $sold * $unit_selling_price;
+                // $sale_price = $sold * $unit_selling_price;
+                $sale_price = $row->sold_price;
                 return  '<span class="potential_profit_2 display_currency" data-orig-value="' . (float)$sale_price . '" data-currency_symbol=true > ' . (float)$sale_price . '</span>';
             });
     
