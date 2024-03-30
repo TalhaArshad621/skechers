@@ -245,12 +245,16 @@
 					</p>
 				</div>
 			@endif
+
+			@php
+				$total_new_discount = 0;
+			@endphp
 				
             <table style="margin-top: 10px !important" class="border-bottom width-100 table-f-12 mb-10">
                 <thead class="border-bottom-dotted">
                     <tr>
                         <th class="serial_number">#</th>
-                        <th class="description" width="30%">
+                        <th class="description" width="25%">
                         	{{$receipt_details->table_product_label}}
                         </th>
                         <th class="quantity text-right">
@@ -260,12 +264,18 @@
                         <th class="unit_price text-right">
                         	{{$receipt_details->table_unit_price_label}}
                         </th>
+                        <th class="discount text-right">
+                        	Disc.
+                        </th>
                         <th class="price text-right">{{$receipt_details->table_subtotal_label}}</th>
                         @endif
                     </tr>
                 </thead>
                 <tbody>
                 	@forelse($receipt_details->lines as $line)
+					@php
+						$total_new_discount += $line['new_discount_amount'];
+					@endphp
 	                    <tr>
 	                        <td class="serial_number" style="vertical-align: top;">
 	                        	{{$loop->iteration}}
@@ -273,9 +283,10 @@
 	                        <td class="description">
 	                        	@if(!empty($line['sub_sku'])) {{$line['sub_sku']}} @endif
 	                        </td>
-	                        <td class="quantity text-right">{{$line['quantity']}} {{$line['units']}}</td>
+	                        <td class="quantity text-right">{{$line['quantity']}}</td>
 	                        @if(empty($receipt_details->hide_price))
-	                        <td class="unit_price text-right">{{$line['unit_price_inc_tax']}}</td>
+	                        <td class="unit_price text-right">{{$line['original_price'] * $line['quantity'] }}</td>
+	                        <td class="discount text-right">{{$line['new_discount_amount']}}</td>
 	                        <td class="price text-right">{{$line['line_total']}}</td>
 	                        @endif
 	                    </tr>
@@ -296,6 +307,14 @@
 				</div>
 			@endif
 			@if(empty($receipt_details->hide_price))
+                <div class="flex-box">
+                    <p class="left text-right sub-headings">
+                    	Total Discount
+                    </p>
+                    <p class="width-50 text-right sub-headings">
+                    	{{$total_new_discount}}
+                    </p>
+                </div>
                 <div class="flex-box">
                     <p class="left text-right sub-headings">
                     	{!! $receipt_details->subtotal_label !!}
@@ -468,8 +487,10 @@
 				</p>
 			@endif
 
-			<P class="centered">
-				
+			<P class="centered" style="margin-top: 10px">
+				 <span style="font-size: 20px; font-weight:700">FBR Invoice #</span> 
+				<br>
+				{!! $receipt_details->fbr_id !!}
 			</P>
         </div>
         <!-- <button id="btnPrint" class="hidden-print">Print</button>
@@ -521,14 +542,14 @@ td.serial_number, th.serial_number{
 
 td.description,
 th.description {
-    width: 35%;
-    max-width: 35%;
+    width: 30%;
+    max-width: 30%;
 }
 
 td.quantity,
 th.quantity {
-    width: 15%;
-    max-width: 15%;
+    width: 10%;
+    max-width: 10%;
     word-break: break-all;
 }
 td.unit_price, th.unit_price{
@@ -536,11 +557,16 @@ td.unit_price, th.unit_price{
     max-width: 25%;
     word-break: break-all;
 }
-
-td.price,
-th.price {
-    width: 20%;
+td.discount, th.discount{
+	width: 20%;
     max-width: 20%;
+    word-break: break-all;
+}
+
+td.discount,
+th.discount {
+    width: 15%;
+    max-width: 15%;
     word-break: break-all;
 }
 

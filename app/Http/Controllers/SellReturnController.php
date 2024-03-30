@@ -1266,7 +1266,6 @@ class SellReturnController extends Controller
 
             $receipt_details = $this->transactionUtil->getReceiptDetails($transaction_id, $location_id, $invoice_layout, $business_details, $location_details, $receipt_printer_type);
             
-            // dd($receipt_details);
             //If print type browser - return the content, printer - return printer config data, and invoice format config
             if ($receipt_printer_type == 'printer') {
                 $output['print_type'] = 'printer';
@@ -1276,7 +1275,6 @@ class SellReturnController extends Controller
                 $output['html_content'] = view('sell_return.receipt', compact('receipt_details'))->render();
             }
         }
-
         return $output;
     }
 
