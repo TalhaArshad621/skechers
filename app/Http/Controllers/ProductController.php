@@ -660,7 +660,7 @@ class ProductController extends Controller
 
         try {
             $business_id = $request->session()->get('user.business_id');
-            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids','barcode']);
+            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids','barcode', 'gender']);
 
             DB::beginTransaction();
             
@@ -684,6 +684,7 @@ class ProductController extends Controller
             $product->barcode_type = $product_details['barcode_type'];
             $product->sku = $product_details['sku'];
             $product->barcode = $product_details['barcode'];
+            $product->gender = $product_details['gender'];
             $product->alert_quantity = $product_details['alert_quantity'];
             $product->tax_type = $product_details['tax_type'];
             $product->weight = $product_details['weight'];
