@@ -6289,8 +6289,8 @@ class TransactionUtil extends Util
                             transactions.type = 'sell' AND transactions.status = 'final' AND tsl.line_discount_amount > 0,
                             IF(
                                 tsl.line_discount_type = 'percentage',
-                                COALESCE((COALESCE(tsl.unit_price_inc_tax, 0) / (1 - (COALESCE(tsl.line_discount_amount, 0) / 100)) - tsl.unit_price_inc_tax ), 0),
-                                COALESCE(tsl.line_discount_amount, 0)
+                                COALESCE((COALESCE(tsl.unit_price_inc_tax, 0) / (1 - (COALESCE(tsl.line_discount_amount, 0) / 100)) - tsl.unit_price_inc_tax ) * tsl.quantity, 0),
+                                COALESCE(tsl.line_discount_amount * tsl.quantity, 0)
                             ),
                             0
                         )

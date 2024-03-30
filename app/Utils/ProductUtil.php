@@ -1852,6 +1852,10 @@ class ProductUtil extends Util
                     if (in_array('lot', $search_fields)) {
                         $query->orWhere('pl.lot_number', 'like', '%' . $search_term .'%');
                     }
+
+                    if (in_array('barcode', $search_fields)) {
+                        $query->orWhere('products.barcode', 'like', '%' . $search_term .'%');
+                    }
                 });
             }
 
@@ -1873,6 +1877,9 @@ class ProductUtil extends Util
 
                     if (in_array('lot', $search_fields)) {
                         $query->orWhere('pl.lot_number', $search_term);
+                    }
+                    if (in_array('barcode', $search_fields)) {
+                        $query->orWhere('products.barcode', $search_term);
                     }
                 });
             }

@@ -1174,11 +1174,12 @@ class ProductController extends Controller
             $price_group_id = request()->input('price_group', '');
             $product_types = request()->get('product_types', []);
 
-            $search_fields = request()->get('search_fields', ['name', 'sku']);
+            $search_fields = request()->get('search_fields', ['name', 'sku','barcode']);
+
             if (in_array('sku', $search_fields)) {
                 $search_fields[] = 'sub_sku';
             }
-
+            $search_fields[] = 'barcode';
             $result = $this->productUtil->filterProduct($business_id, $search_term, $location_id, $not_for_selling, $price_group_id, $product_types, $search_fields, $check_qty);
 
             return json_encode($result);

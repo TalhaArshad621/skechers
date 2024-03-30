@@ -4072,8 +4072,8 @@ class ReportController extends Controller
                             t.type = 'sell' AND t.status = 'final' AND line_discount_amount > 0,
                             IF(
                                 line_discount_type = 'percentage',
-                                COALESCE((COALESCE(unit_price_inc_tax, 0) / (1 - (COALESCE(line_discount_amount, 0) / 100)) - unit_price_inc_tax ), 0),
-                                COALESCE(line_discount_amount, 0)
+                                COALESCE((COALESCE(unit_price_inc_tax, 0) / (1 - (COALESCE(line_discount_amount, 0) / 100)) - unit_price_inc_tax ) * transaction_sell_lines.quantity, 0),
+                                COALESCE(line_discount_amount * transaction_sell_lines.quantity, 0)
                             ),
                             0
                         )
