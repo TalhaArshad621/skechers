@@ -12,6 +12,7 @@
                 <th>Discount Amount</th>
                 <th>Invoice Amount</th>    
                 {{-- <th>@lang('purchase.payment_due')</th> --}}
+                <th>@lang('lang_v1.payment_method')</th>
                 <th>@lang('messages.action')</th>
             </tr>
         </thead>
@@ -21,6 +22,9 @@
                 {{-- <td id="footer_payment_status_count_sr"></td> --}}
                 <td><span class="display_currency" id="footer_sell_return_total" data-currency_symbol ="true"></span></td>
                 {{-- <td><span class="display_currency" id="footer_total_due_sr" data-currency_symbol ="true"></span></td> --}}
+                <td><span class="display_currency" id="footer_discount_total" data-currency_symbol ="true"></span></td>
+                <td><span class="display_currency" id="footer_invoice_total" data-currency_symbol ="true"></span></td>
+                <td></td>
                 <td></td>
             </tr>
         </tfoot>

@@ -109,11 +109,18 @@
                 { data: 'discount_amount', name: 'discount_amount'},
                 { data: 'final_total', name: 'final_total'},
                 // { data: 'payment_due', name: 'payment_due'},
+                { data: 'payment_methods', orderable: false, "searchable": false},
                 { data: 'action', name: 'action'}
             ],
             "fnDrawCallback": function (oSettings) {
                 var total_sell = sum_table_col($('#sell_return_table'), 'final_total');
                 $('#footer_sell_return_total').text(total_sell);
+
+                var total_sell = sum_table_col($('#sell_return_table'), 'total-discount');
+                $('#footer_discount_total').text(total_sell);
+
+                var total_sell = sum_table_col($('#sell_return_table'), 'total-original-amount');
+                $('#footer_invoice_total').text(total_sell);
                 
                 $('#footer_payment_status_count_sr').html(__sum_status_html($('#sell_return_table'), 'payment-status-label'));
 

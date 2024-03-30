@@ -73,6 +73,8 @@ class SellReturnController extends Controller
 
         $business_id = request()->session()->get('user.business_id');
         if (request()->ajax()) {
+            $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
+
             $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
                     ->leftJoin('transaction_sell_lines as tsl', function($join) {
                         $join->on('transactions.id', '=', 'tsl.transaction_id')
@@ -227,6 +229,20 @@ class SellReturnController extends Controller
                     $due = $row->final_total - $row->amount_paid;
                     return '<span class="display_currency payment_due" data-currency_symbol="true" data-orig-value="' . $due . '">' . $due . '</sapn>';
                 })
+                ->addColumn('payment_methods', function ($row) use ($payment_types) {
+                    $methods = array_unique($row->payment_lines->pluck('method')->toArray());
+                    $count = count($methods);
+                    $payment_method = '';
+                    if ($count == 1) {
+                        $payment_method = $payment_types[$methods[0]];
+                    } elseif ($count > 1) {
+                        $payment_method = __('lang_v1.checkout_multi_pay');
+                    }
+
+                    $html = !empty($payment_method) ? '<span class="payment-method" data-orig-value="' . $payment_method . '" data-status-name="' . $payment_method . '">' . $payment_method . '</span>' : '';
+                    
+                    return $html;
+                })
                 ->setRowAttr([
                     'data-href' => function ($row) {
                         if (auth()->user()->can("sell.view")) {
@@ -235,7 +251,7 @@ class SellReturnController extends Controller
                             return '';
                         }
                     }])
-                ->rawColumns(['final_total', 'action', 'parent_sale', 'payment_status', 'payment_due','discount_amount','original_amount'])
+                ->rawColumns(['final_total', 'action', 'parent_sale', 'payment_status', 'payment_due','discount_amount','original_amount','payment_methods'])
                 ->make(true);
         }
         $business_locations = BusinessLocation::forDropdown($business_id, false);

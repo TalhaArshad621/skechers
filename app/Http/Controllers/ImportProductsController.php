@@ -127,7 +127,7 @@ class ImportProductsController extends Controller
                 foreach ($imported_data as $key => $value) {
 
                     //Check if any column is missing
-                    if (count($value) < 8) {
+                    if (count($value) < 10) {
                         $is_valid =  false;
                         $error_msg = "Some of the columns are missing. Please, use latest CSV file template.";
                         break;
@@ -145,6 +145,29 @@ class ImportProductsController extends Controller
                     } else {
                         $is_valid =  false;
                         $error_msg = "Product name is required in row no. $row_no";
+                        break;
+                    }
+
+                    $product_gender = trim($value[8]);
+
+                    // Allowed gender values
+                    $allowed_genders = ['men', 'women', 'kids', 'infants'];
+
+                    // Check if the provided gender is empty or not in the allowed values list
+                    if (!empty($product_gender) && in_array(strtolower($product_gender), $allowed_genders)) {
+                        $product_array['gender'] = $product_gender;
+                    } else {
+                        $is_valid =  false;
+                        $error_msg = "Product Gender is required and must be one of: men, women, kids, infants. (Row No. $row_no)";
+                        break;
+                    }
+
+                    $product_barcode = trim($value[9]);
+                    if (!empty($product_barcode)) {
+                        $product_array['barcode'] = $product_barcode;
+                    } else {
+                        $is_valid =  false;
+                        $error_msg = "Product Barcode is required in row no. $row_no";
                         break;
                     }
                     
