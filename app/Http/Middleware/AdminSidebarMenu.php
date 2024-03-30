@@ -121,13 +121,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-list', 'active' => request()->segment(1) == 'products' && request()->segment(2) == '']
                             );
                         }
-                        if (auth()->user()->can('product.create')) {
-                            $sub->url(
-                                action('ProductController@create'),
-                                __('product.add_product'),
-                                ['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'products' && request()->segment(2) == 'create']
-                            );
-                        }
+                        // if (auth()->user()->can('product.create')) {
+                        //     $sub->url(
+                        //         action('ProductController@create'),
+                        //         __('product.add_product'),
+                        //         ['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'products' && request()->segment(2) == 'create']
+                        //     );
+                        // }
                         if (auth()->user()->can('product.view')) {
                             $sub->url(
                                 action('LabelsController@show'),

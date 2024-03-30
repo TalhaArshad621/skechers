@@ -7207,6 +7207,7 @@ class TransactionUtil extends Util
         ->where('status', 'open')
         ->first();
         // dd($register);
+        
         $discount = [
             'discount_type' => $input['discount_type'] ?? 'fixed',
                 'discount_amount' => $input['discount_amount'] ?? 0

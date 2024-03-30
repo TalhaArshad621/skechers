@@ -63,6 +63,7 @@
                                         <th>@lang('messages.date')</th>
                                         <th>Category</th>
                                         <th>Sub Category</th>
+                                        <th>Gender</th>
                                         <th>@lang('product.sku')</th>
                                         <th>@lang('report.total_unit_sold')</th>
                                         <th>@lang('sale.total')</th>
@@ -70,7 +71,7 @@
                                 </thead>
                                 <tfoot>
                                     <tr class="bg-gray font-17 footer-total text-center">
-                                        <td colspan="5"><strong>@lang('sale.total'):</strong></td>
+                                        <td colspan="6"><strong>@lang('sale.total'):</strong></td>
                                         <td id="footer_total_grouped_sold"></td>
                                         <td><span class="display_currency" id="footer_grouped_subtotal" data-currency_symbol ="true"></span></td>
                                     </tr>
@@ -90,6 +91,8 @@
                                         <th>Image</th>
                                         <th>@lang('messages.date')</th>
                                         <th>Category</th>
+                                        <th>Sub Category</th>
+                                        <th>Gender</th>
                                         <th>@lang('product.sku')</th>
                                         <th>Total Unit Returned</th>
                                         <th>@lang('sale.total')</th>
@@ -97,7 +100,7 @@
                                 </thead>
                                 <tfoot>
                                     <tr class="bg-gray font-17 footer-total text-center">
-                                        <td colspan="4"><strong>@lang('sale.total'):</strong></td>
+                                        <td colspan="6"><strong>@lang('sale.total'):</strong></td>
                                         <td id="footer_total_grouped_sold_return"></td>
                                         <td><span class="display_currency" id="footer_grouped_subtotal_return" data-currency_symbol ="true"></span></td>
                                     </tr>
@@ -319,6 +322,7 @@
             { data: 'transaction_date', name: 't.transaction_date' },
             { data: 'category_name', name: 'category_name' },
             { data: 'sub_category', name: 'c2.name' },
+            { data: 'product_gender', name: 'p.gender' },
             { data: 'sub_sku', name: 'v.sub_sku' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
             { data: 'subtotal', name: 'subtotal', searchable: false },
@@ -441,6 +445,8 @@
             { data: 'product_image', name: 'product_image' },
             { data: 'transaction_date', name: 't.transaction_date' },
             { data: 'category_name', name: 'category_name' },
+            { data: 'sub_category', name: 'c2.name' },
+            { data: 'product_gender', name: 'p.gender' },
             { data: 'sub_sku', name: 'v.sub_sku' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
             { data: 'subtotal', name: 'subtotal', searchable: false },

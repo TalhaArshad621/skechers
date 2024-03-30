@@ -109,6 +109,16 @@
                         <td>@lang('lang_v1.product_locations_ins')
                         </td>
                     </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Product Gender <small class="text-muted">(@lang('lang_v1.required'))</small></td>
+                        <td>Specify that Product belongs to specific gender <br><small class="text-muted">Should hold values ONLY: Men, Women, Kids, Infants</small></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>Product Barcode <small class="text-muted">(@lang('lang_v1.required'))</small></td>
+                        <td>Unique Barcode against each product </td>
+                    </tr>
                 </table>
             @endcomponent
         </div>
