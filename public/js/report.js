@@ -1015,16 +1015,35 @@ $(document).ready(function () {
             { data: 'transaction_date', name: 't.transaction_date' },
             { data: 'sub_sku', name: 'v.sub_sku' },
             { data: 'category_name', name: 'categories.name' },
-            { data: 'current_stock', name: 'current_stock', searchable: false, orderable: false },
+            { data: 'buying_date', name: 'V.updated_at' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
+            { data: 'total_qty_returned', name: 'total_qty_returned', searchable: false },
             { data: 'subtotal', name: 'subtotal', searchable: false },
+            { data: 'buy_price', name: 'buy_price', searchable: false },
+            { data: 'discount_amount', name: 'discount_amount', searchable: false },
+            { data: 'profit', name: 'profit', searchable: false },
+            { data: 'current_stock', name: 'current_stock', searchable: false, orderable: false },
+            { data: 'image', name: 'products.image' },
+
         ],
         fnDrawCallback: function (oSettings) {
             $('#footer_grouped_subtotal').text(
                 sum_table_col($('#product_sell_grouped_report_table'), 'row_subtotal')
             );
+            $('#footer_total_grouped_discount').text(
+                sum_table_col($('#product_sell_grouped_report_table'), 'discount_amount')
+            );
             $('#footer_total_grouped_sold').html(
                 __sum_stock($('#product_sell_grouped_report_table'), 'sell_qty')
+            );
+            $('#footer_total_grouped_buy').html(
+                __sum_stock($('#product_sell_grouped_report_table'), 'buy_price')
+            );
+            $('#footer_total_grouped_returned').html(
+                __sum_stock($('#product_sell_grouped_report_table'), 'ret_qty')
+            );
+            $('#footer_grouped_profit').html(
+                __sum_stock($('#product_sell_grouped_report_table'), 'profit')
             );
             __currency_convert_recursively($('#product_sell_grouped_report_table'));
         },
