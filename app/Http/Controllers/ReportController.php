@@ -2497,7 +2497,7 @@ class ReportController extends Controller
                     'pv.name as product_variation',
                     'v.name as variation_name',
                     'v.dpp_inc_tax as purchase_price',
-                    'V.updated_at as buying_date',
+                    'v.updated_at as buying_date',
                     'v.sub_sku',
                     't.id as transaction_id',
                     't.transaction_date as transaction_date',
