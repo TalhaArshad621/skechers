@@ -611,11 +611,11 @@ class AdminSidebarMenu
                         }
 
                         if (auth()->user()->can('purchase_n_sell_report.view')) {
-                            $sub->url(
-                                action('ReportController@getSellReport'),
-                                __('lang_v1.product_sell_report'),
-                                ['icon' => 'fa fas fa-tasks', 'active' => request()->segment(2) == 'items-report']
-                            );
+                            // $sub->url(
+                            //     action('ReportController@getSellReport'),
+                            //     __('lang_v1.product_sell_report'),
+                            //     ['icon' => 'fa fas fa-tasks', 'active' => request()->segment(2) == 'items-report']
+                            // );
 
                             $sub->url(
                                 action('ReportController@getproductPurchaseReport'),
@@ -623,11 +623,11 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-arrow-circle-down', 'active' => request()->segment(2) == 'product-purchase-report']
                             );
 
-                            // $sub->url(
-                            //     action('ReportController@getproductSellReport'),
-                            //     __('lang_v1.product_sell_report'),
-                            //     ['icon' => 'fa fas fa-arrow-circle-up', 'active' => request()->segment(2) == 'product-sell-report']
-                            // );
+                            $sub->url(
+                                action('ReportController@getproductSellReport'),
+                                __('lang_v1.product_sell_report'),
+                                ['icon' => 'fa fas fa-arrow-circle-up', 'active' => request()->segment(2) == 'product-sell-report']
+                            );
 
                             $sub->url(
                                 action('ReportController@getproductSellGroupedReportDetailed'),

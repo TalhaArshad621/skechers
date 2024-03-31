@@ -1647,6 +1647,8 @@ class TransactionUtil extends Util
         //Invoice info
         $output['invoice_no'] = $transaction->invoice_no;
 
+        $output['fbr_id'] = $transaction->custom_field_1;
+
         $output['shipping_address'] = !empty($transaction->shipping_address()) ? $transaction->shipping_address() : $transaction->shipping_address;
 
         //Heading & invoice label, when quotation use the quotation heading.
@@ -2863,6 +2865,13 @@ class TransactionUtil extends Util
         $is_warranty_enabled = !empty($business_details->common_settings['enable_product_warranty']) ? true : false;
         
         foreach ($lines as $line) {
+            $original_price = $line->unit_price_inc_tax / ( 1 - ($line->line_discount_amount / 100));   
+            if($line->line_discount_type == "percentage") {
+                $discount_amount_new  = ($line->unit_price_inc_tax / ( 1 - ($line->line_discount_amount / 100))) -  $line->unit_price_inc_tax;
+            } else {
+                $discount_amount_new = $line->line_discount_amount;
+            }
+            
             $product = $line->product;
             $variation = $line->variations;
             $product_variation = $line->variations->product_variation;
@@ -2904,7 +2913,10 @@ class TransactionUtil extends Util
                 
                 //Fields for 4th column
                 'line_total' => $this->num_f($line->unit_price_inc_tax * $line->quantity, false, $business_details),
-                'line_total_uf' => $line->unit_price_inc_tax * $line->quantity
+                'line_total_uf' => $line->unit_price_inc_tax * $line->quantity,
+
+                'original_price' => $original_price,
+                'new_discount_amount' => $discount_amount_new * $line->quantity
             ];
 
             $temp = [];
@@ -3058,6 +3070,12 @@ class TransactionUtil extends Util
         $output_lines = [];
         $output_taxes = ['taxes' => []];
         foreach ($lines as $line) {
+            $original_price = $line->unit_price_inc_tax / ( 1 - ($line->line_discount_amount / 100));   
+            if($line->line_discount_type == "percentage") {
+                $discount_amount_new  = ($line->unit_price_inc_tax / ( 1 - ($line->line_discount_amount / 100))) -  $line->unit_price_inc_tax;
+            } else {
+                $discount_amount_new = $line->line_discount_amount;
+            }
             //Group product taxes by name.
             $tax_details = TaxRate::find($line->tax_id);
             // if (!empty($tax_details)) {
@@ -3107,6 +3125,9 @@ class TransactionUtil extends Util
 
                 //Fields for 4th column
                 'line_total' => $this->num_f($line->unit_price_inc_tax * $line->quantity_returned, false, $business_details),
+
+                'original_price' => $original_price,
+                'new_discount_amount' => $discount_amount_new * $line->quantity
             ];
             $line_array['line_discount'] = 0;
 
@@ -3174,6 +3195,15 @@ class TransactionUtil extends Util
         $output_lines = [];
         $output_taxes = ['taxes' => []];
         foreach ($lines as $line) {
+
+            $original_price = $line->unit_price_inc_tax / ( 1 - ($line->line_discount_amount / 100));   
+            if($line->line_discount_type == "percentage") {
+                $discount_amount_new  = ($line->unit_price_inc_tax / ( 1 - ($line->line_discount_amount / 100))) -  $line->unit_price_inc_tax;
+            } else {
+                $discount_amount_new = $line->line_discount_amount;
+            }
+            
+            // dd($original_price,$discount_amount_new);
             //Group product taxes by name.
             $tax_details = TaxRate::find($line->tax_id);
             // if (!empty($tax_details)) {
@@ -3223,6 +3253,9 @@ class TransactionUtil extends Util
 
                 //Fields for 4th column
                 'line_total' => $this->num_f($line->unit_price_inc_tax, false, $business_details),
+
+                'original_price' => $original_price,
+                'new_discount_amount' => $discount_amount_new * $line->quantity
             ];
             $line_array['line_discount'] = 0;
 
