@@ -119,6 +119,11 @@
                         <td>Product Barcode <small class="text-muted">(@lang('lang_v1.required'))</small></td>
                         <td>Unique Barcode against each product </td>
                     </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>Product Image <small class="text-muted">(@lang('lang_v1.required'))</small></td>
+                        <td>Product Image name for each product (Case Sensitive) </td>
+                    </tr>
                 </table>
             @endcomponent
         </div>

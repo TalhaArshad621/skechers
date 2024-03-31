@@ -4857,7 +4857,7 @@ class ReportController extends Controller
                 // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
                 DB::raw('COUNT(transactions.id) as total_invoices'),
                 DB::raw('SUM(tsl.quantity) as total_items'),
-                DB::raw('SUM(transactions.final_total) as total_sales')
+                DB::raw('SUM(tsl.unit_price_inc_tax * tsl.quantity) as total_sales')
             );
             if (!empty($start_date) && !empty($end_date)) {
                 $query->where('transactions.transaction_date', '>=', $start_date)
