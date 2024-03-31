@@ -127,7 +127,7 @@ class ImportProductsController extends Controller
                 foreach ($imported_data as $key => $value) {
 
                     //Check if any column is missing
-                    if (count($value) < 10) {
+                    if (count($value) < 11) {
                         $is_valid =  false;
                         $error_msg = "Some of the columns are missing. Please, use latest CSV file template.";
                         break;
@@ -162,12 +162,23 @@ class ImportProductsController extends Controller
                         break;
                     }
 
+                    //product barcode
                     $product_barcode = trim($value[9]);
                     if (!empty($product_barcode)) {
                         $product_array['barcode'] = $product_barcode;
                     } else {
                         $is_valid =  false;
                         $error_msg = "Product Barcode is required in row no. $row_no";
+                        break;
+                    }
+
+                    //Product Image
+                    $product_image = trim($value[10]);
+                    if (!empty($product_image)) {
+                        $product_array['image'] = $product_image;
+                    } else {
+                        $is_valid =  false;
+                        $error_msg = "Product Image name is required in row no. $row_no";
                         break;
                     }
                     
