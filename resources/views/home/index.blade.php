@@ -97,7 +97,7 @@
 
     	        <div class="info-box-content">
     	          <span class="info-box-text">{{ __('Ecommerce Sales') }}</span>
-    	          <span class="info-box-number purchase_due"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
+    	          <span class="info-box-number ecommerce_sales"><i class="fas fa-sync fa-spin fa-fw margin-bottom"></i></span>
     	        </div>
     	        <!-- /.info-box-content -->
     	      </div>
@@ -550,7 +550,8 @@
       </div>
 
         <div id="button-container" style="text-align: center;">
-            <button class="btn btn-primary" onclick="window.open('/reports/product-sell-grouped-report-detailed', '_blank')">Product Sell Report</button>
+            <button class="btn btn-primary" onclick="window.open('/reports/product-sell-grouped-report-detailed', '_blank')">Product Sell Detailed Report</button>
+            <button class="btn btn-primary" onclick="window.open('/reports/product-sell-report', '_blank')">Product Sell Report</button>
         </div>
 
 
