@@ -94,6 +94,18 @@
 					{{$receipt_details->invoice_date}}
 				</p>
 			</div>
+			<div class="textbox-info">
+				<p class="f-left"><strong>STRN</strong></p>
+				<p class="f-right">
+					999999999
+				</p>
+			</div>
+			<div class="textbox-info">
+				<p class="f-left"><strong>NTN</strong></p>
+				<p class="f-right">
+					99999909090
+				</p>
+			</div>
 			
 			@if(!empty($receipt_details->due_date_label))
 				<div class="textbox-info">
@@ -191,11 +203,11 @@
 
 	        <!-- customer info -->
 	        <div class="textbox-info">
-	        	<p style="vertical-align: top;"><strong>
+	        	<p class="f-left" style="vertical-align: top;"><strong>
 	        		{{$receipt_details->customer_label ?? ''}}
 	        	</strong></p>
 
-	        	<p>
+	        	<p class="f-right">
 	        		{{ $receipt_details->customer_name ?? '' }}
 	        		@if(!empty($receipt_details->customer_info))
 	        			<div class="bw">
@@ -283,11 +295,11 @@
 	                        <td class="description">
 	                        	@if(!empty($line['sub_sku'])) {{$line['sub_sku']}} @endif
 	                        </td>
-	                        <td class="quantity text-right">{{$line['quantity']}}</td>
+	                        <td class="quantity text-right">{{(int)$line['quantity']}}</td>
 	                        @if(empty($receipt_details->hide_price))
-	                        <td class="unit_price text-right">{{$line['original_price'] * $line['quantity'] }}</td>
-	                        <td class="discount text-right">{{$line['new_discount_amount']}}</td>
-	                        <td class="price text-right">{{$line['line_total']}}</td>
+	                        <td class="unit_price text-right">{{(int)($line['original_price'] * $line['quantity']) }}</td>
+	                        <td class="discount text-right">{{(int)$line['new_discount_amount']}}</td>
+	                        <td class="price text-right">{{(int)$line['line_total_uf']}}</td>
 	                        @endif
 	                    </tr>
                     @endforeach
@@ -312,7 +324,7 @@
                     	Total Discount
                     </p>
                     <p class="width-50 text-right sub-headings">
-                    	{{$total_new_discount}}
+                    	{{(int)$total_new_discount}}
                     </p>
                 </div>
                 <div class="flex-box">
@@ -548,8 +560,8 @@ th.description {
 
 td.quantity,
 th.quantity {
-    width: 10%;
-    max-width: 10%;
+    width: 8%;
+    max-width: 8%;
     word-break: break-all;
 }
 td.unit_price, th.unit_price{

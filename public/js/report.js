@@ -1015,7 +1015,7 @@ $(document).ready(function () {
             { data: 'transaction_date', name: 't.transaction_date' },
             { data: 'sub_sku', name: 'v.sub_sku' },
             { data: 'category_name', name: 'categories.name' },
-            { data: 'buying_date', name: 'V.updated_at' },
+            { data: 'buying_date', name: 'v.updated_at' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
             { data: 'total_qty_returned', name: 'total_qty_returned', searchable: false },
             { data: 'subtotal', name: 'subtotal', searchable: false },
@@ -1023,7 +1023,7 @@ $(document).ready(function () {
             { data: 'discount_amount', name: 'discount_amount', searchable: false },
             { data: 'profit', name: 'profit', searchable: false },
             { data: 'current_stock', name: 'current_stock', searchable: false, orderable: false },
-            { data: 'image', name: 'products.image' },
+            { data: 'image', name: 'p.image' },
 
         ],
         fnDrawCallback: function (oSettings) {

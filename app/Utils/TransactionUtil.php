@@ -1766,6 +1766,7 @@ class TransactionUtil extends Util
 
             $details = $this->_receiptDetailsSellReturnLines($lines, $il, $business_details);
             $excahnge_details = $this->_receiptDetailsSellExchangeLines($return_lines, $il, $business_details);
+
             $output['lines'] = $details['lines'];
             $output['exchanges'] = $excahnge_details['lines'];
 
@@ -1909,9 +1910,11 @@ class TransactionUtil extends Util
         if ($transaction_type == 'sell_return') {
             $output['total_label'] = $invoice_layout->cn_amount_label . ':';
             $output['total'] = $this->num_f($transaction->final_total, $show_currency, $business_details);
+            $output['total_uf'] = $transaction->final_total;
         } else {
             $output['total_label'] = $invoice_layout->total_label . ':';
-            $output['total'] = $this->num_f($transaction->final_total, $show_currency, $business_details);
+            $output['total'] = $this->num_f((int)$transaction->final_total, $show_currency, $business_details);
+            $output['total_uf'] = $transaction->final_total;
         }
         if (!empty($il->common_settings['show_total_in_words'])) {
             $word_format = $il->common_settings['num_to_word_format'] ? $il->common_settings['num_to_word_format'] : 'international';
@@ -1919,11 +1922,12 @@ class TransactionUtil extends Util
         }
         
         //Paid & Amount due, only if final
-        if ($transaction_type == 'sell' && $transaction->status == 'final') {
+        if ($transaction_type == 'sell' || $transaction_type == 'sell_return'  && $transaction->status == 'final') {
             $paid_amount = $this->getTotalPaid($transaction->id);
             $due = $transaction->final_total - $paid_amount;
 
             $output['total_paid'] = ($paid_amount == 0) ? 0 : $this->num_f($paid_amount, $show_currency, $business_details);
+            $output['total_paid_uf'] = ($paid_amount == 0) ? 0 : $paid_amount;
             $output['total_paid_label'] = $il->paid_label;
             $output['total_due'] = ($due == 0) ? 0 : $this->num_f($due, $show_currency, $business_details);
             $output['total_due_label'] = $il->total_due_label;
@@ -1948,6 +1952,7 @@ class TransactionUtil extends Util
                             $output['payments'][] =
                                 ['method' => $method . ($value['is_return'] == 1 ? ' (' . $il->change_return_label . ')(-)' : ''),
                                 'amount' => $this->num_f($value['amount'], $show_currency, $business_details),
+                                'amount_uf' => $value['amount'],
                                 'date' => $this->format_date($value['paid_on'], false, $business_details)
                                 ];
                             if ($value['is_return'] == 1) {
@@ -1956,6 +1961,7 @@ class TransactionUtil extends Util
                             $output['payments'][] =
                                 ['method' => $method . (!empty($value['card_transaction_number']) ? (', Transaction Number:' . $value['card_transaction_number']) : ''),
                                 'amount' => $this->num_f($value['amount'], $show_currency, $business_details),
+                                'amount_uf' => $value['amount'],
                                 'date' => $this->format_date($value['paid_on'], false, $business_details)
                                 ];
                         } elseif ($value['method'] == 'cheque') {
@@ -2150,7 +2156,7 @@ class TransactionUtil extends Util
                 }
             }
         }
-
+        // dd($output);
         $output['design'] = $il->design;
         $output['table_tax_headings'] = !empty($il->table_tax_headings) ? array_filter(json_decode($il->table_tax_headings), 'strlen') : null;
         return (object)$output;
@@ -7295,6 +7301,7 @@ class TransactionUtil extends Util
             $sell_return_data['status'] = 'final';
             $sell_return_data['created_by'] = $user_id;
             $sell_return_data['return_parent_id'] = $sell->id;
+            $sell_return_data['commission_agent'] = $sell->commission_agent;
             $sell_return = Transaction::create($sell_return_data);
 
             $this->activityLog($sell_return, 'added');

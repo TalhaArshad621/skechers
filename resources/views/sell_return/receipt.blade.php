@@ -83,7 +83,7 @@
 			</p>
 			</div>
 			<div class="border-top textbox-info">
-				<p class="f-left"><strong>{!! $receipt_details->invoice_no_prefix !!}</strong></p>
+				<p class="f-left"><strong>Invoice No:</strong></p>
 				<p class="f-right">
 					{{$receipt_details->invoice_no}}
 				</p>
@@ -92,6 +92,19 @@
 				<p class="f-left"><strong>{!! $receipt_details->date_label !!}</strong></p>
 				<p class="f-right">
 					{{$receipt_details->invoice_date}}
+				</p>
+			</div>
+
+			<div class="textbox-info">
+				<p class="f-left"><strong>STRN</strong></p>
+				<p class="f-right">
+					999999999
+				</p>
+			</div>
+			<div class="textbox-info">
+				<p class="f-left"><strong>NTN</strong></p>
+				<p class="f-right">
+					99999909090
 				</p>
 			</div>
 			
@@ -191,11 +204,11 @@
 
 	        <!-- customer info -->
 	        <div class="textbox-info">
-	        	<p style="vertical-align: top;"><strong>
+	        	<p class="f-left" style="vertical-align: top;"><strong>
 	        		{{$receipt_details->customer_label ?? ''}}
 	        	</strong></p>
 
-	        	<p>
+	        	<p class="f-right">
 	        		{{ $receipt_details->customer_name ?? '' }}
 	        		@if(!empty($receipt_details->customer_info))
 	        			<div class="bw">
@@ -245,12 +258,15 @@
 					</p>
 				</div>
 			@endif
-				
+				@php
+					$total_new_discount = 0;
+					$total_ex_discount = 0;
+				@endphp
             <table style="margin-top: 10px !important" class="border-bottom width-100 table-f-12 mb-10">
                 <thead class="border-bottom-dotted">
                     <tr>
                         <th class="serial_number">#</th>
-                        <th class="description" width="30%">
+                        <th class="description" width="25%">
                         	{{$receipt_details->table_product_label}}
                         </th>
                         <th class="quantity text-right">
@@ -260,6 +276,9 @@
                         <th class="unit_price text-right">
                         	{{$receipt_details->table_unit_price_label}}
                         </th>
+						<th class="discount text-right">
+                        	Disc.
+                        </th>
                         <th class="price text-right">{{$receipt_details->table_subtotal_label}}</th>
                         @endif
                     </tr>
@@ -267,6 +286,9 @@
                 <tbody>
                 	@forelse($receipt_details->lines as $line)
 						@if ($line['quantity'] > 0)
+						@php
+						$total_new_discount += $line['new_discount_amount'];
+						@endphp
 	                    <tr>
 	                        <td class="serial_number" style="vertical-align: top;">
 	                        	{{$loop->iteration}}
@@ -274,15 +296,19 @@
 	                        <td class="description">
 	                        	@if(!empty($line['sub_sku'])) {{$line['sub_sku'] . '(EX)'}} @endif
 	                        </td>
-	                        <td class="quantity text-right">{{$line['quantity']}} {{$line['units']}}</td>
+	                        <td class="quantity text-right">{{$line['quantity']}}</td>
 	                        @if(empty($receipt_details->hide_price))
 	                        <td class="unit_price text-right">{{$line['unit_price_inc_tax']}}</td>
+							<td class="discount text-right">{{(int)$line['new_discount_amount']}}</td>
 	                        <td class="price text-right">{{$line['line_total']}}</td>
 	                        @endif
 	                    </tr>
 						@endif
                     @endforeach
                 	@forelse($receipt_details->exchanges as $line)
+						@php
+							$total_ex_discount += $line['new_discount_amount'];
+						@endphp
 						{{-- @if ($line['quantity_returned'] > 0) --}}
 	                    <tr>
 	                        <td class="serial_number" style="vertical-align: top;">
@@ -291,9 +317,10 @@
 	                        <td class="description">
 	                        	@if(!empty($line['sub_sku'])) {{$line['sub_sku']}} @endif
 	                        </td>
-	                        <td class="quantity text-right">{{$line['quantity']}} {{$line['units']}}</td>
+	                        <td class="quantity text-right">{{$line['quantity']}}</td>
 	                        @if(empty($receipt_details->hide_price))
 	                        <td class="unit_price text-right">{{$line['unit_price_inc_tax']}}</td>
+							<td class="discount text-right">{{(int)$line['new_discount_amount']}}</td>
 	                        <td class="price text-right">{{$line['line_total']}}</td>
 	                        @endif
 	                    </tr>
@@ -371,6 +398,24 @@
 						</p>
 					</div>
 				@endif
+
+				<div class="flex-box">
+					<p class="width-50 text-right">
+						GST:
+					</p>
+					<p class="width-50 text-right">
+						 {{$receipt_details->total_uf / 5}}
+					</p>
+				</div>
+
+				<div class="flex-box">
+					<p class="width-50 text-right">
+						Total Amount EXC Tax:
+					</p>
+					<p class="width-50 text-right">
+						 {{ $receipt_details->total_uf - ($receipt_details->total_uf / 5)}}
+					</p>
+				</div>
 
 				@if( !empty($receipt_details->tax) )
 					<div class="flex-box">
@@ -487,9 +532,11 @@
 				</p>
 			@endif
 
-			<P class="centered">
-				
-			</P>
+			<P class="centered" style="margin-top: 10px">
+				<span style="font-size: 20px; font-weight:700">FBR Invoice #</span> 
+			   <br>
+			   {!! $receipt_details->fbr_id !!}
+		   </P>
         </div>
         <!-- <button id="btnPrint" class="hidden-print">Print</button>
         <script src="script.js"></script> -->
@@ -497,141 +544,146 @@
 </html>
 
 <style type="text/css">
-.f-8 {
-	font-size: 8px !important;
-}
-@media print {
-	* {
-    	font-size: 12px;
-    	font-family: 'Times New Roman';
-    	word-break: break-all;
-	}
 	.f-8 {
 		font-size: 8px !important;
 	}
+	@media print {
+		* {
+			font-size: 12px;
+			font-family: 'Times New Roman';
+			word-break: break-all;
+		}
+		.f-8 {
+			font-size: 8px !important;
+		}
+		
+	.headings{
+		font-size: 16px;
+		font-weight: 700;
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
 	
-.headings{
-	font-size: 16px;
-	font-weight: 700;
-	text-transform: uppercase;
-	white-space: nowrap;
-}
-
-.sub-headings{
-	font-size: 15px !important;
-	font-weight: 700 !important;
-}
-
-.border-top{
-    border-top: 1px solid #242424;
-}
-.border-bottom{
-	border-bottom: 1px solid #242424;
-}
-
-.border-bottom-dotted{
-	border-bottom: 1px dotted darkgray;
-}
-
-td.serial_number, th.serial_number{
-	width: 5%;
-    max-width: 5%;
-}
-
-td.description,
-th.description {
-    width: 35%;
-    max-width: 35%;
-}
-
-td.quantity,
-th.quantity {
-    width: 15%;
-    max-width: 15%;
-    word-break: break-all;
-}
-td.unit_price, th.unit_price{
-	width: 25%;
-    max-width: 25%;
-    word-break: break-all;
-}
-
-td.price,
-th.price {
-    width: 20%;
-    max-width: 20%;
-    word-break: break-all;
-}
-
-.centered {
-    text-align: center;
-    align-content: center;
-}
-
-.ticket {
-    width: 100%;
-    max-width: 100%;
-}
-
-img {
-    max-width: inherit;
-    width: auto;
-}
-
-    .hidden-print,
-    .hidden-print * {
-        display: none !important;
-    }
-}
-.table-info {
-	width: 100%;
-}
-.table-info tr:first-child td, .table-info tr:first-child th {
-	padding-top: 8px;
-}
-.table-info th {
-	text-align: left;
-}
-.table-info td {
-	text-align: right;
-}
-.logo {
-	float: left;
-	width:35%;
-	padding: 10px;
-}
-
-.text-with-image {
-	float: left;
-	width:65%;
-}
-.text-box {
-	width: 100%;
-	height: auto;
-}
-
-.textbox-info {
-	clear: both;
-}
-.textbox-info p {
-	margin-bottom: 0px
-}
-.flex-box {
-	display: flex;
-	width: 100%;
-}
-.flex-box p {
-	width: 50%;
-	margin-bottom: 0px;
-	white-space: nowrap;
-}
-
-.table-f-12 th, .table-f-12 td {
-	font-size: 12px;
-	word-break: break-word;
-}
-
-.bw {
-	word-break: break-word;
-}
-</style>
+	.sub-headings{
+		font-size: 15px !important;
+		font-weight: 700 !important;
+	}
+	
+	.border-top{
+		border-top: 1px solid #242424;
+	}
+	.border-bottom{
+		border-bottom: 1px solid #242424;
+	}
+	
+	.border-bottom-dotted{
+		border-bottom: 1px dotted darkgray;
+	}
+	
+	td.serial_number, th.serial_number{
+		width: 5%;
+		max-width: 5%;
+	}
+	
+	td.description,
+	th.description {
+		width: 25%;
+		max-width: 25%;
+	}
+	
+	td.quantity,
+	th.quantity {
+		width: 8%;
+		max-width: 8%;
+		word-break: break-all;
+	}
+	td.unit_price, th.unit_price{
+		width: 25%;
+		max-width: 25%;
+		word-break: break-all;
+	}
+	td.discount, th.discount{
+		width: 20%;
+		max-width: 20%;
+		word-break: break-all;
+	}
+	
+	td.discount,
+	th.discount {
+		width: 15%;
+		max-width: 15%;
+		word-break: break-all;
+	}
+	
+	.centered {
+		text-align: center;
+		align-content: center;
+	}
+	
+	.ticket {
+		width: 100%;
+		max-width: 100%;
+	}
+	
+	img {
+		max-width: inherit;
+		width: auto;
+	}
+	
+		.hidden-print,
+		.hidden-print * {
+			display: none !important;
+		}
+	}
+	.table-info {
+		width: 100%;
+	}
+	.table-info tr:first-child td, .table-info tr:first-child th {
+		padding-top: 8px;
+	}
+	.table-info th {
+		text-align: left;
+	}
+	.table-info td {
+		text-align: right;
+	}
+	.logo {
+		float: left;
+		width:35%;
+		padding: 10px;
+	}
+	
+	.text-with-image {
+		float: left;
+		width:65%;
+	}
+	.text-box {
+		width: 100%;
+		height: auto;
+	}
+	
+	.textbox-info {
+		clear: both;
+	}
+	.textbox-info p {
+		margin-bottom: 0px
+	}
+	.flex-box {
+		display: flex;
+		width: 100%;
+	}
+	.flex-box p {
+		width: 50%;
+		margin-bottom: 0px;
+		white-space: nowrap;
+	}
+	
+	.table-f-12 th, .table-f-12 td {
+		font-size: 12px;
+		word-break: break-word;
+	}
+	
+	.bw {
+		word-break: break-word;
+	}
+	</style>
