@@ -1021,35 +1021,34 @@ class ReportController extends Controller
 
         //Return the details in ajax call
         if ($request->ajax()) {
-            $registers = CashRegister::leftJoin(
+            $registers = CashRegister::join(
                 'users as u',
                 'u.id',
                 '=',
                 'cash_registers.user_id'
-            )
-            ->leftJoin(
-                'business_locations as bl',
-                'bl.id',
-                '=',
-                'cash_registers.location_id'
-            )
-            ->leftJoin('cash_register_transactions', function($join) {
-                $join->on('cash_register_transactions.cash_register_id', '=', 'cash_registers.id')
-                     ->where('cash_register_transactions.transaction_type', '=', 'sell')
-                     ->where('cash_register_transactions.pay_method', '=', 'card');
-            })
-            ->where('cash_registers.business_id', $business_id)
-            ->select(
-                'cash_registers.*',
-                DB::raw("CONCAT(COALESCE(u.surname, ''), ' ', COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''), '<br>', COALESCE(u.email, '')) as user_name"),
-                'bl.name as location_name',
-                DB::raw('IFNULL(SUM(cash_register_transactions.amount), 0) as card_amount')
-            )
-            ->groupBy('cash_registers.id');
-        
-        // Execute the query and get the results
-        // $registers = $registers->get();
-        
+                )
+                ->leftJoin(
+                    'business_locations as bl',
+                    'bl.id',
+                    '=',
+                    'cash_registers.location_id'
+                )
+                ->leftJoin('cash_register_transactions', 'cash_register_transactions.cash_register_id', '=', 'cash_registers.id')
+
+                ->where('cash_registers.business_id', $business_id)
+                ->where('cash_register_transactions.transaction_type', 'sell')
+                ->select(
+                    'cash_registers.*',
+                    DB::raw(
+                        "CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) as user_name"
+                    ),
+                    'bl.name as location_name',
+                    // DB::raw('SUM(cash_register_transactions.amount) as card_amount'),
+                    DB::raw("SUM(IF(cash_register_transactions.pay_method='card', IF(transaction_type='sell', amount, 0), 0)) as card_amount"),
+                    DB::raw("SUM(IF(pay_method='cash', IF(transaction_type='sell', amount, 0), 0)) as cash_amount"),
+
+                )
+                ->groupBy('cash_registers.id');
                 
                 if ($request->input('user_id')){
                     // dd($request->input('user_id'));
@@ -2494,34 +2493,19 @@ class ReportController extends Controller
                 ->where('t.status', 'final')
                 ->select(
                     'p.name as product_name',
-                    'p.image',
                     'p.enable_stock',
                     'p.type as product_type',
                     'categories.name as category_name',
                     'pv.name as product_variation',
                     'v.name as variation_name',
-                    'v.dpp_inc_tax as purchase_price',
-                    'v.updated_at as buying_date',
                     'v.sub_sku',
                     't.id as transaction_id',
                     't.transaction_date as transaction_date',
                     DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
                     DB::raw("(SELECT SUM(vld.qty_available) FROM variation_location_details as vld WHERE vld.variation_id=v.id $vld_str) as current_stock"),
-                    DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
-                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_returned'),
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_qty_sold'),
                     'u.short_name as unit',
-                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
-                    DB::raw("SUM(
-                        IF(
-                            t.type = 'sell' AND t.status = 'final' AND transaction_sell_lines.line_discount_amount > 0,
-                            IF(
-                                transaction_sell_lines.line_discount_type = 'percentage',
-                                COALESCE((COALESCE(transaction_sell_lines.unit_price_inc_tax, 0) / (1 - (COALESCE(transaction_sell_lines.line_discount_amount, 0) / 100)) - transaction_sell_lines.unit_price_inc_tax ) * transaction_sell_lines.quantity, 0),
-                                COALESCE(transaction_sell_lines.line_discount_amount * transaction_sell_lines.quantity, 0)
-                            ),
-                            0
-                        )
-                    ) as total_sell_discount")
+                    DB::raw('SUM((transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax) as subtotal')
                 )
                 ->groupBy('v.id')
                 ->groupBy('formated_date');
@@ -2560,12 +2544,8 @@ class ReportController extends Controller
                     return $product_name;
                 })
                 ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
-                ->editColumn('buying_date', '{{@format_date($formated_date)}}')
                 ->editColumn('total_qty_sold', function ($row) {
                     return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
-                })
-                ->editColumn('total_qty_returned', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency ret_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_returned . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_returned . '</span> ' .$row->unit;
                 })
                 ->editColumn('current_stock', function ($row) {
                     if ($row->enable_stock) {
@@ -2574,27 +2554,11 @@ class ReportController extends Controller
                         return '';
                     }
                 })
-                 ->editColumn('discount_amount', function ($row) {
-                     return '<span class="display_currency discount_amount" data-currency_symbol = true data-orig-value="' . $row->total_sell_discount . '">' . $row->total_sell_discount . '</span>';
-                 })
                  ->editColumn('subtotal', function ($row) {
                      return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
                  })
-                 ->editColumn('buy_price', function ($row) {
-                    $buy_price = $row->purchase_price *  $row->total_qty_sold;
-                     return '<span class="display_currency buy_price" data-currency_symbol = true data-orig-value="' . $buy_price . '">' . $buy_price . '</span>';
-                 })
-                 ->editColumn('profit', function ($row) {
-                    $buy_price = $row->purchase_price *  $row->total_qty_sold;
-                    $sell_price = $row->subtotal;
-                    $profit = $sell_price - $buy_price;
-                     return '<span class="display_currency profit" data-currency_symbol = true data-orig-value="' . $profit . '">' . $profit . '</span>';
-                 })
-                 ->editColumn('image', function ($row) {
-                    return '<div style="display: flex;"><img src="' . $row->image_url . '" alt="Product image" class="product-thumbnail-small"></div>';
-                })
                 
-                ->rawColumns(['current_stock', 'subtotal', 'total_qty_sold','discount_amount','buy_price','total_qty_returned','profit','image'])
+                ->rawColumns(['current_stock', 'subtotal', 'total_qty_sold'])
                 ->make(true);
         }
     }
@@ -4111,8 +4075,8 @@ class ReportController extends Controller
                             t.type = 'sell' AND t.status = 'final' AND line_discount_amount > 0,
                             IF(
                                 line_discount_type = 'percentage',
-                                COALESCE((COALESCE(unit_price_inc_tax, 0) / (1 - (COALESCE(line_discount_amount, 0) / 100)) - unit_price_inc_tax ) * transaction_sell_lines.quantity, 0),
-                                COALESCE(line_discount_amount * transaction_sell_lines.quantity, 0)
+                                COALESCE((COALESCE(unit_price_inc_tax, 0) / (1 - (COALESCE(line_discount_amount, 0) / 100)) - unit_price_inc_tax ), 0),
+                                COALESCE(line_discount_amount, 0)
                             ),
                             0
                         )
@@ -4855,13 +4819,13 @@ class ReportController extends Controller
         if($request->ajax() || true){
             $query = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
             ->join('users','users.id','transactions.commission_agent')
-            ->whereIn('transactions.type',['sell','sell_return'])
+            ->where('transactions.type','sell')
             ->select(
                 'users.first_name', 'users.last_name',
                 // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
                 DB::raw('COUNT(transactions.id) as total_invoices'),
-                DB::raw('SUM(tsl.quantity  ) as total_items'),
-                DB::raw('SUM(tsl.unit_price_inc_tax * (tsl.quantity )) as total_sales')
+                DB::raw('SUM(tsl.quantity) as total_items'),
+                DB::raw('SUM(tsl.unit_price_inc_tax * tsl.quantity) as total_sales')
             );
             if (!empty($start_date) && !empty($end_date)) {
                 $query->where('transactions.transaction_date', '>=', $start_date)
