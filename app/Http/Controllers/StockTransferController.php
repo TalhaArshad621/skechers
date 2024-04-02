@@ -269,7 +269,7 @@ class StockTransferController extends Controller
             return [$location->id => $location->name ];
         });
         
-        $formatted_business_locations = $all_business_locations->forget([1, 2, 3]);
+        $formatted_business_locations = BusinessLocation::forDropdown($business_id);
 
         // $all_business_locations = BusinessLocation::fortransferDropdown($business_id);
         // dd($business_locations);

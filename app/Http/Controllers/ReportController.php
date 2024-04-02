@@ -1021,31 +1021,35 @@ class ReportController extends Controller
 
         //Return the details in ajax call
         if ($request->ajax()) {
-            $registers = CashRegister::join(
+            $registers = CashRegister::leftJoin(
                 'users as u',
                 'u.id',
                 '=',
                 'cash_registers.user_id'
-                )
-                ->leftJoin(
-                    'business_locations as bl',
-                    'bl.id',
-                    '=',
-                    'cash_registers.location_id'
-                )
-                ->leftJoin('cash_register_transactions', 'cash_register_transactions.cash_register_id', '=', 'cash_registers.id')
-
-                ->where('cash_registers.business_id', $business_id)
-                ->where('cash_register_transactions.transaction_type', 'sell')
-                ->select(
-                    'cash_registers.*',
-                    DB::raw(
-                        "CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) as user_name"
-                    ),
-                    'bl.name as location_name',
-                    DB::raw('SUM(cash_register_transactions.amount) as card_amount')
-                )
-                ->groupBy('cash_registers.id');
+            )
+            ->leftJoin(
+                'business_locations as bl',
+                'bl.id',
+                '=',
+                'cash_registers.location_id'
+            )
+            ->leftJoin('cash_register_transactions', function($join) {
+                $join->on('cash_register_transactions.cash_register_id', '=', 'cash_registers.id')
+                     ->where('cash_register_transactions.transaction_type', '=', 'sell')
+                     ->where('cash_register_transactions.pay_method', '=', 'card');
+            })
+            ->where('cash_registers.business_id', $business_id)
+            ->select(
+                'cash_registers.*',
+                DB::raw("CONCAT(COALESCE(u.surname, ''), ' ', COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''), '<br>', COALESCE(u.email, '')) as user_name"),
+                'bl.name as location_name',
+                DB::raw('IFNULL(SUM(cash_register_transactions.amount), 0) as card_amount')
+            )
+            ->groupBy('cash_registers.id');
+        
+        // Execute the query and get the results
+        // $registers = $registers->get();
+        
                 
                 if ($request->input('user_id')){
                     // dd($request->input('user_id'));
