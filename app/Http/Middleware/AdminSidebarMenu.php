@@ -382,25 +382,25 @@ class AdminSidebarMenu
             }
 
             //Stock transfer dropdown
-            if (in_array('stock_transfers', $enabled_modules) && (auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create'))) {
+            if (in_array('stock_transfers', $enabled_modules) && (auth()->user()->can('stocktransfer.view') || auth()->user()->can('stocktransfer.create'))) {
                 $menu->dropdown(
                     __('lang_v1.stock_transfers'),
                     function ($sub) {
-                        if (auth()->user()->can('purchase.view')) {
+                        if (auth()->user()->can('stocktransfer.view')) {
                             $sub->url(
                                 action('StockTransferController@index'),
                                 __('lang_v1.list_stock_transfers'),
                                 ['icon' => 'fa fas fa-list', 'active' => request()->segment(1) == 'stock-transfers' && request()->segment(2) == null]
                             );
                         }
-                        if (auth()->user()->can('purchase.create')) {
+                        if (auth()->user()->can('stocktransfer.create')) {
                             $sub->url(
                                 action('StockTransferController@create'),
                                 __('lang_v1.add_stock_transfer'),
                                 ['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'stock-transfers' && request()->segment(2) == 'create']
                             );
                         }
-                        if (auth()->user()->can('purchase.create')) {
+                        if (auth()->user()->can('stocktransfer.create')) {
                             $sub->url(
                                 action('ImportStockTrasferController@create'),
                                 __('Stock Transfer Import'),

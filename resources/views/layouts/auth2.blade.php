@@ -63,7 +63,7 @@
                 <div class="col-md-9 col-xs-8" style="text-align: right;padding-top: 10px;">
                     @if(!($request->segment(1) == 'business' && $request->segment(2) == 'register'))
                         <!-- Register Url -->
-                        @if(config('constants.allow_registration'))
+                        @if(false)
                             <a href="{{ route('business.getRegister') }}@if(!empty(request()->lang)){{'?lang=' . request()->lang}} @endif" class="btn bg-maroon btn-flat" ><b>{{ __('business.not_yet_registered')}}</b> {{ __('business.register_now') }}</a>
                             <!-- pricing url -->
                             @if(Route::has('pricing') && config('app.env') != 'demo' && $request->segment(1) != 'pricing')

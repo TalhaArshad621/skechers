@@ -385,6 +385,62 @@
         </div>
         </div>
         <hr>
+        <div class="row check_group">
+        <div class="col-md-1">
+          <h4>Stock Transfer</h4>
+        </div>
+        <div class="col-md-2">
+          <div class="checkbox">
+              <label>
+                <input type="checkbox" class="check_all input-icheck" > {{ __( 'role.select_all' ) }}
+              </label>
+            </div>
+        </div>
+        <div class="col-md-9">
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'stocktransfer.view', false, 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'View Stock Transfer' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'stocktransfer.create', false, 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'Add Stock Transfer' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'stocktransfer.update', false, 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'Edit Stock Transfer' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'stocktransfer.delete', false, 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'Delete Stock Transfer' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'stocktransfer.update_status', false,['class' => 'input-icheck']); !!}
+                {{ __('lang_v1.update_status') }}
+              </label>
+            </div>
+          </div>
+
+        </div>
+        </div>
+        <hr>
         @endif
 
         <div class="row check_group">

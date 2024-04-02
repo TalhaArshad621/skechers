@@ -2497,7 +2497,7 @@ class ReportController extends Controller
                     'pv.name as product_variation',
                     'v.name as variation_name',
                     'v.dpp_inc_tax as purchase_price',
-                    'V.updated_at as buying_date',
+                    'v.updated_at as buying_date',
                     'v.sub_sku',
                     't.id as transaction_id',
                     't.transaction_date as transaction_date',
@@ -4851,13 +4851,13 @@ class ReportController extends Controller
         if($request->ajax() || true){
             $query = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
             ->join('users','users.id','transactions.commission_agent')
-            ->where('transactions.type','sell')
+            ->whereIn('transactions.type',['sell','sell_return'])
             ->select(
                 'users.first_name', 'users.last_name',
                 // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
                 DB::raw('COUNT(transactions.id) as total_invoices'),
-                DB::raw('SUM(tsl.quantity) as total_items'),
-                DB::raw('SUM(tsl.unit_price_inc_tax * tsl.quantity) as total_sales')
+                DB::raw('SUM(tsl.quantity  ) as total_items'),
+                DB::raw('SUM(tsl.unit_price_inc_tax * (tsl.quantity )) as total_sales')
             );
             if (!empty($start_date) && !empty($end_date)) {
                 $query->where('transactions.transaction_date', '>=', $start_date)
