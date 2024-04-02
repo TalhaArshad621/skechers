@@ -369,7 +369,7 @@ $(document).ready(function () {
             { data: 'user_name', name: 'user_name' },
             // { data: 'total_card_slips', name: 'total_card_slips' },
             { data: 'card_amount', name: 'card_amount' },
-            { data: 'closing_amount', name: 'closing_amount' },
+            { data: 'cash_amount', name: 'cash_amount' },
             { data: 'action', name: 'action' },
         ],
         fnDrawCallback: function (oSettings) {
