@@ -2866,7 +2866,7 @@ class ProductController extends Controller
         $query = Product::
         leftJoin('categories', 'products.category_id', '=', 'categories.id')
         ->join('variation_location_details','variation_location_details.product_id','products.id')
-        ->where('products.sku', $request->barcode);
+        ->where('products.barcode', $request->barcode);
         
         if($permitted_locations != "all"){
             $query->whereIn('variation_location_details.location_id',$permitted_locations);
