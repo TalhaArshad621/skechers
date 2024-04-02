@@ -263,7 +263,7 @@ class ReportController extends Controller
      */
     public function getStockReport(Request $request)
     {
-        if (!auth()->user()->can('stock_report.view')) {
+        if (!(auth()->user()->can('stock_report.view') || auth()->user()->can('product.view'))) {
             abort(403, 'Unauthorized action.');
         }
 

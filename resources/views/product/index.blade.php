@@ -103,11 +103,11 @@
                     <li class="active">
                         <a href="#product_list_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes" aria-hidden="true"></i> @lang('lang_v1.all_products')</a>
                     </li>
-                    @if (auth()->user()->can('stock_report.view'))
+                    {{-- @if (auth()->user()->can('stock_report.view')) --}}
                     <li>
                         <a href="#product_stock_report_new" data-toggle="tab" aria-expanded="true"><i class="fa fa-hourglass-half" aria-hidden="true"></i> @lang('report.stock_report')</a>
                     </li>
-                    @endif
+                    {{-- @endif --}}
                 </ul>
 
                 <div class="tab-content">
@@ -119,7 +119,7 @@
                         @endcan
                         @include('product.partials.product_list')
                     </div>
-                    @if (auth()->user()->can('stock_report.view'))
+                    {{-- @if (auth()->user()->can('stock_report.view')) --}}
                     <div class="tab-pane" id="product_stock_report_new">
                         <table class="table table-bordered table-striped" id="stock_report_table_new">
                             <thead>
@@ -173,7 +173,7 @@
                         </table>
                         {{-- @include('report.partials.stock_report_table') --}}
                     </div>
-                    @endif
+                    {{-- @endif --}}
                 </div>
             </div>
         </div>
