@@ -1090,12 +1090,13 @@ class ReportController extends Controller
                 ->editColumn('created_at', function ($row) {
                     return $this->productUtil->format_date($row->created_at, true);
                 })
-                ->editColumn('closing_amount', function ($row) {
+                ->editColumn('cash_amount', function ($row) {
                     if ($row->status == 'close') {
                         return '<span class="display_currency" data-currency_symbol="true">' .
-                        $row->closing_amount . '</span>';
+                        $row->cash_amount . '</span>';
                     } else {
-                        return '';
+                        return '<span class="display_currency" data-currency_symbol="true">' .
+                        $row->cash_amount . '</span>';                    
                     }
                 })
                 ->addColumn('action', '<button type="button" data-href="{{action(\'CashRegisterController@show\', [$id])}}" class="btn btn-xs btn-info btn-modal" 
@@ -1104,7 +1105,7 @@ class ReportController extends Controller
                 ->filterColumn('user_name', function ($query, $keyword) {
                     $query->whereRaw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) like ?", ["%{$keyword}%"]);
                 })
-                ->rawColumns(['action', 'user_name', 'closing_amount'])
+                ->rawColumns(['action', 'user_name', 'closing_amount','cash_amount'])
                 ->make(true);
         }
 
