@@ -302,6 +302,14 @@
           <div class="col-md-12">
             <div class="checkbox">
               <label>
+                {!! Form::checkbox('permissions[]', 'product.audit', false, 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'Add Product Audit' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
                 {!! Form::checkbox('permissions[]', 'view_purchase_price', false,['class' => 'input-icheck']); !!}
                 {{ __('lang_v1.view_purchase_price') }}
               </label>

@@ -9,7 +9,7 @@ class AuditController extends Controller
 {
     public function productAudit(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product.audit')) {
             abort(403, 'Unauthorized action.');
         }
 
