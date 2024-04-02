@@ -200,112 +200,122 @@ class ImportPurchaseController extends Controller
                         $product_array['business_id'] = $business_id;
                         $product_array['created_by'] = $user_id;
                         
-                    //Add sku
-                    $product_sku = trim($value[0]);
-                    if (!empty($product_sku)) {
-                        $product_array['sku'] = $product_sku;
-                    } else {
-                        $is_valid =  false;
-                        $error_msg = "Product name is required in row no. $row_no";
-                        break;
+                        //Add sku
+                        $product_sku = trim($value[0]);
+                        if (!empty($product_sku)) {
+                            $product_array['sku'] = $product_sku;
+                        } else {
+                            $is_valid =  false;
+                            $error_msg = "Product name is required in row no. $row_no";
+                            break;
+                        }
+
+                        $products = DB::table('products')
+                        ->leftJoin('variations','products.id', '=', 'variations.product_id')
+                        ->select('products.id AS product_id','products.name AS product_sku', 'products.unit_id AS product_unit_id','products.sub_unit_ids AS sub_unit_id','variations.product_variation_id AS variation_id','variations.default_purchase_price AS pp_without_discount','variations.profit_percent AS profit_percent','variations.default_sell_price','variations.dpp_inc_tax AS dpp_inc_tax','products.tax AS tax_id')
+                        ->where('products.sku', $product_sku)
+                        ->first();
+                        // dd($products);
+
+                        if (!$products) {
+                            $is_valid =  false;
+                            $error_msg = "Product $product_sku not found in the system in row no. $row_no";
+                            break;
+                        }
+                        
+                        $tax_percentage = DB::table('tax_rates')
+                        ->where('id', $products->tax_id)
+                        ->select('amount')
+                        ->first();
+
+                        $tax =  ($tax_percentage->amount/100) + 1;
+
+                        $purchase_price_from_excel_inc_tax = trim($value[2]);
+
+                        $purchase_price_without_tax = $purchase_price_from_excel_inc_tax/$tax;
+                        $amount_of_tax = $purchase_price_from_excel_inc_tax - $purchase_price_without_tax;
+
+                        $selling_price_from_excel_inc_tax = trim($value[3]);
+
+                        $selling_price_without_tax = $selling_price_from_excel_inc_tax/$tax;
+                        /*
+                        profit margin percent formula:
+
+                            [(sell_price - purchase_price)/purchase_price]*100 
+
+                        */
+                        $profit_margin_percent = ($selling_price_from_excel_inc_tax - $purchase_price_from_excel_inc_tax)/$purchase_price_from_excel_inc_tax * 100;
+
+                        
+                        if (!empty($products)) {
+                            $product_array['product_id'] = $products->product_id;
+                        } else {
+                            $is_valid =  false;
+                            $error_msg = "No matching product is found. $row_no";
+                            break;
+                        }
+                        if (!empty($products)) {
+                            $product_array['variation_id'] = $products->variation_id;
+                            $product_array['product_unit_id'] = $products->product_unit_id;
+                            $product_array['sub_unit_id'] = $products->product_unit_id;
+                            $product_array['pp_without_discount'] = $purchase_price_without_tax;
+                            $product_array['discount_percent'] = 0;
+                            $product_array['purchase_price'] = $purchase_price_without_tax;
+                            $product_array['purchase_line_tax_id'] = $products->tax_id;
+                            $product_array['item_tax'] = $amount_of_tax;
+                            $product_array['purchase_price_inc_tax'] = $purchase_price_from_excel_inc_tax;
+                            $product_array['profit_percent'] = $profit_margin_percent;
+                            $product_array['default_sell_price'] = $selling_price_without_tax;
+                            $product_array['sell_price_inc_tax'] = $selling_price_from_excel_inc_tax;
+                            $product_array['rows_count'] = $total_rows;
+
+                        } else {
+                            $is_valid =  false;
+                            $error_msg = "No matching product is found. $row_no";
+                            // dd("first");
+                            break;
+                        }
+                        $purchase_quantity = trim($value[1]);
+                        
+                        if (!empty($purchase_quantity)) {
+                            $product_array['quantity'] = $purchase_quantity;
+                        } else {
+                            $is_valid =  false;
+                            $error_msg = "No matching product is found. $row_no";
+                            break;
+                        }
+                        $all_product_data[] = $product_array;
+                        // dd($all_product_data);
+                        
+                        $unit_cost = trim($value[2]);
+                        $unit_selling_price = trim($value[3]);
+                        $exchange_rate = 1;
+                        $discount_type = 'percentage';
+                        $discount_amount = 0;
+                        $tax_amount = 0;
+                        $shipping_charges = 0;
+                        $final_total = $unit_cost*$purchase_quantity;
+                        $type = 'purchase';
+                        $payment_status = 'due';
+                        $transaction_date = Carbon::now();
+                        $ref_no = '';
+                        $status = 'received';
+                        $total_before_tax_sum += $unit_cost;
+                        $final_total_sum += $final_total;
+                        
+                        $user_id = $request->session()->get('user.id');
+                        $enable_product_editing = $request->session()->get('business.enable_editing_product_from_purchase');
+                        
+                        $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_id);
+                        
+                        //unformat input values
+                        $unit_cost = $this->productUtil->num_uf($unit_cost, $currency_details)*$exchange_rate;
+                    
                     }
 
-                    $products = DB::table('products')
-                    ->leftJoin('variations','products.id', '=', 'variations.product_id')
-                    ->select('products.id AS product_id','products.name AS product_sku', 'products.unit_id AS product_unit_id','products.sub_unit_ids AS sub_unit_id','variations.product_variation_id AS variation_id','variations.default_purchase_price AS pp_without_discount','variations.profit_percent AS profit_percent','variations.default_sell_price','variations.dpp_inc_tax AS dpp_inc_tax','products.tax AS tax_id')
-                    ->where('products.sku', $product_sku)
-                    ->first();
-                    // dd($products);
-                    
-                    $tax_percentage = DB::table('tax_rates')
-                    ->where('id', $products->tax_id)
-                    ->select('amount')
-                    ->first();
-
-                    $tax =  ($tax_percentage->amount/100) + 1;
-
-                    $purchase_price_from_excel_inc_tax = trim($value[2]);
-
-                    $purchase_price_without_tax = $purchase_price_from_excel_inc_tax/$tax;
-                    $amount_of_tax = $purchase_price_from_excel_inc_tax - $purchase_price_without_tax;
-
-                    $selling_price_from_excel_inc_tax = trim($value[3]);
-
-                    $selling_price_without_tax = $selling_price_from_excel_inc_tax/$tax;
-                    /*
-                    profit margin percent formula:
-
-                        [(sell_price - purchase_price)/purchase_price]*100 
-
-                    */
-                    $profit_margin_percent = ($selling_price_from_excel_inc_tax - $purchase_price_from_excel_inc_tax)/$purchase_price_from_excel_inc_tax * 100;
-
-                    
-                    if (!empty($products)) {
-                        $product_array['product_id'] = $products->product_id;
-                    } else {
-                        $is_valid =  false;
-                        $error_msg = "No matching product is found. $row_no";
-                        break;
+                    if (!$is_valid) {
+                        throw new \Exception($error_msg);
                     }
-                    if (!empty($products)) {
-                        $product_array['variation_id'] = $products->variation_id;
-                        $product_array['product_unit_id'] = $products->product_unit_id;
-                        $product_array['sub_unit_id'] = $products->product_unit_id;
-                        $product_array['pp_without_discount'] = $purchase_price_without_tax;
-                        $product_array['discount_percent'] = 0;
-                        $product_array['purchase_price'] = $purchase_price_without_tax;
-                        $product_array['purchase_line_tax_id'] = $products->tax_id;
-                        $product_array['item_tax'] = $amount_of_tax;
-                        $product_array['purchase_price_inc_tax'] = $purchase_price_from_excel_inc_tax;
-                        $product_array['profit_percent'] = $profit_margin_percent;
-                        $product_array['default_sell_price'] = $selling_price_without_tax;
-                        $product_array['sell_price_inc_tax'] = $selling_price_from_excel_inc_tax;
-                        $product_array['rows_count'] = $total_rows;
-
-                    } else {
-                        $is_valid =  false;
-                        $error_msg = "No matching product is found. $row_no";
-                        // dd("first");
-                        break;
-                    }
-                    $purchase_quantity = trim($value[1]);
-                    
-                    if (!empty($purchase_quantity)) {
-                        $product_array['quantity'] = $purchase_quantity;
-                    } else {
-                        $is_valid =  false;
-                        $error_msg = "No matching product is found. $row_no";
-                        break;
-                    }
-                    $all_product_data[] = $product_array;
-                    // dd($all_product_data);
-                    
-                    $unit_cost = trim($value[2]);
-                    $unit_selling_price = trim($value[3]);
-                    $exchange_rate = 1;
-                    $discount_type = 'percentage';
-                    $discount_amount = 0;
-                    $tax_amount = 0;
-                    $shipping_charges = 0;
-                    $final_total = $unit_cost*$purchase_quantity;
-                    $type = 'purchase';
-                    $payment_status = 'due';
-                    $transaction_date = Carbon::now();
-                    $ref_no = '';
-                    $status = 'received';
-                    $total_before_tax_sum += $unit_cost;
-                    $final_total_sum += $final_total;
-                    
-                    $user_id = $request->session()->get('user.id');
-                    $enable_product_editing = $request->session()->get('business.enable_editing_product_from_purchase');
-                    
-                    $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_id);
-                    
-                    //unformat input values
-                    $unit_cost = $this->productUtil->num_uf($unit_cost, $currency_details)*$exchange_rate;
-                    
-                }
 
                     //Update reference count
                     $ref_count = $this->productUtil->setAndGetReferenceCount($type);
@@ -335,7 +345,6 @@ class ImportPurchaseController extends Controller
                     }
                     // dd($transaction, $all_product_data);
                     $this->productUtil->createOrUpdatePurchaseLinesForImport($transaction, $all_product_data, $currency_details, $enable_product_editing, $total_rows);
-// dd("hehe");
                     // //Adjust stock over selling if found
                     $this->productUtil->adjustStockOverSelling($transaction);
 
@@ -346,7 +355,7 @@ class ImportPurchaseController extends Controller
                     $output = ['success' => 1,
                                     'msg' => __('purchase.purchase_add_success')
                                 ];
-            }
+                }
             
             $output = ['success' => 1,
                             'msg' => __('purchase.file_imported_successfully')

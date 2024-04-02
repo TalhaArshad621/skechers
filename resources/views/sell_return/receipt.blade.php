@@ -98,13 +98,13 @@
 			<div class="textbox-info">
 				<p class="f-left"><strong>STRN</strong></p>
 				<p class="f-right">
-					999999999
+					3277876333218
 				</p>
 			</div>
 			<div class="textbox-info">
 				<p class="f-left"><strong>NTN</strong></p>
 				<p class="f-right">
-					99999909090
+					D094665-3
 				</p>
 			</div>
 			
