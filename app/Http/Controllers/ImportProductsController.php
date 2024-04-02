@@ -151,14 +151,14 @@ class ImportProductsController extends Controller
                     $product_gender = trim($value[8]);
 
                     // Allowed gender values
-                    $allowed_genders = ['men', 'women', 'kids', 'infant' ,'unisex'];
+                    $allowed_genders = ['men', 'women', 'kids', 'infant' ,'unisex','children'];
 
                     // Check if the provided gender is empty or not in the allowed values list
                     if (!empty($product_gender) && in_array(strtolower($product_gender), $allowed_genders)) {
                         $product_array['gender'] = $product_gender;
                     } else {
                         $is_valid =  false;
-                        $error_msg = "Product Gender is required and must be one of: men, women, kids, infant. (Row No. $row_no)";
+                        $error_msg = "Product Gender is required and must be one of: men, women, kids, infant,children. (Row No. $row_no)";
                         break;
                     }
 

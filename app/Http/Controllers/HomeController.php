@@ -841,7 +841,8 @@ class HomeController extends Controller
                 WHERE transactions.type IN ('sell','sell_return') AND transactions.status = 'final' AND TSL.category_id = p.category_id
                 ) as sold_price "),
                 'v.dpp_inc_tax as unit_price_default',
-                'categories.name as category_name'
+                'categories.name as category_name',
+                'categories.id as category_id'
             )->groupBy('categories.id');
               }
               else{
@@ -894,7 +895,8 @@ class HomeController extends Controller
                     
                     'v.sell_price_inc_tax as unit_price',
                     'v.dpp_inc_tax as unit_price_default',
-                    'categories.name as category_name'
+                    'categories.name as category_name',
+                    'categories.id as category_id'
                 )->groupBy('categories.id');
               }
             
@@ -921,11 +923,22 @@ class HomeController extends Controller
                 return '<span data-is_quantity="true" class="display_currency total_sold" data-currency_symbol=false data-orig-value="' . $total_sold . '" >' . $total_sold . '</span> ';
             })
             
-            ->editColumn('stock_price', function ($row) {
-                $stock = $row->stock;
-                $purchase_price = $row->unit_price_default;
-                $stock_price = $stock * $purchase_price;
-                return '<span data-orig-value="' . $stock_price . '" class="display_currency total_stock_price">' . $stock_price . '</span>';
+            ->editColumn('stock_price', function ($row) use($business_id, $location_id) {
+                $end_date = \Carbon::now()->format('Y-m-d');
+                $filters['category_id'] = $row->category_id;
+                  //Get Closing stock
+                $closing_stock_by_pp = $this->transactionUtil->getOpeningClosingStock(
+                    $business_id,
+                    $end_date,
+                    $location_id,
+                    false,
+                    false,
+                    $filters
+                );
+                // $stock = $row->stock;
+                // $purchase_price = $row->unit_price_default;
+                $stock_price = $closing_stock_by_pp;
+                return '<span data-orig-value="' . $stock_price . '" class="display_currency total_stock_price">' . (int)$stock_price . '</span>';
             })
             
             // ->editColumn('stock_price', function ($row) {
@@ -938,10 +951,20 @@ class HomeController extends Controller
     
             //     // return $html;
             // })
-            ->editColumn('stock_value_by_sale_price', function ($row) {
-                $stock = $row->stock ? $row->stock : 0 ;
-                $unit_selling_price = (float)$row->group_price > 0 ? $row->group_price : $row->unit_price;
-                $stock_price = $stock * $unit_selling_price;
+            ->editColumn('stock_value_by_sale_price', function ($row) use($business_id, $location_id) {
+                $end_date = \Carbon::now()->format('Y-m-d');
+                $filters['category_id'] = $row->category_id;
+                $closing_stock_by_sp = $this->transactionUtil->getOpeningClosingStock(
+                    $business_id,
+                    $end_date,
+                    $location_id,
+                    false,
+                    true,
+                    $filters
+                );
+                // $stock = $row->stock ? $row->stock : 0 ;
+                // $unit_selling_price = (float)$row->group_price > 0 ? $row->group_price : $row->unit_price;
+                $stock_price = $closing_stock_by_sp;
                 return  '<span class="stock_value_by_sale_price display_currency" data-orig-value="' . (float)$stock_price . '" data-currency_symbol=true > ' . (float)$stock_price . '</span>';
             })
             ->addColumn('cost_of_sold', function ($row) {
