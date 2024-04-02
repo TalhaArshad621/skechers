@@ -4167,8 +4167,48 @@ class ReportController extends Controller
                 $card_payment = $query5->select(DB::raw('SUM(transaction_payments.amount) as card_amount'))
                 ->first();
 
+
+            $gross_profit = TransactionSellLine::join('transactions as sale', 'transaction_sell_lines.transaction_id', '=', 'sale.id')
+            ->leftjoin('transaction_sell_lines_purchase_lines as TSPL', 'transaction_sell_lines.id', '=', 'TSPL.sell_line_id')
+            ->leftjoin(
+                'purchase_lines as PL',
+                'TSPL.purchase_line_id',
+                '=',
+                'PL.id'
+            )
+            ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
+            ->whereIn('sale.type', ['sell','sell_return'])
+            ->where('sale.status', 'final')
+            ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
+            ->where('sale.business_id', $business_id)
+            ->where('sale.location_id', '<>', 9)
+            ->where('transaction_sell_lines.children_type', '!=', 'combo');
+              //Filter by the location
+              if (!empty($location_id)) {
+                $gross_profit->where('L.id', $location_id);
+            }
+            if (!empty(request()->start_date) && !empty(request()->end_date)) {
+                $start = request()->start_date;
+                $end =  request()->end_date;
+                $gross_profit->whereDate('sale.transaction_date', '>=', $start)
+                            ->whereDate('sale.transaction_date', '<=', $end);
+            }
+            //If type combo: find childrens, sale price parent - get PP of childrens
+            $gross_profit->select(DB::raw('SUM(IF (TSPL.id IS NULL AND P.type="combo", ( 
+                SELECT Sum((tspl2.quantity - tspl2.qty_returned) * (tsl.unit_price_inc_tax - pl2.purchase_price_inc_tax)) AS total
+                    FROM transaction_sell_lines AS tsl
+                        JOIN transaction_sell_lines_purchase_lines AS tspl2
+                    ON tsl.id=tspl2.sell_line_id 
+                    JOIN purchase_lines AS pl2 
+                    ON tspl2.purchase_line_id = pl2.id 
+                    WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax,   
+                    (TSPL.quantity - TSPL.qty_returned) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
+                )->groupBy('L.id');
+                $results = $gross_profit->first();
+                // dd($results);
                 // Gross Profit
-                $gross_profit = $this->transactionUtil->getGrossProfit($business_id,$start_date, $end_date, $location_id);
+                // $gross_profit = $this->transactionUtil->getGrossProfit($business_id,$start_date, $end_date, $location_id);
+                $gross_profit = $results ?  $results['gross_profit']: 0;
 
                 
                 // Gift Amount
