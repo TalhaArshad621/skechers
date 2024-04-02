@@ -262,7 +262,7 @@ class ImportStockTrasferController extends Controller
 
                 $products = DB::table('products')
                 ->leftJoin('variations','products.id', '=', 'variations.product_id')
-                ->select('products.id AS product_id','products.name AS product_name','products.sku AS product_sku', 'products.unit_id AS product_unit_id','products.sub_unit_ids AS sub_unit_id','variations.product_variation_id AS variation_id','variations.default_purchase_price AS pp_without_discount','variations.profit_percent AS profit_percent','variations.default_sell_price','variations.product_variation_id AS variation_id','products.enable_stock AS enable_stock')
+                ->select('products.id AS product_id','products.name AS product_name','products.sku AS product_sku', 'products.unit_id AS product_unit_id','products.sub_unit_ids AS sub_unit_id','variations.product_variation_id AS variation_id','variations.dpp_inc_tax AS pp_without_discount','variations.profit_percent AS profit_percent','variations.default_sell_price','variations.product_variation_id AS variation_id','products.enable_stock AS enable_stock')
                 ->where('products.sku', $product_sku)
                 ->first();    
 
