@@ -2156,7 +2156,7 @@ class TransactionUtil extends Util
                 }
             }
         }
-        // dd($output);
+
         $output['design'] = $il->design;
         $output['table_tax_headings'] = !empty($il->table_tax_headings) ? array_filter(json_decode($il->table_tax_headings), 'strlen') : null;
         return (object)$output;
