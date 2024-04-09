@@ -1023,7 +1023,7 @@ $(document).ready(function () {
             { data: 'discount_amount', name: 'discount_amount', searchable: false },
             { data: 'profit', name: 'profit', searchable: false },
             { data: 'current_stock', name: 'current_stock', searchable: false, orderable: false },
-            { data: 'image', name: 'p.image' },
+            { data: 'product_image', name: 'p.image' },
 
         ],
         fnDrawCallback: function (oSettings) {

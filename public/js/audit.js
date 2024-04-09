@@ -49,6 +49,7 @@ function getProductDetails() {
                     physicalProductArray.push(data);
                 }
                 // console.log(physicalProductArray, ScannedProduct);
+                $('#code').val('');
             } else {
                 toastr.error("Product Not Found");
             }

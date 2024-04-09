@@ -17,7 +17,9 @@
                 <div class="col-sm-4">
                   <div class="form-group">
                     <label>Barcode No.</label>
-                    <input type="text" name="code" id="code" class="form-control" placeholder="Enter Barcode Number" onblur="getProductDetails()">
+                    <input type="text" name="code" id="code" class="form-control" placeholder="Enter Barcode Number" oninput="getProductDetails()">
+
+                    {{-- <input type="text" name="code" id="code" class="form-control" placeholder="Enter Barcode Number" onblur="getProductDetails()"> --}}
                 </div>
                 </div>
               </div>
