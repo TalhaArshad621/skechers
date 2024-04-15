@@ -262,12 +262,12 @@ class HomeController extends Controller
             ->whereIN('t.type', ['sell','sell_return'])
 
             ->where('t.status', 'final');
-            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
-                $query3->whereDate('t.transaction_date', '>=', $start_date)
-                    ->whereDate('t.transaction_date', '<=', $end_date);
+            if (!empty($start) && !empty($end) && $start != $end) {
+                $query3->whereDate('t.transaction_date', '>=', $start)
+                    ->whereDate('t.transaction_date', '<=', $end);
             }
-            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
-                $query3->whereDate('t.transaction_date', $end_date);
+            if (!empty($start) && !empty($end) && $start == $end) {
+                $query3->whereDate('t.transaction_date', $end);
             }
     
              //Check for permitted locations of a user
@@ -297,12 +297,12 @@ class HomeController extends Controller
             ->where('transactions.status', 'final')
             ->where('cash_register_transactions.pay_method', 'cash')
             ->where('cash_register_transactions.transaction_type','sell');
-            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
-                $query4->whereDate('transactions.transaction_date', '>=', $start_date)
-                    ->whereDate('transactions.transaction_date', '<=', $end_date);
+            if (!empty($start) && !empty($end) && $start != $end) {
+                $query4->whereDate('transactions.transaction_date', '>=', $start)
+                    ->whereDate('transactions.transaction_date', '<=', $end);
             }
-            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
-                $query4->whereDate('transactions.transaction_date', $end_date);
+            if (!empty($start) && !empty($end) && $start == $end) {
+                $query4->whereDate('transactions.transaction_date', $end);
             }
     
              //Check for permitted locations of a user
@@ -325,12 +325,12 @@ class HomeController extends Controller
             ->whereIn('transactions.type', ['sell','sell_return'])
             ->where('transactions.status', 'final')
             ->where('transaction_payments.method', 'card');
-            if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
-                $query5->whereDate('transactions.transaction_date', '>=', $start_date)
-                    ->whereDate('transactions.transaction_date', '<=', $end_date);
+            if (!empty($start) && !empty($end) && $start != $end) {
+                $query5->whereDate('transactions.transaction_date', '>=', $start)
+                    ->whereDate('transactions.transaction_date', '<=', $end);
             }
-            if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
-                $query5->whereDate('transactions.transaction_date', $end_date);
+            if (!empty($start) && !empty($end) && $start == $end) {
+                $query5->whereDate('transactions.transaction_date', $end);
             }
 
               //Check for permitted locations of a user

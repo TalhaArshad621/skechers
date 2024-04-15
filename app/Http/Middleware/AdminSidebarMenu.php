@@ -110,7 +110,7 @@ class AdminSidebarMenu
             if (auth()->user()->can('product.view') || auth()->user()->can('product.create') ||
                 auth()->user()->can('brand.view') || auth()->user()->can('unit.view') ||
                 auth()->user()->can('category.view') || auth()->user()->can('brand.create') ||
-                auth()->user()->can('unit.create') || auth()->user()->can('category.create')) {
+                auth()->user()->can('unit.create') || auth()->user()->can('category.create') || auth()->user()->can('product.audit')) {
                 $menu->dropdown(
                     __('sale.products'),
                     function ($sub) {
@@ -197,7 +197,7 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-gem', 'active' => request()->segment(1) == 'product-adjustment']
                             );
                         }
-                        if (auth()->user()->can('product.create')) {
+                        if (auth()->user()->can('product.audit')) {
                             $sub->url(
                                 action('AuditController@productAudit'),
                                 __('Audit'),
@@ -351,6 +351,11 @@ class AdminSidebarMenu
                             $sub->url(
                                 action('DiscountController@index'),
                                 __('lang_v1.discounts'),
+                                ['icon' => 'fa fas fa-percent', 'active' => request()->segment(1) == 'discount']
+                            );
+                            $sub->url(
+                                action('ImportDiscountController@create'),
+                                __('Import Discount'),
                                 ['icon' => 'fa fas fa-percent', 'active' => request()->segment(1) == 'discount']
                             );
                         }

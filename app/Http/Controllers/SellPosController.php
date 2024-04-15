@@ -49,6 +49,7 @@ use App\Utils\ModuleUtil;
 use App\Utils\NotificationUtil;
 use App\Utils\ProductUtil;
 use App\Utils\TransactionUtil;
+use App\Utils\SmsUtil;
 use App\Variation;
 use App\Warranty;
 use App\InvoiceLayout;
@@ -72,6 +73,7 @@ class SellPosController extends Controller
     protected $cashRegisterUtil;
     protected $moduleUtil;
     protected $notificationUtil;
+    protected $smsUtil;
 
     /**
      * Constructor
@@ -86,7 +88,8 @@ class SellPosController extends Controller
         TransactionUtil $transactionUtil,
         CashRegisterUtil $cashRegisterUtil,
         ModuleUtil $moduleUtil,
-        NotificationUtil $notificationUtil
+        NotificationUtil $notificationUtil,
+        SmsUtil $smsUtil
     ) {
         $this->contactUtil = $contactUtil;
         $this->productUtil = $productUtil;
@@ -95,6 +98,7 @@ class SellPosController extends Controller
         $this->cashRegisterUtil = $cashRegisterUtil;
         $this->moduleUtil = $moduleUtil;
         $this->notificationUtil = $notificationUtil;
+        $this->smsUtil = $smsUtil;
 
         $this->dummyPaymentLine = ['method' => 'cash', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
         'is_return' => 0, 'transaction_no' => ''];
@@ -576,6 +580,16 @@ class SellPosController extends Controller
 
                     //Auto send notification
                     $whatsapp_link = $this->notificationUtil->autoSendNotification($business_id, 'new_sale', $transaction, $transaction->contact);
+                    
+                    // dd($transaction->contact);
+                    $messageText = "Dear Customer, Thanks for Shopping From SKECHERS ISLAMABAD. Your invoice ID: ".$transaction->invoice_no."\n. To Shop online, visit our online store shoestreet.pk \n
+                    Exchange Policy \n
+                    •Exchange can be only eligible within 15 Days of your prior purchase.\n
+                    •Torn/Damage warranty claim can be claimed within 45 Days of prior Purchase.\n
+                    •Discounted Items can’t be claimed or Exchanged.\n";
+                    $phone = $transaction->contact->mobile;
+                    
+                    $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone),'SKECHERS.', '');    
                 }
 
                 //Set Module fields
