@@ -353,6 +353,11 @@ class AdminSidebarMenu
                                 __('lang_v1.discounts'),
                                 ['icon' => 'fa fas fa-percent', 'active' => request()->segment(1) == 'discount']
                             );
+                            $sub->url(
+                                action('ImportDiscountController@create'),
+                                __('Import Discount'),
+                                ['icon' => 'fa fas fa-percent', 'active' => request()->segment(1) == 'discount']
+                            );
                         }
                         // if (auth()->user()->can('discount.access')) {
                         //     $sub->url(

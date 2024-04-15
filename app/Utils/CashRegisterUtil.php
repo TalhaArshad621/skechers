@@ -327,13 +327,14 @@ class CashRegisterUtil extends Util
         return $register_details;
     }
 
-    public function getSaleReturnDetails($location_id,$register_id = null){
+    public function getSaleReturnDetails($location_id,$open_time, $close_time,$register_id = null){
 
         $sell_return = CashRegister::leftjoin('cash_register_transactions','cash_register_transactions.cash_register_id','=','cash_registers.id')
-        ->rightJoin('transactions', 'transactions.id', '=', 'cash_register_transactions.transaction_id')
+        ->leftjoin('transactions', 'transactions.id', '=', 'cash_register_transactions.transaction_id')
         ->where('transactions.type','sell_return')
         ->where('transactions.location_id', $location_id)
         ->where('transactions.payment_status','paid')
+        ->whereBetween('transactions.transaction_date', [$open_time, $close_time])
         ->select(
             // 'cash_registers.created_at as open_time',
             // 'cash_registers.closed_at as closed_at',
@@ -346,6 +347,7 @@ class CashRegisterUtil extends Util
         // dd($sell_return);
 
         return  $sell_return;
+
     }
 
     /**

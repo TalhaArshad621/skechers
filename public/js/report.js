@@ -538,7 +538,7 @@ $(document).ready(function () {
                     var end = $('input#sr_date_filter')
                         .data('daterangepicker')
                         .endDate.format('YYYY-MM-DD');
-
+                    console.log(start, end);
                     (d.commission_agent = $('select#sr_id').val()),
                         (d.location_id = $('select#sr_business_id').val()),
                         (d.start_date = start),

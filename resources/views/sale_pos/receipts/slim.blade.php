@@ -260,6 +260,7 @@
 
 			@php
 				$total_new_discount = 0;
+				$total_original_amount = 0;
 			@endphp
 				
             <table style="margin-top: 10px !important" class="border-bottom width-100 table-f-12 mb-10">
@@ -287,6 +288,7 @@
                 	@forelse($receipt_details->lines as $line)
 					@php
 						$total_new_discount += $line['new_discount_amount'];
+						$total_original_amount += $line['original_price'] * $line['quantity'];
 					@endphp
 	                    <tr>
 	                        <td class="serial_number" style="vertical-align: top;">
@@ -321,10 +323,18 @@
 			@if(empty($receipt_details->hide_price))
                 <div class="flex-box">
                     <p class="left text-right sub-headings">
+                    	Total Amount
+                    </p>
+                    <p class="width-50 text-right sub-headings">
+                    	Rs. {{(int)$total_original_amount}}
+                    </p>
+                </div>
+                <div class="flex-box">
+                    <p class="left text-right sub-headings">
                     	Total Discount
                     </p>
                     <p class="width-50 text-right sub-headings">
-                    	{{(int)$total_new_discount}}
+                    	Rs. {{(int)$total_new_discount}}
                     </p>
                 </div>
                 <div class="flex-box">
@@ -406,14 +416,14 @@
 					</div>
 				@endif
 
-				<div class="flex-box">
+				{{-- <div class="flex-box">
 					<p class="width-50 text-right sub-headings">
 						{!! $receipt_details->total_label !!}
 					</p>
 					<p class="width-50 text-right sub-headings">
 						{{$receipt_details->total}}
 					</p>
-				</div>
+				</div> --}}
 				@if(!empty($receipt_details->total_in_words))
 				<p colspan="2" class="text-right mb-0">
 					<small>

@@ -106,9 +106,9 @@ class SellReturnController extends Controller
                         'transactions.transaction_date',
                         'transactions.invoice_no',
                         'contacts.name',
-                        // 'transactions.final_total',
-                        DB::raw('(SELECT SUM(IF(TP.is_return = 1,-1*TP.amount,TP.amount)) FROM transaction_payments AS TP WHERE
-                        TP.transaction_id=transactions.id) as final_total'),
+                        'transactions.final_total',
+                        // DB::raw('(SELECT SUM(IF(TP.is_return = 1,-1*TP.amount,TP.amount)) FROM transaction_payments AS TP WHERE
+                        // TP.transaction_id=transactions.id) as final_total'),
                         'transactions.payment_status',
                         'bl.name as business_location',
                         'T1.invoice_no as parent_sale',
@@ -587,15 +587,20 @@ class SellReturnController extends Controller
                 $invoice_total = $this->productUtil->calculateInvoiceTotal($input['exchange_products'], $input['tax_rate_id'], $discount);
 
                 DB::beginTransaction();
-
+                
+                $is_direct_sale = false;
+                if (!empty($request->input('is_direct_sale'))) {
+                    $is_direct_sale = true;
+                }
+                
                 if (empty($request->input('transaction_date'))) {
                     $input['transaction_date'] =  \Carbon::now();
                 } else {
                     $input['transaction_date'] = $this->productUtil->uf_date($request->input('transaction_date'), true);
                 }
-                // if ($is_direct_sale) {
-                //     $input['is_direct_sale'] = 1;
-                // }
+                if ($is_direct_sale) {
+                    $input['is_direct_sale'] = 1;
+                }
 
                 //Set commission agent
                 $input['commission_agent'] = !empty($request->input('commission_agent')) ? $request->input('commission_agent') : null;
@@ -675,13 +680,13 @@ class SellReturnController extends Controller
 
                 $fbr_lines =   $this->transactionUtil->createOrUpdateSellLinesReturn($sell_return, $input['exchange_products'], $sell_return->location_id);
                 
-                // if (!$is_direct_sale) {
-                //     //Add change return
-                //     $change_return = $this->dummyPaymentLine;
-                //     $change_return['amount'] = $input['change_return'];
-                //     $change_return['is_return'] = 1;
-                //     $input['payment'][] = $change_return;
-                // }
+                if (!$is_direct_sale) {
+                    //Add change return
+                    $change_return = $this->dummyPaymentLine;
+                    $change_return['amount'] = $input['change_return'];
+                    $change_return['is_return'] = 1;
+                    $input['payment'][] = $change_return;
+                }
 
                 $is_credit_sale = isset($input['is_credit_sale']) && $input['is_credit_sale'] == 1 ? true : false;
 

@@ -281,6 +281,9 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/import-purchase', 'ImportPurchaseController@index');
     Route::post('/import-purchase/store', 'ImportPurchaseController@store');
 
+    // Import Discount 
+    Route::get('/import-discount','ImportDiscountController@create');
+
     //Sales Commission Agent
     Route::resource('sales-commission-agents', 'SalesCommissionAgentController');
 

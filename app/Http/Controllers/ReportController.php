@@ -3659,6 +3659,7 @@ class ReportController extends Controller
             }
             $start_date = $request->get('start_date');
             $end_date = $request->get('end_date');
+
             if (!empty($start_date) && !empty($end_date)) {
                 $query->where('t.transaction_date', '>=', $start_date)
                     ->where('t.transaction_date', '<=', $end_date);
@@ -4891,11 +4892,21 @@ class ReportController extends Controller
         $start_date  = $request->get('start_date', null);
         $end_date    = $request->get('end_date', null);
         $commission_agent = $request->get('commission_agent', null);
-        
+
+        // Modify start date to include time
+        if ($start_date !== null) {
+            $start_date .= ' 00:00:00';
+        }
+
+        // Modify end date to include time
+        if ($end_date !== null) {
+            $end_date .= ' 23:59:59'; // Assuming you want the end of the day
+        }
+        // dd($start_date, $end_date);
         if($request->ajax() || true){
             $query = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
             ->join('users','users.id','transactions.commission_agent')
-            ->where('transactions.type','sell')
+            ->whereIn('transactions.type',['sell','sell_return'])
             ->select(
                 'users.first_name', 'users.last_name',
                 // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
