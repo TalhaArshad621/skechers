@@ -7289,12 +7289,14 @@ class TransactionUtil extends Util
             $ref_count = $this->setAndGetReferenceCount('sell_return', $business_id);
             $sell_return_data['invoice_no'] = $this->generateReferenceNumber('sell_return', $ref_count, $business_id);
         }
-
+        
         if (empty($sell_return)) {
             
             $sell_return_data['transaction_date'] = $sell_return_data['transaction_date'] ?? \Carbon::now();
             $sell_return_data['business_id'] = $business_id;
-            $sell_return_data['location_id'] = ($location_id_new == "all" )?  $sell->location_id : $location_id_new[0];
+            $sell_return_data['location_id'] = $sell->location_id;
+            // Issue found on line below. Fix in future.
+            // $sell_return_data['location_id'] = ($location_id_new == "all" ) ? $sell->location_id : $location_id_new[0];
             $sell_return_data['contact_id'] = $sell->contact_id;
             $sell_return_data['customer_group_id'] = $sell->customer_group_id;
             $sell_return_data['type'] = 'sell_return';

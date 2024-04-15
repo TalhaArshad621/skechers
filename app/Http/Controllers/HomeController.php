@@ -350,6 +350,7 @@ class HomeController extends Controller
             $total_purchase_return_inc_tax = $transaction_totals['total_purchase_return_inc_tax'];
 
             $total_purchase = $total_purchase_inc_tax - $total_purchase_return_inc_tax;
+            // dd($total_purchase);
             $output = $purchase_details;
             $output['total_purchase'] = $total_purchase;
 
@@ -358,10 +359,11 @@ class HomeController extends Controller
 
             // $output['total_sell'] = $total_sell_inc_tax - $total_sell_return_inc_tax;
             $output['total_sell'] = ($cash_payment->cash_amount) + ($card_payment->card_amount);
-
+            
             $output['invoice_due'] = $sell_details['invoice_due'];
             $output['total_expense'] = $transaction_totals['total_expense'];
             $output['total_item_sold'] = $invoice_data->total_item_sold;
+            // dd($output);
             return $output;
         }
     }
