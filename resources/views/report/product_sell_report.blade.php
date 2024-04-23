@@ -96,6 +96,7 @@
                                         <th>Discount</th>
                                         <th>Profit</th>
                                         <th>@lang('report.current_stock')</th>
+                                        <th>Stock</th>
                                         <th>Image</th>
                                     </tr>
                                 </thead>

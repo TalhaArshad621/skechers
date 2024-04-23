@@ -1105,13 +1105,19 @@ class ReportController extends Controller
                         // $row->cash_amount . '</span>';                    
                     }
                 })
+                ->editColumn('total_kamai', function ($row) {
+                    $total_kamai = $row->cash_amount + $row->card_amount;
+                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $total_kamai . '">' . $total_kamai . '</span>';
+
+                    return $row->cash_amount + $row->card_amount;
+                })
                 ->addColumn('action', '<button type="button" data-href="{{action(\'CashRegisterController@show\', [$id])}}" class="btn btn-xs btn-info btn-modal" 
                     data-container=".view_register"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</button> @if($status != "close" && auth()->user()->can("close_cash_register"))<button type="button" data-href="{{action(\'CashRegisterController@getCloseRegister\', [$id])}}" class="btn btn-xs btn-danger btn-modal" 
                         data-container=".view_register"><i class="fas fa-window-close"></i> @lang("messages.close")</button> @endif')
                 ->filterColumn('user_name', function ($query, $keyword) {
                     $query->whereRaw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) like ?", ["%{$keyword}%"]);
                 })
-                ->rawColumns(['action', 'user_name', 'closing_amount','cash_amount','card_amount'])
+                ->rawColumns(['action', 'user_name', 'closing_amount','cash_amount','card_amount','total_kamai'])
                 ->make(true);
         }
 
@@ -2477,6 +2483,7 @@ class ReportController extends Controller
         if (!empty($location_id)) {
             $vld_str = "AND vld.location_id=$location_id";
         }
+        // dd($vld_str, $request);
 
         if ($request->ajax()) {
             $variation_id = $request->get('variation_id', null);
@@ -2575,12 +2582,71 @@ class ReportController extends Controller
                 })
                 ->editColumn('product_name', function ($row) {
                     $product_name = $row->product_name;
+                    
+                    // Find the position of the first hyphen
+                    $first_hyphen_position = strpos($product_name, '-');
+                
+                    // Find the position of the next hyphen after the first one
+                    $second_hyphen_position = strpos($product_name, '-', $first_hyphen_position + 1);
+                
+                    // Extract the color part
+                    if ($second_hyphen_position !== false) {
+                        $product_color = substr($product_name, $first_hyphen_position + 1, $second_hyphen_position - $first_hyphen_position - 1);
+                    } else {
+                        // If there is no second hyphen, extract color from the first hyphen to the end
+                        $product_color = substr($product_name, $first_hyphen_position + 1);
+                    }
+                    // dd($product_color);
+                
                     if ($row->product_type == 'variable') {
                         $product_name .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
                     }
-
+                
                     return $product_name;
                 })
+                
+                ->addColumn('stock', function ($row) use ($vld_str, $business_id) {
+                    $product_name = $row->product_name;
+                    
+                    // Find the position of the second hyphen
+                    $second_hyphen_position = strpos($product_name, '-', strpos($product_name, '-') + 1);
+                
+                    // Extract the product name without the size part
+                    $product_name_without_size = $second_hyphen_position !== false ? substr($product_name, 0, $second_hyphen_position) : $product_name;
+                
+                    // If the product type is variable, append additional information to the product name
+                    if ($row->product_type == 'variable') {
+                        $product_name_without_size .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
+                    }
+                
+                    // Assuming you have a function to calculate stock based on product name without size
+                    $stock = $this->productUtil->calculateStock($product_name_without_size, $row->variation_id, $vld_str, $business_id);
+                
+                    $stocks = $stock->pluck('stock');
+
+                    if ($stocks->isNotEmpty()) {
+                        return $stocks->sum();
+                    } else {
+                        return 0;
+                    }
+
+                    // if ($stock) {
+                    //     return $stock->stock;
+                    // } else {
+                    //     return 0;
+                    // }
+                })
+                                
+                
+                
+                // ->editColumn('product_name', function ($row) {
+                //     $product_name = $row->product_name;
+                //     if ($row->product_type == 'variable') {
+                //         $product_name .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
+                //     }
+
+                //     return $product_name;
+                // })
                 ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
                 ->editColumn('buying_date', '{{@format_date($formated_date)}}')
                 ->editColumn('total_qty_sold', function ($row) {
@@ -2616,7 +2682,7 @@ class ReportController extends Controller
                     return '<div style="display: flex;"><img src="' . $row->image_url . '" alt="Product image" class="product-thumbnail-small"></div>';
                 })
                 
-                ->rawColumns(['current_stock', 'subtotal', 'total_qty_sold','discount_amount','buy_price','total_qty_returned','profit','product_image'])
+                ->rawColumns(['current_stock', 'subtotal', 'total_qty_sold','discount_amount','buy_price','total_qty_returned','profit','product_image','stock'])
                 ->make(true);
         }
     }
