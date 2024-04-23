@@ -401,6 +401,7 @@ $(document).ready(function () {
             // { data: 'total_card_slips', name: 'total_card_slips' },
             { data: 'card_amount', name: 'card_amount' },
             { data: 'cash_amount', name: 'cash_amount' },
+            { data: 'total_kamai', name: 'total_kamai' },
             { data: 'action', name: 'action' },
         ],
         fnDrawCallback: function(oSettings) {
@@ -409,8 +410,12 @@ $(document).ready(function () {
             );
             $('#card_total').html(
                 sum_table_col($('#register_report_table'), 'sell_qty')
+            );
+            $('#final_total').html(
+                sum_table_col($('#register_report_table'), 'subtotal')
 
             );
+            
             __currency_convert_recursively($('#register_report_table'));
         }
     });
@@ -1063,6 +1068,7 @@ $(document).ready(function () {
             { data: 'discount_amount', name: 'discount_amount', searchable: false },
             { data: 'profit', name: 'profit', searchable: false },
             { data: 'current_stock', name: 'current_stock', searchable: false, orderable: false },
+            { data: 'stock', name: 'stock', searchable: false, orderable: false },
             { data: 'product_image', name: 'p.image' },
 
         ],
