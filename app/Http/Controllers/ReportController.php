@@ -4192,6 +4192,8 @@ class ReportController extends Controller
                 ->first();
 
 
+            // GROSS PROFIT
+
             $gross_profit = TransactionSellLine::join('transactions as sale', 'transaction_sell_lines.transaction_id', '=', 'sale.id')
             ->leftjoin('transaction_sell_lines_purchase_lines as TSPL', 'transaction_sell_lines.id', '=', 'TSPL.sell_line_id')
             ->leftjoin(
@@ -4201,7 +4203,7 @@ class ReportController extends Controller
                 'PL.id'
             )
             ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
-            ->whereIn('sale.type', ['sell','sell_return'])
+            ->whereIn('sale.type', ['sell'])
             ->where('sale.status', 'final')
             ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
             ->where('sale.business_id', $business_id)
@@ -4229,12 +4231,89 @@ class ReportController extends Controller
                     (TSPL.quantity - TSPL.qty_returned) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
                 )->groupBy('L.id');
                 $results = $gross_profit->first();
-                // dd($results);
-                // Gross Profit
-                // $gross_profit = $this->transactionUtil->getGrossProfit($business_id,$start_date, $end_date, $location_id);
                 $gross_profit = $results ?  $results['gross_profit']: 0;
 
-                
+                $exchange_one_profit =  TransactionSellLine::join('transactions as sale', 'transaction_sell_lines.transaction_id', '=', 'sale.return_parent_id')
+                ->leftjoin('transaction_sell_lines_purchase_lines as TSPL', 'transaction_sell_lines.id', '=', 'TSPL.sell_line_id')
+                ->leftjoin(
+                    'purchase_lines as PL',
+                    'TSPL.purchase_line_id',
+                    '=',
+                    'PL.id'
+                )
+                ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
+                ->whereIn('sale.type', ['sell_return'])
+                ->where('sale.status', 'final')
+                ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
+                ->where('sale.business_id', $business_id)
+                ->where('sale.location_id', '<>', 9)
+                ->where('transaction_sell_lines.children_type', '!=', 'combo');
+                  //Filter by the location
+                if (!empty($location_id)) {
+                    $exchange_one_profit->where('L.id', $location_id);
+                }
+                if (!empty(request()->start_date) && !empty(request()->end_date)) {
+                    $start = request()->start_date;
+                    $end =  request()->end_date;
+                    $exchange_one_profit->whereDate('sale.transaction_date', '>=', $start)->whereDate('sale.transaction_date', '<=', $end);
+                }
+
+                 //If type combo: find childrens, sale price parent - get PP of childrens
+                $exchange_one_profit->select(DB::raw('SUM(IF (TSPL.id IS NULL AND P.type="combo", ( 
+                SELECT Sum((tspl2.quantity) * (tsl.unit_price_inc_tax - pl2.purchase_price_inc_tax)) AS total
+                FROM transaction_sell_lines AS tsl
+                JOIN transaction_sell_lines_purchase_lines AS tspl2
+                ON tsl.id=tspl2.sell_line_id 
+                JOIN purchase_lines AS pl2 
+                ON tspl2.purchase_line_id = pl2.id 
+                WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax,   
+                (TSPL.quantity) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
+                )->groupBy('L.id');
+                $results_new = $exchange_one_profit->first();
+
+                $result_new_profit = $results_new ?  $results_new['gross_profit']: 0;
+
+                $exchange_two_profit =  TransactionSellLine::join('transactions as sale', 'transaction_sell_lines.transaction_id', '=', 'sale.id')
+                ->leftjoin('transaction_sell_lines_purchase_lines as TSPL', 'transaction_sell_lines.id', '=', 'TSPL.sell_line_id')
+                ->leftjoin(
+                    'purchase_lines as PL',
+                    'TSPL.purchase_line_id',
+                    '=',
+                    'PL.id'
+                )
+                ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
+                ->whereIn('sale.type', ['sell_return'])
+                ->where('sale.status', 'final')
+                ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
+                ->where('sale.business_id', $business_id)
+                ->where('sale.location_id', '<>', 9)
+                ->where('transaction_sell_lines.children_type', '!=', 'combo');
+                  //Filter by the location
+                if (!empty($location_id)) {
+                    $exchange_two_profit->where('L.id', $location_id);
+                }
+                if (!empty(request()->start_date) && !empty(request()->end_date)) {
+                    $start = request()->start_date;
+                    $end =  request()->end_date;
+                    $exchange_two_profit->whereDate('sale.transaction_date', '>=', $start)->whereDate('sale.transaction_date', '<=', $end);
+                }
+
+                 //If type combo: find childrens, sale price parent - get PP of childrens
+                $exchange_two_profit->select(DB::raw('SUM(IF (TSPL.id IS NULL AND P.type="combo", ( 
+                SELECT Sum((tspl2.quantity) * (tsl.unit_price_inc_tax - pl2.purchase_price_inc_tax)) AS total
+                FROM transaction_sell_lines AS tsl
+                JOIN transaction_sell_lines_purchase_lines AS tspl2
+                ON tsl.id=tspl2.sell_line_id 
+                JOIN purchase_lines AS pl2 
+                ON tspl2.purchase_line_id = pl2.id 
+                WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax,   
+                (TSPL.quantity) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
+                )->groupBy('L.id');
+                $results_two = $exchange_two_profit->first();
+                $result_two_pofit = $results_two ?  $results_two['gross_profit']: 0;
+
+                $exchanged_profit =  $result_two_pofit - $result_new_profit ;
+
                 // Gift Amount
                 $query6 = DB::table('transactions')
                 ->where('transactions.business_id', $business_id)
@@ -4336,7 +4415,7 @@ class ReportController extends Controller
                 'card_amount' => $card_payment->card_amount,
                 'total_received' => ($cash_payment->cash_amount) + ($card_payment->card_amount),
                 // 'total_received' => $invoice_data['invoice_amount'],
-                'profit_loss' => $gross_profit,
+                'profit_loss' => $gross_profit + $exchanged_profit,
                 'total_gift_amount' => $gift_amount->amount,
                 'total_gift_items' => $gift_items['gift_items'],
                 'gst_tax' => $gst_tax['tax'],
