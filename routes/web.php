@@ -91,6 +91,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/products/adjustment-history', 'ProductController@productAdjustmentHistory');
 
     Route::get('/products-list', 'ProductController@productList');
+    Route::get('/all-products-list', 'ProductController@allProductsList');
+
     
     // Product Audit 
     Route::get('/products-audit', 'AuditController@productAudit');
@@ -308,6 +310,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     //Sell return
 
     Route::get('/merged-receipt/{id}', 'SellReturnController@showMergedReceipt')->name('merged-receipt.show');
+    Route::get('/gift-receipt/{id}', 'SellReturnController@showGiftReceipt')->name('gift-receipt.show');
+
 
 
     Route::resource('sell-return', 'SellReturnController');
@@ -316,6 +320,10 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/sell-return/add/{id}', 'SellReturnController@add');
     Route::get('/new-sell-return/add', 'SellReturnController@newSellReturn');
     Route::post('/get-sell-return-data', 'SellReturnController@extractData');
+    Route::get('/new-sell-return-gift/add', 'SellReturnController@addGiftReturn');
+    Route::post('/get-sell-return-data-for-gift', 'SellReturnController@extractGiftData');
+    Route::post('/store-gift-return', 'SellReturnController@storeGiftReturn');
+
 
     
     //Backup

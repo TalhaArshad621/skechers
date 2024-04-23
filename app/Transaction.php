@@ -74,6 +74,10 @@ class Transaction extends Model
     {
         return $this->belongsTo(\App\User::class, 'created_by');
     }
+    public function commision_agent()
+    {
+        return $this->belongsTo(\App\User::class, 'commission_agent');
+    }
 
     public function return_parent()
     {

@@ -278,6 +278,27 @@ class Util
      * @param bool $time (default = false)
      * @return strin
      */
+
+    //  public function format_date($date, $show_time = false, $business_details = null)
+    //  {
+    //      $format = !empty($business_details) ? $business_details->date_format : session('business.date_format');
+         
+    //      if (!empty($show_time)) {
+    //          $time_format = !empty($business_details) ? $business_details->time_format : session('business.time_format');
+    //          if ($time_format == 12) {
+    //              $format .= ' h:i A';
+    //          } else {
+    //              $format .= ' H:i';
+    //          }
+    //      }
+         
+    //      if ($date === 'now') {
+    //          return \Carbon\Carbon::now()->format($format);
+    //      } else {
+    //          return !empty($date) ? \Carbon\Carbon::createFromFormat('Y-d-m H:i:s', $date)->format($format) : null;
+    //      }
+    //  }
+     
     public function format_date($date, $show_time = false, $business_details = null)
     {
         $format = !empty($business_details) ? $business_details->date_format : session('business.date_format');
@@ -289,7 +310,6 @@ class Util
                 $format .= ' H:i';
             }
         }
-        
         return !empty($date) ? \Carbon::createFromTimestamp(strtotime($date))->format($format) : null;
     }
 

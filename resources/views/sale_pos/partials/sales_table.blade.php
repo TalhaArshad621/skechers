@@ -9,7 +9,7 @@
             <th>@lang('sale.customer_name')</th>
             {{-- <th>@lang('lang_v1.contact_no')</th> --}}
             <th>@lang('sale.location')</th>
-            {{-- <th>@lang('sale.payment_status')</th> --}}
+            <th>@lang('sale.payment_status')</th>
             <th>Sub Total</th>
             <th>Discount Amount</th>
             <th>Invoice Amount</th>
@@ -32,7 +32,7 @@
     <tfoot>
         <tr class="bg-gray font-17 footer-total text-center">
             <td colspan="4"><strong>@lang('sale.total'):</strong></td>
-            {{-- <td class="footer_payment_status_count"></td> --}}
+            <td class="footer_payment_status_count"></td>
             <td class="footer_sub_total"></td>
             <td class="footer_discount_total"></td>
             <td class="footer_sale_total"></td>

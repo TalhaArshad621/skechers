@@ -62,7 +62,7 @@
                     <div class="form-group">
 
                         {!! Form::label('spr_date_filter', __('report.date_range') . ':') !!}
-                        {!! Form::text('date_range', null, ['placeholder' => __('lang_v1.select_a_date_range'), 'class' => 'form-control', 'id' => 'spr_date_filter', 'readonly']); !!}
+                        {!! Form::text('spr_date_filter', null, ['placeholder' => __('lang_v1.select_a_date_range'), 'class' => 'form-control', 'id' => 'spr_date_filter', 'readonly']); !!}
                     </div>
                 </div>
                 {!! Form::close() !!}

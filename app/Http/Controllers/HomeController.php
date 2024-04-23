@@ -765,6 +765,8 @@ class HomeController extends Controller
               ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
               ->where('p.business_id', $business_id)
               ->whereIn('p.type', ['single', 'variable']);
+            //   ->first();
+            //   dd($query);
 
             $permitted_locations = auth()->user()->permitted_locations();
             // dd($permitted_locations,$location_id);
@@ -774,12 +776,14 @@ class HomeController extends Controller
                 $query->whereIn('vld.location_id', $permitted_locations);
 
                 $locations_imploded = implode(', ', $permitted_locations);
+                // dd($locations_imploded);
                 $location_filter .= "AND transactions.location_id IN ($locations_imploded) ";
             }
 
             if ($location_id) {
 
                 $query->where('vld.location_id', $location_id);
+                // dd($query);
 
                 $location_filter .= "AND transactions.location_id=$location_id";
 
@@ -789,6 +793,20 @@ class HomeController extends Controller
                         $q->where('pl.location_id', $location_id);
                     });
             }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            // dd($start_date,$end_date);
+            // if (!empty($start_date) && !empty($end_date)) {
+            //     $query->whereBetween(DB::raw('date(transactions.transaction_date)'), [$start_date, $end_date]);
+            // }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            // dd($start_date,$end_date);
+
+        //     if (!empty($start_date) && !empty($end_date)) {
+        //         $query->where('transactions.transaction_date', '>=', $start_date)
+        //             ->where('transactions.transaction_date', '<=', $end_date);
+        // }
     
               $pl_query_string = $this->productUtil->get_pl_quantity_sum_string('pl');
             //   dd($pl_query_string);
@@ -846,7 +864,23 @@ class HomeController extends Controller
                 'categories.name as category_name',
                 'categories.id as category_id'
             )->groupBy('categories.id');
-              }
+
+            //     $start_date = $request->get('start_date');
+            //     $end_date = $request->get('end_date');
+            //     dd($start_date,$end_date);
+            //     if (!empty($start_date) && !empty($end_date)) {
+            //         $query->whereBetween(DB::raw('date(transaction_date)'), [$start_date, $end_date]);
+            //     }
+            //     $start_date = $request->get('start_date');
+            //     $end_date = $request->get('end_date');
+            //     dd($start_date,$end_date);
+
+            //     if (!empty($start_date) && !empty($end_date)) {
+            //         $query->where('t.transaction_date', '>=', $start_date)
+            //             ->where('t.transaction_date', '<=', $end_date);
+            // }
+
+            }
               else{
                 $products = $query->select(
                     // DB::raw("(SELECT SUM(quantity) FROM transaction_sell_lines LEFT JOIN transactions ON transaction_sell_lines.transaction_id=transactions.id WHERE transactions.status='final' $location_filter AND
@@ -898,8 +932,24 @@ class HomeController extends Controller
                     'v.sell_price_inc_tax as unit_price',
                     'v.dpp_inc_tax as unit_price_default',
                     'categories.name as category_name',
-                    'categories.id as category_id'
+                    'categories.id as category_id',
+                    // 'transactions.transaction_date'
                 )->groupBy('categories.id');
+            //     $start_date = $request->get('start_date');
+            //     $end_date = $request->get('end_date');
+            //     // dd($start_date,$end_date);
+            //     if (!empty($start_date) && !empty($end_date)) {
+            //         $query->whereBetween(DB::raw('date(transactions.transaction_date)'), [$start_date, $end_date]);
+            //     }
+            //     $start_date = $request->get('start_date');
+            //     $end_date = $request->get('end_date');
+            //     // dd($start_date,$end_date);
+
+            //     if (!empty($start_date) && !empty($end_date)) {
+            //         $query->where('transactions.transaction_date', '>=', $start_date)
+            //             ->where('transactions.transaction_date', '<=', $end_date);
+            // }
+
               }
             
             // dd($products);

@@ -754,6 +754,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-undo', 'active' => request()->segment(1) == 'gift-index' && request()->segment(2) == null]
                             );
                         }
+                        if (auth()->user()->can('access_sell_return')) {
+                            $sub->url(
+                                action('SellReturnController@addGiftReturn'),
+                                __('Add Gift Return'),
+                                ['icon' => 'fa fas fa-undo', 'active' => request()->segment(1) == 'new-sell-return-gift' && request()->segment(2) == null]
+                            );
+                        }
                     },
                     ['icon' => 'fa fa-gift']
                 )->order(36);

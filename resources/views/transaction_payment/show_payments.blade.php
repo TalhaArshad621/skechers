@@ -1,6 +1,7 @@
 <div class="modal-dialog" role="document">
     <div class="modal-content">
         <div class="modal-header">
+            {{-- {{ dd($transaction->type) }} --}}
             <button type="button" class="close no-print" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title no-print">
                 @lang( 'purchase.view_payments' ) 

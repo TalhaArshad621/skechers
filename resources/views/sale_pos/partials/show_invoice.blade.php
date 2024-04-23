@@ -10,7 +10,7 @@
                  aria-label="Print"><i class="fas fa-print"></i> @lang( 'messages.print' )
             </button>
             @auth
-                <a href="{{action('SellController@index')}}" class="btn btn-success no-print" ><i class="fas fa-backward"></i>
+                <a href="{{action('GiftController@index')}}" class="btn btn-success no-print" ><i class="fas fa-backward"></i>
                 </a>
             @endauth
         </div>
