@@ -8,6 +8,8 @@ use App\Utils\CashRegisterUtil;
 use App\Utils\TransactionUtil;
 use App\Utils\ModuleUtil;
 use Illuminate\Http\Request;
+use App\Utils\SmsUtil;
+
 
 class CashRegisterController extends Controller
 {
@@ -18,6 +20,7 @@ class CashRegisterController extends Controller
     protected $cashRegisterUtil;
     protected $moduleUtil;
     protected $transactionUtil;
+    protected $smsUtil;
 
 
     /**
@@ -26,11 +29,12 @@ class CashRegisterController extends Controller
      * @param CashRegisterUtil $cashRegisterUtil
      * @return void
      */
-    public function __construct(CashRegisterUtil $cashRegisterUtil, ModuleUtil $moduleUtil, TransactionUtil $transactionUtil)
+    public function __construct(CashRegisterUtil $cashRegisterUtil, ModuleUtil $moduleUtil, TransactionUtil $transactionUtil,SmsUtil $smsUtil)
     {
         $this->cashRegisterUtil = $cashRegisterUtil;
         $this->moduleUtil = $moduleUtil;
         $this->transactionUtil = $transactionUtil;
+        $this->smsUtil = $smsUtil;
 
     }
 
@@ -249,6 +253,11 @@ class CashRegisterController extends Controller
             $output = ['success' => 1,
                             'msg' => __('cash_register.close_success')
                         ];
+
+            $messageText = "Register Closed";
+            $phone = "03416881318";
+            
+            $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone),'SKECHERS.', '');    
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
             $output = ['success' => 0,

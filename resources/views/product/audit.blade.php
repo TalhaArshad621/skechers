@@ -18,6 +18,10 @@
                   <div class="form-group">
                     <label>Barcode No.</label>
                     <input type="text" name="code" id="code" class="form-control" placeholder="Enter Barcode Number" oninput="getProductDetails()">
+                    <label style="color: red; font-size:17px; margin-top:15px;">Scanned Products:</label>
+                    <span style="font-size:17px;" id="rowCount">0</span>
+                    <br>
+                    <button style="margin-top: 15px;" type="button" id="check-audit" class="btn btn-primary btn-flat">Check Audit</button>
 
                     {{-- <input type="text" name="code" id="code" class="form-control" placeholder="Enter Barcode Number" onblur="getProductDetails()"> --}}
                 </div>

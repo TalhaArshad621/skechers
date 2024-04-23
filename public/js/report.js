@@ -1,7 +1,10 @@
 $(document).ready(function () {
+    
     //Purchase & Sell report
     //Date range as a button
     if ($('#purchase_sell_date_filter').length == 1) {
+        var start = moment().startOf('day');
+        var end = moment().endOf('day');
         $('#purchase_sell_date_filter').daterangepicker(dateRangeSettings, function (start, end) {
             $('#purchase_sell_date_filter span').html(
                 start.format(moment_date_format) + ' ~ ' + end.format(moment_date_format)
@@ -333,7 +336,7 @@ $(document).ready(function () {
     if ($('#register_report_date_range').length == 1) {
         $('#register_report_date_range').daterangepicker({
             ranges: ranges,
-            autoUpdateInput: false,
+            autoUpdateInput: true,
             locale: {
                 format: moment_date_format,
                 cancelLabel: LANG.clear,
@@ -360,7 +363,35 @@ $(document).ready(function () {
     register_report_table = $('#register_report_table').DataTable({
         processing: true,
         serverSide: true,
-        ajax: '/reports/register-report',
+        ajax: {
+            url: '/reports/register-report',
+            data: function (d) {
+                var start = '';
+                var end = '';
+                // console.log(start,end);
+                var start_time = $('#product_sr_start_time').val();
+                var end_time = $('#product_sr_end_time').val();
+                if ($('#register_report_date_range').val()) {
+                    start = $('input#register_report_date_range')
+                        .data('daterangepicker')
+                        .startDate.format('YYYY-MM-DD');
+                    end = $('input#register_report_date_range')
+                        .data('daterangepicker')
+                        .endDate.format('YYYY-MM-DD');
+
+                    start = moment(start + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                    end = moment(end + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                }
+                console.log(d);
+                d.start_date = start;
+                d.end_date = end;
+
+                d.variation_id = $('#variation_id').val();
+                d.customer_id = $('select#customer_id').val();
+                d.location_id = $('select#location_id').val();
+            },
+        },
+        // ajax: '/reports/register-report',
         columnDefs: [{ targets: [6], orderable: false, searchable: false }],
         columns: [
             { data: 'created_at', name: 'created_at' },
@@ -372,9 +403,16 @@ $(document).ready(function () {
             { data: 'cash_amount', name: 'cash_amount' },
             { data: 'action', name: 'action' },
         ],
-        fnDrawCallback: function (oSettings) {
+        fnDrawCallback: function(oSettings) {
+            $('#cash_total').text(
+                sum_table_col($('#register_report_table'), 'row_subtotal')
+            );
+            $('#card_total').html(
+                sum_table_col($('#register_report_table'), 'sell_qty')
+
+            );
             __currency_convert_recursively($('#register_report_table'));
-        },
+        }
     });
     $('.view_register').on('shown.bs.modal', function () {
         __currency_convert_recursively($(this));
@@ -676,6 +714,8 @@ $(document).ready(function () {
 
     //Overview Report
     if ($('#overview_date_filter').length == 1) {
+        var start = moment().startOf('day');
+        var end = moment().endOf('day');
         $('#overview_date_filter').daterangepicker(dateRangeSettings, function (start, end) {
             $('#overview_date_filter span').html(
                 start.format(moment_date_format) + ' ~ ' + end.format(moment_date_format)
@@ -1243,6 +1283,54 @@ $(document).ready(function () {
     });
 
     //Sell Payment Report
+
+    $(document).on('submit', '#sell_payment_report_form', function (e) {
+        e.preventDefault();
+        updateSellPaymentReport();
+    });
+
+    function updateSellPaymentReport() {
+        var start = $('#spr_date_filter')
+            .data('daterangepicker')
+            .startDate.format('YYYY-MM-DD');
+        var end = $('#spr_date_filter')
+            .data('daterangepicker')
+            .endDate.format('YYYY-MM-DD');
+    
+        // url_data = out.join('&');
+        // register_report_table.ajax.url('/reports/sell-payment-report?' + url_data).load();
+        sell_payment_report.ajax.reload();
+
+    }
+
+    if ($('#spr_date_filter').length == 1) {
+        $('#spr_date_filter').daterangepicker({
+            ranges: ranges,
+            autoUpdateInput: true,
+            locale: {
+                format: moment_date_format,
+                cancelLabel: LANG.clear,
+                applyLabel: LANG.apply,
+                customRangeLabel: LANG.custom_range,
+            },
+        });
+        $('#spr_date_filter').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(
+                picker.startDate.format(moment_date_format) +
+                ' ~ ' +
+                picker.endDate.format(moment_date_format)
+            );
+            updateSellPaymentReport();
+        });
+
+        $('#spr_date_filter').on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+            updateSellPaymentReport();
+        });
+    }
+
+
+
     sell_payment_report = $('table#sell_payment_report_table').DataTable({
         processing: true,
         serverSide: true,
@@ -1254,18 +1342,39 @@ $(document).ready(function () {
                 d.location_id = $('select#location_id').val();
                 d.payment_types = $('select#payment_types').val();
                 d.customer_group_id = $('select#customer_group_filter').val();
+
                 var start = '';
                 var end = '';
-                if ($('input#spr_date_filter').val()) {
+                // console.log(start,end);
+                var start_time = $('#product_sr_start_time').val();
+                var end_time = $('#product_sr_end_time').val();
+                if ($('#spr_date_filter').val()) {
                     start = $('input#spr_date_filter')
                         .data('daterangepicker')
                         .startDate.format('YYYY-MM-DD');
                     end = $('input#spr_date_filter')
                         .data('daterangepicker')
                         .endDate.format('YYYY-MM-DD');
+
+                    start = moment(start + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                    end = moment(end + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
                 }
+                console.log(d);
                 d.start_date = start;
                 d.end_date = end;
+
+                // var start = '';
+                // var end = '';
+                // if ($('input#spr_date_filter').val()) {
+                //     start = $('input#spr_date_filter')
+                //         .data('daterangepicker')
+                //         .startDate.format('YYYY-MM-DD');
+                //     end = $('input#spr_date_filter')
+                //         .data('daterangepicker')
+                //         .endDate.format('YYYY-MM-DD');
+                // }
+                // d.start_date = start;
+                // d.end_date = end;
             },
         },
         columns: [
@@ -1330,18 +1439,18 @@ $(document).ready(function () {
         });
     });
 
-    if ($('#spr_date_filter').length == 1) {
-        $('#spr_date_filter').daterangepicker(dateRangeSettings, function (start, end) {
-            $('#spr_date_filter span').val(
-                start.format(moment_date_format) + ' ~ ' + end.format(moment_date_format)
-            );
-            sell_payment_report.ajax.reload();
-        });
-        $('#spr_date_filter').on('cancel.daterangepicker', function (ev, picker) {
-            $('#spr_date_filter').val('');
-            sell_payment_report.ajax.reload();
-        });
-    }
+    // if ($('#spr_date_filter').length == 1) {
+    //     $('#spr_date_filter').daterangepicker(dateRangeSettings, function (start, end) {
+    //         $('#spr_date_filter span').val(
+    //             start.format(moment_date_format) + ' ~ ' + end.format(moment_date_format)
+    //         );
+    //         sell_payment_report.ajax.reload();
+    //     });
+    //     $('#spr_date_filter').on('cancel.daterangepicker', function (ev, picker) {
+    //         $('#spr_date_filter').val('');
+    //         sell_payment_report.ajax.reload();
+    //     });
+    // }
 
     $('#sell_payment_report_form #location_id, #sell_payment_report_form #customer_id, #sell_payment_report_form #payment_types, #sell_payment_report_form #customer_group_filter').change(
         function () {

@@ -105,6 +105,7 @@ class ReportController extends Controller
         if ($request->ajax()) {
             $start_date = $request->get('start_date');
             $end_date = $request->get('end_date');
+            // dd($start_date,$end_date);
 
             $location_id = $request->get('location_id');
 
@@ -1075,9 +1076,10 @@ class ReportController extends Controller
                 // })
                 ->editColumn('card_amount', function ($row) {
                     if ($row->status == 'close') {
-                        return $row->card_amount;
+                        return '<span class="display_currency sell_qty" data-currency_symbol = true data-orig-value="' . $row->card_amount . '">' . $row->card_amount . '</span>';
+
                     } else {
-                        return $row->card_amount;
+                        return '<span class="display_currency sell_qty" data-currency_symbol = true data-orig-value="' . $row->card_amount . '">' . $row->card_amount . '</span>';
                     }
                 })
                 ->editColumn('closed_at', function ($row) {
@@ -1092,11 +1094,15 @@ class ReportController extends Controller
                 })
                 ->editColumn('cash_amount', function ($row) {
                     if ($row->status == 'close') {
-                        return '<span class="display_currency" data-currency_symbol="true">' .
-                        $row->cash_amount . '</span>';
+                        return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->cash_amount . '">' . $row->cash_amount . '</span>';
+
+                        // return '<span class="display_currency row_subtotal" data-currency_symbol="true">' .
+                        // $row->cash_amount . '</span>';
                     } else {
-                        return '<span class="display_currency" data-currency_symbol="true">' .
-                        $row->cash_amount . '</span>';                    
+                        return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->cash_amount . '">' . $row->cash_amount . '</span>';
+
+                        // return '<span class="display_currency row_subtotal" data-currency_symbol="true">' .
+                        // $row->cash_amount . '</span>';                    
                     }
                 })
                 ->addColumn('action', '<button type="button" data-href="{{action(\'CashRegisterController@show\', [$id])}}" class="btn btn-xs btn-info btn-modal" 
@@ -1105,7 +1111,7 @@ class ReportController extends Controller
                 ->filterColumn('user_name', function ($query, $keyword) {
                     $query->whereRaw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) like ?", ["%{$keyword}%"]);
                 })
-                ->rawColumns(['action', 'user_name', 'closing_amount','cash_amount'])
+                ->rawColumns(['action', 'user_name', 'closing_amount','cash_amount','card_amount'])
                 ->make(true);
         }
 
@@ -2315,6 +2321,7 @@ class ReportController extends Controller
 
             $start_date = $request->get('start_date');
             $end_date = $request->get('end_date');
+            // dd($start_date,$end_date);
             if (!empty($start_date) && !empty($end_date)) {
                 $query->whereBetween(DB::raw('date(paid_on)'), [$start_date, $end_date]);
             }
@@ -2532,6 +2539,7 @@ class ReportController extends Controller
             }
             $start_date = $request->get('start_date');
             $end_date = $request->get('end_date');
+            // dd($start_date,$end_date);
             if (!empty($start_date) && !empty($end_date)) {
                 $query->where('t.transaction_date', '>=', $start_date)
                     ->where('t.transaction_date', '<=', $end_date);
@@ -4038,6 +4046,7 @@ class ReportController extends Controller
 
     public function getSellOverviewReport(Request $request)
     {
+        // dd($request);
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         $location_id = $request->location_id;
@@ -4246,6 +4255,31 @@ class ReportController extends Controller
                 $gift_amount = $query6->select(DB::raw('SUM(transactions.final_total) as amount'))
                 ->first();
 
+                //Gift Return Amount
+                $query16 = DB::table('transactions')
+                ->where('transactions.business_id', $business_id)
+                ->where('transactions.type', 'gift_return')
+                ->where('transactions.status', 'final');
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query16->whereDate('transactions.transaction_date', '>=', $start_date)
+                        ->whereDate('transactions.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query16->whereDate('transactions.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query16->where('transactions.location_id', $location_id);
+                }
+                $gift_return_amount = $query16->select(DB::raw('SUM(transactions.final_total) as amount'))
+                ->first();
+
+                //Gift SubTotal
+                // dd($gift_amount->amount, $gift_return_amount->amount);
+                $amount = $gift_amount->amount - $gift_return_amount->amount;
+                // dd($amount);
+
                 // Gift Items
                 $query7 = TransactionSellLine::join('transactions as t', 't.id', 'transaction_sell_lines.transaction_id')
                 ->where('t.business_id', $business_id)
@@ -4305,7 +4339,8 @@ class ReportController extends Controller
                 'profit_loss' => $gross_profit,
                 'total_gift_amount' => $gift_amount->amount,
                 'total_gift_items' => $gift_items['gift_items'],
-                'gst_tax' => $gst_tax['tax']
+                'gst_tax' => $gst_tax['tax'],
+                'amount' => $amount
             ]);
 
         }

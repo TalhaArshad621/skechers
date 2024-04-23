@@ -282,7 +282,6 @@ $(document).ready(function() {
     });
 });
 
-//Default settings for daterangePicker
 var ranges = {};
 ranges[LANG.today] = [moment(), moment()];
 ranges[LANG.yesterday] = [moment().subtract(1, 'days'), moment().subtract(1, 'days')];
@@ -290,20 +289,12 @@ ranges[LANG.last_7_days] = [moment().subtract(6, 'days'), moment()];
 ranges[LANG.last_30_days] = [moment().subtract(29, 'days'), moment()];
 ranges[LANG.this_month] = [moment().startOf('month'), moment().endOf('month')];
 ranges[LANG.last_month] = [
-    moment()
-        .subtract(1, 'month')
-        .startOf('month'),
-    moment()
-        .subtract(1, 'month')
-        .endOf('month'),
+    moment().subtract(1, 'month').startOf('month'),
+    moment().subtract(1, 'month').endOf('month'),
 ];
 ranges[LANG.this_month_last_year] = [
-    moment()
-        .subtract(1, 'year')
-        .startOf('month'),
-    moment()
-        .subtract(1, 'year')
-        .endOf('month'),
+    moment().subtract(1, 'year').startOf('month'),
+    moment().subtract(1, 'year').endOf('month'),
 ];
 ranges[LANG.this_year] = [moment().startOf('year'), moment().endOf('year')];
 ranges[LANG.last_year] = [
@@ -318,8 +309,8 @@ ranges[LANG.last_financial_year] = [
 
 var dateRangeSettings = {
     ranges: ranges,
-    startDate: financial_year.start,
-    endDate: financial_year.end,
+    startDate: moment(), // Set to today
+    endDate: moment(),   // Set to today
     locale: {
         cancelLabel: LANG.clear,
         applyLabel: LANG.apply,
@@ -328,6 +319,7 @@ var dateRangeSettings = {
         toLabel: '~',
     },
 };
+
 
 //Check for number string in input field, if data-decimal is 0 then don't allow decimal symbol
 $(document).on('keypress', 'input.input_number', function(event) {

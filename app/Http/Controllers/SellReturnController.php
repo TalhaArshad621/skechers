@@ -225,6 +225,10 @@ class SellReturnController extends Controller
                     'payment_status',
                     '<a href="{{ action("TransactionPaymentController@show", [$id])}}" class="view_payment_modal payment-status payment-status-label" data-orig-value="{{$payment_status}}" data-status-name="{{__(\'lang_v1.\' . $payment_status)}}"><span class="label @payment_status($payment_status)">{{__(\'lang_v1.\' . $payment_status)}}</span></a>'
                 )
+                // ->editColumn(
+                //     'payment_status',
+                //     '<a href="{{ action("TransactionPaymentController@show", [$id])}}" class="view_payment_modal payment-status payment-status-label" data-orig-value="{{$payment_status}}" data-status-name="{{__(\'lang_v1.\' . $payment_status)}}"><span class="label @payment_status($payment_status)">{{__(\'lang_v1.\' . $payment_status)}}</span></a>'
+                // )
                 ->addColumn('payment_due', function ($row) {
                     $due = $row->final_total - $row->amount_paid;
                     return '<span class="display_currency payment_due" data-currency_symbol="true" data-orig-value="' . $due . '">' . $due . '</sapn>';
@@ -348,6 +352,7 @@ class SellReturnController extends Controller
             // Fetch the transaction data
             $sell = Transaction::where('business_id', $business_id)
                 ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
+                ->where('transactions.type', '!=', 'gift')
                 ->find($transactionId);
     
             foreach ($sell->sell_lines as $key => $value) {
@@ -366,88 +371,140 @@ class SellReturnController extends Controller
     
         return response()->json(['success' => false, 'message' => 'Transaction not found']);
     }
-    
+
+    public function addGiftReturn()
+    {
+        if (!auth()->user()->can('access_sell_return')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = request()->session()->get('user.business_id');
+        //Check if subscribed or not
+        if (!$this->moduleUtil->isSubscribed($business_id)) {
+            return $this->moduleUtil->expiredResponse();
+        }
+        $sell = Transaction::where('business_id', $business_id)
+                            ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit']);
+                            // ->find($id);
+        
+        $register_details = $this->cashRegisterUtil->getCurrentCashRegister(auth()->user()->id);
+
+        $default_location = !empty($register_details->location_id) ? BusinessLocation::findOrFail($register_details->location_id) : null;
+        $business_details = $this->businessUtil->getDetails($business_id);
+        $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+
+        $payment_lines[] = $this->dummyPaymentLine;
+
+        $payment_types = $this->productUtil->payment_types(null, true, $business_id);
+        $change_return = $this->dummyPaymentLine;
 
 
-
-    // public function extractData(Request $request) {
-    //     $invoiceNumber = $request->input('invoice_number');
-    //     $business_id = request()->session()->get('user.business_id');
-    
-    //     // Get the transaction ID for the entered invoice number
-    //     $transactionId = Transaction::where('invoice_no', $invoiceNumber)
-    //         ->where('business_id', $business_id)
-    //         ->value('id');
-    
-    //     // Check if a matching transaction is found
-    //     if ($transactionId) {
-    //         // Check if the transaction ID is present in the return_parent_id column
-    //         $hasReturnedProducts = Transaction::where('return_parent_id', $transactionId)
-    //             ->exists();
-    
-
-    //         if ($hasReturnedProducts) {
-    //             // Display alert message
-    //             echo '<script>alert("Invoice number ' . $invoiceNumber . ' has already been exchanged!");</script>';
-                
-    //             // Reload the page after the alert is closed
-    //             echo '<script>window.location.reload();</script>';
-    //         }
-    //         // if ($hasReturnedProducts) {
-    //         //     return response()->json(['success' => false, 'message' => 'Some products from this invoice have already been returned.']);
-    //         // }
-    
-    //         // Fetch the transaction data
-    //         $sell = Transaction::where('business_id', $business_id)
-    //             ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
-    //             ->find($transactionId);
-    
-    //         foreach ($sell->sell_lines as $key => $value) {
-    //             if (!empty($value->sub_unit_id)) {
-    //                 $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
-    //                 $sell->sell_lines[$key] = $formated_sell_line;
-    //             }
-    
-    //             $sell->sell_lines[$key]->formatted_qty = $this->transactionUtil->num_f($value->quantity, false, null, true);
-    //         }
-    
-    //         return response()->json(['success' => true, 'sell' => $sell]);
-    //     }
-    
-    //     return response()->json(['success' => false, 'message' => 'Transaction not found']);
-    // }
-    
-            
-
-    // public function extractData(Request $request) {
-    //     $invoiceNumber = $request->input('invoice_number');
-    //     $transaction = Transaction::where('invoice_no', $invoiceNumber)->first();
-    
-    //     // Check if a matching transaction is found
-    //     if ($transaction) {
-    //         $transactionId = $transaction->id;
-    //         $business_id = request()->session()->get('user.business_id');
-    
-    //         $sell = Transaction::where('business_id', $business_id)
-    //             ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
-    //             ->find($transactionId);
+        return view('sell_return.gift_return',compact('sell','default_location','business_details','pos_settings','payment_lines','payment_types','change_return'));
+    }
 
 
-    //         foreach ($sell->sell_lines as $key => $value) {
-    //             if (!empty($value->sub_unit_id)) {
-    //                 $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
-    //                 $sell->sell_lines[$key] = $formated_sell_line;
-    //             }
+    public function extractGiftData(Request $request) {
+        $invoiceNumber = $request->input('invoice_number');
+        $business_id = request()->session()->get('user.business_id');
     
-    //             $sell->sell_lines[$key]->formatted_qty = $this->transactionUtil->num_f($value->quantity, false, null, true);
-    //         }
+        // Get the transaction ID for the entered invoice number
+        $transactionId = Transaction::where('invoice_no', $invoiceNumber)
+            ->where('business_id', $business_id)
+            ->value('id');
+    
+        // Check if a matching transaction is found
+        if ($transactionId) {
+            // Check if the transaction ID is present in the return_parent_id column
+            $hasReturnedProducts = Transaction::where('return_parent_id', $transactionId)
+                ->exists();
+    
+            if ($hasReturnedProducts) {
+                // Return the response with an error message
+                return response()->json(['success' => false, 'message' => 'Invoice number ' . $invoiceNumber . ' has already been exchanged!']);
+            }
+    
+            // Fetch the transaction data
+            $sell = Transaction::where('business_id', $business_id)
+                ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
+                ->where('transactions.type', 'gift')
+                ->find($transactionId);
 
-    //         return response()->json(['success' => true, 'sell' => $sell]);
-    //     }
+            if (!$sell) {
+                return response()->json(['success' => false, 'message' => 'Transaction is not of gift type']);
+            }
     
-    //     return response()->json(['success' => false, 'message' => 'Transaction not found']);
-    // }
+            foreach ($sell->sell_lines as $key => $value) {
+                if (!empty($value->sub_unit_id)) {
+                    $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
+                    $sell->sell_lines[$key] = $formated_sell_line;
+                }
     
+                $sell->sell_lines[$key]->formatted_qty = $this->transactionUtil->num_f($value->quantity, false, null, true);
+            }
+
+            return response()->json(['success' => true, 'sell' => $sell]);
+        }
+    
+        return response()->json(['success' => false, 'message' => 'Transaction not found']);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function storeGiftReturn(Request $request)
+    {
+        // dd($request);
+        if (!auth()->user()->can('access_sell_return')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $input = $request->except('_token');
+
+            if (!empty($input['products'])) {
+                $business_id = $request->session()->get('user.business_id');
+
+                //Check if subscribed or not
+                if (!$this->moduleUtil->isSubscribed($business_id)) {
+                    return $this->moduleUtil->expiredResponse(action('SellReturnController@index'));
+                }
+        
+                $user_id = $request->session()->get('user.id');
+
+                DB::beginTransaction();
+
+                $sell_return =  $this->transactionUtil->addSellReturnOld($input, $business_id, $user_id);
+
+                // dd($sell_return);
+                // $receipt = $this->receiptContent($business_id, $sell_return->location_id, $sell_return->id);
+                // dd("about to commit");
+                DB::commit();
+
+                $output = ['success' => 1,
+                            'msg' => __('lang_v1.success'),
+                            // 'receipt' => $receipt
+                        ];
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            if (get_class($e) == \App\Exceptions\PurchaseSellMismatch::class) {
+                $msg = $e->getMessage();
+            } else {
+                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+                $msg = __('messages.something_went_wrong');
+            }
+
+            $output = ['success' => 0,
+                            'msg' => $msg
+                        ];
+        }
+
+        return $output;
+    }
 
     public function add($id)
     {
@@ -538,7 +595,6 @@ class SellReturnController extends Controller
             // dd($input['exchange_products']);
             foreach ($input['exchange_products'] as $key => $product) {
 
-                // Assuming you are using Eloquent ORM to fetch data from the database
                 $variationId = $product['variation_id'];
                 
                 // Fetch default_sell_price from the database based on $variationId
@@ -916,174 +972,258 @@ class SellReturnController extends Controller
 
 
 
-        public function showMergedReceipt($id)
-        {
-            // Fetch sell data
-            $business_id = request()->session()->get('user.business_id');
-                $taxes = TaxRate::where('business_id', $business_id)
-                                    ->pluck('name', 'id');
-                $query = Transaction::where('business_id', $business_id)
-                            ->where('id', $id)
-                            ->with(['contact', 'sell_lines' => function ($q) {
-                                $q->whereNull('parent_sell_line_id');
-                            },'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
-        
-                if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
-                    $query->where('transactions.created_by', request()->session()->get('user.id'));
-                }
-        
-                $sellOrg = $query->firstOrFail();
-        
-                $activities = Activity::forSubject($sellOrg)
-                   ->with(['causer', 'subject'])
-                   ->latest()
-                   ->get();
-        
-                foreach ($sellOrg->sell_lines as $key => $value) {
-                    if (!empty($value->sub_unit_id)) {
-                        $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
-                        $sellOrg->sell_lines[$key] = $formated_sell_line;
-                    }
-                }
-        
-                $payment_types = $this->transactionUtil->payment_types($sellOrg->location_id, true);
-                $order_taxes = [];
-                if (!empty($sellOrg->tax)) {
-                    if ($sellOrg->tax->is_tax_group) {
-                        $order_taxes = $this->transactionUtil->sumGroupTaxDetails($this->transactionUtil->groupTaxDetails($sellOrg->tax, $sellOrg->tax_amount));
-                    } else {
-                        $order_taxes[$sellOrg->tax->name] = $sellOrg->tax_amount;
-                    }
-                }
-        
-                $business_details = $this->businessUtil->getDetails($business_id);
-                $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
-                $shipping_statuses = $this->transactionUtil->shipping_statuses();
-                $shipping_status_colors = $this->shipping_status_colors;
-                $common_settings = session()->get('business.common_settings');
-                $is_warranty_enabled = !empty($common_settings['enable_product_warranty']) ? true : false;
-        
-                $statuses = Transaction::getSellStatuses();
-
-
-
-            // Fetch sell_return data
-            if (!auth()->user()->can('access_sell_return')) {
-                abort(403, 'Unauthorized action.');
+    public function showMergedReceipt($id)
+    {
+        $business_id = request()->session()->get('user.business_id');
+            $taxes = TaxRate::where('business_id', $business_id)
+                                ->pluck('name', 'id');
+            $query = Transaction::where('business_id', $business_id)
+                        ->where('id', $id)
+                        ->with(['contact', 'sell_lines' => function ($q) {
+                            $q->whereNull('parent_sell_line_id');
+                        },'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+    
+            if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $query->where('transactions.created_by', request()->session()->get('user.id'));
             }
     
-            $business_id = request()->session()->get('user.business_id');
-            $sell = Transaction::where('business_id', $business_id)
-                                    ->where('id', $id)
-                                    ->with(
-                                        'contact',
-                                        'return_parent',
-                                        'tax',
-                                        'sell_lines',
-                                        'sell_lines.product',
-                                        'sell_lines.variations',
-                                        'sell_lines.sub_unit',
-                                        'sell_lines.product',
-                                        'sell_lines.product.unit',
-                                        'location'
-                                    )
-                                    ->first();
+            $sellOrg = $query->firstOrFail();
     
-            foreach ($sell->sell_lines as $key => $value) {
+            $activities = Activity::forSubject($sellOrg)
+                ->with(['causer', 'subject'])
+                ->latest()
+                ->get();
+    
+            foreach ($sellOrg->sell_lines as $key => $value) {
                 if (!empty($value->sub_unit_id)) {
                     $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
-                    $sell->sell_lines[$key] = $formated_sell_line;
+                    $sellOrg->sell_lines[$key] = $formated_sell_line;
                 }
             }
     
-            $sell_taxes = [];
-            if (!empty($sell->return_parent->tax)) {
-                if ($sell->return_parent->tax->is_tax_group) {
-                    $sell_taxes = $this->transactionUtil->sumGroupTaxDetails($this->transactionUtil->groupTaxDetails($sell->return_parent->tax, $sell->return_parent->tax_amount));
+            $payment_types = $this->transactionUtil->payment_types($sellOrg->location_id, true);
+            $order_taxes = [];
+            if (!empty($sellOrg->tax)) {
+                if ($sellOrg->tax->is_tax_group) {
+                    $order_taxes = $this->transactionUtil->sumGroupTaxDetails($this->transactionUtil->groupTaxDetails($sellOrg->tax, $sellOrg->tax_amount));
                 } else {
-                    $sell_taxes[$sell->return_parent->tax->name] = $sell->return_parent->tax_amount;
+                    $order_taxes[$sellOrg->tax->name] = $sellOrg->tax_amount;
                 }
             }
     
-            $total_discount = 0;
-            if ($sell->return_parent->discount_type == 'fixed') {
-                $total_discount = $sell->return_parent->discount_amount;
-            } elseif ($sell->return_parent->discount_type == 'percentage') {
-                $discount_percent = $sell->return_parent->discount_amount;
-                if ($discount_percent == 100) {
-                    $total_discount = $sell->return_parent->total_before_tax;
-                } else {
-                    $total_after_discount = $sell->return_parent->final_total - $sell->return_parent->tax_amount;
-                    $total_before_discount = $total_after_discount * 100 / (100 - $discount_percent);
-                    $total_discount = $total_before_discount - $total_after_discount;
-                }
-            }
+            $business_details = $this->businessUtil->getDetails($business_id);
+            $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+            $shipping_statuses = $this->transactionUtil->shipping_statuses();
+            $shipping_status_colors = $this->shipping_status_colors;
+            $common_settings = session()->get('business.common_settings');
+            $is_warranty_enabled = !empty($common_settings['enable_product_warranty']) ? true : false;
     
-            $activities = Activity::forSubject($sell->return_parent)
-               ->with(['causer', 'subject'])
-               ->latest()
-               ->get();
+            $statuses = Transaction::getSellStatuses();
 
 
-               // Assuming $sell->id is the ID you want to search for
-            $sellId = $sell->id;
-            // dd($sellId);
-
-            // Retrieve the transaction with the given return_parent_id
-            $returnTransaction = Transaction::where('return_parent_id', $sellId)->first();
-            // dd($returnTransaction);
-            // If the transaction is found, retrieve its ID
-            if ($returnTransaction) {
-                $returnTransactionId = $returnTransaction->id;
-
-                // Retrieve records from transaction_sell_lines where transaction_id matches $returnTransactionId
-                $transactionSellLines = TransactionSellLine::where('transaction_id', $returnTransactionId)->first();
-
-                // Now you have $transactionSellLines containing the records you need
-            }
-
-            $exchangedSale = TransactionSellLine::
-            leftJoin('products', 'products.id', 'transaction_sell_lines.product_id')
-            ->leftJoin('variations', 'variations.product_id', 'products.id')
-            // ->leftJoin('tax_rates')
-            ->where('business_id', $business_id)
-            ->where('transaction_sell_lines.transaction_id',$returnTransactionId)
-            ->select(
-                'transaction_sell_lines.id as tsl_id',
-                'transaction_sell_lines.quantity as sold_quantity',
-                'transaction_sell_lines.item_tax as item_tax',
-                'variations.sub_sku as sku',
-                'variations.default_sell_price as unit_price',
-                'variations.sell_price_inc_tax'
-            )
-            // ->where('id', $id)
-            // ->with(
-            //     'contact',
-            //     'return_parent',
-            //     'tax',
-            //     'sell_lines',
-            //     'sell_lines.product',
-            //     'sell_lines.variations',
-            //     'sell_lines.sub_unit',
-            //     'sell_lines.product',
-            //     'sell_lines.product.unit',
-            //     'location'
-            // )
-            ->get();
-            // dd($exchangedSale);
-
-            // dd($transactionSellLines);
-
-            // Merge sell and sell_return data
-            // $mergedReceiptData = [
-            //     'sell' => $sell,
-            //     'sellReturn' => $sellReturn,
-            // ];
-            // dd($mergedReceiptData);
-
-            // Return the merged data to the merged receipt view
-            return view('sell_return.show')->with(compact('sellOrg', 'sell', 'sell_taxes', 'total_discount', 'activities','exchangedSale'));
+        if (!auth()->user()->can('access_sell_return')) {
+            abort(403, 'Unauthorized action.');
         }
+
+        $business_id = request()->session()->get('user.business_id');
+        $sell = Transaction::where('business_id', $business_id)
+                                ->where('id', $id)
+                                ->with(
+                                    'contact',
+                                    'return_parent',
+                                    'tax',
+                                    'sell_lines',
+                                    'sell_lines.product',
+                                    'sell_lines.variations',
+                                    'sell_lines.sub_unit',
+                                    'sell_lines.product',
+                                    'sell_lines.product.unit',
+                                    'location'
+                                )
+                                ->first();
+
+        foreach ($sell->sell_lines as $key => $value) {
+            if (!empty($value->sub_unit_id)) {
+                $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
+                $sell->sell_lines[$key] = $formated_sell_line;
+            }
+        }
+
+        $sell_taxes = [];
+        if (!empty($sell->return_parent->tax)) {
+            if ($sell->return_parent->tax->is_tax_group) {
+                $sell_taxes = $this->transactionUtil->sumGroupTaxDetails($this->transactionUtil->groupTaxDetails($sell->return_parent->tax, $sell->return_parent->tax_amount));
+            } else {
+                $sell_taxes[$sell->return_parent->tax->name] = $sell->return_parent->tax_amount;
+            }
+        }
+
+        $total_discount = 0;
+        if ($sell->return_parent->discount_type == 'fixed') {
+            $total_discount = $sell->return_parent->discount_amount;
+        } elseif ($sell->return_parent->discount_type == 'percentage') {
+            $discount_percent = $sell->return_parent->discount_amount;
+            if ($discount_percent == 100) {
+                $total_discount = $sell->return_parent->total_before_tax;
+            } else {
+                $total_after_discount = $sell->return_parent->final_total - $sell->return_parent->tax_amount;
+                $total_before_discount = $total_after_discount * 100 / (100 - $discount_percent);
+                $total_discount = $total_before_discount - $total_after_discount;
+            }
+        }
+
+        $activities = Activity::forSubject($sell->return_parent)
+            ->with(['causer', 'subject'])
+            ->latest()
+            ->get();
+
+        $sellId = $sell->id;
+
+        $returnTransaction = Transaction::where('return_parent_id', $sellId)->first();
+        if ($returnTransaction) {
+            $returnTransactionId = $returnTransaction->id;
+
+            $transactionSellLines = TransactionSellLine::where('transaction_id', $returnTransactionId)->first();
+
+        }
+
+        $exchangedSale = TransactionSellLine::
+        leftJoin('products', 'products.id', 'transaction_sell_lines.product_id')
+        ->leftJoin('variations', 'variations.product_id', 'products.id')
+        ->where('business_id', $business_id)
+        ->where('transaction_sell_lines.transaction_id',$returnTransactionId)
+        ->select(
+            'transaction_sell_lines.id as tsl_id',
+            'transaction_sell_lines.quantity as sold_quantity',
+            'transaction_sell_lines.item_tax as item_tax',
+            'variations.sub_sku as sku',
+            'variations.default_sell_price as unit_price',
+            'variations.sell_price_inc_tax'
+        )
+        ->get();
+        return view('sell_return.show')->with(compact('sellOrg', 'sell', 'sell_taxes', 'total_discount', 'activities','exchangedSale'));
+    }
+
+    public function showGiftReceipt($id)
+    {
+        $business_id = request()->session()->get('user.business_id');
+            $taxes = TaxRate::where('business_id', $business_id)
+                                ->pluck('name', 'id');
+            $query = Transaction::where('business_id', $business_id)
+                        ->where('id', $id)
+                        ->with(['contact', 'sell_lines' => function ($q) {
+                            $q->whereNull('parent_sell_line_id');
+                        },'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+    
+            if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $query->where('transactions.created_by', request()->session()->get('user.id'));
+            }
+    
+            $sellOrg = $query->firstOrFail();
+    
+            $activities = Activity::forSubject($sellOrg)
+                ->with(['causer', 'subject'])
+                ->latest()
+                ->get();
+    
+            foreach ($sellOrg->sell_lines as $key => $value) {
+                if (!empty($value->sub_unit_id)) {
+                    $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
+                    $sellOrg->sell_lines[$key] = $formated_sell_line;
+                }
+            }
+    
+            $payment_types = $this->transactionUtil->payment_types($sellOrg->location_id, true);
+            $order_taxes = [];
+            if (!empty($sellOrg->tax)) {
+                if ($sellOrg->tax->is_tax_group) {
+                    $order_taxes = $this->transactionUtil->sumGroupTaxDetails($this->transactionUtil->groupTaxDetails($sellOrg->tax, $sellOrg->tax_amount));
+                } else {
+                    $order_taxes[$sellOrg->tax->name] = $sellOrg->tax_amount;
+                }
+            }
+    
+            $business_details = $this->businessUtil->getDetails($business_id);
+            $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+            $shipping_statuses = $this->transactionUtil->shipping_statuses();
+            $shipping_status_colors = $this->shipping_status_colors;
+            $common_settings = session()->get('business.common_settings');
+            $is_warranty_enabled = !empty($common_settings['enable_product_warranty']) ? true : false;
+    
+            $statuses = Transaction::getSellStatuses();
+
+
+        if (!auth()->user()->can('access_sell_return')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = request()->session()->get('user.business_id');
+        $sell = Transaction::where('business_id', $business_id)
+                                ->where('id', $id)
+                                ->with(
+                                    'contact',
+                                    'return_parent',
+                                    'tax',
+                                    'sell_lines',
+                                    'sell_lines.product',
+                                    'sell_lines.variations',
+                                    'sell_lines.sub_unit',
+                                    'sell_lines.product',
+                                    'sell_lines.product.unit',
+                                    'location'
+                                )
+                                ->first();
+                                // dd($sell);
+
+        foreach ($sell->sell_lines as $key => $value) {
+            if (!empty($value->sub_unit_id)) {
+                $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
+                $sell->sell_lines[$key] = $formated_sell_line;
+            }
+        }
+
+        $sell_taxes = [];
+        if (!empty($sell->return_parent->tax)) {
+            if ($sell->return_parent->tax->is_tax_group) {
+                $sell_taxes = $this->transactionUtil->sumGroupTaxDetails($this->transactionUtil->groupTaxDetails($sell->return_parent->tax, $sell->return_parent->tax_amount));
+            } else {
+                $sell_taxes[$sell->return_parent->tax->name] = $sell->return_parent->tax_amount;
+            }
+        }
+
+        $total_discount = 0;
+        // if ($sell->return_parent->discount_type == 'fixed') {
+        //     $total_discount = $sell->return_parent->discount_amount;
+        // } 
+        // elseif ($sell->return_parent->discount_type == 'percentage') {
+        //     $discount_percent = $sell->return_parent->discount_amount;
+        //     if ($discount_percent == 100) {
+        //         $total_discount = $sell->return_parent->total_before_tax;
+        //     } else {
+        //         $total_after_discount = $sell->return_parent->final_total - $sell->return_parent->tax_amount;
+        //         $total_before_discount = $total_after_discount * 100 / (100 - $discount_percent);
+        //         $total_discount = $total_before_discount - $total_after_discount;
+        //     }
+        // }
+
+        // $activities = Activity::forSubject($sell->return_parent)
+        //     ->with(['causer', 'subject'])
+        //     ->latest()
+        //     ->get();
+
+        // $sellId = $sell->id;
+
+        // $returnTransaction = Transaction::where('return_parent_id', $sellId)->first();
+        // if ($returnTransaction) {
+        //     $returnTransactionId = $returnTransaction->id;
+
+        //     $transactionSellLines = TransactionSellLine::where('transaction_id', $returnTransactionId)->first();
+
+        // }
+
+
+        return view('sell_return.gift_show')->with(compact('sellOrg', 'sell', 'sell_taxes', 'total_discount', 'activities'));
+    }
 
         // private function getSellData($id)
         // {

@@ -4,10 +4,12 @@
     {!! Form::open(['url' => action('TransactionPaymentController@update', [$payment_line->id]), 'method' => 'put', 'id' => 'transaction_payment_add_form', 'files' => true ]) !!}
     {!! Form::hidden('default_payment_accounts', !empty($transaction->location) ? $transaction->location->default_payment_accounts : '[]', ['id' => 'default_payment_accounts']); !!}
 
+    {{-- {{ dd($cash_register_transaction) }} --}}
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       <h4 class="modal-title">@lang( 'purchase.edit_payment' )</h4>
     </div>
+    <input type="hidden" name="cash_register_transaction" value={{ $cash_register_transaction->pay_method }}>
 
     <div class="modal-body">
       <div class="row">

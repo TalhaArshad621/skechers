@@ -381,13 +381,14 @@ class SellController extends Controller
                     }
                 )
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
-                // ->editColumn(
-                //     'payment_status',
-                //     function ($row) {
-                //         $payment_status = Transaction::getPaymentStatus($row);
-                //         return (string) view('sell.partials.payment_status', ['payment_status' => $payment_status, 'id' => $row->id]);
-                //     }
-                // )
+
+                ->editColumn(
+                    'payment_status',
+                    function ($row) {
+                        $payment_status = Transaction::getPaymentStatus($row);
+                        return (string) view('sell.partials.payment_status', ['payment_status' => $payment_status, 'id' => $row->id]);
+                    }
+                )
                 ->editColumn(
                     'types_of_service_name',
                     '<span class="service-type-label" data-orig-value="{{$types_of_service_name}}" data-status-name="{{$types_of_service_name}}">{{$types_of_service_name}}</span>'

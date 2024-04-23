@@ -145,18 +145,35 @@
         //             __currency_convert_recursively($('#profit_by_products_table'));
         //         },
         //     });
-        $.ajax({
+
+
+    function updateOverView() {
+    var start = $('#overview_date_filter')
+        .data('daterangepicker')
+        .startDate.format('YYYY-MM-DD');
+    var end = $('#overview_date_filter')
+        .data('daterangepicker')
+        .endDate.format('YYYY-MM-DD');
+    var location_id = $('#profit_loss_location_filter').val();
+
+    var data = { start_date: start, end_date: end, location_id: location_id };
+
+    var loader = __fa_awesome();
+    $('.total_purchase').html(loader);
+    $('.purchase_due').html(loader);
+    $('.total_sell').html(loader);
+    $('.invoice_due').html(loader);
+    $('.purchase_return_inc_tax').html(loader);
+    $('.total_sell_return').html(loader);
+
+
+
+    $.ajax({
             type: "GET",
             url: "/reports/get-sell-overview",
-            data: function ( d ){
-                d.start_date = $('#profit_tabs_filter_overview')
-                    .data('daterangepicker')
-                    .startDate.format('YYYY-MM-DD');
-                d.end_date = $('#profit_tabs_filter_overview')
-                    .data('daterangepicker')
-                    .endDate.format('YYYY-MM-DD');
-                d.location_id = $('#profit_loss_location_filter').val();
-            },
+            dataType: 'json',
+            data: data,
+
             success: function (response) {
                 var returnItemsFloat = parseFloat(response.return_items); // Convert float to integer
                 var soldItemsFloat = parseFloat(response.total_item_sold); // Convert float to integer
@@ -172,11 +189,47 @@
                 $("#card-payment").html(__currency_trans_from_en(response.card_amount));
                 $("#total-received").html(__currency_trans_from_en(response.total_received));
                 $("#profit-loss").html(__currency_trans_from_en(response.profit_loss));
-                $("#total-gift-amount").html(__currency_trans_from_en(response.total_gift_amount));
+                // $("#total-gift-amount").html(__currency_trans_from_en(response.total_gift_amount));
+                $("#total-gift-amount").html(__currency_trans_from_en(response.amount));
                 $("#total-gift-items").html(giftItemsFloat);
                 $("#gst-tax").html(__currency_trans_from_en(response.gst_tax));
             },
         });
+}
+
+        // $.ajax({
+        //     type: "GET",
+        //     url: "/reports/get-sell-overview",
+        //     data: function ( d ){
+        //         d.start_date = $('#profit_tabs_filter_overview')
+        //             .data('daterangepicker')
+        //             .startDate.format('YYYY-MM-DD');
+        //         d.end_date = $('#profit_tabs_filter_overview')
+        //             .data('daterangepicker')
+        //             .endDate.format('YYYY-MM-DD');
+        //         d.location_id = $('#profit_loss_location_filter').val();
+        //     },
+        //     success: function (response) {
+        //         var returnItemsFloat = parseFloat(response.return_items); // Convert float to integer
+        //         var soldItemsFloat = parseFloat(response.total_item_sold); // Convert float to integer
+        //         var giftItemsFloat = parseFloat(response.total_gift_items); // Convert float to integer
+
+        //         $("#return-invoices").html(response.return_invoices);
+        //         $("#return-amount").html(__currency_trans_from_en(response.return_amount));
+        //         $("#return-items").html(returnItemsFloat);
+        //         $("#total-items-sold").html(soldItemsFloat);
+        //         $("#invoice-amount").html(__currency_trans_from_en(response.invoice_amount));
+        //         $("#discount").html(__currency_trans_from_en(response.total_sell_discount));
+        //         $("#cash-payment").html(__currency_trans_from_en(response.cash_amount));
+        //         $("#card-payment").html(__currency_trans_from_en(response.card_amount));
+        //         $("#total-received").html(__currency_trans_from_en(response.total_received));
+        //         $("#profit-loss").html(__currency_trans_from_en(response.profit_loss));
+        //         // $("#total-gift-amount").html(__currency_trans_from_en(response.total_gift_amount));
+        //         $("#total-gift-amount").html(__currency_trans_from_en(response.amount));
+        //         $("#total-gift-items").html(giftItemsFloat);
+        //         $("#gst-tax").html(__currency_trans_from_en(response.gst_tax));
+        //     },
+        // });
 
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             var target = $(e.target).attr('href');

@@ -63,14 +63,17 @@ class GiftController extends Controller
         ];
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        // dd($request->input('end_date'));
         if (!auth()->user()->can('access_sell_return')) {
             abort(403, 'Unauthorized action.');
         }
 
         $business_id = request()->session()->get('user.business_id');
         if (request()->ajax()) {
+            // dd($request->input('location_id'));
+            // dd($request->input('start_date'), $request->input('end_date'));
             $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
                     
                     ->join(
@@ -80,6 +83,12 @@ class GiftController extends Controller
                         'bl.id'
                     )
                     ->leftJoin('transaction_sell_lines', 'transactions.id', '=', 'transaction_sell_lines.transaction_id')
+                    ->leftJoin(
+                        'transactions AS SR',
+                        'transactions.id',
+                        '=',
+                        'SR.return_parent_id'
+                    )
                     // ->join(
                     //     'transactions as T1',
                     //     'transactions.return_parent_id',
@@ -103,13 +112,40 @@ class GiftController extends Controller
                         'transactions.final_total',
                         'transactions.payment_status',
                         'bl.name as business_location',
-                        'transaction_sell_lines.quantity as quantity'
+                        'transaction_sell_lines.quantity as quantity',
+                        DB::raw('COUNT(SR.id) as return_exists')
                         // 'T1.invoice_no as parent_sale',
                         // 'T1.id as parent_sale_id',
                         // DB::raw('SUM(TP.amount) as amount_paid')
-                    );
-                    // dd($sells);
+                    )
+                    ->groupBy('transactions.id');
 
+
+            $customer_id = $request->input('customer_id');
+
+            if (!empty($customer_id)) {
+                // dd("hehe");
+                $sells->where('contacts.id', $customer_id);
+            }
+
+            $created_by = $request->input('created_by');
+
+            if ($created_by) {
+                $sells->where('transactions.created_by', $created_by);
+            }
+
+            if (!empty($location_id)) {
+                $sells->where('transactions.location_id', $location_id);
+            }
+            if (!empty($request->input('start_date')) && !empty($request->input('end_date')) && $request->input('start_date') != $request->input('end_date')) {
+                // dd("hehe");
+                $sells->whereDate('transactions.transaction_date', '>=', $request->input('start_date'))
+                    ->whereDate('transactions.transaction_date', '<=', $request->input('end_date'));
+            }
+            if (!empty($request->input('start_date')) && !empty($request->input('end_date')) && $request->input('start_date') == $request->input('end_date')) {
+                $sells->whereDate('transactions.transaction_date', $request->input('end_date'));
+            }
+    
             // $permitted_locations = auth()->user()->permitted_locations();
             // if ($permitted_locations != 'all') {
             //     $sells->whereIn('transactions.location_id', $permitted_locations);
@@ -174,6 +210,9 @@ class GiftController extends Controller
                     '<span class="display_currency final_total" data-currency_symbol="true" data-orig-value="{{$final_total}}">{{$final_total}}</span>'
                 )
                 ->editColumn('quantity', function ($row) {
+                    if (!empty($row->return_exists)) {
+                        $row->quantity .= ' &nbsp;<small class="label bg-red label-round no-print" title="' . __('lang_v1.some_qty_returned_from_sell') .'"><i class="fas fa-undo"></i></small>';
+                    }
                     return '<button type="button" class="btn btn-link btn-modal" data-container=".view_modal" data-href="' . '">' . $row->quantity . '</button>';
                 })
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
@@ -185,14 +224,15 @@ class GiftController extends Controller
                 //     $due = $row->final_total - $row->amount_paid;
                 //     return '<span class="display_currency payment_due" data-currency_symbol="true" data-orig-value="' . $due . '">' . $due . '</sapn>';
                 // })
-                // ->setRowAttr([
-                //     'data-href' => function ($row) {
-                //         if (auth()->user()->can("sell.view")) {
-                //             return  action('SellReturnController@show', [$row->parent_sale_id]) ;
-                //         } else {
-                //             return '';
-                //         }
-                //     }])
+                ->setRowAttr([
+                    'data-href' => function ($row) {
+                        if (auth()->user()->can("sell.view")) {
+                            // dd($row);
+                            return  action('SellReturnController@showGiftReceipt', [$row->id]) ;
+                        } else {
+                            return '';
+                        }
+                    }])
                 ->rawColumns(['final_total', 'action', 'quantity', 'payment_status'])
                 ->make(true);
         }

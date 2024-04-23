@@ -1,6 +1,7 @@
 <!-- business information here -->
 <!DOCTYPE html>
 <html lang="en">
+	{{-- {{ dd($receipt_details) }} --}}
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -114,13 +115,13 @@
 				</div>
 			@endif
 
-			@if(!empty($receipt_details->sales_person_label))
+			{{-- @if(!empty($receipt_details->sales_person_label)) --}}
 				<div class="textbox-info">
-					<p class="f-left"><strong>{{$receipt_details->sales_person_label}}</strong></p>
+					<p class="f-left"><strong>Sales person</strong></p>
 				
-					<p class="f-right">{{$receipt_details->sales_person}}</p>
+					<p class="f-right">{{$receipt_details->commission_agent_name}}</p>
 				</div>
-			@endif
+			{{-- @endif --}}
 
 			@if(!empty($receipt_details->brand_label) || !empty($receipt_details->repair_brand))
 				<div class="textbox-info">

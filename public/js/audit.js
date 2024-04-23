@@ -1,13 +1,44 @@
 "use strict";
 
+var productArray = [];
+
 var physicalProductArray = [];
 
 var ScannedProduct = [];
 
+
+$.ajax({
+    type: 'GET',
+    url: '/all-products-list',
+    success: function(response) {
+        if (response && response.data) {
+            response.data.forEach(function(product) {
+                var data = {
+                    id: product.id,
+                    categoryName: product.category,
+                    sku: product.sku,
+                    quantity_in_stock: product.available_qty,
+                    quantity: 0
+                };
+                productArray.push(data);
+                physicalProductArray.push(data);
+
+                // console.log(productArray,physicalProductArray);
+            });
+        } else {
+            console.error("No data received or data format incorrect.");
+        }
+    },
+    error: function(xhr, status, error) {
+        console.error(error);
+    }
+});
+
 function getProductDetails() {
     // Get the entered barcode number
     var barcodeNumber = $('#code').val();
-    console.log(barcodeNumber);
+    
+    // console.log(barcodeNumber);
 
     // Make an AJAX request to retrieve product details
     $.ajax({
@@ -18,16 +49,23 @@ function getProductDetails() {
             location_id: $('input#location_id').val(),
         },
         success: function (response) {
+            console.log(response);
             if (response.data.id) {
 
                 var scan = {
                     id: response.data.id,
                     categoryName: response.data.category,
                     sku: response.data.sku,
+                    img: response.data.image_url,
+                    product: response.data.product
                 }
                 ScannedProduct.unshift(scan);
+
+                console.log(ScannedProduct);
+                $('#rowCount').text(ScannedProduct.length);
+
                 // Populate the table with the retrieved product details
-                populateTable(response.data);
+                // populateTable(response.data);
 
                 var find = $.grep(physicalProductArray, function (item) {
                     return item.id == response.data.id;
@@ -60,12 +98,52 @@ function getProductDetails() {
     });
 }
 
-function populateTable(productDetails) {
-    // Clear existing table rows
-    //   $('#productDetails').empty();
+    // Event handler for the "Check Audit" button
+    $('#check-audit').click(function() {
+        // Clear existing table rows
+        $('#audit_table tbody').empty();
+        
+        // Get the last 20 entries from the ScannedProduct array
+        var lastEntries = ScannedProduct.slice(0, 20);
+        
+        // Iterate over the last entries and append them to the table
+        $.each(lastEntries, function(index, item) {
+            // console.log(item);
+            var newRow = '<tr>';
+            var imagePath = item.img ? ('uploads/img/' + item.img) : 'img/default.png';
+            newRow += '<td><div style="display: flex; justify-content: center; align-items: center;"><img src="' + item.img + '" alt="Product image" class="product-thumbnail-small"></div></td>';
+            newRow += '<td>' + item.id + '</td>';
+            newRow += '<td>' + item.product + '</td>';
+            newRow += '<td>' + item.sku + '</td>';
+            newRow += '<td>' + item.categoryName + '</td>';
+            newRow += '</tr>';
+    
+            // var newRow = '<tr>';
+            // newRow += '<td>' + item.id + '</td>';
+            // newRow += '<td>' + item.categoryName + '</td>';
+            // newRow += '<td>' + item.sku + '</td>';
+            // newRow += '</tr>';
+            $('#audit_table tbody').append(newRow);
+        });
+    });
 
+
+// Array to store all products
+// var allAppendedProducts = [];
+// Counter to keep track of the total number of products
+var productCount = 0;
+
+var maxRows = 10;
+
+function populateTable(productDetails) {
     // Check if productDetails is not empty
     if (productDetails) {
+        // Add productDetails to the allProducts array
+        // allProducts.push(productDetails);
+
+        // Increment the product count
+        productCount++;
+
         // Add a new row with product details
         var newRow = '<tr>';
         var imagePath = productDetails.image ? ('uploads/img/' + productDetails.image) : 'img/default.png';
@@ -77,9 +155,71 @@ function populateTable(productDetails) {
         newRow += '</tr>';
 
         // Append the new row to the table
-        $('#productDetails').append(newRow);
+        $('#productDetails').prepend(newRow);
+
+        // Update the count of all rows
+        $('#rowCount').text(productCount);
+
+        // If the number of rows exceeds the maximum, remove the last row
+        if ($('#productDetails tr').length > maxRows) {
+            $('#productDetails tr:last').remove();
+        }
     }
 }
+// function populateTable(productDetails) {
+//     // Check if productDetails is not empty
+//     if (productDetails) {
+//         // Add productDetails to the allProducts array
+//         // allAppendedProducts.push(productDetails);
+
+//         // Increment the product count
+//         productCount++;
+
+//         // Clear existing table rows if there are more than 10 rows
+//         if ($('#productDetails tr').length >= 19) {
+//             $('#productDetails tr').slice(19).remove();
+//         }
+
+//         // Add a new row with product details
+//         var newRow = '<tr>';
+//         var imagePath = productDetails.image ? ('uploads/img/' + productDetails.image) : 'img/default.png';
+//         newRow += '<td><div style="display: flex; justify-content: center; align-items: center;"><img src="' + imagePath + '" alt="Product image" class="product-thumbnail-small"></div></td>';
+//         newRow += '<td>' + productDetails.id + '</td>';
+//         newRow += '<td>' + productDetails.product + '</td>';
+//         newRow += '<td>' + productDetails.sku + '</td>';
+//         newRow += '<td>' + productDetails.category + '</td>';
+//         newRow += '</tr>';
+
+//         // Append the new row to the table
+//         $('#productDetails').prepend(newRow);
+
+//         // Update the count of all rows
+//         $('#rowCount').text(productCount);
+//     }
+// }
+
+
+
+// function populateTable(productDetails) {
+//     // Clear existing table rows
+//     //   $('#productDetails').empty();
+
+//     // Check if productDetails is not empty
+//     if (productDetails) {
+//         // Add a new row with product details
+//         var newRow = '<tr>';
+//         var imagePath = productDetails.image ? ('uploads/img/' + productDetails.image) : 'img/default.png';
+//         newRow += '<td><div style="display: flex; justify-content: center; align-items: center;"><img src="' + imagePath + '" alt="Product image" class="product-thumbnail-small"></div></td>';
+//         newRow += '<td>' + productDetails.id + '</td>';
+//         newRow += '<td>' + productDetails.product + '</td>';
+//         newRow += '<td>' + productDetails.sku + '</td>';
+//         newRow += '<td>' + productDetails.category + '</td>';
+//         newRow += '</tr>';
+
+//         // Append the new row to the table
+//         $('#productDetails').append(newRow);
+//     }
+// }
 
 
 $("#submit-audit").on("click", function (e) {
@@ -161,10 +301,10 @@ $("#submit-audit").on("click", function (e) {
 
 
         toastr.success("Audit Completed!");
-        setTimeout(function () {
-            // Reload the current page
-            window.location.reload();
-        }, 5000); // 5000 milliseconds = 5 seconds
+        // setTimeout(function () {
+        //     // Reload the current page
+        //     window.location.reload();
+        // }, 5000); // 5000 milliseconds = 5 seconds
     } else {
         toastr.error("No product selected");
     }

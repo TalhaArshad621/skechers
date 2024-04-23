@@ -53,6 +53,14 @@
                                 <th>@lang('messages.action')</th>
                             </tr>
                         </thead>
+                        <tfoot>
+                            <tr class="bg-gray font-17 footer-total text-center">
+                                <td colspan="4"><strong>@lang('sale.total'):</strong></td>
+                                <td><span class="display_currency" id="card_total" data-currency_symbol ="true"></span></td>
+                                <td><span class="display_currency" id="cash_total" data-currency_symbol ="true"></span></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             @endcomponent
