@@ -457,6 +457,29 @@ class AdminSidebarMenu
                 )->order(40);
             }
 
+            if (in_array('stock_adjustment', $enabled_modules) && (auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create'))) {
+                $menu->dropdown(
+                    __('Bank Transfer'),
+                    function ($sub) {
+                        if (auth()->user()->can('purchase.view')) {
+                            $sub->url(
+                                action('BankTransferController@index'),
+                                __('List Bank Transfer'),
+                                ['icon' => 'fa fas fa-list', 'active' => request()->segment(1) == 'bank-transfers' && request()->segment(2) == null]
+                            );
+                        }
+                        if (auth()->user()->can('purchase.create')) {
+                            $sub->url(
+                                action('BankTransferController@create'),
+                                __('Add Bank Transfer'),
+                                ['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'bank-transfers' && request()->segment(2) == 'create']
+                            );
+                        }
+                    },
+                    ['icon' => 'fa fas fa-university']
+                )->order(40);
+            }
+
             //Expense dropdown
             // if (in_array('expenses', $enabled_modules) && (auth()->user()->can('expense.access') || auth()->user()->can('view_own_expense'))) {
             //     $menu->dropdown(
@@ -672,6 +695,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-briefcase', 'active' => request()->segment(2) == 'register-report']
                             );
                         }
+                        if (auth()->user()->can('monthly_report.view')) {
+                            $sub->url(
+                                action('ReportController@getMonthlyReport'),
+                                __('Monthly Report'),
+                                ['icon' => 'fa fas fa-briefcase', 'active' => request()->segment(2) == 'monthly-report']
+                            );
+                        }
                         if (auth()->user()->can('sales_representative.view')) {
                             $sub->url(
                                 action('ReportController@getSalesRepresentativeReport'),
@@ -769,6 +799,22 @@ class AdminSidebarMenu
             // if (auth()->user()->can('purchase.create')) {
             //     $menu->url(action('GiftController@create'), __('Gift'), ['icon' => 'fa fas fa-gift', 'active' => request()->segment(1) == 'gift-create'])->order(80);
             // }
+
+
+            //International Exchange
+            $menu->dropdown(
+                __('International Exchange'),
+                function ($sub) {
+                    if (auth()->user()->can('purchase.create')) {
+                        $sub->url(
+                            action('InternationalExchangeController@create'),
+                            __('Add International Exchange'),
+                            ['icon' => 'fa fas fa-swap-arrows', 'active' => request()->segment(1) == 'international-exchange']
+                        );
+                    }
+                },
+                ['icon' => 'fa fa-american-sign-language-interpreting']
+            )->order(36);
 
             //Settings Dropdown
             if (auth()->user()->can('business_settings.access') ||

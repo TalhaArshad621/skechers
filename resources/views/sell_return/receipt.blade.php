@@ -114,6 +114,12 @@
 					<p class="f-right">{{$receipt_details->due_date ?? ''}}</p>
 				</div>
 			@endif
+			
+			<div class="textbox-info">
+				<p class="f-left"><strong>Sales person</strong></p>
+			
+				<p class="f-right">{{$receipt_details->commission_agent_name}}</p>
+			</div>
 
 			@if(!empty($receipt_details->sales_person_label))
 				<div class="textbox-info">

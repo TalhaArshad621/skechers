@@ -6,10 +6,8 @@ use App\Brands;
 use App\BusinessLocation;
 use App\CashRegister;
 use App\Category;
-
 use App\Charts\CommonChart;
 use App\Contact;
-
 use App\CustomerGroup;
 use App\ExpenseCategory;
 use App\Product;
@@ -371,6 +369,14 @@ class ReportController extends Controller
                     $stock_price = $stock * $unit_selling_price;
                     return  '<span class="stock_value_by_sale_price display_currency" data-orig-value="' . (float)$stock_price . '" data-currency_symbol=true > ' . (float)$stock_price . '</span>';
                 })
+                ->editColumn('sold_stock_value_by_purchase_price', function ($row) {
+                    $stock_price = $row->total_sold * $row->default_purchase_price;
+                    return  '<span class="sold_stock_value_by_purchase_price display_currency" data-orig-value="' . (float)$stock_price . '" data-currency_symbol=true > ' . (float)$stock_price . '</span>';
+                })
+                ->editColumn('sold_stock_value_by_sale_price', function ($row) {
+                    $stock_price = $row->total_sold * $row->unit_price;
+                    return  '<span class="sold_stock_value_by_sale_price display_currency" data-orig-value="' . (float)$stock_price . '" data-currency_symbol=true > ' . (float)$stock_price . '</span>';
+                })
                 ->addColumn('potential_profit', function ($row) {
                     $stock = $row->stock ? $row->stock : 0 ;
                     $unit_selling_price = (float)$row->group_price > 0 ? $row->group_price : $row->unit_price;
@@ -384,7 +390,8 @@ class ReportController extends Controller
                 ->removeColumn('id');
 
             $raw_columns  = ['unit_price', 'total_transfered', 'total_sold',
-                    'total_adjusted', 'stock', 'stock_price', 'stock_value_by_sale_price', 'potential_profit'];
+                    'total_adjusted', 'stock', 'stock_price', 'stock_value_by_sale_price', 'potential_profit',
+                'sold_stock_value_by_purchase_price','sold_stock_value_by_sale_price'];
 
             if ($show_manufacturing_data) {
                 $datatable->editColumn('total_mfg_stock', function ($row) {
@@ -2583,20 +2590,15 @@ class ReportController extends Controller
                 ->editColumn('product_name', function ($row) {
                     $product_name = $row->product_name;
                     
-                    // Find the position of the first hyphen
                     $first_hyphen_position = strpos($product_name, '-');
                 
-                    // Find the position of the next hyphen after the first one
                     $second_hyphen_position = strpos($product_name, '-', $first_hyphen_position + 1);
                 
-                    // Extract the color part
                     if ($second_hyphen_position !== false) {
                         $product_color = substr($product_name, $first_hyphen_position + 1, $second_hyphen_position - $first_hyphen_position - 1);
                     } else {
-                        // If there is no second hyphen, extract color from the first hyphen to the end
                         $product_color = substr($product_name, $first_hyphen_position + 1);
                     }
-                    // dd($product_color);
                 
                     if ($row->product_type == 'variable') {
                         $product_name .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
@@ -2608,33 +2610,25 @@ class ReportController extends Controller
                 ->addColumn('stock', function ($row) use ($vld_str, $business_id) {
                     $product_name = $row->product_name;
                     
-                    // Find the position of the second hyphen
                     $second_hyphen_position = strpos($product_name, '-', strpos($product_name, '-') + 1);
                 
-                    // Extract the product name without the size part
                     $product_name_without_size = $second_hyphen_position !== false ? substr($product_name, 0, $second_hyphen_position) : $product_name;
                 
-                    // If the product type is variable, append additional information to the product name
                     if ($row->product_type == 'variable') {
                         $product_name_without_size .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
                     }
                 
-                    // Assuming you have a function to calculate stock based on product name without size
                     $stock = $this->productUtil->calculateStock($product_name_without_size, $row->variation_id, $vld_str, $business_id);
                 
                     $stocks = $stock->pluck('stock');
 
                     if ($stocks->isNotEmpty()) {
-                        return $stocks->sum();
+                        // return $stocks->sum();
+                        return '<span data-is_quantity="true" class="display_currency stock_by_color" data-currency_symbol=false data-orig-value="' . (float)$stocks->sum() . '" data-unit="' . $row->unit . '" >' . (float) $stocks->sum() . '</span> ' .$row->unit;
+
                     } else {
                         return 0;
                     }
-
-                    // if ($stock) {
-                    //     return $stock->stock;
-                    // } else {
-                    //     return 0;
-                    // }
                 })
                                 
                 
@@ -5100,7 +5094,7 @@ class ReportController extends Controller
         if($request->ajax() || true){
             $query = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
             ->join('users','users.id','transactions.commission_agent')
-            ->whereIn('transactions.type',['sell','sell_return'])
+            ->whereIn('transactions.type',['sell_return'])
             ->select(
                 'users.first_name', 'users.last_name',
                 // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
@@ -5128,6 +5122,169 @@ class ReportController extends Controller
 
             $result = $query->groupBy('transactions.commission_agent')
             ->get();
+
+            $query1 = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
+            ->join('users','users.id','transactions.commission_agent')
+            ->whereIn('transactions.type',['sell_return'])
+            ->select(
+                'users.first_name', 'users.last_name',
+                // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
+                DB::raw('COUNT(transactions.id) as total_invoices'),
+                DB::raw('SUM(tsl.quantity) as total_items'),
+                DB::raw('SUM(tsl.unit_price_inc_tax * tsl.quantity) as total_sales')
+            );
+            if (!empty($start_date) && !empty($end_date)) {
+                $query1->where('transactions.transaction_date', '>=', $start_date)
+                    ->where('transactions.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query1->whereIn('transactions.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $query1->where('transactions.location_id', $location_id);
+            }
+
+            if (!empty($commission_agent)) {
+                $query1->where('transactions.commission_agent', $commission_agent);
+            }
+
+            $result1 = $query1->groupBy('transactions.commission_agent')
+            ->get();
+
+            $query2 = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
+            ->join('users','users.id','transactions.commission_agent')
+            ->whereIn('transactions.type',['sell_return'])
+            ->select(
+                'users.first_name', 'users.last_name',
+                // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
+                DB::raw('COUNT(transactions.id) as total_invoices'),
+                DB::raw('SUM(tsl.quantity) as total_items'),
+                DB::raw('SUM(transactions.final_total) as total_sales')
+            );
+            if (!empty($start_date) && !empty($end_date)) {
+                $query2->where('transactions.transaction_date', '>=', $start_date)
+                    ->where('transactions.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query2->whereIn('transactions.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $query2->where('transactions.location_id', $location_id);
+            }
+
+            if (!empty($commission_agent)) {
+                $query2->where('transactions.commission_agent', $commission_agent);
+            }
+
+            $result2 = $query2->groupBy('transactions.commission_agent')
+            ->get();
+
+            $query3 = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
+            ->join('users','users.id','transactions.commission_agent')
+            ->whereIn('transactions.type',['sell'])
+            ->select(
+                'users.first_name', 'users.last_name',
+                // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
+                DB::raw('COUNT(transactions.id) as total_invoices'),
+                DB::raw('SUM(tsl.quantity) as total_items'),
+                DB::raw('SUM(tsl.unit_price_inc_tax * tsl.quantity) as total_sales')
+            );
+            if (!empty($start_date) && !empty($end_date)) {
+                $query3->where('transactions.transaction_date', '>=', $start_date)
+                    ->where('transactions.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query3->whereIn('transactions.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $query3->where('transactions.location_id', $location_id);
+            }
+
+            if (!empty($commission_agent)) {
+                $query3->where('transactions.commission_agent', $commission_agent);
+            }
+
+            $result3 = $query3->groupBy('transactions.commission_agent')
+            ->get();
+            // dd($result1);
+            // dd($result2);
+            // dd($result3);
+            // ,$result2->total_sales,$result3->total_sales);
+
+
+
+            $sum_from_TSL = $query1->get();
+            $sum_from_T = $query2->get();
+            $sale_sum = $query3->get();
+
+            // dd($sum_from_TSL, $sum_from_T);
+
+            $arr1 = [];
+
+            foreach ($sum_from_TSL as $TSL) {
+                $total_invoices = $TSL->total_invoices;
+                $total_items = $TSL->total_items;
+                $total_sales = $TSL->total_sales;
+                
+                // Create an associative array with desired keys and values
+                $data = [
+                    'total_invoices' => $total_invoices,
+                    'total_items' => $total_items,
+                    'total_sales' => $total_sales,
+                ];
+                
+                // Push the associative array into $arr1
+                $arr1[] = $data;
+            }
+            $arr2 = [];
+
+            foreach ($sum_from_T as $T) {
+                $total_invoices = $T->total_invoices;
+                $total_items = $T->total_items;
+                $total_sales = $T->total_sales;
+                
+                // Create an associative array with desired keys and values
+                $data = [
+                    'total_invoices' => $total_invoices,
+                    'total_items' => $total_items,
+                    'total_sales' => $total_sales,
+                ];
+                
+                // Push the associative array into $arr1
+                $arr2[] = $data;
+            }
+
+            $arr3 = [];
+
+            foreach ($sale_sum as $ss) {
+                $total_invoices = $ss->total_invoices;
+                $total_items = $ss->total_items;
+                $total_sales = $ss->total_sales;
+                
+                // Create an associative array with desired keys and values
+                $data = [
+                    'total_invoices' => $total_invoices,
+                    'total_items' => $total_items,
+                    'total_sales' => $total_sales,
+                ];
+                
+                // Push the associative array into $arr1
+                $arr3[] = $data;
+            }
+
+            $total_sum = $arr1[0]['total_sales'] - $arr2[0]['total_sales'];
+            $final_total = $arr3[0]['total_sales'] - $total_sum;
+            $final_form = $final_total + $arr2[0]['total_sales'];
+            // dd($final_form);
             
             return Datatables::of($result)
                 ->addColumn('employee_name', function ($row) {
@@ -5140,13 +5297,127 @@ class ReportController extends Controller
                 ->editColumn('total_items', function ($row) {
                     return '<span data-is_quantity="true" class="display_currency total_items" data-currency_symbol=false data-orig-value="' . (float)$row->total_items . '" >' . (float) $row->total_items . '</span> ';
                 })
-                ->editColumn('total_sales', function ($row) {
-                    return '<span class="display_currency total_sales" data-currency_symbol = true data-orig-value="' . $row->total_sales . '">' . $row->total_sales . '</span>';
+                // ->editColumn('total_sales', function ($row) {
+                        ->editColumn('total_sales', function ($row) use ($final_form) {
+
+                    return '<span class="display_currency total_sales" data-currency_symbol = true data-orig-value="' . $final_form . '">' . $final_form . '</span>';
                 })
                 
                 ->rawColumns([ 'total_invoices','total_items','total_sales'])
                 ->make(true);
         }
-        
+    }
+    public function getMonthlyReport(Request $request)
+    {
+        if (!auth()->user()->can('register_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+        $business_id = $request->session()->get('user.business_id');
+
+        //Return the details in ajax call
+        if ($request->ajax()) {
+            $registers = CashRegister::join(
+                'users as u',
+                'u.id',
+                '=',
+                'cash_registers.user_id'
+                )
+                ->leftJoin(
+                    'business_locations as bl',
+                    'bl.id',
+                    '=',
+                    'cash_registers.location_id'
+                )
+                ->leftJoin('cash_register_transactions', 'cash_register_transactions.cash_register_id', '=', 'cash_registers.id')
+
+                ->where('cash_registers.business_id', $business_id)
+                ->where('cash_register_transactions.transaction_type', 'sell')
+                ->select(
+                    'cash_registers.*',
+                    DB::raw(
+                        "CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) as user_name"
+                    ),
+                    'bl.name as location_name',
+                    // DB::raw('SUM(cash_register_transactions.amount) as card_amount'),
+                    DB::raw("SUM(IF(cash_register_transactions.pay_method='card', IF(transaction_type='sell', amount, 0), 0)) as card_amount"),
+                    DB::raw("SUM(IF(pay_method='cash', IF(transaction_type='sell', amount, 0), 0)) as cash_amount"),
+
+                )
+                ->groupBy('cash_registers.id');
+                
+                if ($request->input('user_id')){
+                    // dd($request->input('user_id'));
+                    $registers->where('cash_registers.user_id', $request->input('user_id'));
+                }
+                if (!empty($request->input('status'))) {
+                    $registers->where('cash_registers.status', $request->input('status'));
+                }
+                $start_date = $request->get('start_date');
+                $end_date = $request->get('end_date');
+
+                if (!empty($start_date) && !empty($end_date)) {
+                    $registers->whereDate('cash_registers.created_at', '>=', $start_date)
+                    ->whereDate('cash_registers.created_at', '<=', $end_date);
+                }
+                // dd($registers,$request->input('user_id'));
+            return Datatables::of($registers)
+                // ->editColumn('total_card_slips', function ($row) {
+                //     if ($row->status == 'close') {
+                //         return $row->total_card_slips;
+                //     } else {
+                //         return '';
+                //     }
+                // })
+                ->editColumn('card_amount', function ($row) {
+                    if ($row->status == 'close') {
+                        return '<span class="display_currency sell_qty" data-currency_symbol = true data-orig-value="' . $row->card_amount . '">' . $row->card_amount . '</span>';
+
+                    } else {
+                        return '<span class="display_currency sell_qty" data-currency_symbol = true data-orig-value="' . $row->card_amount . '">' . $row->card_amount . '</span>';
+                    }
+                })
+                ->editColumn('closed_at', function ($row) {
+                    if ($row->status == 'close') {
+                        return $this->productUtil->format_date($row->closed_at, true);
+                    } else {
+                        return '';
+                    }
+                })
+                ->editColumn('created_at', function ($row) {
+                    return $this->productUtil->format_date($row->created_at, true);
+                })
+                ->editColumn('cash_amount', function ($row) {
+                    if ($row->status == 'close') {
+                        return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->cash_amount . '">' . $row->cash_amount . '</span>';
+
+                        // return '<span class="display_currency row_subtotal" data-currency_symbol="true">' .
+                        // $row->cash_amount . '</span>';
+                    } else {
+                        return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->cash_amount . '">' . $row->cash_amount . '</span>';
+
+                        // return '<span class="display_currency row_subtotal" data-currency_symbol="true">' .
+                        // $row->cash_amount . '</span>';                    
+                    }
+                })
+                ->editColumn('total_kamai', function ($row) {
+                    $total_kamai = $row->cash_amount + $row->card_amount;
+                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $total_kamai . '">' . $total_kamai . '</span>';
+
+                    return $row->cash_amount + $row->card_amount;
+                })
+                ->addColumn('action', '<button type="button" data-href="{{action(\'CashRegisterController@show\', [$id])}}" class="btn btn-xs btn-info btn-modal" 
+                    data-container=".view_register"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</button> @if($status != "close" && auth()->user()->can("close_cash_register"))<button type="button" data-href="{{action(\'CashRegisterController@getCloseRegister\', [$id])}}" class="btn btn-xs btn-danger btn-modal" 
+                        data-container=".view_register"><i class="fas fa-window-close"></i> @lang("messages.close")</button> @endif')
+                ->filterColumn('user_name', function ($query, $keyword) {
+                    $query->whereRaw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) like ?", ["%{$keyword}%"]);
+                })
+                ->rawColumns(['action', 'user_name', 'closing_amount','cash_amount','card_amount','total_kamai'])
+                ->make(true);
+        }
+
+        $users = User::forDropdown($business_id, false);
+
+        return view('report.monthly_report')
+                    ->with(compact('users'));
     }
 }

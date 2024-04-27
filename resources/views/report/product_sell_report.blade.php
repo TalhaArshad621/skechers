@@ -85,31 +85,33 @@
                                 <thead>
                                     <tr>
                                         {{-- <th>@lang('sale.product')</th> --}}
+                                        <th>Sr. No.</th>
                                         <th>Created At</th>
-                                        <th>@lang('product.sku')</th>
+                                        <th>Product Name</th>
                                         <th>Product Category</th>
                                         <th>Buying Date</th>
-                                        <th>@lang('report.total_unit_sold')</th>
+                                        <th>Sold Quantity</th>
                                         <th>Returned Quantity</th>
-                                        <th>Sell Price</th>
                                         <th>Buy Price</th>
+                                        <th>Sell Price</th>
                                         <th>Discount</th>
                                         <th>Profit</th>
-                                        <th>@lang('report.current_stock')</th>
-                                        <th>Stock</th>
+                                        <th>Stock By Name</th>
+                                        <th>Stock By Color</th>
                                         <th>Image</th>
                                     </tr>
                                 </thead>
                                 <tfoot>
                                     <tr class="bg-gray font-17 footer-total text-center">
-                                        <td colspan="4"><strong>@lang('sale.total'):</strong></td>
+                                        <td colspan="5"><strong>@lang('sale.total'):</strong></td>
                                         <td id="footer_total_grouped_sold"></td>
                                         <td id="footer_total_grouped_returned"></td>
                                         <td><span class="display_currency" id="footer_grouped_subtotal" data-currency_symbol ="true"></span></td>
                                         <td><span class="display_currency" id="footer_total_grouped_buy" data-currency_symbol ="true"></span></td>
                                         <td><span class="display_currency" id="footer_total_grouped_discount" data-currency_symbol ="true"></span></td>
                                         <td><span class="display_currency" id="footer_grouped_profit" data-currency_symbol ="true"></span></td>
-                                        <td></td>
+                                        <td id="stock_by_name"></td>
+                                        <td id="stock_by_color"></td>
                                         <td></td>
                                     </tr>
                                 </tfoot>

@@ -50,7 +50,7 @@
         <div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('brand_id', __('product.brand') . ':') !!}
-              {!! Form::select('brand_id', $brands, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
+            {!! Form::select('brand_id', $brands, 1, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
           </div>
         </div>
         
@@ -69,7 +69,7 @@
           </div>
         </div>
 
-        <div class="col-sm-4">
+        <div class="col-sm-4" style="display: none;">
           <div class="form-group">
           <br>
             <label>
@@ -83,6 +83,24 @@
             {!! Form::label('alert_quantity', __('product.alert_quantity') . ':') !!}
             {!! Form::number('alert_quantity', null, ['class' => 'form-control',
             'placeholder' => __('product.alert_quantity'), 'min' => '0']); !!}
+          </div>
+        </div>
+        <div class="col-sm-4" id="barcode_div">
+          <div class="form-group">
+            <label for="barcode">Barcode:*</label>
+            <input type="number" class="form-control" id="barcode" name="barcode" placeholder="Barcode" required >
+          </div>
+        </div>
+        <div class="col-sm-4" id="product_gender_div">
+          <div class="form-group">
+            <label for="barcode select2">Gender:*</label>
+            <select class="form-control select2" name="gender" id="gender">
+              <option value="">Please Select</option>
+              <option value="men">Male</option>
+              <option value="women">Female</option>
+              <option value="kids">Kids</option>
+              <option value="infant">Infant</option>
+            </select>
           </div>
         </div>
         @if(!empty($common_settings['enable_product_warranty']))
@@ -128,14 +146,14 @@
               {!! Form::select('product_locations[]', $business_locations, $default_location, ['class' => 'form-control select2', 'multiple', 'id' => 'product_locations']); !!}
           </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-4" style="display: none;">
           <div class="form-group">
             {!! Form::label('weight',  __('lang_v1.weight') . ':') !!}
             {!! Form::text('weight', null, ['class' => 'form-control', 'placeholder' => __('lang_v1.weight')]); !!}
           </div>
         </div>
         <div class="clearfix"></div>
-        <div class="col-sm-8">
+        <div class="col-sm-8" style="display: none;">
           <div class="form-group">
             {!! Form::label('product_description', __('lang_v1.product_description') . ':') !!}
               {!! Form::textarea('product_description', null, ['class' => 'form-control']); !!}
@@ -155,7 +173,7 @@
               ['class' => 'form-control select2', 'required']); !!}
           </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-4" style="display: none;">
           <div class="checkbox">
           <br>
             <label>
@@ -171,7 +189,7 @@
         $product_custom_field3 = !empty($custom_labels['product']['custom_field_3']) ? $custom_labels['product']['custom_field_3'] : __('lang_v1.product_custom_field3');
         $product_custom_field4 = !empty($custom_labels['product']['custom_field_4']) ? $custom_labels['product']['custom_field_4'] : __('lang_v1.product_custom_field4');
       @endphp
-        <div class="col-sm-4">
+        <div class="col-sm-4" style="display: none;">
           <div class="form-group">
             <br>
             <label>
@@ -180,28 +198,28 @@
           </div>
         </div>
         <div class="clearfix"></div>
-        <div class="col-sm-3">
+        <div class="col-sm-3" style="display: none;">
           <div class="form-group">
             {!! Form::label('product_custom_field1',  $product_custom_field1 . ':') !!}
             {!! Form::text('product_custom_field1', null, ['class' => 'form-control', 'placeholder' => $product_custom_field1]); !!}
           </div>
         </div>
 
-        <div class="col-sm-3">
+        <div class="col-sm-3" style="display: none;">
           <div class="form-group">
             {!! Form::label('product_custom_field2',  $product_custom_field2 . ':') !!}
             {!! Form::text('product_custom_field2',null, ['class' => 'form-control', 'placeholder' => $product_custom_field2]); !!}
           </div>
         </div>
 
-        <div class="col-sm-3">
+        <div class="col-sm-3" style="display: none;">
           <div class="form-group">
             {!! Form::label('product_custom_field3',  $product_custom_field3 . ':') !!}
             {!! Form::text('product_custom_field3', null, ['class' => 'form-control', 'placeholder' => $product_custom_field3]); !!}
           </div>
         </div>
 
-        <div class="col-sm-3">
+        <div class="col-sm-3" style="display: none;">
           <div class="form-group">
             {!! Form::label('product_custom_field4',  $product_custom_field4 . ':') !!}
             {!! Form::text('product_custom_field4', null, ['class' => 'form-control', 'placeholder' => $product_custom_field4]); !!}
