@@ -2039,7 +2039,8 @@ class ProductUtil extends Util
             'l.id as location_id',
             'variations.id as variation_id',
             'categories.name as category_name',
-            'c2.name as sub_category'
+            'c2.name as sub_category',
+            'variations.dpp_inc_tax as default_purchase_price'
         )->groupBy('variations.id', 'vld.location_id');
             
         if (isset($filters['show_manufacturing_data']) && $filters['show_manufacturing_data']) {

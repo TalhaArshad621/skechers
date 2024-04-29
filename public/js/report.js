@@ -84,13 +84,16 @@ $(document).ready(function () {
         { data: 'unit_price', name: 'variations.sell_price_inc_tax' },
         { data: 'stock', name: 'stock', searchable: false },
     ];
+    stock_report_cols.push({ data: 'total_sold', name: 'total_sold', searchable: false });
+
     if ($('th.stock_price').length) {
         stock_report_cols.push({ data: 'stock_price', name: 'stock_price', searchable: false });
         stock_report_cols.push({ data: 'stock_value_by_sale_price', name: 'stock_value_by_sale_price', searchable: false, orderable: false });
+        stock_report_cols.push({ data: 'sold_stock_value_by_purchase_price', name: 'sold_stock_value_by_purchase_price', searchable: false, orderable: false });
+        stock_report_cols.push({ data: 'sold_stock_value_by_sale_price', name: 'sold_stock_value_by_sale_price', searchable: false, orderable: false });
         stock_report_cols.push({ data: 'potential_profit', name: 'potential_profit', searchable: false, orderable: false });
     }
 
-    stock_report_cols.push({ data: 'total_sold', name: 'total_sold', searchable: false });
     stock_report_cols.push({ data: 'total_transfered', name: 'total_transfered', searchable: false });
     // stock_report_cols.push({ data: 'total_adjusted', name: 'total_adjusted', searchable: false });
 
@@ -129,6 +132,8 @@ $(document).ready(function () {
             var footer_stock_value_by_sale_price = 0;
             var total_potential_profit = 0;
             var footer_total_mfg_stock = 0;
+            var sold_stock_value_by_purchase_price = 0;
+            var sold_stock_value_by_sale_price = 0;
             for (var r in data) {
                 footer_total_stock += $(data[r].stock).data('orig-value') ?
                     parseFloat($(data[r].stock).data('orig-value')) : 0;
@@ -153,6 +158,12 @@ $(document).ready(function () {
 
                 footer_total_mfg_stock += $(data[r].total_mfg_stock).data('orig-value') ?
                     parseFloat($(data[r].total_mfg_stock).data('orig-value')) : 0;
+
+                sold_stock_value_by_purchase_price += $(data[r].sold_stock_value_by_purchase_price).data('orig-value') ?
+                parseFloat($(data[r].sold_stock_value_by_purchase_price).data('orig-value')) : 0;
+
+                sold_stock_value_by_sale_price += $(data[r].sold_stock_value_by_sale_price).data('orig-value') ?
+                parseFloat($(data[r].sold_stock_value_by_sale_price).data('orig-value')) : 0;
             }
 
             $('.footer_total_stock').html(__currency_trans_from_en(footer_total_stock, false));
@@ -165,6 +176,9 @@ $(document).ready(function () {
             if ($('th.current_stock_mfg').length) {
                 $('.footer_total_mfg_stock').html(__currency_trans_from_en(footer_total_mfg_stock, false));
             }
+            $('.sold_stock_value_by_purchase_price').html(__currency_trans_from_en(sold_stock_value_by_purchase_price));
+            $('.sold_stock_value_by_sale_price').html(__currency_trans_from_en(sold_stock_value_by_sale_price));
+
         },
     });
 
@@ -1056,6 +1070,9 @@ $(document).ready(function () {
             },
         },
         columns: [
+            { data: null, name: 'serial_number', searchable: false, orderable: false, render: function (data, type, row, meta) {
+                return meta.row + 1;
+            }},
             // { data: 'product_name', name: 'p.name' },
             { data: 'transaction_date', name: 't.transaction_date' },
             { data: 'sub_sku', name: 'v.sub_sku' },
@@ -1063,8 +1080,8 @@ $(document).ready(function () {
             { data: 'buying_date', name: 'v.updated_at' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
             { data: 'total_qty_returned', name: 'total_qty_returned', searchable: false },
-            { data: 'subtotal', name: 'subtotal', searchable: false },
             { data: 'buy_price', name: 'buy_price', searchable: false },
+            { data: 'subtotal', name: 'subtotal', searchable: false },
             { data: 'discount_amount', name: 'discount_amount', searchable: false },
             { data: 'profit', name: 'profit', searchable: false },
             { data: 'current_stock', name: 'current_stock', searchable: false, orderable: false },
@@ -1091,8 +1108,18 @@ $(document).ready(function () {
             $('#footer_grouped_profit').html(
                 __sum_stock($('#product_sell_grouped_report_table'), 'profit')
             );
+            $('#stock_by_name').html(
+                __sum_stock($('#product_sell_grouped_report_table'), 'current_stock')
+            );
+            $('#stock_by_color').html(
+                __sum_stock($('#product_sell_grouped_report_table'), 'stock_by_color')
+            );
             __currency_convert_recursively($('#product_sell_grouped_report_table'));
         },
+        createdRow: function(row, data, dataIndex) {
+            // Add a class to the row for styling purposes if needed
+            $(row).addClass('bank-transfer-row');
+        }
     });
 
     $(

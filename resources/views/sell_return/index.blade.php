@@ -104,7 +104,7 @@
                 { data: 'parent_sale', name: 'T1.invoice_no'},
                 { data: 'name', name: 'contacts.name'},
                 { data: 'business_location', name: 'bl.name'},
-                // { data: 'payment_status', name: 'payment_status'},
+                { data: 'payment_status', name: 'payment_status'},
                 { data: 'original_amount', name: 'original_amount'},
                 { data: 'discount_amount', name: 'discount_amount'},
                 { data: 'final_total', name: 'final_total'},
