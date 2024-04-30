@@ -4501,7 +4501,7 @@ class ReportController extends Controller
                 'return_items' => $return_items->returned_items ? $return_items->returned_items : 0.000,
                 'total_item_sold' => $invoice_data['total_item_sold'],
                 'total_invoice_count' => $invoice_data['total_invoice_count'], 
-                'buy_price' => $buy_of_sell['buy_price'],
+                'buy_price'  => $buy_of_sell ? $buy_of_sell['buy_price'] : 0,
                 'invoice_amount' => ($cash_payment->cash_amount) + ($card_payment->card_amount) - ($return_data->returned_amount ? $return_data->returned_amount : 0.000),
                 'total_sell_discount' => $invoice_data['total_sell_discount'],
                 'cash_amount' => $cash_payment->cash_amount,
