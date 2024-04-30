@@ -31,6 +31,10 @@
                 <td style="font-weight: 700">Invoice Amount</td>
                 <td style="font-weight: 700" id="invoice-amount">0</td>
             </tr>
+            <tr>
+                <td>Purchase amount</td>
+                <td id="purchase-amount">0</td>
+            </tr>
             {{-- <tr>
                 <td>Invoice Amount</td>
                 <td id="invoice-amount">0</td>

@@ -184,6 +184,7 @@
                 $("#return-items").html(returnItemsFloat);
                 $("#total-items-sold").html(soldItemsFloat);
                 $("#invoice-amount").html(__currency_trans_from_en(response.invoice_amount));
+                $("#purchase-amount").html(__currency_trans_from_en(response.buy_price));
                 $("#discount").html(__currency_trans_from_en(response.total_sell_discount));
                 $("#cash-payment").html(__currency_trans_from_en(response.cash_amount));
                 $("#card-payment").html(__currency_trans_from_en(response.card_amount));
