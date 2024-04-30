@@ -151,7 +151,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::post('/import-sales', 'ImportSalesController@import');
     Route::get('/revert-sale-import/{batch}', 'ImportSalesController@revertSaleImport');
 
-    Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}', 'SellPosController@getProductRowForReturn');
+Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}', 'SellPosController@getProductRowForReturn');
     Route::get('/sells/pos/get_product_row/{variation_id}/{location_id}', 'SellPosController@getProductRow');
     Route::post('/sells/pos/get_payment_row', 'SellPosController@getPaymentRow');
     Route::post('/sells/pos/get-reward-details', 'SellPosController@getRewardDetails');
@@ -197,6 +197,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/reports/stock-adjustment-report', 'ReportController@getStockAdjustmentReport');
     Route::get('/reports/register-report', 'ReportController@getRegisterReport');
     Route::get('/reports/monthly-report', 'ReportController@getMonthlyReport');
+    Route::get('/reports/monthly-report-data', 'ReportController@getMenthlyReportData');
     Route::get('/reports/sales-representative-report', 'ReportController@getSalesRepresentativeReport');
     Route::get('/reports/sales-representative-total-expense', 'ReportController@getSalesRepresentativeTotalExpense');
     Route::get('/reports/sales-representative-total-sell', 'ReportController@getSalesRepresentativeTotalSell');

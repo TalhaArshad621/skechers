@@ -20,8 +20,6 @@
 	@include('layouts.partials.error')
 
 	
-    {!! Form::hidden('location_id', null, ['id' => 'location_id', 'data-receipt_printer_type' => 'browser' ]); !!}
-
 	{{-- {!! Form::open(['url' => action('InternationalExchangeController@store'), 'method' => 'post', 'id' => 'add_purchase_form', 'files' => true ]) !!} --}}
     <div style="display: none;"> 
         @component('components.widget', ['class' => 'box-primary'])
@@ -131,6 +129,27 @@
     </div>
 
 	@component('components.widget', ['class' => 'box-primary'])
+		@if(count($business_locations) > 0)
+		<div class="row">
+			<div class="col-sm-3">
+				<div class="form-group">
+					<div class="input-group">
+						<span class="input-group-addon">
+							<i class="fa fa-map-marker"></i>
+						</span>
+					{!! Form::select('location_id', $business_locations, $default_location->id ?? null, ['class' => 'form-control input-sm',
+					'id' => 'location_id', 
+					'required', 'autofocus'], $bl_attributes); !!}
+					<span class="input-group-addon">
+							@show_tooltip(__('tooltip.sale_location'))
+						</span> 
+					</div>
+				</div>
+			</div>
+		</div>
+		@endif
+		<hr/>
+
 		<div class="row">
 			<div class="col-sm-8 col-sm-offset-2">
 				<div class="form-group">
@@ -678,7 +697,7 @@
 
 @section('javascript')
 	{{-- <script src="{{ asset('js/purchase.js?v=' . $asset_v) }}"></script> --}}
-    <script src="{{ asset('js/pos_for_return_international') }}"></script>
+    <script src="{{ asset('js/pos_for_return_international.js') }}"></script>
     <script src="{{ asset('js/product.js?v=' . $asset_v) }}"></script>
     <script src="{{ asset('js/international_exchange.js?v=' . $asset_v) }}"></script>
 	<script type="text/javascript">

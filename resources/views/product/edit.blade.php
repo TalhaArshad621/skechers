@@ -136,10 +136,11 @@
                 <label for="barcode">Gender:*</label>
                 <select class="form-control select2" name="gender" id="gender">
                   <option value="">Select Gender</option>
-                  <option value="male" {{ $product->gender == "male" ? "selected" : "" }} >Male</option>
-                  <option value="female" {{ $product->gender == "female" ? "selected" : "" }}>Female</option>
+                  <option value="men" {{ $product->gender == "men" ? "selected" : "" }} >men</option>
+                  <option value="women" {{ $product->gender == "women" ? "selected" : "" }}>women</option>
                   <option value="kids" {{ $product->gender == "kids" ? "selected" : "" }}>Kids</option>
                   <option value="infant" {{ $product->gender == "infant" ? "selected" : "" }}>Infant</option>
+                  <option value="children" {{ $product->gender == "children" ? "selected" : "" }}>children</option>
                 </select>
               </div>
             </div>

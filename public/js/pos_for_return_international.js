@@ -127,6 +127,7 @@ $(document).ready(function () {
 
     if ($('#search_product_sell').length) {
         //Add Product
+        console.log($('input#location_id').val());
         $('#search_product_sell')
             .autocomplete({
                 source: function (request, response) {

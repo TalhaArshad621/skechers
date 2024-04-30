@@ -1857,7 +1857,6 @@ class SellPosController extends Controller
 
     public function getProductRowForReturn($variation_id, $location_id)
     {
-        dd($variation_id, $location_id);
         $output = [];
 
         try {
