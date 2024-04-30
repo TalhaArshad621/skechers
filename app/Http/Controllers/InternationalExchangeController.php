@@ -70,9 +70,18 @@ class InternationalExchangeController extends Controller
                         ->ExcludeForTaxGroup()
                         ->get();
         $orderStatuses = $this->productUtil->orderStatuses();
-        $business_locations = BusinessLocation::fortransferDropdown($business_id, false, true);
+        $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+        // dd($business_locations);
         $bl_attributes = $business_locations['attributes'];
         $business_locations = $business_locations['locations'];
+        // dd($business_locations);
+
+        $default_location = null;
+        foreach ($business_locations as $id => $name) {
+            $default_location = BusinessLocation::findOrFail($id);
+            break;
+        }
+        // dd($business_locations,$business_id,$permitted_locations);
 
         $currency_details = $this->transactionUtil->purchaseCurrencyDetails($business_id);
 
@@ -112,7 +121,7 @@ class InternationalExchangeController extends Controller
         $change_return = $this->dummyPaymentLine;
 
         return view('international_exchange.create')
-        ->with(compact('taxes', 'orderStatuses', 'business_locations', 'currency_details', 'default_purchase_status', 'customer_groups', 'types', 'shortcuts', 'payment_line', 'payment_types', 'accounts', 'bl_attributes','business_details','pos_settings','payment_lines','change_return'));
+        ->with(compact('taxes', 'orderStatuses', 'business_locations', 'currency_details', 'default_purchase_status', 'customer_groups', 'types', 'shortcuts', 'payment_line', 'payment_types', 'accounts', 'bl_attributes','business_details','pos_settings','payment_lines','change_return','default_location'));
 
     }
 
