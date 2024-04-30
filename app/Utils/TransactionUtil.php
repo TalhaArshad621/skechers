@@ -471,7 +471,7 @@ class TransactionUtil extends Util
 
      public function createOrUpdateSellLinesReturn($transaction, $products, $location_id, $return_deleted = false, $status_before = null, $extra_line_parameters = [], $uf_data = true)
      {
-         // dd($transaction, $products, $location_id);
+        //  dd($transaction, $products, $location_id);
          $lines_formatted = [];
          $modifiers_array = [];
          $edit_ids = [0];
@@ -684,6 +684,7 @@ class TransactionUtil extends Util
          if ($return_deleted) {
              return $deleted_lines;
          }
+        //  dd("here");
          return $fbr_lines;
      }
 
@@ -7357,6 +7358,283 @@ class TransactionUtil extends Util
         return $sell_return;     
     }
 
+    public function addSellReturnInternational($input, $business_id, $user_id, $uf_number = true)
+    {
+        $location_id_new = auth()->user()->permitted_locations();
+
+        $register =  CashRegister::where('user_id', $user_id)
+        ->where('status', 'open')
+        ->first();
+        // dd($register);
+        
+        $discount = [
+            'discount_type' => $input['discount_type'] ?? 'fixed',
+                'discount_amount' => $input['discount_amount'] ?? 0
+            ];
+            
+            $business = Business::with(['currency'])->findOrFail($business_id);
+            
+            $productUtil = new \App\Utils\ProductUtil();
+            
+            $input['tax_id'] = $input['tax_id'] ?? null;
+            // dd($input);
+            // dd($input['purchases'], $input['tax_id'], $discount, $uf_number);
+            $invoice_total = $productUtil->calculateInvoiceTotalInternational($input['purchases'], $input['tax_id'], $discount, $uf_number);
+            // dd($invoice_total);
+        //Get parent sale
+        // $sell = Transaction::where('business_id', $business_id)
+        // ->with(['sell_lines', 'sell_lines.sub_unit','contact'])
+        // ->findOrFail($input['transaction_id']);
+        
+        // dd($location_id_new, $sell->location_id);
+        //Check if any sell return exists for the sale
+        // $sell_return = Transaction::where('business_id', $business_id)
+        // ->where('type', 'sell_return')
+        // ->where('return_parent_id', $sell->id)
+        //         ->first();
+        $sell_return_data = [
+            'invoice_no' => $input['invoice_no'] ?? null,
+            'discount_type' => $discount['discount_type'],
+            'discount_amount' => $uf_number ? $this->num_uf($discount['discount_amount']) : $discount['discount_amount'],
+            'tax_id' => $input['tax_id'],
+            'tax_amount' => $invoice_total['tax'],
+            'total_before_tax' => $input['sub_total'],
+            'final_total' => $input['sub_total']
+        ];
+        // dd($sell_return_data);
+        if (!empty($input['transaction_date'])) {
+            $sell_return_data['transaction_date'] = $uf_number ? $this->uf_date($input['transaction_date'], true) : $input['transaction_date'];
+        }
+        
+        //Generate reference number
+        if (empty($sell_return_data['invoice_no']) && empty($sell_return)) {
+            //Update reference count
+            $ref_count = $this->setAndGetReferenceCount('sell_return', $business_id);
+            $sell_return_data['invoice_no'] = $this->generateReferenceNumber('sell_return', $ref_count, $business_id);
+        }
+        // dd($input);
+        // if (empty($sell_return)) {
+            // dd($sell_return);
+            $sell_return_data['transaction_date'] = $sell_return_data['transaction_date'] ?? \Carbon::now();
+            $sell_return_data['business_id'] = $business_id;
+            $sell_return_data['location_id'] = $input['location_id'];
+            // Issue found on line below. Fix in future.
+            // $sell_return_data['location_id'] = ($location_id_new == "all" ) ? $sell->location_id : $location_id_new[0];
+            $sell_return_data['contact_id'] = $input['contact_id'];
+            // dd($sell_return_data);
+            // $sell_return_data['customer_group_id'] = $sell->customer_group_id;
+            $sell_return_data['type'] = 'international_return';
+            $sell_return_data['status'] = 'final';
+            $sell_return_data['created_by'] = $user_id;
+            // $sell_return_data['return_parent_id'] = $sell->id;
+            // $sell_return_data['commission_agent'] = $sell->commission_agent;
+            // dd($sell_return_data);
+            $sell_return = Transaction::create($sell_return_data);
+
+            $this->activityLog($sell_return, 'added');
+            // dd($sell_return);
+        // } else {
+        //     $sell_return_data['invoice_no'] = $sell_return_data['invoice_no'] ?? $sell_return->invoice_no;
+        //     $sell_return_before = $sell_return->replicate();
+            
+        //     $sell_return->update($sell_return_data);
+
+        //     $this->activityLog($sell_return, 'edited', $sell_return_before);
+        // }
+
+        if ($business->enable_rp == 1 && !empty($sell->rp_earned)) {
+            $is_reward_expired = $this->isRewardExpired($sell->transaction_date, $business_id);
+            if (!$is_reward_expired) {
+                $diff = $sell->final_total - $sell_return->final_total;
+                $new_reward_point = $this->calculateRewardPoints($business_id, $diff);
+                $this->updateCustomerRewardPoints($sell->contact_id, $new_reward_point, $sell->rp_earned);
+
+                $sell->rp_earned = $new_reward_point;
+                $sell->save();
+            }
+        }
+
+        //Update payment status
+        // $transaction = Transaction::find($sell_return->id);
+        // $transaction->payment_status = 'paid';
+        // $transaction->save();
+        // $status  =  Transaction::where('id', $sell_return->id)->update(['payment_status' => 'paid']);
+        // dd($status);        // ->update(['payment_status' => 'paid']);
+        $this->updatePaymentStatusForReturn($sell_return->id, $sell_return->final_total);
+
+        // dd($sell_return,"heh");
+        $prefix_type = 'sell_payment';
+
+        $ref_count = $this->setAndGetReferenceCount($prefix_type);
+        //Generate reference number
+        $payment_ref_no = $this->generateReferenceNumber($prefix_type, $ref_count);
+
+        $transaction = Transaction::where('business_id', $business_id)
+        ->with(['contact', 'location'])
+        ->findOrFail($sell_return['id']);
+        // dd($transaction);
+
+        $amount = $transaction->final_total;
+        // dd($amount ,$payment_ref_no, $sell_return->id, $sell_return->business_id, $sell_return->created_by, $sell_return->contact_id);
+
+        TransactionPayment::create([
+            'payment_ref_no' => $payment_ref_no,
+            'amount' => $amount,
+            'method' => 'cash',
+            'paid_on' => now()->toDateTimeString(),
+            'transaction_id' => $sell_return->id,
+            'business_id' => $sell_return->business_id,
+            'created_by' => $sell_return->created_by,
+            'payment_for' => $sell_return->contact_id
+        ]);
+        // dd("done");
+
+        //Update quantity returned in sell line
+        $returns = [];
+        $product_lines = $input['purchases'];
+        // dd($product_lines);
+        // foreach ($product_lines as $product_line) {
+        //     dd($product_line);
+        //     $returns[$product_line['sell_line_id']] = $uf_number ? $this->num_uf($product_line['quantity']) : $product_line['quantity'];
+        // }
+        // dd($input);
+        // dd("out",$input['trasaction_id']);
+        
+        $payments_formatted = [];
+        $payments_formatted[] = new CashRegisterTransaction([
+                'amount' => $sell_return->final_total,
+                'pay_method' => 'cash',
+                'type' => 'debit',
+                'transaction_type' => 'sell_return',
+                // 'transaction_id' => $input['transaction_id']
+            ]);
+            // dd($payments_formatted);
+
+        if (!empty($payments_formatted)) {
+            $register->cash_register_transactions()->saveMany($payments_formatted);
+        }
+        // dd("out");
+
+
+        $fbr_lines = [];
+        $total_tax = 0;
+        $total_items = 0;
+        $unit_price = 0;
+        $line_discount_amount = 0;
+
+        // foreach ($sell->sell_lines as $sell_line) {
+        //     if (array_key_exists($sell_line->id, $returns)) {
+        //         $multiplier = 1;
+        //         if (!empty($sell_line->sub_unit)) {
+        //             $multiplier = $sell_line->sub_unit->base_unit_multiplier;
+        //         }
+
+        //         $quantity = $returns[$sell_line->id] * $multiplier;
+
+        //         $quantity_before = $sell_line->quantity_returned;
+
+        //         $sell_line->quantity_returned = $quantity;
+        //         $sell_line->save();
+
+        //         $total_tax += $sell_line->item_tax;
+        //         $total_items += $sell_line->quantity;
+        //         $unit_price += $sell_line->unit_price;
+        //         $line_discount_amount += $sell_line->line_discount_amount;
+
+        //         $variation_data = DB::table('variations')->select("sub_sku")->where('product_id', $sell_line['product_id'])->first();
+
+        //         $item_data_for_fbr = [  
+        //             'ItemCode'    => $sell_line['product_id'],
+        //             "ItemName"    => $variation_data->sub_sku,
+        //             "Quantity"    => $quantity,
+        //             "PCTCode"     => 6404,
+        //             "TaxRate"     => $sell_line['tax_id'] / $multiplier,
+        //             "SaleValue"   => $sell_line['unit_price'],
+        //             "TotalAmount" => $sell_line['unit_price_inc_tax'] / $multiplier,
+        //             "TaxCharged"  => $sell_line['item_tax'] / $multiplier,
+        //             "Discount"    => $sell_line['line_discount_amount'],
+        //             "FurtherTax"  => 0.0,
+        //             "InvoiceType" => 3,
+        //             "RefUSIN"     => $sell->invoice_no
+        //         ];
+        //         array_push( $fbr_lines, $item_data_for_fbr);
+
+        //         //update quantity sold in corresponding purchase lines
+        //         $this->updateQuantitySoldFromSellLine($sell_line, $quantity, $quantity_before, false);
+
+        //         // Update quantity in variation location details
+        //         $productUtil->updateProductQuantity( $location_id_new == "all" ? $sell_return->location_id : $location_id_new[0], $sell_line->product_id, $sell_line->variation_id, $quantity, $quantity_before, null, false);
+        //     }
+        // }
+
+        // $pos_id = 943050;
+        // $token  = array(
+        //     'Authorization: Bearer 1298b5eb-b252-3d97-8622-a4a69d5bf818',
+        //     'Content-Type: application/json'
+        // );
+        
+        // $dataString = array(
+        //     "InvoiceNumber"   => $sell_return->invoice_no,
+        //     "POSID"           => $pos_id,
+        //     "USIN"            => $sell_return->invoice_no,
+        //     "BuyerNTN"        => "",
+        //     "BuyerCNIC"       => "",
+        //     "DateTime"        => $sell_return_data['transaction_date'],
+        //     "BuyerName"       => $sell->contact->name,
+        //     "BuyerPhoneNumber"=> $sell->contact->mobile,
+        //     "TotalBillAmount" => $sell->final_total,
+        //     "TotalQuantity"   => $total_items,
+        //     "TotalSaleValue"  => $unit_price,
+        //     "TotalTaxCharged" => $total_tax,
+        //     "Discount"        => $sell_return->discount_amount,
+        //     "FurtherTax"      => 0.0,
+        //     "PaymentMode"     => 1,
+        //     "RefUSIN"         => $sell->invoice_no,
+        //     "InvoiceType"     => 3,
+        //     "Items"           => $fbr_lines
+        // );
+        
+        //   $data = json_encode($dataString);
+        //   $curl = curl_init();
+          
+        //   curl_setopt($curl, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
+        //   curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);    
+        //   curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        //   curl_setopt_array($curl, array(
+            //LIVE URL
+            // CURLOPT_URL             => 'https://gw.fbr.gov.pk/imsp/v1/api/Live/PostData',
+            //SANDBOX URL FOR TESTING
+        //     CURLOPT_URL             => 'https://esp.fbr.gov.pk:8244/FBR/v1/api/Live/PostData',
+        //     CURLOPT_RETURNTRANSFER  => true,
+        //     CURLOPT_ENCODING        => '',
+        //     CURLOPT_MAXREDIRS       => 10,
+        //     CURLOPT_TIMEOUT         => 0,
+        //     CURLOPT_FOLLOWLOCATION  => true,
+        //     CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
+        //     CURLOPT_CUSTOMREQUEST   => 'POST',
+        //     CURLOPT_POSTFIELDS      => $data,
+        //     CURLOPT_HTTPHEADER      => $token,
+        //   ));
+    
+        //   $response = curl_exec($curl);
+        //   if ($response === false) {
+        //     throw new Exception(curl_error($curl), curl_errno($curl));
+        //   }
+        //   curl_close($curl);
+    
+        //   $obj            = json_decode($response);
+        //   $fbr_reponse    = get_object_vars($obj);
+        //   $fbr_invoice_id = $fbr_reponse['InvoiceNumber'];
+
+        //   if($fbr_invoice_id) {
+        //       Transaction::where('id', $sell_return->id)->update([
+        //         'custom_field_1' => $fbr_invoice_id
+        //       ]);
+        //   }
+
+        // dd($sell_return);
+        return $sell_return;     
+    }
 
     public function addSellReturn($input, $business_id, $user_id, $uf_number = true)
     {
@@ -7377,8 +7655,10 @@ class TransactionUtil extends Util
             $productUtil = new \App\Utils\ProductUtil();
             
             $input['tax_id'] = $input['tax_id'] ?? null;
+            // dd($input);
             
-            $invoice_total = $productUtil->calculateInvoiceTotal($input['products'], $input['tax_id'], $discount, $uf_number);
+            $invoice_total = $productUtil->calculateInvoiceTotal($input['purchases'], $input['tax_id'], $discount, $uf_number);
+            // dd($invoice_total);
         //Get parent sale
         $sell = Transaction::where('business_id', $business_id)
         ->with(['sell_lines', 'sell_lines.sub_unit','contact'])
@@ -7482,7 +7762,7 @@ class TransactionUtil extends Util
 
         //Update quantity returned in sell line
         $returns = [];
-        $product_lines = $input['products'];
+        $product_lines = $input['purchases'];
         foreach ($product_lines as $product_line) {
             $returns[$product_line['sell_line_id']] = $uf_number ? $this->num_uf($product_line['quantity']) : $product_line['quantity'];
         }
