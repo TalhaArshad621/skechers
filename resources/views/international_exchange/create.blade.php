@@ -138,7 +138,7 @@
 							<i class="fa fa-map-marker"></i>
 						</span>
 					{!! Form::select('location_id', $business_locations, $default_location->id ?? null, ['class' => 'form-control input-sm',
-					'id' => 'location_id', 
+					'id' => 'location_id_new', 
 					'required', 'autofocus'], $bl_attributes); !!}
 					<span class="input-group-addon">
 							@show_tooltip(__('tooltip.sale_location'))
@@ -244,9 +244,9 @@
 			</div>
 			<br>
 			<div class="row">
-				<div class="col-sm-12">
+				{{-- <div class="col-sm-12">
 					<button type="button" id="submit_purchase_form" class="btn btn-primary pull-right btn-flat">@lang('messages.save')</button>
-				</div>
+				</div> --}}
 			</div>
 		</div>
 	@endcomponent
@@ -724,7 +724,7 @@
 		            default_accounts[payment_type]['account'] : '';
 		        if (account_dropdown.length && default_accounts) {
 		            account_dropdown.val(default_account);
-		            account_dropdown.change();
+		            account_dropdown.change();\
 		        }
 		    }
 
@@ -742,6 +742,7 @@
 		});
 	</script>
 <script>
+
 	// Assuming you have included jQuery in your project
 
 	// Function to extract and store the dynamically populated value
