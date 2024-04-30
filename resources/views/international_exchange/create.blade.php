@@ -20,25 +20,10 @@
 	@include('layouts.partials.error')
 
 	
-	{{-- {!! Form::open(['url' => action('InternationalExchangeController@store'), 'method' => 'post', 'id' => 'add_purchase_form', 'files' => true ]) !!} --}}
+	{!! Form::open(['url' => action('InternationalExchangeController@store'), 'method' => 'post', 'id' => 'add_purchase_form', 'files' => true ]) !!}
     <div style="display: none;"> 
         @component('components.widget', ['class' => 'box-primary'])
             <div class="row">
-                <div class="@if(!empty($default_purchase_status)) col-sm-4 @else col-sm-3 @endif">
-                    <div class="form-group">
-                        {!! Form::label('supplier_id', __('purchase.supplier') . ':*') !!}
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-user"></i>
-                            </span>
-                            {!! Form::select('contact_id', [], null, ['class' => 'form-control', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'supplier_id']); !!}
-                            <span class="input-group-btn">
-                                <button type="button" class="btn btn-default bg-white btn-flat add_new_supplier" data-name=""><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
-                            </span>
-                        </div>
-                    </div>
-                    <div id="supplier_address_div"></div>
-                </div>
                 <div class="@if(!empty($default_purchase_status)) col-sm-4 @else col-sm-3 @endif">
                     <div class="form-group">
                         {!! Form::label('ref_no', __('purchase.ref_no').':') !!}
@@ -73,13 +58,6 @@
                     $search_disable = true;
                     @endphp
                 @endif
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        {!! Form::label('location_id', __('purchase.business_location').':*') !!}
-                        @show_tooltip(__('tooltip.purchase_location'))
-                        {!! Form::select('location_id', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required'], $bl_attributes); !!}
-                    </div>
-                </div>
 
                 <!-- Currency Exchange Rate -->
                 <div class="col-sm-3 @if(!$currency_details->purchase_in_diff_currency) hide @endif">
@@ -133,6 +111,7 @@
 		<div class="row">
 			<div class="col-sm-3">
 				<div class="form-group">
+					{!! Form::label('location_id', __('Business Location') . ':*') !!}
 					<div class="input-group">
 						<span class="input-group-addon">
 							<i class="fa fa-map-marker"></i>
@@ -143,6 +122,21 @@
 					<span class="input-group-addon">
 							@show_tooltip(__('tooltip.sale_location'))
 						</span> 
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="form-group">
+					{!! Form::label('contact_id', __('contact.customer') . ':*') !!}
+					<div class="input-group">
+						<span class="input-group-addon">
+							<i class="fa fa-user"></i>
+						</span>
+						{!! Form::select('contact_id', 
+							[], null, ['class' => 'form-control mousetrap', 'id' => 'customer_id', 'placeholder' => 'Enter Customer name / phone', 'required']); !!}
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+						</span>
 					</div>
 				</div>
 			</div>
@@ -724,7 +718,7 @@
 		            default_accounts[payment_type]['account'] : '';
 		        if (account_dropdown.length && default_accounts) {
 		            account_dropdown.val(default_account);
-		            account_dropdown.change();\
+		            account_dropdown.change();
 		        }
 		    }
 

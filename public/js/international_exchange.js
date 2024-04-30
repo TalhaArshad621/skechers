@@ -887,10 +887,10 @@ function update_table_total() {
         .find('tr')
         .each(function () {
             total_quantity += __read_number($(this).find('.purchase_quantity'), true);
-            total_st_before_tax += $(".default_sell_price").val();
-            total_subtotal += $(".default_sell_price").val();
+            total_st_before_tax += parseFloat($(this).find(".default_sell_price").val().replace(/,/g, ''));
+            total_subtotal += parseFloat($(this).find(".default_sell_price").val().replace(/,/g, ''));
+            console.log(total_subtotal);
         });
-
     $('#total_quantity').text(__number_f(total_quantity, false));
     $('#total_st_before_tax').text(__currency_trans_from_en(total_st_before_tax, true, true));
     __write_number($('input#st_before_tax_input'), total_st_before_tax, true);
