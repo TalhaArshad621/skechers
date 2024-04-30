@@ -1373,7 +1373,6 @@ class ProductController extends Controller
             $product_details['warranty_id'] = !empty($request->input('warranty_id')) ? $request->input('warranty_id') : null;
             
             DB::beginTransaction();
-            dd($product_details);
 
             $product = Product::create($product_details);
 

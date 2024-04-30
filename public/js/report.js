@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    
+
     //Purchase & Sell report
     //Date range as a button
     if ($('#purchase_sell_date_filter').length == 1) {
@@ -160,10 +160,10 @@ $(document).ready(function () {
                     parseFloat($(data[r].total_mfg_stock).data('orig-value')) : 0;
 
                 sold_stock_value_by_purchase_price += $(data[r].sold_stock_value_by_purchase_price).data('orig-value') ?
-                parseFloat($(data[r].sold_stock_value_by_purchase_price).data('orig-value')) : 0;
+                    parseFloat($(data[r].sold_stock_value_by_purchase_price).data('orig-value')) : 0;
 
                 sold_stock_value_by_sale_price += $(data[r].sold_stock_value_by_sale_price).data('orig-value') ?
-                parseFloat($(data[r].sold_stock_value_by_sale_price).data('orig-value')) : 0;
+                    parseFloat($(data[r].sold_stock_value_by_sale_price).data('orig-value')) : 0;
             }
 
             $('.footer_total_stock').html(__currency_trans_from_en(footer_total_stock, false));
@@ -418,7 +418,7 @@ $(document).ready(function () {
             { data: 'total_kamai', name: 'total_kamai' },
             { data: 'action', name: 'action' },
         ],
-        fnDrawCallback: function(oSettings) {
+        fnDrawCallback: function (oSettings) {
             $('#cash_total').text(
                 sum_table_col($('#register_report_table'), 'row_subtotal')
             );
@@ -429,7 +429,7 @@ $(document).ready(function () {
                 sum_table_col($('#register_report_table'), 'subtotal')
 
             );
-            
+
             __currency_convert_recursively($('#register_report_table'));
         }
     });
@@ -1070,9 +1070,11 @@ $(document).ready(function () {
             },
         },
         columns: [
-            { data: null, name: 'serial_number', searchable: false, orderable: false, render: function (data, type, row, meta) {
-                return meta.row + 1;
-            }},
+            {
+                data: null, name: 'serial_number', searchable: false, orderable: false, render: function (data, type, row, meta) {
+                    return meta.row + 1;
+                }
+            },
             // { data: 'product_name', name: 'p.name' },
             { data: 'transaction_date', name: 't.transaction_date' },
             { data: 'sub_sku', name: 'v.sub_sku' },
@@ -1116,7 +1118,7 @@ $(document).ready(function () {
             );
             __currency_convert_recursively($('#product_sell_grouped_report_table'));
         },
-        createdRow: function(row, data, dataIndex) {
+        createdRow: function (row, data, dataIndex) {
             // Add a class to the row for styling purposes if needed
             $(row).addClass('bank-transfer-row');
         }
@@ -1263,6 +1265,7 @@ $(document).ready(function () {
         },
     });
 
+
     // Array to track the ids of the details displayed rows
     var ppr_detail_rows = [];
 
@@ -1315,6 +1318,34 @@ $(document).ready(function () {
         purchase_payment_report.ajax.reload();
     });
 
+
+
+    //Monthly  Report
+    monthly_report = $('table#monthly_report_table').DataTable({
+        processing: true,
+        serverSide: true,
+        aaSorting: [[0, 'desc']],
+        ajax: {
+            url: '/reports/monthly-report-data',
+        },
+        columns: [
+            { data: 'created_at', name: 'created_at' },
+            { data: 'location_name', name: 'location_name' },
+            { data: 'cash_amount', name: 'cash_amount' },
+            { data: 'card_amount', name: 'card_amount' },
+            { data: 'total_kamai', name: 'total_kamai' },
+            { data: 'merchant_tax', name: 'merchant_tax' },
+            { data: 'card_amount_after_tax', name: 'card_amount_after_tax' },
+            { data: 'bank_transfer', name: 'bank_transfer' },
+            { data: 'total_net_amount', name: 'total_net_amount' },
+        ],
+        fnDrawCallback: function (oSettings) {
+            var total_amount = sum_table_col($('#monthly_report_table'), 'paid-amount');
+            $('#footer_total_amount').text(total_amount);
+            __currency_convert_recursively($('#monthly_report_table'));
+        },
+    });
+
     //Sell Payment Report
 
     $(document).on('submit', '#sell_payment_report_form', function (e) {
@@ -1329,7 +1360,7 @@ $(document).ready(function () {
         var end = $('#spr_date_filter')
             .data('daterangepicker')
             .endDate.format('YYYY-MM-DD');
-    
+
         // url_data = out.join('&');
         // register_report_table.ajax.url('/reports/sell-payment-report?' + url_data).load();
         sell_payment_report.ajax.reload();

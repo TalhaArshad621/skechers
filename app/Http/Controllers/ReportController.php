@@ -4200,10 +4200,12 @@ class ReportController extends Controller
                             ),
                             0
                         )
-                    ) as total_sell_discount")
+                    ) as total_sell_discount"),
+                    DB::raw('COUNT(t.id) as total_invoice_count')
                 )
                 ->first();
                 
+                // dd($invoice_data);
 
 
                 // Cash Payment
@@ -4462,13 +4464,44 @@ class ReportController extends Controller
                 $gst_tax = $query8->select(DB::raw('SUM(item_tax) as tax'))
                 ->first();
 
+                $query9 = TransactionSellLine::join('transactions as sale', 'sale.id','transaction_sell_lines.transaction_id')
+                ->leftjoin('transaction_sell_lines_purchase_lines as TSPL', 'transaction_sell_lines.id', '=', 'TSPL.sell_line_id')
+                ->leftjoin(
+                    'purchase_lines as PL',
+                    'TSPL.purchase_line_id',
+                    '=',
+                    'PL.id'
+                )
+                ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
+                ->whereIn('sale.type', ['sell','sell_return'])
+                ->where('sale.status', 'final')
+                ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
+                ->where('sale.business_id', $business_id)
+                ->where('sale.location_id', '<>', 9)
+                ->where('transaction_sell_lines.children_type', '!=', 'combo');
+                  //Filter by the location
+                if (!empty($location_id)) {
+                    $query9->where('L.id', $location_id);
+                }
+                if (!empty(request()->start_date) && !empty(request()->end_date)) {
+                    $start = request()->start_date;
+                    $end =  request()->end_date;
+                    $query9->whereDate('sale.transaction_date', '>=', $start)->whereDate('sale.transaction_date', '<=', $end);
+                }
+
+                  //If type combo: find childrens, sale price parent - get PP of childrens
+                  $query9->select(DB::raw('SUM(PL.purchase_price_inc_tax * PL.quantity_sold) AS buy_price')
+                    )->groupBy('L.id');
+                    $buy_of_sell = $query9->first();
+                // dd($buy_of_sell);
             // dd($return_data, $return_items, $invoice_data, $cash_payment, $card_payment, $gross_profit, $gift_amount, $gift_items, $gst_tax);
             return response()->json([
                 'return_invoices' => $return_data->return_invoices,
                 'return_amount' => $return_data->returned_amount ? $return_data->returned_amount : 0.000 ,
                 'return_items' => $return_items->returned_items ? $return_items->returned_items : 0.000,
                 'total_item_sold' => $invoice_data['total_item_sold'],
-                // 'invoice_amount' => $invoice_data['invoice_amount'],
+                'total_invoice_count' => $invoice_data['total_invoice_count'], 
+                'buy_price' => $buy_of_sell['buy_price'],
                 'invoice_amount' => ($cash_payment->cash_amount) + ($card_payment->card_amount) - ($return_data->returned_amount ? $return_data->returned_amount : 0.000),
                 'total_sell_discount' => $invoice_data['total_sell_discount'],
                 'cash_amount' => $cash_payment->cash_amount,
@@ -5307,7 +5340,124 @@ class ReportController extends Controller
                 ->make(true);
         }
     }
+
+
     public function getMonthlyReport(Request $request)
+    {
+        if (!auth()->user()->can('register_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+        $business_id = $request->session()->get('user.business_id');
+
+        // dd($request->ajax());
+        // //Return the details in ajax call
+        // if ($request->ajax()) {
+        //     $registers = CashRegister::join(
+        //         'users as u',
+        //         'u.id',
+        //         '=',
+        //         'cash_registers.user_id'
+        //         )
+        //         ->leftJoin(
+        //             'business_locations as bl',
+        //             'bl.id',
+        //             '=',
+        //             'cash_registers.location_id'
+        //         )
+        //         ->leftJoin('cash_register_transactions', 'cash_register_transactions.cash_register_id', '=', 'cash_registers.id')
+
+        //         ->where('cash_registers.business_id', $business_id)
+        //         ->where('cash_register_transactions.transaction_type', 'sell')
+        //         ->select(
+        //             'cash_registers.*',
+        //             DB::raw(
+        //                 "CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) as user_name"
+        //             ),
+        //             'bl.name as location_name',
+        //             // DB::raw('SUM(cash_register_transactions.amount) as card_amount'),
+        //             DB::raw("SUM(IF(cash_register_transactions.pay_method='card', IF(transaction_type='sell', amount, 0), 0)) as card_amount"),
+        //             DB::raw("SUM(IF(pay_method='cash', IF(transaction_type='sell', amount, 0), 0)) as cash_amount"),
+
+        //         )
+        //         ->groupBy('cash_registers.id');
+                
+        //         if ($request->input('user_id')){
+        //             // dd($request->input('user_id'));
+        //             $registers->where('cash_registers.user_id', $request->input('user_id'));
+        //         }
+        //         if (!empty($request->input('status'))) {
+        //             $registers->where('cash_registers.status', $request->input('status'));
+        //         }
+        //         $start_date = $request->get('start_date');
+        //         $end_date = $request->get('end_date');
+
+        //         if (!empty($start_date) && !empty($end_date)) {
+        //             $registers->whereDate('cash_registers.created_at', '>=', $start_date)
+        //             ->whereDate('cash_registers.created_at', '<=', $end_date);
+        //         }
+        //         // dd($registers,$request->input('user_id'));
+        //     return Datatables::of($registers)
+        //         // ->editColumn('total_card_slips', function ($row) {
+        //         //     if ($row->status == 'close') {
+        //         //         return $row->total_card_slips;
+        //         //     } else {
+        //         //         return '';
+        //         //     }
+        //         // })
+        //         ->editColumn('card_amount', function ($row) {
+        //             if ($row->status == 'close') {
+        //                 return '<span class="display_currency sell_qty" data-currency_symbol = true data-orig-value="' . $row->card_amount . '">' . $row->card_amount . '</span>';
+
+        //             } else {
+        //                 return '<span class="display_currency sell_qty" data-currency_symbol = true data-orig-value="' . $row->card_amount . '">' . $row->card_amount . '</span>';
+        //             }
+        //         })
+        //         ->editColumn('closed_at', function ($row) {
+        //             if ($row->status == 'close') {
+        //                 return $this->productUtil->format_date($row->closed_at, true);
+        //             } else {
+        //                 return '';
+        //             }
+        //         })
+        //         ->editColumn('created_at', function ($row) {
+        //             return $this->productUtil->format_date($row->created_at, true);
+        //         })
+        //         ->editColumn('cash_amount', function ($row) {
+        //             if ($row->status == 'close') {
+        //                 return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->cash_amount . '">' . $row->cash_amount . '</span>';
+
+        //                 // return '<span class="display_currency row_subtotal" data-currency_symbol="true">' .
+        //                 // $row->cash_amount . '</span>';
+        //             } else {
+        //                 return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->cash_amount . '">' . $row->cash_amount . '</span>';
+
+        //                 // return '<span class="display_currency row_subtotal" data-currency_symbol="true">' .
+        //                 // $row->cash_amount . '</span>';                    
+        //             }
+        //         })
+        //         ->editColumn('total_kamai', function ($row) {
+        //             $total_kamai = $row->cash_amount + $row->card_amount;
+        //             return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $total_kamai . '">' . $total_kamai . '</span>';
+
+        //             return $row->cash_amount + $row->card_amount;
+        //         })
+        //         ->addColumn('action', '<button type="button" data-href="{{action(\'CashRegisterController@show\', [$id])}}" class="btn btn-xs btn-info btn-modal" 
+        //             data-container=".view_register"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</button> @if($status != "close" && auth()->user()->can("close_cash_register"))<button type="button" data-href="{{action(\'CashRegisterController@getCloseRegister\', [$id])}}" class="btn btn-xs btn-danger btn-modal" 
+        //                 data-container=".view_register"><i class="fas fa-window-close"></i> @lang("messages.close")</button> @endif')
+        //         ->filterColumn('user_name', function ($query, $keyword) {
+        //             $query->whereRaw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) like ?", ["%{$keyword}%"]);
+        //         })
+        //         ->rawColumns(['action', 'user_name', 'closing_amount','cash_amount','card_amount','total_kamai'])
+        //         ->make(true);
+        // }
+
+        $users = User::forDropdown($business_id, false);
+
+        return view('report.monthly_report')
+                    ->with(compact('users'));
+    }
+
+    public function getMenthlyReportData(Request $request)
     {
         if (!auth()->user()->can('register_report.view')) {
             abort(403, 'Unauthorized action.');
@@ -5383,6 +5533,9 @@ class ReportController extends Controller
                         return '';
                     }
                 })
+                ->editColumn('location_name', function ($row) {
+                    return $row->location_name;
+                })
                 ->editColumn('created_at', function ($row) {
                     return $this->productUtil->format_date($row->created_at, true);
                 })
@@ -5405,19 +5558,29 @@ class ReportController extends Controller
 
                     return $row->cash_amount + $row->card_amount;
                 })
-                ->addColumn('action', '<button type="button" data-href="{{action(\'CashRegisterController@show\', [$id])}}" class="btn btn-xs btn-info btn-modal" 
-                    data-container=".view_register"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</button> @if($status != "close" && auth()->user()->can("close_cash_register"))<button type="button" data-href="{{action(\'CashRegisterController@getCloseRegister\', [$id])}}" class="btn btn-xs btn-danger btn-modal" 
-                        data-container=".view_register"><i class="fas fa-window-close"></i> @lang("messages.close")</button> @endif')
-                ->filterColumn('user_name', function ($query, $keyword) {
-                    $query->whereRaw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) like ?", ["%{$keyword}%"]);
+                ->editColumn('merchant_tax', function ($row) {
+                    $total_kamai =  $row->card_amount * 0.016;
+                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $total_kamai . '">' . $total_kamai . '</span>';
                 })
-                ->rawColumns(['action', 'user_name', 'closing_amount','cash_amount','card_amount','total_kamai'])
+                ->editColumn('card_amount_after_tax', function ($row) {
+                    $merchant_tax =  $row->card_amount * 0.016;
+                    $card_amount = $row->card_amount - $merchant_tax;
+                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $card_amount . '">' . $card_amount . '</span>';
+                })
+                ->editColumn('bank_transfer', function ($row) {
+                    $cash_amount =  $row->cash_amount;
+
+                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $cash_amount . '">' . $cash_amount . '</span>';
+                })
+                ->editColumn('total_net_amount', function ($row) {
+                    $cash_amount =  $row->cash_amount;
+                    $merchant_tax =  $row->card_amount * 0.016;
+                    $card_amount = $row->card_amount - $merchant_tax;
+                    $total_net_amount = $cash_amount + $card_amount;
+                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $total_net_amount . '">' . $total_net_amount . '</span>';
+                })
+                ->rawColumns(['action', 'user_name', 'closing_amount','cash_amount','card_amount','total_kamai','merchant_tax','total_net_amount','bank_transfer','card_amount_after_tax'])
                 ->make(true);
         }
-
-        $users = User::forDropdown($business_id, false);
-
-        return view('report.monthly_report')
-                    ->with(compact('users'));
     }
 }

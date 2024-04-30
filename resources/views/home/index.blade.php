@@ -206,12 +206,20 @@
                                       <td style="font-weight: 700" id="return-amount">0</td>
                                   </tr>
                                   <tr>
+                                      <td>Total Invoices</td>
+                                      <td id="total-sale-invoices">0</td>
+                                  </tr>
+                                  <tr>
                                       <td>Total Items Sold</td>
                                       <td id="total-items-sold">0</td>
                                   </tr>
                                   <tr class="text-white" style="background-color: #343a40 !important;">
                                       <td style="font-weight: 700">Invoice Amount</td>
                                       <td style="font-weight: 700" id="invoice-amount">0</td>
+                                  </tr>
+                                  <tr>
+                                      <td>Purchase amount</td>
+                                      <td id="purchase-amount">0</td>
                                   </tr>
                                   <tr>
                                       <td>Discount</td>
@@ -596,7 +604,7 @@
             $('.nav-tabs li.active').find('a[data-toggle="tab"]').trigger('shown.bs.tab');
         });
         
-                function updateOverView() {
+    function updateOverView() {
     var start = $('#overview_date_filter')
         .data('daterangepicker')
         .startDate.format('YYYY-MM-DD');
@@ -624,6 +632,7 @@
             data: data,
 
             success: function (response) {
+                console.log(response);
                 var returnItemsFloat = parseFloat(response.return_items); // Convert float to integer
                 var soldItemsFloat = parseFloat(response.total_item_sold); // Convert float to integer
                 var giftItemsFloat = parseFloat(response.total_gift_items); // Convert float to integer
@@ -631,6 +640,7 @@
                 $("#return-invoices").html(response.return_invoices);
                 $("#return-amount").html(__currency_trans_from_en(response.return_amount));
                 $("#return-items").html(returnItemsFloat);
+                $("#total-sale-invoices").html(response.total_invoice_count);
                 $("#total-items-sold").html(soldItemsFloat);
                 $("#invoice-amount").html(__currency_trans_from_en(response.invoice_amount));
                 $("#discount").html(__currency_trans_from_en(response.total_sell_discount));
