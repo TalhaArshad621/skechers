@@ -12,6 +12,7 @@ use App\Product;
 use App\PurchaseLine;
 use App\TaxRate;
 use App\Transaction;
+use Spatie\Permission\Models\Role;
 use App\User;
 use App\Utils\BusinessUtil;
 use App\Utils\ContactUtil;
@@ -55,6 +56,185 @@ class InternationalExchangeController extends Controller
 
     public function index()
     {
+        if (!auth()->user()->can('access_sell_return')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = request()->session()->get('user.business_id');
+        if (request()->ajax()) {
+            $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
+
+            $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
+                    ->leftJoin('transaction_sell_lines as tsl', function($join) {
+                        $join->on('transactions.id', '=', 'tsl.transaction_id')
+                            ->whereNull('tsl.parent_sell_line_id');
+                    })
+                    ->join(
+                        'business_locations AS bl',
+                        'transactions.location_id',
+                        '=',
+                        'bl.id'
+                    )
+                    // ->join(
+                    //     'transactions as T1',
+                    //     'transactions.return_parent_id',
+                    //     '=',
+                    //     'T1.id'
+                    // )
+                    ->leftJoin(
+                        'transaction_payments AS TP',
+                        'transactions.id',
+                        '=',
+                        'TP.transaction_id'
+                    )
+                    ->where('transactions.business_id', $business_id)
+                    ->where('transactions.type', 'international_return')
+                    ->where('transactions.status', 'final')
+                    // ->select('transactions.*')
+                    ->select(
+                        'transactions.id',
+                        'transactions.transaction_date',
+                        'transactions.invoice_no',
+                        'contacts.name',
+                        'transactions.final_total',
+                        // DB::raw('(SELECT SUM(IF(TP.is_return = 1,-1*TP.amount,TP.amount)) FROM transaction_payments AS TP WHERE
+                        // TP.transaction_id=transactions.id) as final_total'),
+                        'transactions.payment_status',
+                        'bl.name as business_location',
+                        // 'T1.invoice_no as parent_sale',
+                        // 'T1.id as parent_sale_id',
+                        DB::raw('SUM(TP.amount) as amount_paid'),
+                        DB::raw("SUM(
+                            IF(
+                                transactions.type = 'international_return' AND transactions.status = 'final' AND tsl.line_discount_amount > 0,
+                                IF(
+                                    tsl.line_discount_type = 'percentage',
+                                    COALESCE((COALESCE(tsl.unit_price_inc_tax, 0) / (1 - (COALESCE(tsl.line_discount_amount, 0) / 100)) - tsl.unit_price_inc_tax ), 0),
+                                    COALESCE(tsl.line_discount_amount, 0)
+                                ),
+                                0
+                            )
+                        ) as total_sell_discount"),
+                            );
+                    // ->get();
+                    // dd($sells);
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $sells->whereIn('transactions.location_id', $permitted_locations);
+            }
+
+            if (request()->has('created_by')) {
+                $created_by = request()->get('created_by');
+                if (!empty($created_by)) {
+                    $sells->where('transactions.created_by', $created_by);
+                }
+            }
+
+            if (request()->has('location_id')) {
+                $location_id = request()->get('location_id');
+                if (!empty($location_id)) {
+                    $sells->where('transactions.location_id', $location_id);
+                }
+            }
+
+            if (!empty(request()->customer_id)) {
+                $customer_id = request()->customer_id;
+                $sells->where('contacts.id', $customer_id);
+            }
+            if (!empty(request()->start_date) && !empty(request()->end_date)) {
+                $start = request()->start_date;
+                $end =  request()->end_date;
+                $sells->whereDate('transactions.transaction_date', '>=', $start)
+                        ->whereDate('transactions.transaction_date', '<=', $end);
+            }
+
+            $sells->groupBy('transactions.id');
+            // dd($sells);
+
+            return Datatables::of($sells)
+                // ->addColumn(
+                //     'action',
+                //     '<div class="btn-group">
+                //     <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
+                //         data-toggle="dropdown" aria-expanded="false">' .
+                //         __("messages.actions") .
+                //         '<span class="caret"></span><span class="sr-only">Toggle Dropdown
+                //         </span>
+                //     </button>
+                //     <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                //         <li><a href="#" class="btn-modal" data-container=".view_modal" data-href="{{action(\'SellReturnController@show\', [$parent_sale_id])}}"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</a></li>
+                //         <li><a href="#" class="print-invoice" data-href="{{action(\'SellReturnController@printInvoice\', [$id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("messages.print")</a></li>
+                //     </ul>
+                //     </div>'
+                // )
+                ->removeColumn('id')
+                ->editColumn(
+                    'final_total',
+                    '<span class="display_currency final_total" data-currency_symbol="true" data-orig-value="{{$final_total}}">{{$final_total}}</span>'
+                )
+                // ->editColumn('parent_sale', function ($row) {
+                //     return '<button type="button" class="btn btn-link btn-modal" data-container=".view_modal" data-href="' . action('SellController@show', [$row->parent_sale_id]) . '">' . $row->parent_sale . '</button>';
+                // })
+                ->editColumn(
+                    'discount_amount',
+                    function ($row) {
+                        $discount = !empty($row->total_sell_discount) ? $row->total_sell_discount : 0;
+                        return '<span class="total-discount" data-orig-value="' . $discount . '">' . $this->transactionUtil->num_f($discount, true) . '</span>';
+                    }
+                )
+                ->editColumn(
+                    'original_amount',
+                    function ($row) {
+                        $original_amount = !empty($row->final_total) ? $row->final_total : 0;
+                        return '<span class="total-original-amount" data-orig-value="' . $original_amount . '">' . $this->transactionUtil->num_f($original_amount, true) . '</span>';
+                    }
+                )
+                ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
+                // ->editColumn(
+                //     'payment_status',
+                //     '<a href="{{ action("TransactionPaymentController@show", [$id])}}" class="view_payment_modal payment-status payment-status-label" data-orig-value="{{$payment_status}}" data-status-name="{{__(\'lang_v1.\' . $payment_status)}}"><span class="label @payment_status($payment_status)">{{__(\'lang_v1.\' . $payment_status)}}</span></a>'
+                // )
+                ->editColumn(
+                    'payment_status',
+                    '<a href="{{ action("TransactionPaymentController@show", [$id])}}" class="view_payment_modal payment-status payment-status-label" data-orig-value="{{$payment_status}}" data-status-name="{{__(\'lang_v1.\' . $payment_status)}}"><span class="label @payment_status($payment_status)">{{__(\'lang_v1.\' . $payment_status)}}</span></a>'
+                )
+                ->addColumn('payment_due', function ($row) {
+                    $due = $row->final_total - $row->amount_paid;
+                    return '<span class="display_currency payment_due" data-currency_symbol="true" data-orig-value="' . $due . '">' . $due . '</sapn>';
+                })
+                ->addColumn('payment_methods', function ($row) use ($payment_types) {
+                    $methods = array_unique($row->payment_lines->pluck('method')->toArray());
+                    $count = count($methods);
+                    $payment_method = '';
+                    if ($count == 1) {
+                        $payment_method = $payment_types[$methods[0]];
+                    } elseif ($count > 1) {
+                        $payment_method = __('lang_v1.checkout_multi_pay');
+                    }
+
+                    $html = !empty($payment_method) ? '<span class="payment-method" data-orig-value="' . $payment_method . '" data-status-name="' . $payment_method . '">' . $payment_method . '</span>' : '';
+                    
+                    return $html;
+                })
+                // ->setRowAttr([
+                //     'data-href' => function ($row) {
+                //         if (auth()->user()->can("sell.view")) {
+                //             // dd($row);
+                //             return  action('SellReturnController@showGiftReceipt', [$row->id]) ;
+                //         } else {
+                //             return '';
+                //         }
+                //     }])
+                ->rawColumns(['final_total', 'payment_status', 'payment_due','discount_amount','original_amount','payment_methods'])
+                ->make(true);
+        }
+        $business_locations = BusinessLocation::forDropdown($business_id, false);
+        $customers = Contact::customersDropdown($business_id, false);
+      
+        $sales_representative = User::forDropdown($business_id, false, false, true);
+
+        return view('international_exchange.index')->with(compact('business_locations', 'customers', 'sales_representative'));
     }
 
     public function create()
@@ -124,14 +304,33 @@ class InternationalExchangeController extends Controller
         $payment_types = $this->productUtil->payment_types(null, true, $business_id);
         $change_return = $this->dummyPaymentLine;
 
+        $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
+        $commission_agent = [];
+        if ($commsn_agnt_setting == 'user') {
+            $commission_agent = User::forDropdown($business_id, false);
+        } elseif ($commsn_agnt_setting == 'cmsn_agnt') {
+            $commission_agent = User::saleCommissionAgentsDropdown($business_id, false);
+        }
+
+        $roles = Role::where('name', 'like', '%employee%')->get();
+
+        $usersCollection = collect();
+
+        foreach ($roles as $role) {
+            $usersWithRole = $role->users;
+
+            foreach ($usersWithRole as $user) {
+                $usersCollection[$user->id] = $user->first_name . ' ' . $user->last_name;
+            }
+        }
+
         return view('international_exchange.create')
-        ->with(compact('taxes', 'orderStatuses', 'business_locations', 'currency_details', 'default_purchase_status', 'customer_groups', 'types', 'shortcuts', 'payment_line', 'payment_types', 'accounts', 'bl_attributes','business_details','pos_settings','payment_lines','change_return','default_location'));
+        ->with(compact('usersCollection','commission_agent','taxes', 'orderStatuses', 'business_locations', 'currency_details', 'default_purchase_status', 'customer_groups', 'types', 'shortcuts', 'payment_line', 'payment_types', 'accounts', 'bl_attributes','business_details','pos_settings','payment_lines','change_return','default_location'));
 
     }
 
     public function store(Request $request) 
     {
-        // dd($request);
 
         if (!auth()->user()->can('access_sell_return')) {
             abort(403, 'Unauthorized action.');
@@ -145,12 +344,6 @@ class InternationalExchangeController extends Controller
                     return isset($product['quantity']) && isset($product['unit_price_inc_tax']) && isset($product['sell_line_id']);
                 });
             }
-            // dd($input['purchases'],$input['products']);
-            // dd($input['products']);
-            // if (empty($input['products'])) {
-            //     // Handle case where there are no valid products
-            //     return response()->json(['error' => 'No valid products found.'], 400);
-            // }
             if (!empty($input['purchases'])) {
                 $business_id = $request->session()->get('user.business_id');
                 //Check if subscribed or not
@@ -161,13 +354,8 @@ class InternationalExchangeController extends Controller
                 $user_id = $request->session()->get('user.id');
 
                 DB::beginTransaction();
-                // dd($input);
                 
-                // dd($input, $business_id, $user_id);
                 $sell_return =  $this->transactionUtil->addSellReturnInternational($input, $business_id, $user_id);
-                // dd($sell_return,$business_id);
-                // $receipt = $this->receiptContent($business_id, $sell_return->location_id, $sell_return->id);
-                // dd($receipt);
                 DB::commit();
 
                 $output = ['success' => 1,
@@ -176,7 +364,6 @@ class InternationalExchangeController extends Controller
                         ];
             }
 
-            // dd($input['exchange_products']);
             foreach ($input['exchange_products'] as $key => $product) {
 
                 $variationId = $product['variation_id'];
@@ -187,7 +374,6 @@ class InternationalExchangeController extends Controller
                 
                 // Fetch tax_id from the products table based on $product['product_id']
                 $taxId = Product::where('id', $product['product_id'])->value('tax');
-                // dd($taxId);
             
                 // Calculate item_tax
                 $sellPriceIncTax = (float) str_replace(',', '', $product['unit_price_inc_tax']); // Remove commas and convert to float
@@ -197,18 +383,10 @@ class InternationalExchangeController extends Controller
                 $input['exchange_products'][$key]['default_sell_price'] = $defaultSellPrice;
                 $input['exchange_products'][$key]['item_tax'] = $itemTax;
                 $input['exchange_products'][$key]['tax_id'] = $taxId;
-                // $input['exchange_products'][$key]['line_discount_type'] = 'fixed';
-                // $input['exchange_products'][$key]['line_discount_amount'] = 0;
                 $input['exchange_products'][$key]['sell_line_note'] = null;
 
             }
             
-            // foreach ($input['exchange_products'] as $key => $product) {
-            //     // Add the new key-value pair to each sub-array
-            //     $input['exchange_products'][$key]['line_discount_type'] = 'fixed';
-            // }
-            // dd($input['exchange_products']);
-
             if (!empty($input['exchange_products'])) {
                 $business_id = $request->session()->get('user.business_id');
 
@@ -224,7 +402,6 @@ class InternationalExchangeController extends Controller
                 $discount = ['discount_type' => $input['discount_type'],
                                 'discount_amount' => $input['discount_amount']
                             ];
-                // $input['exchange_products'];
                 $invoice_total = $this->productUtil->calculateInvoiceTotal($input['exchange_products'], $input['tax_rate_id'], $discount);
 
                 DB::beginTransaction();
@@ -242,7 +419,6 @@ class InternationalExchangeController extends Controller
                 if ($is_direct_sale) {
                     $input['is_direct_sale'] = 1;
                 }
-                // dd("here");
 
                 //Set commission agent
                 $input['commission_agent'] = !empty($request->input('commission_agent')) ? $request->input('commission_agent') : null;
@@ -255,7 +431,6 @@ class InternationalExchangeController extends Controller
                     $input['exchange_rate'] = 1;
                 }
 
-                // dd("heree");
                 //Customer group details
                 $contact_id = $request->get('contact_id', null);
                 $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
@@ -271,7 +446,6 @@ class InternationalExchangeController extends Controller
                 if ($input['is_suspend']) {
                     $input['sale_note'] = !empty($input['additional_notes']) ? $input['additional_notes'] : null;
                 }
-                // dd("hit");
 
                 //Generate reference number
                 if (!empty($input['is_recurring'])) {
@@ -313,17 +487,13 @@ class InternationalExchangeController extends Controller
                 //upload document
                 $input['document'] = $this->transactionUtil->uploadFile($request, 'sell_document', 'documents');
 
-                // $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
 
-                //Upload Shipping documents
-                // Media::uploadMedia($business_id, $transaction, $request, 'shipping_documents', false, 'shipping_document');
-                
-                // Getting FBR LINES DATA FROM SELL LINES FUCNCTION4
-                // dd($sell_return);
-                // dd($input['exchange_products']);
-
-                $fbr_lines =   $this->transactionUtil->createOrUpdateSellLinesReturn($sell_return, $input['exchange_products'], $sell_return->location_id);
-                // dd($fbr_lines);
+                foreach ($input['purchases'] as $key => $product) {
+                    $taxId = Product::where('id', $product['product_id'])->value('tax');
+                    $input['purchases'][$key]['tax_id'] = $taxId;
+                    $input['purchases'][$key]['sell_line_note'] = null;    
+                }
+                $fbr_lines =   $this->transactionUtil->createOrUpdateSellLinesReturnNEW($sell_return, $input['exchange_products'],$input['purchases'] ,$sell_return->location_id);
                 if (!$is_direct_sale) {
                     //Add change return
                     $change_return = $this->dummyPaymentLine;
@@ -339,8 +509,6 @@ class InternationalExchangeController extends Controller
                 }
                 $input['status'] = 'final';
                 $input['location_id'] = $sell_return->location_id;
-
-                // dd($input);
 
                 //Check for final and do some processing.
                 if ($input['status'] == 'final') {
@@ -371,21 +539,14 @@ class InternationalExchangeController extends Controller
                         }
                     }
 
-                    // dd($item_array,$input);
-
-                    // dd($input);
-
                     //Add payments to Cash Register
                     if (!$sell_return->is_suspend && !empty($input['payment']) && !$is_credit_sale) {
                         $this->cashRegisterUtil->addSellPayments($sell_return, $input['payment']);
                     }
-                    // dd("hit");
                     
                     //Update payment status
                     // $payment_status = $this->transactionUtil->updatePaymentStatus($sell_return->id, $sell_return->final_total);
-                    // dd($payment_status);
                     $sell_return->payment_status = "paid";
-                    // dd($sell_return);
 
                     if ($request->session()->get('business.enable_rp') == 1) {
                         $redeemed = !empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0;
@@ -404,22 +565,10 @@ class InternationalExchangeController extends Controller
                                     'pos_settings' => $pos_settings
                                 ];
                     $this->transactionUtil->mapPurchaseSell($business, $sell_return->sell_lines, 'purchase');
-                    // dd("done");
 
-                    //Auto send notification
-                    // $whatsapp_link = $this->notificationUtil->autoSendNotification($business_id, 'new_sale', $transaction, $transaction->contact);
                 }
 
-                //Set Module fields
-                // if (!empty($input['has_module_data'])) {
-                //     $this->moduleUtil->getModuleData('after_sale_saved', ['transaction' => $transaction, 'input' => $input]);
-                // }
-
-                
-                // Media::uploadMedia($business_id, $transaction, $request, 'documents');
-
                 $this->transactionUtil->activityLog($sell_return, 'added');
-                // dd("done");
 
                 DB::commit();
 
@@ -448,7 +597,6 @@ class InternationalExchangeController extends Controller
                 if ($sell_return->is_suspend == 1 && empty($pos_settings['print_on_suspend'])) {
                     $print_invoice = false;
                 }
-                // dd("hit");
 
                 if (!auth()->user()->can("print_invoice")) {
                     $print_invoice = true;
@@ -457,9 +605,9 @@ class InternationalExchangeController extends Controller
                 // if ($print_invoice) {
                 //     $receipt = $this->receiptContent($business_id, $input['location_id'], $sell_return->id, null, false, true, $invoice_layout_id);
                 // }
-                // dd("hehhe");
         return redirect()
-        ->action('SellReturnController@index');
+        ->action('SellReturnController@index')
+        ->with('status', $output);
                 // $output = ['success' => 1, 'msg' => $msg, 'receipt' => $receipt ];
 
                 if (!empty($whatsapp_link)) {
@@ -486,11 +634,6 @@ class InternationalExchangeController extends Controller
                             'msg' => $msg
                         ];
         }
-        // dd("done");
-        // return redirect()
-        // ->action('SellReturnController@index')
-        // ->with('status', $output);
-
         return $output;
     }
 
