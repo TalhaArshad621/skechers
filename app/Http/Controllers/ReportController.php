@@ -4189,7 +4189,7 @@ class ReportController extends Controller
                     DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_item_sold'),
 
                     // DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_item_sold'),
-                    DB::raw('SUM((transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax) as invoice_amount'),
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as invoice_amount'),
                     DB::raw("SUM(
                         IF(
                             t.type = 'sell' AND t.status = 'final' AND line_discount_amount > 0,
@@ -4200,8 +4200,7 @@ class ReportController extends Controller
                             ),
                             0
                         )
-                    ) as total_sell_discount"),
-                    DB::raw('COUNT(t.id) as total_invoice_count')
+                    ) as total_sell_discount")
                 )
                 ->first();
                 
@@ -4502,7 +4501,8 @@ class ReportController extends Controller
                 'total_item_sold' => $invoice_data['total_item_sold'],
                 'total_invoice_count' => $invoice_data['total_invoice_count'], 
                 'buy_price'  => $buy_of_sell ? $buy_of_sell['buy_price'] : 0,
-                'invoice_amount' => ($cash_payment->cash_amount) + ($card_payment->card_amount) - ($return_data->returned_amount ? $return_data->returned_amount : 0.000),
+                'invoice_amount' => $invoice_data['invoice_amount'],
+                // 'invoice_amount' => ($cash_payment->cash_amount) + ($card_payment->card_amount) - ($return_data->returned_amount ? $return_data->returned_amount : 0.000),
                 'total_sell_discount' => $invoice_data['total_sell_discount'],
                 'cash_amount' => $cash_payment->cash_amount,
                 'card_amount' => $card_payment->card_amount,
@@ -5121,19 +5121,19 @@ class ReportController extends Controller
 
         // Modify end date to include time
         if ($end_date !== null) {
-            $end_date .= ' 23:59:59'; // Assuming you want the end of the day
+            $end_date .= ' 23:59:59';
         }
         // dd($start_date, $end_date);
         if($request->ajax() || true){
             $query = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
             ->join('users','users.id','transactions.commission_agent')
-            ->whereIn('transactions.type',['sell_return'])
+            ->whereIn('transactions.type',['sell'])            
             ->select(
                 'users.first_name', 'users.last_name',
                 // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
                 DB::raw('COUNT(transactions.id) as total_invoices'),
                 DB::raw('SUM(tsl.quantity) as total_items'),
-                DB::raw('SUM(tsl.unit_price_inc_tax * tsl.quantity) as total_sales')
+                DB::raw('SUM(tsl.unit_price_inc_tax * (tsl.quantity)) as total_sales')
             );
             if (!empty($start_date) && !empty($end_date)) {
                 $query->where('transactions.transaction_date', '>=', $start_date)
@@ -5156,169 +5156,6 @@ class ReportController extends Controller
             $result = $query->groupBy('transactions.commission_agent')
             ->get();
 
-            $query1 = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
-            ->join('users','users.id','transactions.commission_agent')
-            ->whereIn('transactions.type',['sell_return'])
-            ->select(
-                'users.first_name', 'users.last_name',
-                // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
-                DB::raw('COUNT(transactions.id) as total_invoices'),
-                DB::raw('SUM(tsl.quantity) as total_items'),
-                DB::raw('SUM(tsl.unit_price_inc_tax * tsl.quantity) as total_sales')
-            );
-            if (!empty($start_date) && !empty($end_date)) {
-                $query1->where('transactions.transaction_date', '>=', $start_date)
-                    ->where('transactions.transaction_date', '<=', $end_date);
-            }
-
-            $permitted_locations = auth()->user()->permitted_locations();
-            if ($permitted_locations != 'all') {
-                $query1->whereIn('transactions.location_id', $permitted_locations);
-            }
-
-            if (!empty($location_id)) {
-                $query1->where('transactions.location_id', $location_id);
-            }
-
-            if (!empty($commission_agent)) {
-                $query1->where('transactions.commission_agent', $commission_agent);
-            }
-
-            $result1 = $query1->groupBy('transactions.commission_agent')
-            ->get();
-
-            $query2 = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
-            ->join('users','users.id','transactions.commission_agent')
-            ->whereIn('transactions.type',['sell_return'])
-            ->select(
-                'users.first_name', 'users.last_name',
-                // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
-                DB::raw('COUNT(transactions.id) as total_invoices'),
-                DB::raw('SUM(tsl.quantity) as total_items'),
-                DB::raw('SUM(transactions.final_total) as total_sales')
-            );
-            if (!empty($start_date) && !empty($end_date)) {
-                $query2->where('transactions.transaction_date', '>=', $start_date)
-                    ->where('transactions.transaction_date', '<=', $end_date);
-            }
-
-            $permitted_locations = auth()->user()->permitted_locations();
-            if ($permitted_locations != 'all') {
-                $query2->whereIn('transactions.location_id', $permitted_locations);
-            }
-
-            if (!empty($location_id)) {
-                $query2->where('transactions.location_id', $location_id);
-            }
-
-            if (!empty($commission_agent)) {
-                $query2->where('transactions.commission_agent', $commission_agent);
-            }
-
-            $result2 = $query2->groupBy('transactions.commission_agent')
-            ->get();
-
-            $query3 = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
-            ->join('users','users.id','transactions.commission_agent')
-            ->whereIn('transactions.type',['sell'])
-            ->select(
-                'users.first_name', 'users.last_name',
-                // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
-                DB::raw('COUNT(transactions.id) as total_invoices'),
-                DB::raw('SUM(tsl.quantity) as total_items'),
-                DB::raw('SUM(tsl.unit_price_inc_tax * tsl.quantity) as total_sales')
-            );
-            if (!empty($start_date) && !empty($end_date)) {
-                $query3->where('transactions.transaction_date', '>=', $start_date)
-                    ->where('transactions.transaction_date', '<=', $end_date);
-            }
-
-            $permitted_locations = auth()->user()->permitted_locations();
-            if ($permitted_locations != 'all') {
-                $query3->whereIn('transactions.location_id', $permitted_locations);
-            }
-
-            if (!empty($location_id)) {
-                $query3->where('transactions.location_id', $location_id);
-            }
-
-            if (!empty($commission_agent)) {
-                $query3->where('transactions.commission_agent', $commission_agent);
-            }
-
-            $result3 = $query3->groupBy('transactions.commission_agent')
-            ->get();
-            // dd($result1);
-            // dd($result2);
-            // dd($result3);
-            // ,$result2->total_sales,$result3->total_sales);
-
-
-
-            $sum_from_TSL = $query1->get();
-            $sum_from_T = $query2->get();
-            $sale_sum = $query3->get();
-
-            // dd($sum_from_TSL, $sum_from_T);
-
-            $arr1 = [];
-
-            foreach ($sum_from_TSL as $TSL) {
-                $total_invoices = $TSL->total_invoices;
-                $total_items = $TSL->total_items;
-                $total_sales = $TSL->total_sales;
-                
-                // Create an associative array with desired keys and values
-                $data = [
-                    'total_invoices' => $total_invoices,
-                    'total_items' => $total_items,
-                    'total_sales' => $total_sales,
-                ];
-                
-                // Push the associative array into $arr1
-                $arr1[] = $data;
-            }
-            $arr2 = [];
-
-            foreach ($sum_from_T as $T) {
-                $total_invoices = $T->total_invoices;
-                $total_items = $T->total_items;
-                $total_sales = $T->total_sales;
-                
-                // Create an associative array with desired keys and values
-                $data = [
-                    'total_invoices' => $total_invoices,
-                    'total_items' => $total_items,
-                    'total_sales' => $total_sales,
-                ];
-                
-                // Push the associative array into $arr1
-                $arr2[] = $data;
-            }
-
-            $arr3 = [];
-
-            foreach ($sale_sum as $ss) {
-                $total_invoices = $ss->total_invoices;
-                $total_items = $ss->total_items;
-                $total_sales = $ss->total_sales;
-                
-                // Create an associative array with desired keys and values
-                $data = [
-                    'total_invoices' => $total_invoices,
-                    'total_items' => $total_items,
-                    'total_sales' => $total_sales,
-                ];
-                
-                // Push the associative array into $arr1
-                $arr3[] = $data;
-            }
-
-            $total_sum = $arr1[0]['total_sales'] - $arr2[0]['total_sales'];
-            $final_total = $arr3[0]['total_sales'] - $total_sum;
-            $final_form = $final_total + $arr2[0]['total_sales'];
-            // dd($final_form);
-            
             return Datatables::of($result)
                 ->addColumn('employee_name', function ($row) {
                     return $row->first_name . ' ' . $row->last_name;
@@ -5331,11 +5168,10 @@ class ReportController extends Controller
                     return '<span data-is_quantity="true" class="display_currency total_items" data-currency_symbol=false data-orig-value="' . (float)$row->total_items . '" >' . (float) $row->total_items . '</span> ';
                 })
                 // ->editColumn('total_sales', function ($row) {
-                        ->editColumn('total_sales', function ($row) use ($final_form) {
-
-                    return '<span class="display_currency total_sales" data-currency_symbol = true data-orig-value="' . $final_form . '">' . $final_form . '</span>';
-                })
-                
+                    ->editColumn('total_sales', function ($row) {
+                        $total = $row->total_sales ;
+                        return '<span class="display_currency total_sales" data-currency_symbol = true data-orig-value="' . $total . '">' . $total . '</span>';
+                    })                
                 ->rawColumns([ 'total_invoices','total_items','total_sales'])
                 ->make(true);
         }

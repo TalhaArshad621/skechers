@@ -140,6 +140,19 @@
 					</div>
 				</div>
 			</div>
+			<div class="col-sm-3">
+				@if(!empty($commission_agent))
+					<div class="form-group">
+						{!! Form::label('commission_agent', __('Employee Name') . ':*') !!}
+						<div class="input-group">
+							<span class="input-group-addon">
+								<i class="fa fa-user"></i>
+							</span>
+							{!! Form::select('commission_agent', $usersCollection, null, ['class' => 'form-control select2', 'required', 'placeholder' => __('Employee Name')]); !!}
+						</div>
+					</div>
+				@endif
+			</div>
 		</div>
 		@endif
 		<hr/>
