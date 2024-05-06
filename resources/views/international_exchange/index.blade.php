@@ -55,7 +55,7 @@
                     <th>Invoice Amount</th>    
                     {{-- <th>@lang('purchase.payment_due')</th> --}}
                     <th>@lang('lang_v1.payment_method')</th>
-                    {{-- <th>@lang('messages.action')</th> --}}
+                    <th>@lang('messages.action')</th>
                 </tr>
             </thead>
             <tfoot>
@@ -67,7 +67,7 @@
                     <td><span class="display_currency" id="footer_discount_total" data-currency_symbol ="true"></span></td>
                     <td><span class="display_currency" id="footer_invoice_total" data-currency_symbol ="true"></span></td>
                     <td></td>
-                    {{-- <td></td> --}}
+                    <td></td>
                 </tr>
             </tfoot>
         </table>
@@ -141,7 +141,7 @@
                 { data: 'final_total', name: 'final_total'},
                 // { data: 'payment_due', name: 'payment_due'},
                 { data: 'payment_methods', orderable: false, "searchable": false},
-                // { data: 'action', name: 'action'}
+                { data: 'action', name: 'action'}
             ],
             "fnDrawCallback": function (oSettings) {
                 var total_sell = sum_table_col($('#international_return_table'), 'final_total');
