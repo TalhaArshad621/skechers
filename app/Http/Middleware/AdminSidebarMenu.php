@@ -417,11 +417,11 @@ class AdminSidebarMenu
                 )->order(35);
             }
             //Ecommerce dropdown
-            if (in_array('ecommerce', $enabled_modules) && (auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create'))) {
+            if (in_array('ecommerce', $enabled_modules) && (auth()->user()->can('view_ecommerce') || auth()->user()->can('edit_ecommerce'))) {
                 $menu->dropdown(
                     __('lang_v1.ecommerce'),
                     function ($sub) {
-                        if (auth()->user()->can('purchase.view')) {
+                        if (auth()->user()->can('view_ecommerce')) {
                             $sub->url(
                                 action('EcommerceController@index'),
                                 __('lang_v1.list_ecommerce'),
@@ -543,7 +543,7 @@ class AdminSidebarMenu
             if (auth()->user()->can('purchase_n_sell_report.view') || auth()->user()->can('contacts_report.view')
                 || auth()->user()->can('stock_report.view') || auth()->user()->can('tax_report.view')
                 || auth()->user()->can('trending_product_report.view') || auth()->user()->can('sales_representative.view') || auth()->user()->can('register_report.view')
-                || auth()->user()->can('expense_report.view')) {
+                || auth()->user()->can('expense_report.view')|| auth()->user()->can('view_ecommerce')) {
                 $menu->dropdown(
                     __('report.reports'),
                     function ($sub) use ($enabled_modules) {
@@ -724,7 +724,7 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-user-secret', 'active' => request()->segment(2) == 'service-staff-report']
                             );
                         }
-                        if (auth()->user()->can('purchase_n_sell_report.view')) {
+                        if (auth()->user()->can('view_ecommerce')) {
                             $sub->url(
                                 action('ReportController@ecommerceSellReport'),
                                 __('E-commerce Sell Report'),
@@ -767,24 +767,26 @@ class AdminSidebarMenu
             // }
 
             //Gift Module
+            if (auth()->user()->can('view_gifts') ||
+            auth()->user()->can('add_gifts')) {
                 $menu->dropdown(
                     __('Gift'),
                     function ($sub) {
-                        if (auth()->user()->can('purchase.create')) {
+                        if (auth()->user()->can('add_gifts')) {
                             $sub->url(
                                 action('GiftController@create'),
                                 __('Add Gift'),
                                 ['icon' => 'fa fas fa-gift', 'active' => request()->segment(1) == 'gift-create']
                             );
                         }
-                        if (auth()->user()->can('access_sell_return')) {
+                        if (auth()->user()->can('view_gifts')) {
                             $sub->url(
                                 action('GiftController@index'),
                                 __('List Gifts'),
                                 ['icon' => 'fa fas fa-undo', 'active' => request()->segment(1) == 'gift-index' && request()->segment(2) == null]
                             );
                         }
-                        if (auth()->user()->can('access_sell_return')) {
+                        if (auth()->user()->can('view_gifts')) {
                             $sub->url(
                                 action('SellReturnController@addGiftReturn'),
                                 __('Add Gift Return'),
@@ -794,6 +796,8 @@ class AdminSidebarMenu
                     },
                     ['icon' => 'fa fa-gift']
                 )->order(36);
+            
+            }
 
             // //Gift Module
             // if (auth()->user()->can('purchase.create')) {

@@ -66,7 +66,7 @@ class GiftController extends Controller
     public function index(Request $request)
     {
         // dd($request->input('end_date'));
-        if (!auth()->user()->can('access_sell_return')) {
+        if (!auth()->user()->can('view_gifts')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -226,7 +226,7 @@ class GiftController extends Controller
                 // })
                 ->setRowAttr([
                     'data-href' => function ($row) {
-                        if (auth()->user()->can("sell.view")) {
+                        if (auth()->user()->can("view_gifts")) {
                             // dd($row);
                             return  action('SellReturnController@showGiftReceipt', [$row->id]) ;
                         } else {
@@ -246,7 +246,7 @@ class GiftController extends Controller
 
     public function create()
     {
-        if (!auth()->user()->can('direct_sell.access')) {
+        if (!auth()->user()->can('add_gifts')) {
             abort(403, 'Unauthorized action.');
         }
 
