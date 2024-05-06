@@ -286,7 +286,9 @@
                     </tr>
                 </thead>
                 <tbody>
+					{{-- {{ dd($receipt_details) }} --}}
                 	@forelse($receipt_details->lines as $line)
+					{{-- {{ dd($line) }} --}}
 					@php
 						$total_new_discount += $line['new_discount_amount'];
 						$total_original_amount += $line['original_price'] * $line['quantity'];
@@ -300,7 +302,7 @@
 	                        </td>
 	                        <td class="quantity text-right">{{(int)$line['quantity']}}</td>
 	                        @if(empty($receipt_details->hide_price))
-	                        <td class="unit_price text-right">{{(int)($line['original_price'] * $line['quantity']) }}</td>
+	                        <td class="unit_price text-right">{{(int)($line['original_price']) }}</td>
 	                        <td class="discount text-right">{{(int)$line['new_discount_amount']}}</td>
 	                        <td class="price text-right">{{(int)$line['line_total_uf']}}</td>
 	                        @endif
