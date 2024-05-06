@@ -4200,7 +4200,8 @@ class ReportController extends Controller
                             ),
                             0
                         )
-                    ) as total_sell_discount")
+                    ) as total_sell_discount"),
+                    DB::raw('COUNT(t.id) as total_invoice_count')
                 )
                 ->first();
                 
@@ -4499,7 +4500,7 @@ class ReportController extends Controller
                 'return_amount' => $return_data->returned_amount ? $return_data->returned_amount : 0.000 ,
                 'return_items' => $return_items->returned_items ? $return_items->returned_items : 0.000,
                 'total_item_sold' => $invoice_data['total_item_sold'],
-                'total_invoice_count' => $invoice_data['total_invoice_count'], 
+                'total_invoice_count' => $invoice_data['total_invoice_count'] - $return_data->return_invoices, 
                 'buy_price'  => $buy_of_sell ? $buy_of_sell['buy_price'] : 0,
                 'invoice_amount' => $invoice_data['invoice_amount'],
                 // 'invoice_amount' => ($cash_payment->cash_amount) + ($card_payment->card_amount) - ($return_data->returned_amount ? $return_data->returned_amount : 0.000),

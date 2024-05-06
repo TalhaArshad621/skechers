@@ -21,6 +21,7 @@ use App\Utils\ProductUtil;
 use App\Utils\TransactionUtil;
 use App\Utils\CashRegisterUtil;
 use App\Variation;
+use App\TransactionSellLine;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Spatie\Activitylog\Models\Activity;
@@ -48,6 +49,13 @@ class InternationalExchangeController extends Controller
         $this->contactUtil = $contactUtil;
         $this->moduleUtil = $moduleUtil;
         $this->cashRegisterUtil = $cashRegisterUtil;
+        $this->shipping_status_colors = [
+            'ordered' => 'bg-yellow',
+            'packed' => 'bg-info',
+            'shipped' => 'bg-navy',
+            'delivered' => 'bg-green',
+            'cancelled' => 'bg-red',
+        ];
 
         $this->dummyPaymentLine = ['method' => 'cash', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
         'is_return' => 0, 'transaction_no' => ''];
@@ -153,21 +161,20 @@ class InternationalExchangeController extends Controller
             // dd($sells);
 
             return Datatables::of($sells)
-                // ->addColumn(
-                //     'action',
-                //     '<div class="btn-group">
-                //     <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
-                //         data-toggle="dropdown" aria-expanded="false">' .
-                //         __("messages.actions") .
-                //         '<span class="caret"></span><span class="sr-only">Toggle Dropdown
-                //         </span>
-                //     </button>
-                //     <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                //         <li><a href="#" class="btn-modal" data-container=".view_modal" data-href="{{action(\'SellReturnController@show\', [$parent_sale_id])}}"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</a></li>
-                //         <li><a href="#" class="print-invoice" data-href="{{action(\'SellReturnController@printInvoice\', [$id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("messages.print")</a></li>
-                //     </ul>
-                //     </div>'
-                // )
+                ->addColumn(
+                    'action',
+                    '<div class="btn-group">
+                    <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
+                        data-toggle="dropdown" aria-expanded="false">' .
+                        __("messages.actions") .
+                        '<span class="caret"></span><span class="sr-only">Toggle Dropdown
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        <li><a href="#" class="print-invoice" data-href="{{action(\'InternationalExchangeController@printInvoice\', [$id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("messages.print")</a></li>
+                    </ul>
+                    </div>'
+                )
                 ->removeColumn('id')
                 ->editColumn(
                     'final_total',
@@ -217,16 +224,15 @@ class InternationalExchangeController extends Controller
                     
                     return $html;
                 })
-                // ->setRowAttr([
-                //     'data-href' => function ($row) {
-                //         if (auth()->user()->can("sell.view")) {
-                //             // dd($row);
-                //             return  action('SellReturnController@showGiftReceipt', [$row->id]) ;
-                //         } else {
-                //             return '';
-                //         }
-                //     }])
-                ->rawColumns(['final_total', 'payment_status', 'payment_due','discount_amount','original_amount','payment_methods'])
+                ->setRowAttr([
+                    'data-href' => function ($row) {
+                        if (auth()->user()->can("sell.view")) {
+                            return  action('InternationalExchangeController@showGiftReceipt', [$row->id]) ;
+                        } else {
+                            return '';
+                        }
+                    }])
+                ->rawColumns(['final_total', 'payment_status', 'payment_due','discount_amount','original_amount','payment_methods','action'])
                 ->make(true);
         }
         $business_locations = BusinessLocation::forDropdown($business_id, false);
@@ -679,6 +685,167 @@ class InternationalExchangeController extends Controller
             }
         }
         return $output;
+    }
+
+
+    public function showGiftReceipt($id)
+    {
+        $business_id = request()->session()->get('user.business_id');
+            $taxes = TaxRate::where('business_id', $business_id)
+                                ->pluck('name', 'id');
+            $query = Transaction::where('business_id', $business_id)
+                        ->where('id', $id)
+                        ->with(['contact', 'sell_lines' => function ($q) {
+                            $q->whereNull('parent_sell_line_id');
+                        },'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+    
+            if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $query->where('transactions.created_by', request()->session()->get('user.id'));
+            }
+    
+            $sellOrg = $query->firstOrFail();
+    
+            $activities = Activity::forSubject($sellOrg)
+                ->with(['causer', 'subject'])
+                ->latest()
+                ->get();
+    
+            foreach ($sellOrg->sell_lines as $key => $value) {
+                if (!empty($value->sub_unit_id)) {
+                    $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
+                    $sellOrg->sell_lines[$key] = $formated_sell_line;
+                }
+            }
+    
+            $payment_types = $this->transactionUtil->payment_types($sellOrg->location_id, true);
+            $order_taxes = [];
+            if (!empty($sellOrg->tax)) {
+                if ($sellOrg->tax->is_tax_group) {
+                    $order_taxes = $this->transactionUtil->sumGroupTaxDetails($this->transactionUtil->groupTaxDetails($sellOrg->tax, $sellOrg->tax_amount));
+                } else {
+                    $order_taxes[$sellOrg->tax->name] = $sellOrg->tax_amount;
+                }
+            }
+    
+            $business_details = $this->businessUtil->getDetails($business_id);
+            $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+            $shipping_statuses = $this->transactionUtil->shipping_statuses();
+            $shipping_status_colors = $this->shipping_status_colors;
+            $common_settings = session()->get('business.common_settings');
+            $is_warranty_enabled = !empty($common_settings['enable_product_warranty']) ? true : false;
+    
+            $statuses = Transaction::getSellStatuses();
+
+
+        if (!auth()->user()->can('access_sell_return')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = request()->session()->get('user.business_id');
+        $sell = Transaction::where('business_id', $business_id)
+                                ->where('id', $id)
+                                ->with(
+                                    'contact',
+                                    'return_parent',
+                                    'tax',
+                                    'sell_lines',
+                                    'sell_lines.product',
+                                    'sell_lines.variations',
+                                    'sell_lines.sub_unit',
+                                    'sell_lines.product',
+                                    'sell_lines.product.unit',
+                                    'location'
+                                )
+                                ->first();
+                                // dd($sell->sell_lines);
+
+        foreach ($sell->sell_lines as $key => $value) {
+            if (!empty($value->sub_unit_id)) {
+                $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
+                $sell->sell_lines[$key] = $formated_sell_line;
+            }
+        }
+
+        $sell_taxes = [];
+        if (!empty($sell->return_parent->tax)) {
+            if ($sell->return_parent->tax->is_tax_group) {
+                $sell_taxes = $this->transactionUtil->sumGroupTaxDetails($this->transactionUtil->groupTaxDetails($sell->return_parent->tax, $sell->return_parent->tax_amount));
+            } else {
+                $sell_taxes[$sell->return_parent->tax->name] = $sell->return_parent->tax_amount;
+            }
+        }
+
+        $total_discount = 0;
+        // if ($sell->return_parent->discount_type == 'fixed') {
+        //     $total_discount = $sell->return_parent->discount_amount;
+        // } 
+        // elseif ($sell->return_parent->discount_type == 'percentage') {
+        //     $discount_percent = $sell->return_parent->discount_amount;
+        //     if ($discount_percent == 100) {
+        //         $total_discount = $sell->return_parent->total_before_tax;
+        //     } else {
+        //         $total_after_discount = $sell->return_parent->final_total - $sell->return_parent->tax_amount;
+        //         $total_before_discount = $total_after_discount * 100 / (100 - $discount_percent);
+        //         $total_discount = $total_before_discount - $total_after_discount;
+        //     }
+        // }
+
+        // $activities = Activity::forSubject($sell->return_parent)
+        //     ->with(['causer', 'subject'])
+        //     ->latest()
+        //     ->get();
+
+        // $sellId = $sell->id;
+
+        // $returnTransaction = Transaction::where('return_parent_id', $sellId)->first();
+        // if ($returnTransaction) {
+        //     $returnTransactionId = $returnTransaction->id;
+
+        //     $transactionSellLines = TransactionSellLine::where('transaction_id', $returnTransactionId)->first();
+
+        // }
+
+
+        return view('international_exchange.show')->with(compact('sellOrg', 'sell', 'sell_taxes', 'total_discount', 'activities'));
+    }
+
+    public function printInvoice(Request $request, $transaction_id)
+    {
+        // dd($transaction_id);
+        if (request()->ajax()) {
+            // dd($transaction_id);
+
+            try {
+                $output = ['success' => 0,
+                        'msg' => trans("messages.something_went_wrong")
+                        ];
+
+                $business_id = $request->session()->get('user.business_id');
+                // dd($business_id);
+            
+                $transaction = Transaction::where('business_id', $business_id)
+                                ->where('id', $transaction_id)
+                                ->first();
+                                // dd($transaction);
+
+                if (empty($transaction)) {
+                    return $output;
+                }
+                // dd($output);
+
+                $receipt = $this->receiptContent($business_id, $transaction->location_id, $transaction_id, 'browser');
+
+                if (!empty($receipt)) {
+                    $output = ['success' => 1, 'receipt' => $receipt];
+                }
+            } catch (\Exception $e) {
+                $output = ['success' => 0,
+                        'msg' => trans("messages.something_went_wrong")
+                        ];
+            }
+
+            return $output;
+        }
     }
 
 }

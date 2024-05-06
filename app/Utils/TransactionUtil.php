@@ -894,7 +894,7 @@ class TransactionUtil extends Util
                     'item_tax' =>  $uf_item_tax / $multiplier,
                     'tax_id' => $product['tax_id'],
                     'unit_price_inc_tax' =>  $uf_unit_price_inc_tax / $multiplier,
-                    'sell_line_note' => !empty($product['sell_line_note']) ? $product['sell_line_note'] : '',
+                    'sell_line_note' => 'international_return',
                     'sub_unit_id' => !empty($product['sub_unit_id']) ? $product['sub_unit_id'] : null,
                     'discount_id' => !empty($product['discount_id']) ? $product['discount_id'] : null,
                     'res_service_staff_id' => !empty($product['res_service_staff_id']) ? $product['res_service_staff_id'] : null,
