@@ -94,7 +94,7 @@ class EcommerceController extends Controller
     {
         $is_admin = $this->businessUtil->is_admin(auth()->user());
 
-        if ( !$is_admin && !auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping']) ) {
+        if ( !$is_admin && !auth()->user()->hasAnyPermission(['view_ecommerce', 'edit_ecommerce']) ) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -293,7 +293,7 @@ class EcommerceController extends Controller
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-left" role="menu">' ;
 
-                        if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access") || auth()->user()->can("view_own_sell_only")) {
+                        if (auth()->user()->can("view_ecommerce")) {
                             $html .= '<li><a href="#" data-href="' . action("EcommerceController@show", [$row->id]) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" aria-hidden="true"></i> ' . __("messages.view") . '</a></li>';
                         }
                         // if (!$only_shipments) {
@@ -311,7 +311,7 @@ class EcommerceController extends Controller
                         //         $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fas fa-trash"></i> ' . __("messages.delete") . '</a></li>';
                         //     }
                         // }
-                        if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access")) {
+                        if (auth()->user()->can("view_ecommerce")) {
                             if (!empty($row->document)) {
                                 $document_name = !empty(explode("_", $row->document, 2)[1]) ? explode("_", $row->document, 2)[1] : $row->document ;
                                 $html .= '<li><a href="' . url('uploads/documents/' . $row->document) .'" download="' . $document_name . '"><i class="fas fa-download" aria-hidden="true"></i>' . __("purchase.download_document") . '</a></li>';
@@ -330,7 +330,7 @@ class EcommerceController extends Controller
                         // }
                         $html .= '<li class="divider"></li>';
                         if (!$only_shipments) {
-                            if ($row->payment_status != "paid" && (auth()->user()->can("sell.create") || auth()->user()->can("direct_sell.access")) && auth()->user()->can("sell.payments")) {
+                            if ($row->payment_status != "paid" && (auth()->user()->can("view_ecommerce"))) {
                                 $html .= '<li><a href="' . action('TransactionPaymentController@addPayment', [$row->id]) . '" class="add_payment_modal"><i class="fas fa-money-bill-alt"></i> ' . __("purchase.add_payment") . '</a></li>';
                             }
 
@@ -459,7 +459,7 @@ class EcommerceController extends Controller
                 })
                 ->setRowAttr([
                     'data-href' => function ($row) {
-                        if (auth()->user()->can("sell.view") || auth()->user()->can("view_own_sell_only")) {
+                        if (auth()->user()->can("view_ecommerce")) {
                             return  action('EcommerceController@show', [$row->id]) ;
                         } else {
                             return '';

@@ -2533,6 +2533,7 @@ class ReportController extends Controller
                     DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_returned'),
                     'u.short_name as unit',
                     DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    DB::raw('SUM((transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax) as subtotal_exc_return'),
                     DB::raw("SUM(
                         IF(
                             t.type = 'sell' AND t.status = 'final' AND transaction_sell_lines.line_discount_amount > 0,
@@ -2663,12 +2664,12 @@ class ReportController extends Controller
                      return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
                  })
                  ->editColumn('buy_price', function ($row) {
-                    $buy_price = $row->purchase_price *  $row->total_qty_sold;
+                    $buy_price = $row->purchase_price *  ($row->total_qty_sold - $row->total_qty_returned);
                      return '<span class="display_currency buy_price" data-currency_symbol = true data-orig-value="' . $buy_price . '">' . $buy_price . '</span>';
                  })
                  ->editColumn('profit', function ($row) {
-                    $buy_price = $row->purchase_price *  $row->total_qty_sold;
-                    $sell_price = $row->subtotal;
+                    $buy_price = $row->purchase_price *  ($row->total_qty_sold - $row->total_qty_returned);
+                    $sell_price = $row->subtotal_exc_return;
                     $profit = $sell_price - $buy_price;
                      return '<span class="display_currency profit" data-currency_symbol = true data-orig-value="' . $profit . '">' . $profit . '</span>';
                  })
@@ -4329,7 +4330,7 @@ class ReportController extends Controller
                 JOIN purchase_lines AS pl2 
                 ON tspl2.purchase_line_id = pl2.id 
                 WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax,   
-                (TSPL.quantity) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
+                (TSPL.quantity - TSPL.qty_returned) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
                 )->groupBy('L.id');
                 $results_new = $exchange_one_profit->first();
 
@@ -4369,7 +4370,7 @@ class ReportController extends Controller
                 JOIN purchase_lines AS pl2 
                 ON tspl2.purchase_line_id = pl2.id 
                 WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax,   
-                (TSPL.quantity) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
+                (TSPL.quantity - TSPL.qty_returned) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
                 )->groupBy('L.id');
                 $results_two = $exchange_two_profit->first();
                 $result_two_pofit = $results_two ?  $results_two['gross_profit']: 0;
@@ -4473,7 +4474,7 @@ class ReportController extends Controller
                     'PL.id'
                 )
                 ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
-                ->whereIn('sale.type', ['sell','sell_return'])
+                ->whereIn('sale.type', ['sell'])
                 ->where('sale.status', 'final')
                 ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
                 ->where('sale.business_id', $business_id)
@@ -4490,7 +4491,7 @@ class ReportController extends Controller
                 }
 
                   //If type combo: find childrens, sale price parent - get PP of childrens
-                  $query9->select(DB::raw('SUM(PL.purchase_price_inc_tax * PL.quantity_sold) AS buy_price')
+                  $query9->select(DB::raw('SUM(PL.purchase_price_inc_tax * (TSPL.quantity - TSPL.qty_returned)) AS buy_price')
                     )->groupBy('L.id');
                     $buy_of_sell = $query9->first();
                 // dd($buy_of_sell);

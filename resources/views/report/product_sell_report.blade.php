@@ -106,8 +106,8 @@
                                         <td colspan="5"><strong>@lang('sale.total'):</strong></td>
                                         <td id="footer_total_grouped_sold"></td>
                                         <td id="footer_total_grouped_returned"></td>
-                                        <td><span class="display_currency" id="footer_grouped_subtotal" data-currency_symbol ="true"></span></td>
                                         <td><span class="display_currency" id="footer_total_grouped_buy" data-currency_symbol ="true"></span></td>
+                                        <td><span class="display_currency" id="footer_grouped_subtotal" data-currency_symbol ="true"></span></td>
                                         <td><span class="display_currency" id="footer_total_grouped_discount" data-currency_symbol ="true"></span></td>
                                         <td><span class="display_currency" id="footer_grouped_profit" data-currency_symbol ="true"></span></td>
                                         <td id="stock_by_name"></td>
