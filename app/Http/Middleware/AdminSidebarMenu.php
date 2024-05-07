@@ -731,6 +731,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-tasks', 'active' => request()->segment(2) == 'ecommerce-sell-report']
                             );
                         }
+                        if (auth()->user()->can('view_exchange_report')) {
+                            $sub->url(
+                                action('ReportController@exchangeReport'),
+                                __('Exchange Report'),
+                                ['icon' => 'fa fas fa-tasks', 'active' => request()->segment(2) == 'ecommerce-sell-report']
+                            );
+                        }
                     },
                     ['icon' => 'fa fas fa-chart-bar', 'id' => 'tour_step8']
                 )->order(55);
