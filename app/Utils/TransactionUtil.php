@@ -689,6 +689,7 @@ class TransactionUtil extends Util
 
      public function createOrUpdateSellLinesReturnNEW($transaction, $products,$products_new, $location_id, $return_deleted = false, $status_before = null, $extra_line_parameters = [], $uf_data = true)
      {
+        // dd($products_new, $products);
          $lines_formatted = [];
          $modifiers_array = [];
          $edit_ids = [0];
@@ -820,6 +821,7 @@ class TransactionUtil extends Util
          }
 
          foreach ($products_new as $product) {
+            // dd($product);
             $multiplier = 1;
             if (isset($product['sub_unit_id']) && $product['sub_unit_id'] == $product['product_unit_id']) {
                 unset($product['sub_unit_id']);
@@ -933,7 +935,9 @@ class TransactionUtil extends Util
                     $modifiers_array[] = $sell_line_modifiers;
                 }
                 
+                // dd($lines_formatted, $line);
                 $lines_formatted[] = new TransactionSellLine($line);
+                $fbr_lines =  $lines_formatted;
                 $sell_line_warranties[] = !empty($product['warranty_id']) ? $product['warranty_id'] : 0;
             }
          }
@@ -997,6 +1001,7 @@ class TransactionUtil extends Util
          if ($return_deleted) {
              return $deleted_lines;
          }
+        //  dd($fbr_lines);
          return $fbr_lines;
      }
 
@@ -1340,7 +1345,6 @@ class TransactionUtil extends Util
                     array_push( $fbr_lines, $item_data_for_fbr);
                 }
                
-                
                 $lines_formatted[] = new TransactionSellLine($line);
                 $sell_line_warranties[] = !empty($product['warranty_id']) ? $product['warranty_id'] : 0;
             }
@@ -8071,70 +8075,6 @@ class TransactionUtil extends Util
         //     }
         // }
 
-        // $pos_id = 943050;
-        // $token  = array(
-        //     'Authorization: Bearer 1298b5eb-b252-3d97-8622-a4a69d5bf818',
-        //     'Content-Type: application/json'
-        // );
-        
-        // $dataString = array(
-        //     "InvoiceNumber"   => $sell_return->invoice_no,
-        //     "POSID"           => $pos_id,
-        //     "USIN"            => $sell_return->invoice_no,
-        //     "BuyerNTN"        => "",
-        //     "BuyerCNIC"       => "",
-        //     "DateTime"        => $sell_return_data['transaction_date'],
-        //     "BuyerName"       => $sell->contact->name,
-        //     "BuyerPhoneNumber"=> $sell->contact->mobile,
-        //     "TotalBillAmount" => $sell->final_total,
-        //     "TotalQuantity"   => $total_items,
-        //     "TotalSaleValue"  => $unit_price,
-        //     "TotalTaxCharged" => $total_tax,
-        //     "Discount"        => $sell_return->discount_amount,
-        //     "FurtherTax"      => 0.0,
-        //     "PaymentMode"     => 1,
-        //     "RefUSIN"         => $sell->invoice_no,
-        //     "InvoiceType"     => 3,
-        //     "Items"           => $fbr_lines
-        // );
-        
-        //   $data = json_encode($dataString);
-        //   $curl = curl_init();
-          
-        //   curl_setopt($curl, CURLOPT_CAINFO, dirname(__FILE__)."/cacert.pem");
-        //   curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);    
-        //   curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-        //   curl_setopt_array($curl, array(
-            //LIVE URL
-            // CURLOPT_URL             => 'https://gw.fbr.gov.pk/imsp/v1/api/Live/PostData',
-            //SANDBOX URL FOR TESTING
-        //     CURLOPT_URL             => 'https://esp.fbr.gov.pk:8244/FBR/v1/api/Live/PostData',
-        //     CURLOPT_RETURNTRANSFER  => true,
-        //     CURLOPT_ENCODING        => '',
-        //     CURLOPT_MAXREDIRS       => 10,
-        //     CURLOPT_TIMEOUT         => 0,
-        //     CURLOPT_FOLLOWLOCATION  => true,
-        //     CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
-        //     CURLOPT_CUSTOMREQUEST   => 'POST',
-        //     CURLOPT_POSTFIELDS      => $data,
-        //     CURLOPT_HTTPHEADER      => $token,
-        //   ));
-    
-        //   $response = curl_exec($curl);
-        //   if ($response === false) {
-        //     throw new Exception(curl_error($curl), curl_errno($curl));
-        //   }
-        //   curl_close($curl);
-    
-        //   $obj            = json_decode($response);
-        //   $fbr_reponse    = get_object_vars($obj);
-        //   $fbr_invoice_id = $fbr_reponse['InvoiceNumber'];
-
-        //   if($fbr_invoice_id) {
-        //       Transaction::where('id', $sell_return->id)->update([
-        //         'custom_field_1' => $fbr_invoice_id
-        //       ]);
-        //   }
 
         // dd($sell_return);
         return $sell_return;     

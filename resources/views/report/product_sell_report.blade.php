@@ -98,6 +98,7 @@
                                         <th>Profit</th>
                                         <th>Stock By Name</th>
                                         <th>Stock By Color</th>
+                                        <th>Stock By Code</th>
                                         <th>Image</th>
                                     </tr>
                                 </thead>
@@ -112,6 +113,7 @@
                                         <td><span class="display_currency" id="footer_grouped_profit" data-currency_symbol ="true"></span></td>
                                         <td id="stock_by_name"></td>
                                         <td id="stock_by_color"></td>
+                                        <td id="stock_by_code"></td>
                                         <td></td>
                                     </tr>
                                 </tfoot>
