@@ -9,7 +9,7 @@
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       <h4 class="modal-title">@lang( 'purchase.edit_payment' )</h4>
     </div>
-    <input type="hidden" name="cash_register_transaction" value={{ $cash_register_transaction->pay_method }}>
+    {{-- <input type="hidden" name="cash_register_transaction" value={{ $cash_register_transaction->pay_method }}> --}}
 
     <div class="modal-body">
       <div class="row">

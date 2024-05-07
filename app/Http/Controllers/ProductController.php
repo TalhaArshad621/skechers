@@ -15,6 +15,7 @@ use App\TaxRate;
 use App\EcommercePayment;
 use App\EcommerceSellLine;
 use App\EcommerceTransaction;
+use App\StockAdjustmentLine;
 use App\Transaction;
 use App\Unit;
 use App\Utils\ModuleUtil;
@@ -2830,6 +2831,126 @@ class ProductController extends Controller
                 $formattedtype = ucwords($type);
 
                 return $formattedtype;
+            })
+            ->editColumn('quantity', function ($row) {
+                return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" >' . (float) $row->quantity . '</span> ';
+
+            })
+            ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+            ->editColumn('location_name', function ($row) {
+                $location_name = $row->location_name;
+
+                return $location_name;
+            })
+            ->rawColumns(['quantity'])
+            ->make(true);
+        }
+    }
+
+    public function productCompaintHistory(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        if ($request->ajax()) {
+            $stock_adjustments = StockAdjustmentLine::join('transactions', 'stock_adjustment_lines.transaction_id', '=', 'transactions.id')
+            ->join('products', 'products.id', '=', 'stock_adjustment_lines.product_id')
+            ->join('users','transactions.created_by', '=', 'users.id')
+            ->join(
+                'business_locations AS BL',
+                'transactions.location_id',
+                '=',
+                'BL.id'
+            )
+                    ->where('transactions.business_id', $business_id)
+                    ->where('stock_adjustment_lines.product_id', $request->id)
+                    ->where('transactions.type', 'stock_adjustment')
+                    ->select(
+                        'transactions.transaction_date as transaction_date',
+                        'ref_no as invoice_no',
+                        'BL.name as location_name',
+                        'adjustment_type as type',
+                        'stock_adjustment_lines.quantity as quantity',
+                        'products.sku as product_sku',
+                        'products.image as product_image',
+                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                    );
+
+            return Datatables::of($stock_adjustments)
+            ->editColumn('product_sku', function ($row) {
+                $product_sku = $row->product_sku;
+
+                return $product_sku;
+            })
+            ->editColumn('invoice_no', function ($row) {
+                $invoice_no = $row->invoice_no;
+
+                return $invoice_no;
+            })
+            ->editColumn('type', function ($row) {
+                $type = $row->type;
+                $formattedtype = ucwords($type);
+
+                return $formattedtype;
+            })
+            ->editColumn('quantity', function ($row) {
+                return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" >' . (float) $row->quantity . '</span> ';
+
+            })
+            ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+            ->editColumn('location_name', function ($row) {
+                $location_name = $row->location_name;
+
+                return $location_name;
+            })
+            ->rawColumns(['quantity'])
+            ->make(true);
+        }
+    }
+
+    public function productInternationalExchangeHistory(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        if ($request->ajax()) {
+            $stock_adjustments = TransactionSellLine::join('transactions', 'transaction_sell_lines.transaction_id', '=', 'transactions.id')
+            ->join('products', 'products.id', '=', 'transaction_sell_lines.product_id')
+            ->join('users','transactions.created_by', '=', 'users.id')
+            ->join(
+                'business_locations AS BL',
+                'transactions.location_id',
+                '=',
+                'BL.id'
+            )
+                    ->where('transactions.business_id', $business_id)
+                    ->where('transaction_sell_lines.product_id', $request->id)
+                    ->where('transactions.type', 'international_return')
+                    ->where('transaction_sell_lines.sell_line_note','<>','international_return')
+                    ->select(
+                        'transactions.transaction_date as transaction_date',
+                        'ref_no as invoice_no',
+                        'BL.name as location_name',
+                        'transaction_sell_lines.quantity as quantity',
+                        'products.sku as product_sku',
+                        'products.image as product_image',
+                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                    );
+
+            return Datatables::of($stock_adjustments)
+            ->editColumn('product_sku', function ($row) {
+                $product_sku = $row->product_sku;
+
+                return $product_sku;
+            })
+            ->editColumn('invoice_no', function ($row) {
+                $invoice_no = $row->invoice_no;
+
+                return $invoice_no;
             })
             ->editColumn('quantity', function ($row) {
                 return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" >' . (float) $row->quantity . '</span> ';

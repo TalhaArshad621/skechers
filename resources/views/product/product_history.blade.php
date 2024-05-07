@@ -307,6 +307,57 @@
                         </tfoot>
                     </table>
                 </div>
+                <div class="table-responsive">
+                    <h4 class="purchase-wise-heading text-secondary font-weight-bold mb-4">Product Complaint Wise</h4>
+                    <table class="table table-bordered table-striped" 
+                    id="product_complaint_report_table">
+                        <thead>
+                            <tr>
+                                <th>@lang('product.sku')</th>
+                                <th>@lang('Invoice ID')</th>
+                                <th>@lang('Type')</th>
+                                <th>@lang('Quantity')</th>
+                                <th>@lang('Store')</th>
+                                <th>@lang('Transaction Date')</th>
+                                <th>Created By</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr class="bg-gray font-17 footer-total text-center">
+                                <td colspan="3"><strong>@lang('sale.total'):</strong></td>
+                                <td id="product_complaint_report_table_footer"></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="table-responsive">
+                    <h4 class="purchase-wise-heading text-secondary font-weight-bold mb-4">Product International Exchange Wise</h4>
+                    <table class="table table-bordered table-striped" 
+                    id="product_international_report_table">
+                        <thead>
+                            <tr>
+                                <th>@lang('product.sku')</th>
+                                <th>@lang('Invoice ID')</th>
+                                <th>@lang('Quantity')</th>
+                                <th>@lang('Store')</th>
+                                <th>@lang('Transaction Date')</th>
+                                <th>Created By</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr class="bg-gray font-17 footer-total text-center">
+                                <td colspan="2"><strong>@lang('sale.total'):</strong></td>
+                                <td id="product_international_report_table_footer"></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             @endcomponent
         </div>
     </div>
@@ -594,6 +645,62 @@
                     sum_table_col($('#product_adjustment_report_table'), 'sell_qty')
                 );
                 __currency_convert_recursively($('#product_adjustment_report_table'));
+            },
+        });
+
+        //product Complaint js code
+        product_complaint_report_table = $('table#product_complaint_report_table').DataTable({
+            processing: true,
+            serverSide: true,
+            aaSorting: [[1, 'desc']],
+            ajax: {
+                url: '/products/complaint-history',
+                data: function (d) {
+                d.id = productId;
+                },
+            },
+            columns: [
+                { data: 'product_sku', name: 'product_sku' },
+                { data: 'invoice_no', name: 'invoice_no' },
+                { data: 'type', name: 'type' },
+                { data: 'quantity', name: 'quantity' },
+                { data: 'location_name', name: 'location_name' },
+                { data: 'transaction_date', name: 'transaction_date' },
+                { data: 'full_name', name: 'full_name' }
+            ],
+            fnDrawCallback: function(oSettings) {
+                $('#product_adjustment_report_table_footer').text(
+                    sum_table_col($('#product_adjustment_report_table'), 'sell_qty')
+                );
+                __currency_convert_recursively($('#product_adjustment_report_table'));
+            },
+        });
+        
+
+        //product Complaint js code
+        product_international_report_table = $('table#product_international_report_table').DataTable({
+            processing: true,
+            serverSide: true,
+            aaSorting: [[1, 'desc']],
+            ajax: {
+                url: '/products/international-exchange-history',
+                data: function (d) {
+                d.id = productId;
+                },
+            },
+            columns: [
+                { data: 'product_sku', name: 'product_sku' },
+                { data: 'invoice_no', name: 'invoice_no' },
+                { data: 'quantity', name: 'quantity' },
+                { data: 'location_name', name: 'location_name' },
+                { data: 'transaction_date', name: 'transaction_date' },
+                { data: 'full_name', name: 'full_name' }
+            ],
+            fnDrawCallback: function(oSettings) {
+                $('#product_international_report_table_footer').text(
+                    sum_table_col($('#product_international_report_table'), 'sell_qty')
+                );
+                __currency_convert_recursively($('#product_international_report_table'));
             },
         });
         
