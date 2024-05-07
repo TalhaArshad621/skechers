@@ -16,6 +16,25 @@
 
 	{!! Form::open(['url' => action('SellReturnController@store'), 'method' => 'post', 'id' => 'sell_return_form_new' ]) !!}
 	{{-- {!! Form::hidden('transaction_id', $sell->id); !!} --}}
+@component('components.widget', ['class' => 'box-primary'])
+	@if(count($business_locations) > 0)
+	<div class="row">
+		<div class="col-sm-3">
+			@if(!empty($commission_agent))
+				<div class="form-group">
+					{!! Form::label('commission_agent', __('Employee Name') . ':*') !!}
+					<div class="input-group">
+						<span class="input-group-addon">
+							<i class="fa fa-user"></i>
+						</span>
+						{!! Form::select('commission_agent', $usersCollection, null, ['class' => 'form-control select2', 'required', 'placeholder' => __('Employee Name')]); !!}
+					</div>
+				</div>
+			@endif
+		</div>
+	</div>
+	@endif
+@endcomponent
         <input id="transaction_id" name="transaction_id" type="hidden">
 	<div class="box box-solid">
 		<div class="box-header">

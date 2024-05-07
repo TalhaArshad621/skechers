@@ -13,6 +13,7 @@ use Datatables;
 
 use Illuminate\Http\Request;
 use DB;
+use Spatie\Activitylog\Models\Activity;
 
 class ProductAdjustmentController extends Controller
 {
@@ -91,10 +92,9 @@ class ProductAdjustmentController extends Controller
             }
             
             return Datatables::of($stock_adjustments)
-                ->addColumn('action', '<button type="button" data-href="{{  action("StockAdjustmentController@show", [$id]) }}" class="btn btn-primary btn-xs btn-modal" data-container=".view_modal"><i class="fa fa-eye" aria-hidden="true"></i> @lang("messages.view")</button>
-                 &nbsp;
-                    <button type="button" data-href="{{  action("StockAdjustmentController@destroy", [$id]) }}" class="btn btn-danger btn-xs delete_stock_adjustment ' . $hide . '"><i class="fa fa-trash" aria-hidden="true"></i> @lang("messages.delete")</button>')
-                ->removeColumn('id')
+                ->addColumn(
+                    'action', '<button type="button" data-href="{{  action("ProductAdjustmentController@show", [$id]) }}" class="btn btn-primary btn-xs btn-modal" data-container=".view_modal"><i class="fa fa-eye" aria-hidden="true"></i> @lang("messages.view")</button>')
+                 ->removeColumn('id')
                 ->editColumn(
                     'final_total',
                     '<span class="display_currency" data-currency_symbol="true">{{$final_total}}</span>'
@@ -109,7 +109,7 @@ class ProductAdjustmentController extends Controller
                 })
                 ->setRowAttr([
                 'data-href' => function ($row) {
-                    return  action('StockAdjustmentController@show', [$row->id]);
+                    return  action('ProductAdjustmentController@show', [$row->id]);
                 }])
                 ->rawColumns(['final_total', 'action', 'total_amount_recovered'])
                 ->make(true);
@@ -229,7 +229,7 @@ class ProductAdjustmentController extends Controller
                             ];
                 $this->transactionUtil->mapPurchaseSell($business, $stock_adjustment->stock_adjustment_lines, 'stock_adjustment');
 
-                $this->transactionUtil->activityLog($stock_adjustment, 'added', null, [], false);
+                $this->transactionUtil->activityLog($stock_adjustment, 'added');
             }
 
             $output = ['success' => 1,
@@ -263,7 +263,48 @@ class ProductAdjustmentController extends Controller
      */
     public function show($id)
     {
-        //
+        $business_id = request()->session()->get('user.business_id');
+            $query = Transaction::where('business_id', $business_id)
+                        ->where('id', $id)
+                        ->with(['contact', 'sell_lines' => function ($q) {
+                            $q->whereNull('parent_sell_line_id');
+                        },'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+    
+            if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $query->where('transactions.created_by', request()->session()->get('user.id'));
+            }
+    
+            $adjust = $query->firstOrFail();
+    
+            $activities = Activity::forSubject($adjust)
+                ->with(['causer', 'subject'])
+                ->latest()
+                ->get();
+            
+
+        if (!auth()->user()->can('access_sell_return')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = request()->session()->get('user.business_id');
+        $sell = Transaction::where('business_id', $business_id)
+        ->where('id', $id)
+        ->with([
+            'product_adjustment_lines',
+            'location'
+        ])
+        ->first();
+    
+        $sell->product_adjustment_lines->each(function ($adjustment_line) {
+            $product = DB::table('variations')
+                ->join('product_adjustment_lines', 'variations.id', '=', 'product_adjustment_lines.product_id')
+                ->where('product_adjustment_lines.id', $adjustment_line->id)
+                ->select('variations.*')
+                ->first();
+        
+            $adjustment_line->product = $product;
+        });
+        return view('product_adjustment.show')->with(compact('sell', 'activities'));
     }
 
     /**

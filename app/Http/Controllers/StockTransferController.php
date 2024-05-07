@@ -8,9 +8,11 @@ use App\PurchaseLine;
 use App\Transaction;
 use App\TransactionSellLinesPurchaseLines;
 use App\Utils\ModuleUtil;
-
+use App\Utils\BusinessUtil;
 use App\Utils\ProductUtil;
+use Spatie\Permission\Models\Role;
 use App\Utils\TransactionUtil;
+use App\User;
 use Datatables;
 
 use DB;
@@ -27,6 +29,7 @@ class StockTransferController extends Controller
     protected $productUtil;
     protected $transactionUtil;
     protected $moduleUtil;
+    protected $businessUtil;
 
     /**
      * Constructor
@@ -34,11 +37,12 @@ class StockTransferController extends Controller
      * @param ProductUtils $product
      * @return void
      */
-    public function __construct(ProductUtil $productUtil, TransactionUtil $transactionUtil, ModuleUtil $moduleUtil)
+    public function __construct(ProductUtil $productUtil, BusinessUtil $businessUtil, TransactionUtil $transactionUtil, ModuleUtil $moduleUtil)
     {
         $this->productUtil = $productUtil;
         $this->transactionUtil = $transactionUtil;
         $this->moduleUtil = $moduleUtil;
+        $this->businessUtil = $businessUtil;
         $this->status_colors = [
             'in_transit' => 'bg-yellow',
             'completed' => 'bg-green',
@@ -270,10 +274,6 @@ class StockTransferController extends Controller
         });
         
         $formatted_business_locations = BusinessLocation::forDropdown($business_id);
-
-        // $all_business_locations = BusinessLocation::fortransferDropdown($business_id);
-        // dd($business_locations);
-
 
         $statuses = $this->stockTransferStatuses();
 

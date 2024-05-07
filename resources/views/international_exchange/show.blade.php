@@ -3,13 +3,13 @@
       <div class="modal-header">
         {{-- {{ dd($sell) }} --}}
       <button type="button" class="close no-print" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h4 class="modal-title" id="modalTitle"> Gift (<b>@lang('sale.invoice_no'):</b> {{ $sell->invoice_no }})
+      <h4 class="modal-title" id="modalTitle"> International Exchange (<b>@lang('sale.invoice_no'):</b> {{ $sell->invoice_no }})
       </h4>
   </div>
   <div class="modal-body">
      <div class="row">
         <div class="col-sm-6 col-xs-6">
-          <h4>Gift Details:</h4>
+          <h4>International Exchange Details:</h4>
           <strong>@lang('contact.customer'):</strong> {{ $sell->contact->name }} <br>
           <strong>@lang('purchase.business_location'):</strong> {{ $sell->location->name }}
         </div>
