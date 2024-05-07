@@ -21,7 +21,10 @@ use App\Utils\ProductUtil;
 use App\Utils\TransactionUtil;
 use App\Utils\CashRegisterUtil;
 use App\Variation;
+use App\ProductVariation;
 use App\TransactionSellLine;
+use App\TransactionSellLinesPurchaseLines;
+use App\VariationLocationDetails;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Spatie\Activitylog\Models\Activity;
@@ -500,6 +503,7 @@ class InternationalExchangeController extends Controller
                     $input['purchases'][$key]['sell_line_note'] = null;    
                 }
                 $fbr_lines =   $this->transactionUtil->createOrUpdateSellLinesReturnNEW($sell_return, $input['exchange_products'],$input['purchases'] ,$sell_return->location_id);
+                // dd($fbr_lines);
                 if (!$is_direct_sale) {
                     //Add change return
                     $change_return = $this->dummyPaymentLine;
@@ -573,6 +577,90 @@ class InternationalExchangeController extends Controller
                     $this->transactionUtil->mapPurchaseSell($business, $sell_return->sell_lines, 'purchase');
 
                 }
+                // dd($fbr_lines);
+                $selected_arrays = array_filter($fbr_lines, function ($line) {
+                    return isset($line->sell_line_note) && $line->sell_line_note === "international_return";
+                });
+                // dd($selected_arrays);
+
+                foreach ($selected_arrays as $array) {
+                    $sell_line_id_of_returning_product = $array->id;
+                    $product_id_of_returning_product = $array->product_id;
+                    $variation_id = $array->variation_id;
+                    $quantity_returned = $array->quantity_returned;
+                    $quantity = $array->quantity_returned;
+                    // Extract other attributes as needed
+                }
+                // dd($product_id_of_returning_product);
+                $purchase_line_id = PurchaseLine::where('product_id', $product_id_of_returning_product)
+                ->orderBy('id', 'desc')
+                ->value('id');
+
+                $purchase_line_qty_sold = PurchaseLine::where('product_id', $product_id_of_returning_product)
+                    ->orderBy('id', 'desc')
+                    ->select('quantity_sold', 'quantity')
+                    ->first();
+
+                if ($purchase_line_qty_sold && $purchase_line_qty_sold->quantity_sold > 0) {
+                    $purchase_line_qty_sold->decrement('quantity_sold', $quantity_returned);
+                }
+                if ($purchase_line_qty_sold && $purchase_line_qty_sold->quantity_sold = 0) {
+                    $purchase_line_qty_sold->increment('quantity', $quantity_returned);
+
+                }
+                // $purchase_line_qty_sold = PurchaseLine::where('product_id', $product_id_of_returning_product)
+                // ->orderBy('id', 'desc')
+                // ->select('quantity_sold')->first();
+                // dd($purchase_line_qty_sold->quantity_sold > 0);
+
+                // if($purchase_line_qty_sold->quantity_sold > 0){
+
+                //     $purchase_line_qty_sold->quantity_sold->decrement('quantity_sold', $quantity_returned);
+
+                // }
+                // dd($purchase_line_id);
+
+                $final_array = [];
+                $final_array['sell_line_id'] = $sell_line_id_of_returning_product;
+                $final_array['purchase_line_id'] = $purchase_line_id;
+                $final_array['quantity'] = $quantity;
+                $final_array['quantity_returned'] = $quantity_returned;
+
+                $transactionSellLinesPurchaseLines = new TransactionSellLinesPurchaseLines();
+
+                $transactionSellLinesPurchaseLines->sell_line_id = $final_array['sell_line_id'];
+                $transactionSellLinesPurchaseLines->purchase_line_id = $final_array['purchase_line_id'];
+                $transactionSellLinesPurchaseLines->quantity = $final_array['quantity'];
+                $transactionSellLinesPurchaseLines->qty_returned = $final_array['quantity_returned'];
+                
+                $transactionSellLinesPurchaseLines->save();
+
+                $variation_id_of_returning_product = Variation::where('product_id', $product_id_of_returning_product)
+                ->orderBy('id', 'desc')
+                ->value('id');
+                // dd($variation_id_of_returning_product);
+
+                $product_variation_id_of_returning_product = ProductVariation::where('product_id', $product_id_of_returning_product)
+                ->orderBy('id', 'desc')
+                ->value('id');
+
+                $VLD_of_returning_product_id = VariationLocationDetails::
+                where('product_id', $product_id_of_returning_product)
+                ->where('location_id', $sell_return->location_id)
+                ->where('product_variation_id', $product_variation_id_of_returning_product)
+                ->orderBy('id', 'desc')
+                ->value('id');
+                $VLD_of_returning_product = VariationLocationDetails::find($VLD_of_returning_product_id);
+
+                // dd($VLD_of_returning_product);
+                $purchase_line_of_returning_product = PurchaseLine::find($product_id_of_returning_product);
+                // dd($purchase_line_of_returning_product);
+
+
+                $VLD_of_returning_product->increment('qty_available', $quantity);
+
+                // dd($VLD_of_returning_product);
+                // dd($product_variation_id_of_returning_product,$variation_id_of_returning_product);
 
                 $this->transactionUtil->activityLog($sell_return, 'added');
 
@@ -612,7 +700,7 @@ class InternationalExchangeController extends Controller
                 //     $receipt = $this->receiptContent($business_id, $input['location_id'], $sell_return->id, null, false, true, $invoice_layout_id);
                 // }
         return redirect()
-        ->action('SellReturnController@index')
+        ->action('InternationalExchangeController@index')
         ->with('status', $output);
                 // $output = ['success' => 1, 'msg' => $msg, 'receipt' => $receipt ];
 

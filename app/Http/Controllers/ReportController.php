@@ -2511,9 +2511,12 @@ class ReportController extends Controller
                 ->join('categories','p.category_id','categories.id')
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
-                ->where('t.type', 'sell')
+                // ->where('t.type', 'sell')
+                ->where('transaction_sell_lines.sell_line_note', '<>', 'international_return')
+                ->whereIn('t.type', ['sell','sell_return','international_return'])
                 ->where('t.status', 'final')
                 ->select(
+                    't.type as transaction_type',
                     // 'p.image as product_image'.
                     'p.name as product_name',
                     'p.image',
@@ -2548,6 +2551,8 @@ class ReportController extends Controller
                 )
                 ->groupBy('v.id')
                 ->groupBy('formated_date');
+                // ->get();
+                // dd($query);
 
             if (!empty($variation_id)) {
                 $query->where('transaction_sell_lines.variation_id', $variation_id);
@@ -2590,7 +2595,12 @@ class ReportController extends Controller
                 })
                 ->editColumn('product_name', function ($row) {
                     $product_name = $row->product_name;
-                    
+                    if ($row->transaction_id && $row->transaction_type === 'sell_return') {
+                        $product_name .= '(Ex)';
+                    }
+                    elseif ($row->transaction_type === 'international_return'){
+                        $product_name .= '(IntEx)';
+                    }
                     $first_hyphen_position = strpos($product_name, '-');
                 
                     $second_hyphen_position = strpos($product_name, '-', $first_hyphen_position + 1);
@@ -2604,7 +2614,7 @@ class ReportController extends Controller
                     if ($row->product_type == 'variable') {
                         $product_name .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
                     }
-                
+
                     return $product_name;
                 })
                 
@@ -2626,6 +2636,22 @@ class ReportController extends Controller
                     if ($stocks->isNotEmpty()) {
                         // return $stocks->sum();
                         return '<span data-is_quantity="true" class="display_currency stock_by_color" data-currency_symbol=false data-orig-value="' . (float)$stocks->sum() . '" data-unit="' . $row->unit . '" >' . (float) $stocks->sum() . '</span> ' .$row->unit;
+
+                    } else {
+                        return 0;
+                    }
+                })
+                ->addColumn('stock_by_code', function ($row) use ($vld_str, $business_id) {
+                    $product_name = $row->product_name;
+                                    
+                    $product_code = explode('-', $product_name)[0];
+                
+                    $stock = $this->productUtil->calculateStock($product_code, $row->variation_id, $vld_str, $business_id);
+                
+                    $stocks = $stock->pluck('stock');
+
+                    if ($stocks->isNotEmpty()) {
+                        return '<span data-is_quantity="true" class="display_currency stock_by_code" data-currency_symbol=false data-orig-value="' . (float)$stocks->sum() . '" data-unit="' . $row->unit . '" >' . (float) $stocks->sum() . '</span> ' .$row->unit;
 
                     } else {
                         return 0;
@@ -2664,7 +2690,7 @@ class ReportController extends Controller
                      return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
                  })
                  ->editColumn('buy_price', function ($row) {
-                    $buy_price = $row->purchase_price *  ($row->total_qty_sold - $row->total_qty_returned);
+                    $buy_price = $row->purchase_price;
                      return '<span class="display_currency buy_price" data-currency_symbol = true data-orig-value="' . $buy_price . '">' . $buy_price . '</span>';
                  })
                  ->editColumn('profit', function ($row) {
@@ -2677,7 +2703,7 @@ class ReportController extends Controller
                     return '<div style="display: flex;"><img src="' . $row->image_url . '" alt="Product image" class="product-thumbnail-small"></div>';
                 })
                 
-                ->rawColumns(['current_stock', 'subtotal', 'total_qty_sold','discount_amount','buy_price','total_qty_returned','profit','product_image','stock'])
+                ->rawColumns(['stock_by_code','current_stock', 'subtotal', 'total_qty_sold','discount_amount','buy_price','total_qty_returned','profit','product_image','stock', 'product_name'])
                 ->make(true);
         }
     }

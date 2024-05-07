@@ -2573,5 +2573,31 @@ class ProductUtil extends Util
             ->get();
             return $query;
     }
+
+    function calculateStockByCode($product_code, $variation_id, $vld_str, $business_id) {
+        $query = TransactionSellLine::join(
+            'transactions as t',
+            'transaction_sell_lines.transaction_id',
+            '=',
+            't.id'
+        )
+            ->join(
+                'variations as v',
+                'transaction_sell_lines.variation_id',
+                '=',
+                'v.id'
+            )
+            ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+            ->join('products as p', 'pv.product_id', '=', 'p.id')
+            ->where('p.name', 'like', '%' . $product_code. '-%')
+            ->select(
+                'v.id',
+                'p.name as product_name',
+                DB::raw("(SELECT SUM(vld.qty_available) FROM variation_location_details as vld WHERE vld.variation_id=v.id $vld_str) as stock"),
+            )
+            ->groupBy('v.id')
+            ->get();
+            return $query;
+    }
     
 }
