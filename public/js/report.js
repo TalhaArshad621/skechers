@@ -630,6 +630,55 @@ $(document).ready(function () {
                 __currency_convert_recursively($('#sr_sales_with_commission'));
             },
         });
+        //Sales representative report -> Sales with commission
+        sr_sales_commission_exchange_report = $('table#sr_sales_with_commission_exchange_table').DataTable({
+            processing: true,
+            serverSide: true,
+            aaSorting: [[0, 'desc']],
+            ajax: {
+                url: '/reports/employee-exchange-report',
+                data: function (d) {
+                    var start = $('input#sr_date_filter')
+                        .data('daterangepicker')
+                        .startDate.format('YYYY-MM-DD');
+                    var end = $('input#sr_date_filter')
+                        .data('daterangepicker')
+                        .endDate.format('YYYY-MM-DD');
+                    console.log(start, end);
+                    (d.commission_agent = $('select#sr_id').val()),
+                        (d.location_id = $('select#sr_business_id').val()),
+                        (d.start_date = start),
+                        (d.end_date = end);
+                },
+            },
+            columns: [
+                { data: 'employee_name', name: 'users.first_name' },
+                { data: 'total_invoices', name: 'total_invoices' },
+                { data: 'total_items', name: 'total_items' },
+                { data: 'total_sales', name: 'total_sales' },
+            ],
+            columnDefs: [
+                {
+                    searchable: false,
+                    targets: [3],
+                },
+            ],
+            fnDrawCallback: function (oSettings) {
+                $('#footer_total_invoices_exchange').text(
+                    sum_table_col($('#sr_sales_with_commission_exchange_table'), 'total_invoices')
+                );
+
+                $('#footer_total_items_exchange').text(
+                    sum_table_col($('#sr_sales_with_commission_exchange_table'), 'total_items')
+                );
+
+                $('#footer_total_sales_exchange').text(
+                    sum_table_col($('#sr_sales_with_commission_exchange_table'), 'total_sales')
+                );
+                __currency_convert_recursively($('#sr_sales_with_commission_exchange_table'));
+                __currency_convert_recursively($('#sr_sales_with_commission'));
+            },
+        });
 
         //Sales representive filter
         $('select#sr_id, select#sr_business_id').change(function () {
@@ -1120,7 +1169,7 @@ $(document).ready(function () {
             $('#stock_by_code').html(
                 __sum_stock($('#product_sell_grouped_report_table'), 'stock_by_code')
             );
-            
+
             __currency_convert_recursively($('#product_sell_grouped_report_table'));
         },
         createdRow: function (row, data, dataIndex) {
@@ -1802,6 +1851,7 @@ function updateSalesRepresentativeReport() {
     sr_expenses_report.ajax.reload();
     sr_sales_report.ajax.reload();
     sr_sales_commission_report.ajax.reload();
+    sr_sales_commission_exchange_report.ajax.reload();
 }
 
 function salesRepresentativeTotalExpense() {
