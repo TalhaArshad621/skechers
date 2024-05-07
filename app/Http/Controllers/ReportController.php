@@ -4197,7 +4197,7 @@ class ReportController extends Controller
                 )
                 ->where('t.business_id', $business_id)
                 // ->where('t.type', 'sell')
-                ->whereIN('t.type', ['sell','sell_return'])
+                ->whereIN('t.type', ['sell'])
 
                 ->where('t.status', 'final');
                 if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
