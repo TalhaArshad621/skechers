@@ -4228,7 +4228,6 @@ class ReportController extends Controller
                             0
                         )
                     ) as total_sell_discount"),
-                    DB::raw('COUNT(t.id) as total_invoice_count')
                 )
                 ->first();
                 
@@ -4520,6 +4519,33 @@ class ReportController extends Controller
                   $query9->select(DB::raw('SUM(PL.purchase_price_inc_tax * (TSPL.quantity - TSPL.qty_returned)) AS buy_price')
                     )->groupBy('L.id');
                     $buy_of_sell = $query9->first();
+
+                
+
+                    // Total invoices
+                $query10 = DB::table('transactions')
+                ->where('transactions.type', 'sell')
+                ->where('transactions.status', 'final')
+                ->where('transactions.business_id', $business_id);
+                
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query10->whereDate('transactions.transaction_date', '>=', $start_date)
+                        ->whereDate('transactions.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query10->whereDate('transactions.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query10->where('transactions.location_id', $location_id);
+                }  
+                $total_invoice_count =  $query10->select(
+                    DB::raw('COUNT(transactions.id) as total_invoices'),
+                )
+                ->first();
+
+
                 // dd($buy_of_sell);
             // dd($return_data, $return_items, $invoice_data, $cash_payment, $card_payment, $gross_profit, $gift_amount, $gift_items, $gst_tax);
             return response()->json([
@@ -4527,7 +4553,7 @@ class ReportController extends Controller
                 'return_amount' => $return_data->returned_amount ? $return_data->returned_amount : 0.000 ,
                 'return_items' => $return_items->returned_items ? $return_items->returned_items : 0.000,
                 'total_item_sold' => $invoice_data['total_item_sold'],
-                'total_invoice_count' => $invoice_data['total_invoice_count'] - $return_data->return_invoices, 
+                'total_invoice_count' => $total_invoice_count ? $total_invoice_count->total_invoices: 0, 
                 'buy_price'  => $buy_of_sell ? $buy_of_sell['buy_price'] : 0,
                 'invoice_amount' => $invoice_data['invoice_amount'],
                 // 'invoice_amount' => ($cash_payment->cash_amount) + ($card_payment->card_amount) - ($return_data->returned_amount ? $return_data->returned_amount : 0.000),

@@ -211,12 +211,12 @@ class TransactionPaymentController extends Controller
                                         ->first();
                                         // dd($transaction);
 
-            $cash_register_transaction = CashRegisterTransaction::
-            where('transaction_id', $transaction->id)
-            ->where('amount',$transaction->final_total)
-            ->where('transaction_type', 'sell')
-            ->where('type', 'credit')
-            ->first();
+            // $cash_register_transaction = CashRegisterTransaction::
+            // where('transaction_id', $transaction->id)
+            // ->where('amount',$transaction->final_total)
+            // ->where('transaction_type', 'sell')
+            // ->where('type', 'credit')
+            // ->first();
             // dd($cash_register_transaction);
             $payment_types = $this->transactionUtil->payment_types($transaction->location);
 
@@ -224,7 +224,7 @@ class TransactionPaymentController extends Controller
             $accounts = $this->moduleUtil->accountsDropdown($business_id, true, false, true);
 
             return view('transaction_payment.edit_payment_row')
-                        ->with(compact('transaction', 'payment_types', 'payment_line', 'accounts','cash_register_transaction'));
+                        ->with(compact('transaction', 'payment_types', 'payment_line', 'accounts'));
         }
     }
 
@@ -262,12 +262,12 @@ class TransactionPaymentController extends Controller
 
             $payment = TransactionPayment::where('method', '!=', 'advance')->findOrFail($id);
 
-            // $cash_register_transaction = CashRegisterTransaction::
-            // where('transaction_id', $payment->transaction_id)
-            // ->where('amount',$payment->amount)
-            // ->where('transaction_type', 'sell')
-            // ->where('type', 'credit')
-            // ->first();
+            $cash_register_transaction = CashRegisterTransaction::
+            where('transaction_id', $payment->transaction_id)
+            ->where('amount',$payment->amount)
+            ->where('transaction_type', 'sell')
+            ->where('type', 'credit')
+            ->get();
 
             //Update parent payment if exists
             if (!empty($payment->parent_id)) {
@@ -289,13 +289,15 @@ class TransactionPaymentController extends Controller
             }
                                
             DB::beginTransaction();
-
-            CashRegisterTransaction::
-            where('transaction_id', $payment->transaction_id)
-            ->where('amount',$payment->amount)
-            ->where('transaction_type', 'sell')
-            ->where('type', 'credit')
-            ->update(['pay_method' => $request->method]);
+            // dd($inputs, $cash_register_transaction);
+            foreach($cash_register_transaction as $val) {
+                CashRegisterTransaction::
+                where('id', $val->id)
+                ->where('amount',$payment->amount)
+                ->where('transaction_type', 'sell')
+                ->where('type', 'credit')
+                ->update(['pay_method' => $request->method]);
+            }
 
 
             $payment->update($inputs);
