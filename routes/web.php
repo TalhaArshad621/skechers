@@ -235,6 +235,8 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
     Route::get('/reports/get-ecommerce-overview', 'ReportController@getEcommerceOverviewReport');
     Route::get('/reports/brandfolio-report','ReportController@getbrandfolioReport');
     Route::get('/reports/employee-report','ReportController@employeeReport');
+    Route::get('/reports/employee-exchange-report','ReportController@employeeExchangeReport');
+    Route::get('/reports/exchange-report','ReportController@exchangeReport');
 
     Route::get('/reports/dashboard-stock-report','HomeController@getStockDetail');
     Route::get('business-location/activate-deactivate/{location_id}', 'BusinessLocationController@activateDeactivateLocation');
