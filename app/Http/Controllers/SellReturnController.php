@@ -10,6 +10,7 @@ use App\TaxRate;
 use App\Utils\BusinessUtil;
 use App\Utils\ContactUtil;
 use App\Variation;
+use Spatie\Permission\Models\Role;
 use App\Product;
 use App\Utils\ModuleUtil;
 use App\Utils\ProductUtil;
@@ -322,8 +323,33 @@ class SellReturnController extends Controller
         $payment_types = $this->productUtil->payment_types(null, true, $business_id);
         $change_return = $this->dummyPaymentLine;
 
+        $business_details = $this->businessUtil->getDetails($business_id);
+        $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
-        return view('sell_return.new_sell_return',compact('sell','default_location','business_details','pos_settings','payment_lines','payment_types','change_return'));
+
+        $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
+        $commission_agent = [];
+        if ($commsn_agnt_setting == 'user') {
+            $commission_agent = User::forDropdown($business_id, false);
+        } elseif ($commsn_agnt_setting == 'cmsn_agnt') {
+            $commission_agent = User::saleCommissionAgentsDropdown($business_id, false);
+        }
+        $roles = Role::where('name', 'like', '%employee%')->get();
+
+        $usersCollection = collect();
+
+        foreach ($roles as $role) {
+            $usersWithRole = $role->users;
+
+            foreach ($usersWithRole as $user) {
+                $usersCollection[$user->id] = $user->first_name . ' ' . $user->last_name;
+            }
+        }
+        $business_locations = BusinessLocation::fortransferDropdown($business_id);
+
+
+
+        return view('sell_return.new_sell_return',compact('business_locations','commission_agent','usersCollection','sell','default_location','business_details','pos_settings','payment_lines','payment_types','change_return'));
     }
 
 

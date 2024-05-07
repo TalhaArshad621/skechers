@@ -4143,7 +4143,7 @@ class ReportController extends Controller
 
                 // Return Data
                 $query1 = DB::table('transactions')
-                ->where('transactions.type', 'sell_return')
+                ->whereIn('transactions.type', ['sell_return', 'international_return'])
                 ->where('transactions.status', 'final')
                 ->where('transactions.business_id', $business_id);
                 
@@ -4187,18 +4187,66 @@ class ReportController extends Controller
                 ->first();
             
 
+                // Return Items for international exchange
+                $query2ForInternationalExchange = DB::table('transaction_sell_lines')
+                ->leftJoin('transactions as t', 't.id', 'transaction_sell_lines.transaction_id')
+                ->where('t.type', 'international_return')
+                ->where('sell_line_note','international_return')
+                ->where('t.business_id', $business_id);
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query2ForInternationalExchange->whereDate('t.transaction_date', '>=', $start_date)
+                        ->whereDate('t.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query2ForInternationalExchange->whereDate('t.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query2ForInternationalExchange->where('t.location_id', $location_id);
+                }
+                $return_items_from_international_exchange = $query2ForInternationalExchange->select(DB::raw('SUM(transaction_sell_lines.quantity_returned) as returned_items'))
+                ->first();
+                
 
-                // Invoice Data
-                $query3 = TransactionSellLine::join(
+                // Invoice Data For International Exchange
+                $query3ForInternationalReturn = TransactionSellLine::join(
                     'transactions as t',
                     'transaction_sell_lines.transaction_id',
                     '=',
                     't.id'
                 )
                 ->where('t.business_id', $business_id)
-                // ->where('t.type', 'sell')
-                ->whereIN('t.type', ['sell','sell_return'])
+                ->where('t.type', 'international_return')
+                ->where('sell_line_note','<>','international_return')
+                ->where('t.status', 'final');
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query3ForInternationalReturn->whereDate('t.transaction_date', '>=', $start_date)
+                        ->whereDate('t.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query3ForInternationalReturn->whereDate('t.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query3ForInternationalReturn->where('t.location_id', $location_id);
+                }
+                $invoice_data_for_international_exchange =   $query3ForInternationalReturn->select(
+                    DB::raw('SUM(transaction_sell_lines.quantity) as total_item_sold')
+                )
+                ->first();
+                
 
+                 // Invoice Data
+                 $query3 = TransactionSellLine::join(
+                    'transactions as t',
+                    'transaction_sell_lines.transaction_id',
+                    '=',
+                    't.id'
+                )
+                ->where('t.business_id', $business_id)
+                ->whereIN('t.type', ['sell','sell_return'])
                 ->where('t.status', 'final');
                 if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
                     $query3->whereDate('t.transaction_date', '>=', $start_date)
@@ -4525,8 +4573,8 @@ class ReportController extends Controller
             return response()->json([
                 'return_invoices' => $return_data->return_invoices,
                 'return_amount' => $return_data->returned_amount ? $return_data->returned_amount : 0.000 ,
-                'return_items' => $return_items->returned_items ? $return_items->returned_items : 0.000,
-                'total_item_sold' => $invoice_data['total_item_sold'],
+                'return_items' => ($return_items->returned_items ? $return_items->returned_items : 0.000) + ($return_items_from_international_exchange->returned_items ? $return_items_from_international_exchange->returned_items : 0.000),
+                'total_item_sold' => $invoice_data['total_item_sold'] + $invoice_data_for_international_exchange['total_item_sold'],
                 'total_invoice_count' => $invoice_data['total_invoice_count'] - $return_data->return_invoices, 
                 'buy_price'  => $buy_of_sell ? $buy_of_sell['buy_price'] : 0,
                 'invoice_amount' => $invoice_data['invoice_amount'],

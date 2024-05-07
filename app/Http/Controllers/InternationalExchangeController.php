@@ -756,10 +756,8 @@ class InternationalExchangeController extends Controller
             $output['is_enabled'] = true;
 
             $invoice_layout = $this->businessUtil->invoiceLayout($business_id, $location_id, $location_details->invoice_layout_id);
-// dd($invoice_layout);
             //Check if printer setting is provided.
             $receipt_printer_type = is_null($printer_type) ? $location_details->receipt_printer_type : $printer_type;
-// dd("ok");
             // $receipt_details = $this->transactionUtil->getReceiptDetails($transaction_id, $location_id, $invoice_layout, $business_details, $location_details, $receipt_printer_type);
             // dd($receipt_details);
             // dd("ok");
@@ -864,36 +862,6 @@ class InternationalExchangeController extends Controller
         }
 
         $total_discount = 0;
-        // if ($sell->return_parent->discount_type == 'fixed') {
-        //     $total_discount = $sell->return_parent->discount_amount;
-        // } 
-        // elseif ($sell->return_parent->discount_type == 'percentage') {
-        //     $discount_percent = $sell->return_parent->discount_amount;
-        //     if ($discount_percent == 100) {
-        //         $total_discount = $sell->return_parent->total_before_tax;
-        //     } else {
-        //         $total_after_discount = $sell->return_parent->final_total - $sell->return_parent->tax_amount;
-        //         $total_before_discount = $total_after_discount * 100 / (100 - $discount_percent);
-        //         $total_discount = $total_before_discount - $total_after_discount;
-        //     }
-        // }
-
-        // $activities = Activity::forSubject($sell->return_parent)
-        //     ->with(['causer', 'subject'])
-        //     ->latest()
-        //     ->get();
-
-        // $sellId = $sell->id;
-
-        // $returnTransaction = Transaction::where('return_parent_id', $sellId)->first();
-        // if ($returnTransaction) {
-        //     $returnTransactionId = $returnTransaction->id;
-
-        //     $transactionSellLines = TransactionSellLine::where('transaction_id', $returnTransactionId)->first();
-
-        // }
-
-
         return view('international_exchange.show')->with(compact('sellOrg', 'sell', 'sell_taxes', 'total_discount', 'activities'));
     }
 

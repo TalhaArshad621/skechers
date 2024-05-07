@@ -99,6 +99,12 @@
 						</tfoot>
 					</table>
 					</div>
+					<div class="col-sm-4">
+						<div class="form-group">
+							{!! Form::label('additional_notes',__('purchase.additional_notes')) !!}
+							{!! Form::textarea('additional_notes', null, ['class' => 'form-control', 'rows' => 3]); !!}
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="row">
@@ -117,12 +123,12 @@
 							{!! Form::text('shipping_charges', 0, ['class' => 'form-control input_number', 'placeholder' => __('lang_v1.shipping_charges')]); !!}
 					</div>
 				</div>
-				<div class="col-sm-4">
+				{{-- <div class="col-sm-4">
 					<div class="form-group">
 						{!! Form::label('additional_notes',__('purchase.additional_notes')) !!}
 						{!! Form::textarea('additional_notes', null, ['class' => 'form-control', 'rows' => 3]); !!}
 					</div>
-				</div>
+				</div> --}}
 			</div>
 			
 
