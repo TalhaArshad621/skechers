@@ -4276,7 +4276,6 @@ class ReportController extends Controller
                             0
                         )
                     ) as total_sell_discount"),
-                    DB::raw('COUNT(t.id) as total_invoice_count')
                 )
                 ->first();
                 
@@ -4568,6 +4567,33 @@ class ReportController extends Controller
                   $query9->select(DB::raw('SUM(PL.purchase_price_inc_tax * (TSPL.quantity - TSPL.qty_returned)) AS buy_price')
                     )->groupBy('L.id');
                     $buy_of_sell = $query9->first();
+
+                
+
+                    // Total invoices
+                $query10 = DB::table('transactions')
+                ->where('transactions.type', 'sell')
+                ->where('transactions.status', 'final')
+                ->where('transactions.business_id', $business_id);
+                
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query10->whereDate('transactions.transaction_date', '>=', $start_date)
+                        ->whereDate('transactions.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query10->whereDate('transactions.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query10->where('transactions.location_id', $location_id);
+                }  
+                $total_invoice_count =  $query10->select(
+                    DB::raw('COUNT(transactions.id) as total_invoices'),
+                )
+                ->first();
+
+
                 // dd($buy_of_sell);
             // dd($return_data, $return_items, $invoice_data, $cash_payment, $card_payment, $gross_profit, $gift_amount, $gift_items, $gst_tax);
             return response()->json([

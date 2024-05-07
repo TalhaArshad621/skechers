@@ -89,6 +89,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/products/store-to-warehouse-history', 'ProductController@productStoreToWarehouseHistory');
     Route::get('/products/warehouse-to-store-history', 'ProductController@productWarehouseToStoreHistory');
     Route::get('/products/adjustment-history', 'ProductController@productAdjustmentHistory');
+    Route::get('/products/complaint-history', 'ProductController@productCompaintHistory');
+    Route::get('/products/international-exchange-history', 'ProductController@productInternationalExchangeHistory');
 
     Route::get('/products-list', 'ProductController@productList');
     Route::get('/all-products-list', 'ProductController@allProductsList');
