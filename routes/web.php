@@ -277,6 +277,10 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
     Route::resource('bank-transfers', 'BankTransferController');
 
     Route::resource('international-exchange', 'InternationalExchangeController');
+    Route::get('/giftReceipt/{id}', 'InternationalExchangeController@showGiftReceipt')->name('giftReceipt.show');
+    Route::get('/sellReturn/print/{id}', 'InternationalExchangeController@printInvoice');
+
+
 
     Route::get('/cash-register/register-details', 'CashRegisterController@getRegisterDetails');
     Route::get('/cash-register/close-register/{id?}', 'CashRegisterController@getCloseRegister');

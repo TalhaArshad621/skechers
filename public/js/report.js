@@ -1075,9 +1075,9 @@ $(document).ready(function () {
                     return meta.row + 1;
                 }
             },
-            // { data: 'product_name', name: 'p.name' },
             { data: 'transaction_date', name: 't.transaction_date' },
-            { data: 'sub_sku', name: 'v.sub_sku' },
+            { data: 'product_name', name: 'p.name' },
+            // { data: 'sub_sku', name: 'v.sub_sku' },
             { data: 'category_name', name: 'categories.name' },
             { data: 'buying_date', name: 'v.updated_at' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
@@ -1088,6 +1088,7 @@ $(document).ready(function () {
             { data: 'profit', name: 'profit', searchable: false },
             { data: 'current_stock', name: 'current_stock', searchable: false, orderable: false },
             { data: 'stock', name: 'stock', searchable: false, orderable: false },
+            { data: 'stock_by_code', name: 'stock_by_code', searchable: false, orderable: false },
             { data: 'product_image', name: 'p.image' },
 
         ],
@@ -1116,6 +1117,10 @@ $(document).ready(function () {
             $('#stock_by_color').html(
                 __sum_stock($('#product_sell_grouped_report_table'), 'stock_by_color')
             );
+            $('#stock_by_code').html(
+                __sum_stock($('#product_sell_grouped_report_table'), 'stock_by_code')
+            );
+            
             __currency_convert_recursively($('#product_sell_grouped_report_table'));
         },
         createdRow: function (row, data, dataIndex) {

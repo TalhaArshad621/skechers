@@ -16,3 +16,6 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('/product/price', 'ShopifyAPIController@getProductPrice');
+Route::get('/product/discount', 'ShopifyAPIController@getDiscountPriceBySku');
+Route::get('/product/quantity', 'ShopifyAPIController@getStockQuantityBySku');

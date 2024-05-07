@@ -813,7 +813,14 @@ class AdminSidebarMenu
                         $sub->url(
                             action('InternationalExchangeController@create'),
                             __('Add International Exchange'),
-                            ['icon' => 'fa fas fa-swap-arrows', 'active' => request()->segment(1) == 'international-exchange']
+                            ['icon' => 'fa fas fa-swap-arrows', 'active' => request()->segment(1) == 'international-exchange' && request()->segment(2) == 'create']
+                        );
+                    }
+                    if (auth()->user()->can('purchase.create')) {
+                        $sub->url(
+                            action('InternationalExchangeController@index'),
+                            __('List International Exchange'),
+                            ['icon' => 'fa fas fa-swap-arrows', 'active' => request()->segment(1) == 'international-exchange' && request()->segment(2) == null]
                         );
                     }
                 },
