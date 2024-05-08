@@ -330,7 +330,7 @@ class CashRegisterUtil extends Util
 
     public function getSaleReturnDetails($location_id,$open_time, $close_time,$register_id = null){
 
-        $sell_return = CashRegister::leftjoin('cash_register_transactions','cash_register_transactions.cash_register_id','=','cash_registers.id')
+        $sell_return_seperate = CashRegister::leftjoin('cash_register_transactions','cash_register_transactions.cash_register_id','=','cash_registers.id')
         ->leftjoin('transactions', 'transactions.id', '=', 'cash_register_transactions.transaction_id')
         ->where('transactions.type','sell_return')
         ->where('transactions.location_id', $location_id)
@@ -339,16 +339,36 @@ class CashRegisterUtil extends Util
         ->select(
             // 'cash_registers.created_at as open_time',
             // 'cash_registers.closed_at as closed_at',
-
             // '*',
-            DB::raw("SUM(final_total) as total_sale_return"),
+            DB::raw("SUM(cash_register_transactions.amount) as total_sale_return"),
+            // DB::raw("SUM(final_total) as total_sale_return"),
 
             )
         ->first();
         // dd($sell_return);
 
-        return  $sell_return;
 
+        $international_return = CashRegister::leftjoin('cash_register_transactions','cash_register_transactions.cash_register_id','=','cash_registers.id')
+        ->leftjoin('transactions', 'transactions.id', '=', 'cash_register_transactions.transaction_id')
+        ->where('transactions.type','international_return')
+        ->where('transactions.location_id', $location_id)
+        ->where('transactions.payment_status','paid')
+        ->whereBetween('transactions.transaction_date', [$open_time, $close_time])
+        ->select(
+            DB::raw("SUM(cash_register_transactions.amount) as total_sale_return"),
+
+            )
+        ->first();
+        $sell_return = 0;
+
+        if ($sell_return_seperate) {
+            $sell_return += floatval($sell_return_seperate->total_sale_return ?? 0);
+        }
+
+        if ($international_return) {
+            $sell_return += floatval($international_return->total_sale_return ?? 0);
+        }
+        return  $sell_return;
     }
 
     /**
@@ -386,7 +406,7 @@ class CashRegisterUtil extends Util
 
                 ->orderByRaw('CASE WHEN brand_name IS NULL THEN 2 ELSE 1 END, brand_name')
                 ->get();
-                // dd($product_details);
+                dd($product_details);
                 // $transactionIds = $product_details->pluck('id')->toArray();
                 // dd($transactionIds);
 
@@ -419,7 +439,7 @@ class CashRegisterUtil extends Util
 
         $return_product_details_id = Transaction::where('transactions.created_by', $user_id)
                 ->whereBetween('transaction_date', [$open_time, $close_time])
-                ->where('transactions.type', 'sell_return')
+                ->whereIn('transactions.type', ['sell_return','international_return'])
                 // ->whereIn('transactions.return_parent_id', $transactionIds)
                 // ->whereNull('transactions.return_parent_id')
                 ->where('transactions.status', 'final')
@@ -474,6 +494,25 @@ class CashRegisterUtil extends Util
                 ->get();
                 // dd($return_product_details);
 
+
+                $return_product_details_international = Transaction::where('transactions.created_by', $user_id)
+                ->whereBetween('transaction_date', [$open_time, $close_time])
+                ->where('transactions.type', 'international_return')
+                ->whereIn('transactions.id', $transactionIds)
+                ->where('transactions.status', 'final')
+                ->where('transactions.is_direct_sale', 0)
+                ->join('transaction_sell_lines AS TSL', 'transactions.id', '=', 'TSL.transaction_id')
+                ->join('products AS P', 'TSL.product_id', '=', 'P.id')
+                ->leftjoin('brands AS B', 'P.brand_id', '=', 'B.id')
+                ->where('TSL.sell_line_note','international_return')
+                ->select(
+                    'TSL.quantity_returned AS returned_quantity', 'TSL.quantity AS total_quantity','TSL.unit_price_inc_tax',
+                    DB::raw('(TSL.unit_price_inc_tax*TSL.quantity_returned) as total_amount_returned'),
+                    DB::raw('(TSL.unit_price_inc_tax*TSL.quantity - TSL.unit_price_inc_tax*TSL.quantity_returned) as net_total_amount'),
+                    'B.name as brand_name',
+                )
+                ->get();
+
         //If types of service
         $types_of_service_details = null;
         if ($is_types_of_service_enabled) {
@@ -505,6 +544,7 @@ class CashRegisterUtil extends Util
                 ->first();
 
         return ['product_details' => $product_details,
+                'return_product_details_international' => $return_product_details_international,
                 'return_product_details' => $return_product_details,
                 'transaction_details' => $transaction_details,
                 'types_of_service_details' => $types_of_service_details,

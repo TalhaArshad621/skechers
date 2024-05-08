@@ -59,7 +59,7 @@
                 @lang('Exchange Amount'):
               </td>
               <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $sell_return->total_sale_return }}</span>
+                <span class="display_currency" data-currency_symbol="true">{{ $sell_return }}</span>
               </td>
             </tr>
             <tr>
@@ -71,6 +71,11 @@
                   @php
                       $returned_quantity += $detail->returned_quantity;
                   @endphp
+              @endforeach
+              @foreach($details['return_product_details_international'] as $detail)
+              @php
+                  $returned_quantity += $detail->returned_quantity;
+              @endphp
               @endforeach
           
               <td>
