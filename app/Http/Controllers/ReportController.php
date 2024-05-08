@@ -4610,7 +4610,7 @@ class ReportController extends Controller
                 }
 
                   //If type combo: find childrens, sale price parent - get PP of childrens
-                  $query9->select(DB::raw('SUM(PL.purchase_price_inc_tax * (TSPL.quantity - TSPL.qty_returned)) AS buy_price')
+                  $query9->select(DB::raw('SUM(PL.purchase_price_inc_tax * (TSPL.quantity)) AS buy_price')
                     )->groupBy('L.id');
                     $buy_of_sell = $query9->first();
 
