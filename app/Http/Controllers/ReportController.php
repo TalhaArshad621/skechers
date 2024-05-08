@@ -4285,7 +4285,7 @@ class ReportController extends Controller
                 // Cash Payment
                 $query4 = DB::table('cash_register_transactions')->leftJoin('transactions', 'cash_register_transactions.transaction_id', 'transactions.id')
                 ->where('transactions.business_id', $business_id)
-                ->whereIn('transactions.type', ['sell','sell_return'])
+                ->whereIn('transactions.type', ['sell','sell_return', 'international_return'])
                 ->where('transactions.status', 'final')
                 ->where('cash_register_transactions.pay_method', 'cash')
                 ->where('cash_register_transactions.transaction_type','sell');
@@ -4309,7 +4309,7 @@ class ReportController extends Controller
 
                 $query5 = DB::table('transactions')->leftJoin('transaction_payments','transactions.id','transaction_payments.transaction_id')
                 ->where('transactions.business_id', $business_id)
-                ->whereIn('transactions.type', ['sell','sell_return'])
+                ->whereIn('transactions.type', ['sell','sell_return', 'international_return'])
                 ->where('transactions.status', 'final')
                 ->where('transaction_payments.method', 'card');
                 if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
@@ -5300,7 +5300,7 @@ class ReportController extends Controller
         if($request->ajax() || true){
             $query = Transaction::leftjoin('transaction_sell_lines as tsl', 'tsl.transaction_id','transactions.id')
             ->join('users','users.id','transactions.commission_agent')
-            ->whereIn('transactions.type',['sell_return'])            
+            ->where('transactions.type','sell_return')            
             ->select(
                 'users.first_name', 'users.last_name',
                 // DB::raw('CONCAT(users.first_name, " " , users.last_name) as user_name'),
@@ -5309,6 +5309,7 @@ class ReportController extends Controller
                 // DB::raw('SUM(tsl.unit_price_inc_tax * (tsl.quantity)) as total_sales'),
                 DB::raw('SUM(transactions.final_total) as total_sales')
             );
+            // dd($query->toSql());
             if (!empty($start_date) && !empty($end_date)) {
                 $query->where('transactions.transaction_date', '>=', $start_date)
                     ->where('transactions.transaction_date', '<=', $end_date);
