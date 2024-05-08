@@ -68,6 +68,12 @@
                       $returned_quantity += $detail->returned_quantity;
                   @endphp
               @endforeach
+              @foreach($details['return_product_details_international'] as $detail)
+              @php
+                  $returned_quantity += $detail->returned_quantity;
+              @endphp
+              @endforeach
+
           
               <td>
                   @lang('Returned Items'):
@@ -87,6 +93,11 @@
                     $total_quantity += $detail->total_quantity;
                   @endphp
               @endforeach
+              @foreach($details['product_details_international'] as $detail)
+              @php
+                $total_quantity += $detail->total_quantity;
+              @endphp
+          @endforeach
           
               <td>
                   @lang('Sold Items'):
