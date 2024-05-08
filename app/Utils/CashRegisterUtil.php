@@ -406,7 +406,36 @@ class CashRegisterUtil extends Util
 
                 ->orderByRaw('CASE WHEN brand_name IS NULL THEN 2 ELSE 1 END, brand_name')
                 ->get();
-                dd($product_details);
+                // dd($product_details);
+                // $transactionIds = $product_details->pluck('id')->toArray();
+                // dd($transactionIds);
+
+
+                $product_details_international = Transaction::where('transactions.created_by', $user_id)
+                ->whereBetween('transaction_date', [$open_time, $close_time])
+                ->where('transactions.type', 'international_return')
+                ->where('transactions.status', 'final')
+                ->where('transactions.is_direct_sale', 0)
+                ->join('transaction_sell_lines AS TSL', 'transactions.id', '=', 'TSL.transaction_id')
+                ->join('products AS P', 'TSL.product_id', '=', 'P.id')
+                ->leftjoin('brands AS B', 'P.brand_id', '=', 'B.id')
+                ->where('TSL.sell_line_note','<>','international_return')
+                ->groupBy('B.id')
+                ->select(
+                    'transactions.id',
+                    'B.name as brand_name',
+                    DB::raw('SUM(TSL.quantity - TSL.quantity_returned) as total_quantity'),
+                    // DB::raw('SUM(TSL.quantity - TSL.quantity_returned) as total_qty_sold'),
+
+                    DB::raw('SUM((TSL.quantity) * TSL.unit_price_inc_tax) as total_amount'),
+
+                    // DB::raw('SUM(TSL.unit_price_inc_tax*TSL.quantity) as total_amount')
+                )
+                // ->whereRaw('TSL.quantity - TSL.quantity_returned <> 0')
+
+                ->orderByRaw('CASE WHEN brand_name IS NULL THEN 2 ELSE 1 END, brand_name')
+                ->get();
+                // dd($product_details_international);
                 // $transactionIds = $product_details->pluck('id')->toArray();
                 // dd($transactionIds);
 
@@ -544,6 +573,7 @@ class CashRegisterUtil extends Util
                 ->first();
 
         return ['product_details' => $product_details,
+                'product_details_international' => $product_details_international,
                 'return_product_details_international' => $return_product_details_international,
                 'return_product_details' => $return_product_details,
                 'transaction_details' => $transaction_details,

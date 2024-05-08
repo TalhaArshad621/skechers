@@ -4246,7 +4246,7 @@ class ReportController extends Controller
                     't.id'
                 )
                 ->where('t.business_id', $business_id)
-                ->whereIN('t.type', ['sell','sell_return'])
+                ->where('t.type', 'sell')
                 ->where('t.status', 'final');
                 if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
                     $query3->whereDate('t.transaction_date', '>=', $start_date)
@@ -4260,6 +4260,7 @@ class ReportController extends Controller
                 if (!empty($location_id)) {
                     $query3->where('t.location_id', $location_id);
                 }
+                // dd($query3->get());
                 $invoice_data =   $query3->select(
                     DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_item_sold'),
 
@@ -4280,6 +4281,51 @@ class ReportController extends Controller
                 ->first();
                 
                 // dd($invoice_data);
+
+
+                $query3ForTotalItemsSold = TransactionSellLine::join(
+                    'transactions as t',
+                    'transaction_sell_lines.transaction_id',
+                    '=',
+                    't.id'
+                )
+                ->where('t.business_id', $business_id)
+                ->whereIN('t.type', ['sell','sell_return'])
+                ->where('t.status', 'final');
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query3ForTotalItemsSold->whereDate('t.transaction_date', '>=', $start_date)
+                        ->whereDate('t.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query3ForTotalItemsSold->whereDate('t.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query3ForTotalItemsSold->where('t.location_id', $location_id);
+                }
+                // dd($query3->get());
+                $invoice_data_for_total_items_sold =   $query3ForTotalItemsSold->select(
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_item_sold'),
+
+                    // DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_item_sold'),
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as invoice_amount'),
+                    DB::raw("SUM(
+                        IF(
+                            t.type = 'sell' AND t.status = 'final' AND line_discount_amount > 0,
+                            IF(
+                                line_discount_type = 'percentage',
+                                COALESCE((COALESCE(unit_price_inc_tax, 0) / (1 - (COALESCE(line_discount_amount, 0) / 100)) - unit_price_inc_tax ), 0),
+                                COALESCE(line_discount_amount, 0)
+                            ),
+                            0
+                        )
+                    ) as total_sell_discount"),
+                )
+                ->first();
+                
+                // dd($invoice_data);
+
 
 
                 // Cash Payment
@@ -4600,7 +4646,7 @@ class ReportController extends Controller
                 'return_invoices' => $return_data->return_invoices,
                 'return_amount' => $return_data->returned_amount ? $return_data->returned_amount : 0.000 ,
                 'return_items' => ($return_items->returned_items ? $return_items->returned_items : 0.000) + ($return_items_from_international_exchange->returned_items ? $return_items_from_international_exchange->returned_items : 0.000),
-                'total_item_sold' => $invoice_data['total_item_sold'] + $invoice_data_for_international_exchange['total_item_sold'],
+                'total_item_sold' => $invoice_data_for_total_items_sold['total_item_sold'] + $invoice_data_for_international_exchange['total_item_sold'],
                 'total_invoice_count' => $total_invoice_count->total_invoices, 
                 'buy_price'  => $buy_of_sell ? $buy_of_sell['buy_price'] : 0,
                 'invoice_amount' => $invoice_data['invoice_amount'],

@@ -97,6 +97,11 @@
                     $total_quantity += $detail->total_quantity;
                   @endphp
               @endforeach
+              @foreach($details['product_details_international'] as $detail)
+                  @php
+                    $total_quantity += $detail->total_quantity;
+                  @endphp
+              @endforeach
           
               <td>
                   @lang('Sold Items'):
