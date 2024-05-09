@@ -313,7 +313,7 @@ class StockTransferController extends Controller
             DB::beginTransaction();
             
             $input_data = $request->only([ 'location_id', 'ref_no', 'transaction_date', 'additional_notes', 'shipping_charges', 'final_total']);
-            $status = $request->input('status');
+            $status = "completed";
             $user_id = $request->session()->get('user.id');
 
             $input_data['final_total'] = $this->productUtil->num_uf($input_data['final_total']);
@@ -494,7 +494,7 @@ class StockTransferController extends Controller
            ->latest()
            ->get();
 
-        return view('stock_transfer.show')
+           return view('stock_transfer.show')
                 ->with(compact('sell_transfer', 'location_details', 'lot_n_exp_enabled', 'statuses', 'activities'));
     }
 

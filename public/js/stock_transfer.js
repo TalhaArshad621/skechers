@@ -1,10 +1,10 @@
-$(document).ready(function() {
+$(document).ready(function () {
     //Add products
     if ($('#search_product_for_srock_adjustment').length > 0) {
         //Add Product
         $('#search_product_for_srock_adjustment')
             .autocomplete({
-                source: function(request, response) {
+                source: function (request, response) {
                     $.getJSON(
                         '/products/list',
                         { location_id: $('#location_id').val(), term: request.term },
@@ -12,7 +12,7 @@ $(document).ready(function() {
                     );
                 },
                 minLength: 2,
-                response: function(event, ui) {
+                response: function (event, ui) {
                     if (ui.content.length == 1) {
                         ui.item = ui.content[0];
                         if (ui.item.qty_available > 0 && ui.item.enable_stock == 1) {
@@ -25,12 +25,12 @@ $(document).ready(function() {
                         swal(LANG.no_products_found);
                     }
                 },
-                focus: function(event, ui) {
+                focus: function (event, ui) {
                     if (ui.item.qty_available <= 0) {
                         return false;
                     }
                 },
-                select: function(event, ui) {
+                select: function (event, ui) {
                     if (ui.item.qty_available > 0) {
                         $(this).val(null);
                         stock_transfer_product_row(ui.item.variation_id);
@@ -39,30 +39,30 @@ $(document).ready(function() {
                     }
                 },
             })
-            .autocomplete('instance')._renderItem = function(ul, item) {
-            if (item.qty_available <= 0) {
-                var string = '<li class="ui-state-disabled">' + item.name;
-                if (item.type == 'variable') {
-                    string += '-' + item.variation;
+            .autocomplete('instance')._renderItem = function (ul, item) {
+                if (item.qty_available <= 0) {
+                    var string = '<li class="ui-state-disabled">' + item.name;
+                    if (item.type == 'variable') {
+                        string += '-' + item.variation;
+                    }
+                    string += ' (' + item.sub_sku + ') (Out of stock) </li>';
+                    return $(string).appendTo(ul);
+                } else if (item.enable_stock != 1) {
+                    return ul;
+                } else {
+                    var string = '<div>' + item.name;
+                    if (item.type == 'variable') {
+                        string += '-' + item.variation;
+                    }
+                    string += ' (' + item.sub_sku + ') </div>';
+                    return $('<li>')
+                        .append(string)
+                        .appendTo(ul);
                 }
-                string += ' (' + item.sub_sku + ') (Out of stock) </li>';
-                return $(string).appendTo(ul);
-            } else if (item.enable_stock != 1) {
-                return ul;
-            } else {
-                var string = '<div>' + item.name;
-                if (item.type == 'variable') {
-                    string += '-' + item.variation;
-                }
-                string += ' (' + item.sub_sku + ') </div>';
-                return $('<li>')
-                    .append(string)
-                    .appendTo(ul);
-            }
-        };
+            };
     }
 
-    $('select#location_id').change(function() {
+    $('select#location_id').change(function () {
         if ($(this).val()) {
             $('#search_product_for_srock_adjustment').removeAttr('disabled');
         } else {
@@ -73,14 +73,14 @@ $(document).ready(function() {
         update_table_total();
     });
 
-    $(document).on('change', 'input.product_quantity', function() {
+    $(document).on('change', 'input.product_quantity', function () {
         update_table_row($(this).closest('tr'));
     });
-    $(document).on('change', 'input.product_unit_price', function() {
+    $(document).on('change', 'input.product_unit_price', function () {
         update_table_row($(this).closest('tr'));
     });
 
-    $(document).on('click', '.remove_product_row', function() {
+    $(document).on('click', '.remove_product_row', function () {
         swal({
             title: LANG.sure,
             icon: 'warning',
@@ -104,7 +104,7 @@ $(document).ready(function() {
 
     jQuery.validator.addMethod(
         'notEqual',
-        function(value, element, param) {
+        function (value, element, param) {
             return this.optional(element) || value != param;
         },
         'Please select different location'
@@ -113,13 +113,13 @@ $(document).ready(function() {
     $('form#stock_transfer_form').validate({
         rules: {
             transfer_location_id: {
-                notEqual: function() {
+                notEqual: function () {
                     return $('select#location_id').val();
                 },
             },
         },
     });
-    $('#save_stock_transfer').click(function(e) {
+    $('#save_stock_transfer').click(function (e) {
         e.preventDefault();
 
         if ($('table#stock_adjustment_product_table tbody').find('.product_row').length <= 0) {
@@ -136,13 +136,13 @@ $(document).ready(function() {
     $('form#stock_transfer_form').validate({
         rules: {
             transfer_location_id: {
-                notEqual: function() {
+                notEqual: function () {
                     return $('select#location_id').val();
                 },
             },
         },
     });
-    $('#save_stock_transfer').click(function(e) {
+    $('#save_stock_transfer').click(function (e) {
         e.preventDefault();
 
         if ($('table#stock_adjustment_product_table tbody').find('.product_row').length <= 0) {
@@ -163,7 +163,7 @@ $(document).ready(function() {
         ajax: '/stock-transfers',
         columnDefs: [
             {
-                targets: 6,
+                targets: 5,
                 orderable: false,
                 searchable: false,
             },
@@ -175,17 +175,17 @@ $(document).ready(function() {
             { data: 'location_to', name: 'l2.name' },
             { data: 'status', name: 'status' },
             // { data: 'shipping_charges', name: 'shipping_charges' },
-            { data: 'final_total', name: 'final_total' },
+            // { data: 'final_total', name: 'final_total' },
             // { data: 'additional_notes', name: 'additional_notes' },
             { data: 'action', name: 'action' },
         ],
-        fnDrawCallback: function(oSettings) {
+        fnDrawCallback: function (oSettings) {
             __currency_convert_recursively($('#stock_transfer_table'));
         },
     });
     var detailRows = [];
 
-    $('#stock_transfer_table tbody').on('click', '.view_stock_transfer', function() {
+    $('#stock_transfer_table tbody').on('click', '.view_stock_transfer', function () {
         var tr = $(this).closest('tr');
         var row = stock_transfer_table.row(tr);
         var idx = $.inArray(tr.attr('id'), detailRows);
@@ -215,14 +215,14 @@ $(document).ready(function() {
     });
 
     // On each draw, loop over the `detailRows` array and show any child rows
-    stock_transfer_table.on('draw', function() {
-        $.each(detailRows, function(i, id) {
+    stock_transfer_table.on('draw', function () {
+        $.each(detailRows, function (i, id) {
             $('#' + id + ' .view_stock_transfer').trigger('click');
         });
     });
 
     //Delete Stock Transfer
-    $(document).on('click', 'button.delete_stock_transfer', function() {
+    $(document).on('click', 'button.delete_stock_transfer', function () {
         swal({
             title: LANG.sure,
             icon: 'warning',
@@ -235,7 +235,7 @@ $(document).ready(function() {
                     method: 'DELETE',
                     url: href,
                     dataType: 'json',
-                    success: function(result) {
+                    success: function (result) {
                         if (result.success) {
                             toastr.success(result.msg);
                             stock_transfer_table.ajax.reload();
@@ -257,7 +257,7 @@ function stock_transfer_product_row(variation_id) {
         url: '/stock-adjustments/get_product_row',
         data: { row_index: row_index, variation_id: variation_id, location_id: location_id },
         dataType: 'html',
-        success: function(result) {
+        success: function (result) {
             $('table#stock_adjustment_product_table tbody').append(result);
             update_table_total();
             $('#product_row_index').val(row_index + 1);
@@ -267,7 +267,7 @@ function stock_transfer_product_row(variation_id) {
 
 function update_table_total() {
     var table_total = 0;
-    $('table#stock_adjustment_product_table tbody tr').each(function() {
+    $('table#stock_adjustment_product_table tbody tr').each(function () {
         var this_total = parseFloat(__read_number($(this).find('input.product_line_total')));
         if (this_total) {
             table_total += this_total;
@@ -295,7 +295,7 @@ function get_stock_transfer_details(rowData) {
     $.ajax({
         url: '/stock-transfers/' + rowData.DT_RowId,
         dataType: 'html',
-        success: function(data) {
+        success: function (data) {
             div.html(data).removeClass('loading');
         },
     });
@@ -303,7 +303,7 @@ function get_stock_transfer_details(rowData) {
     return div;
 }
 
-$(document).on('click', 'a.stock_transfer_status', function(e) {
+$(document).on('click', 'a.stock_transfer_status', function (e) {
     e.preventDefault();
     var href = $(this).data('href');
     var status = $(this).data('status');
@@ -313,7 +313,7 @@ $(document).on('click', 'a.stock_transfer_status', function(e) {
     $('#update_stock_transfer_status_form #update_status').trigger('change');
 });
 
-$(document).on('submit', '#update_stock_transfer_status_form', function(e) {
+$(document).on('submit', '#update_stock_transfer_status_form', function (e) {
     e.preventDefault();
     var form = $(this);
     var data = form.serialize();
@@ -323,10 +323,10 @@ $(document).on('submit', '#update_stock_transfer_status_form', function(e) {
         url: $(this).attr('action'),
         dataType: 'json',
         data: data,
-        beforeSend: function(xhr) {
+        beforeSend: function (xhr) {
             __disable_submit_button(form.find('button[type="submit"]'));
         },
-        success: function(result) {
+        success: function (result) {
             if (result.success == true) {
                 $('div#update_stock_transfer_status_modal').modal('hide');
                 toastr.success(result.msg);
@@ -335,11 +335,11 @@ $(document).on('submit', '#update_stock_transfer_status_form', function(e) {
                 toastr.error(result.msg);
             }
             $('#update_stock_transfer_status_form')
-            .find('button[type="submit"]')
-            .attr('disabled', false);
+                .find('button[type="submit"]')
+                .attr('disabled', false);
         },
     });
 });
-$(document).on('shown.bs.modal', '.view_modal', function() {
+$(document).on('shown.bs.modal', '.view_modal', function () {
     __currency_convert_recursively($('.view_modal'));
 });

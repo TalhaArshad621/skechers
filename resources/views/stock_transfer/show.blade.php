@@ -75,7 +75,7 @@
 				          <th>#</th>
 				          <th>@lang('sale.product')</th>
 				          <th>@lang('sale.qty')</th>
-				          <th>@lang('sale.subtotal')</th>
+				          {{-- <th>@lang('sale.subtotal')</th> --}}
 						  <th>Image</th>
 				        </tr>
 				        @php 
@@ -102,9 +102,9 @@
 				               @endif
 				            </td>
 				            <td>{{ @format_quantity($sell_lines->quantity) }} {{$sell_lines->product->unit->short_name ?? ""}}</td>
-				            <td>
+				            {{-- <td>
 				              <span class="display_currency" data-currency_symbol="true">{{ $sell_lines->unit_price_inc_tax * $sell_lines->quantity }}</span>
-				            </td>
+				            </td> --}}
 							<td>
 								@if (!empty($sell_lines->product->image))
 									<div style="display: flex; justify-content: center; align-items: center;">
@@ -118,9 +118,9 @@
 								@endif
 							</td>
 				          </tr>
-				          @php 
+				          {{-- @php 
 				            $total += ($sell_lines->unit_price_inc_tax * $sell_lines->quantity);
-				          @endphp
+				          @endphp --}}
 				        @endforeach
 				      </table>
 				    </div>
@@ -132,7 +132,7 @@
 				  <div class="col-xs-12 col-md-6 col-md-offset-6">
 				    <div class="table-responsive">
 				      <table class="table">
-				        <tr>
+				        {{-- <tr>
 				          <th>@lang('purchase.net_total_amount'): </th>
 				          <td></td>
 				          <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $total }}</span></td>
@@ -143,12 +143,12 @@
 				            <td><b>(+)</b></td>
 				            <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $sell_transfer->shipping_charges }}</span></td>
 				          </tr>
-				        @endif
-				        <tr>
+				        @endif --}}
+				        {{-- <tr>
 				          <th>@lang('purchase.purchase_total'):</th>
 				          <td></td>
 				          <td><span class="display_currency pull-right" data-currency_symbol="true" >{{ $sell_transfer->final_total }}</span></td>
-				        </tr>
+				        </tr> --}}
 				      </table>
 				    </div>
 				  </div>
