@@ -17,6 +17,7 @@ use App\EcommerceSellLine;
 use App\EcommerceTransaction;
 use App\Restaurant\ResTable;
 use App\SellingPriceGroup;
+use Carbon\Carbon;
 use App\Transaction;
 use App\TransactionPayment;
 use App\TransactionSellLine;
@@ -2533,10 +2534,10 @@ class ReportController extends Controller
                     DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
                     DB::raw("(SELECT SUM(vld.qty_available) FROM variation_location_details as vld WHERE vld.variation_id=v.id $vld_str) as current_stock"),
                     DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
-                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_returned'),
+                    // DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_returned'),
                     'u.short_name as unit',
                     DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
-                    DB::raw('SUM((transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax) as subtotal_exc_return'),
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as subtotal_exc_return'),
                     DB::raw("SUM(
                         IF(
                             t.type = 'sell' AND t.status = 'final' AND transaction_sell_lines.line_discount_amount > 0,
@@ -5545,8 +5546,148 @@ class ReportController extends Controller
         }
         $business_id = $request->session()->get('user.business_id');
         $users = User::forDropdown($business_id, false);
+        $business_locations = BusinessLocation::forDropdown($business_id);
+        $customers = Contact::customersDropdown($business_id);
 
         return view('report.exchange_report')
-                    ->with(compact('users'));
+                    ->with(compact('users', 'business_locations','customers'));
+    }
+
+    public function getproductExchangeReport(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        $location_id = $request->get('location_id', null);
+
+        $vld_str = '';
+        if (!empty($location_id)) {
+            $vld_str = "AND vld.location_id=$location_id";
+        }
+        // dd($vld_str, $request);
+
+        if ($request->ajax()) {
+            $variation_id = $request->get('variation_id', null);
+            
+            $query = TransactionSellLine::leftJoin('transactions as t','transaction_sell_lines.transaction_id','=','t.return_parent_id')
+                ->leftJoin('transactions as trans','transaction_sell_lines.transaction_id','=','trans.id')
+                ->join('variations as v','transaction_sell_lines.variation_id','=','v.id')
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories','p.category_id','categories.id')
+                ->join('users', 'users.id', '=', 't.commission_agent')
+                ->join('users as user', 'user.id', '=', 't.created_by')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell_return')
+                ->where('t.status', 'final')
+                ->select(
+                    't.type as transaction_type',
+                    // 'p.image as product_image'.
+                    'p.name as product_name',
+                    't.final_total',
+                    'p.image',
+                    'p.enable_stock',
+                    't.invoice_no as new_invoice_no',
+                    'trans.invoice_no as old_invoice_no',
+                    'trans.transaction_date as old_transaction_date',
+                    'p.type as product_type',
+                    'categories.name as category_name',
+                    'pv.name as product_variation',
+                    'v.name as variation_name',
+                    'v.dpp_inc_tax as purchase_price',
+                    'v.updated_at as buying_date',
+                    'v.sub_sku',
+                    (DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS employee_name")),
+                    (DB::raw("CONCAT(user.first_name, ' ', user.last_name) AS created_by")),
+                    'v.sell_price_inc_tax',
+                    't.id as transaction_id',
+                    't.transaction_date as transaction_date',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    DB::raw('DATE_FORMAT(trans.transaction_date, "%Y-%m-%d") as formated_date_old'),
+                    DB::raw("(SELECT SUM(vld.qty_available) FROM variation_location_details as vld WHERE vld.variation_id=v.id $vld_str) as current_stock"),
+                    DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_returned'),
+                    'u.short_name as unit',
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as subtotal_exc_return'),
+                    DB::raw("SUM(
+                        IF(
+                            t.type = 'sell' AND t.status = 'final' AND transaction_sell_lines.line_discount_amount > 0,
+                            IF(
+                                transaction_sell_lines.line_discount_type = 'percentage',
+                                COALESCE((COALESCE(transaction_sell_lines.unit_price_inc_tax, 0) / (1 - (COALESCE(transaction_sell_lines.line_discount_amount, 0) / 100)) - transaction_sell_lines.unit_price_inc_tax ) * transaction_sell_lines.quantity, 0),
+                                COALESCE(transaction_sell_lines.line_discount_amount * transaction_sell_lines.quantity, 0)
+                            ),
+                            0
+                        )
+                    ) as total_sell_discount")
+                )
+                ->groupBy('v.id')
+                ->groupBy('formated_date');
+
+            if (!empty($variation_id)) {
+                $query->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $query->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $query->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $query->where('t.contact_id', $customer_id);
+            }
+
+            return Datatables::of($query)
+                ->editColumn('product_name', function ($row) {
+                    // dd($row);
+                    $product_name = $row->product_name;
+                    return $product_name;
+                })
+                ->editColumn('product_price', function ($row) {
+                    return '<span class="display_currency product_price" data-currency_symbol = true data-orig-value="' . $row->sell_price_inc_tax . '">' . $row->sell_price_inc_tax . '</span>';
+                })
+                ->editColumn('adjustment_amount', function ($row) {
+                    return '<span class="display_currency adjustment_amount" data-currency_symbol = true data-orig-value="' . $row->final_total . '">' . $row->final_total . '</span>';
+                })
+                ->editColumn('old_invoice_no', function ($row) {
+                    // dd($row);
+                    return $row->old_invoice_no;
+                })
+                ->editColumn('new_invoice_no', function ($row) {
+                    return $row->new_invoice_no;
+                })
+                ->editColumn('employee_name', function ($row) {
+                    return $row->employee_name;
+                })
+                ->editColumn('created_by', function ($row) {
+                    return $row->created_by;
+                })
+                ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
+                ->editColumn('old_transaction_date', '{{@format_date($formated_date_old)}}')
+                ->editColumn('days_difference', function ($row) {
+                    $startDate = Carbon::parse($row->transaction_date);
+                    $endDate = Carbon::parse($row->old_transaction_date);
+                    $daysDifference = $startDate->diffInDays($endDate);
+                    return $daysDifference . ' days';
+                })
+                
+                ->rawColumns(['days_difference','adjustment_amount','product_price','stock_by_code','current_stock', 'subtotal', 'total_qty_sold','discount_amount','buy_price','total_qty_returned','profit','product_image','stock', 'product_name'])
+                ->make(true);
+        }
     }
 }

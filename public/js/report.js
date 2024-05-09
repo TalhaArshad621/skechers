@@ -914,6 +914,7 @@ $(document).ready(function () {
                 );
                 product_sell_report.ajax.reload();
                 product_sell_grouped_report.ajax.reload();
+                product_exchange_report_table.ajax.reload();
                 product_sell_report_with_purchase_table.ajax.reload();
             }
         );
@@ -921,6 +922,7 @@ $(document).ready(function () {
             $('#product_sr_date_filter').val('');
             product_sell_report.ajax.reload();
             product_sell_grouped_report.ajax.reload();
+            product_exchange_report_table.ajax.reload();
             product_sell_report_with_purchase_table.ajax.reload();
         });
 
@@ -931,6 +933,7 @@ $(document).ready(function () {
             product_sell_report.ajax.reload();
             product_sell_report_with_purchase_table.ajax.reload();
             product_sell_grouped_report.ajax.reload();
+            product_exchange_report_table.ajax.reload();
         });
 
     }
@@ -1130,7 +1133,7 @@ $(document).ready(function () {
             { data: 'category_name', name: 'categories.name' },
             { data: 'buying_date', name: 'v.updated_at' },
             { data: 'total_qty_sold', name: 'total_qty_sold', searchable: false },
-            { data: 'total_qty_returned', name: 'total_qty_returned', searchable: false },
+            // { data: 'total_qty_returned', name: 'total_qty_returned', searchable: false },
             { data: 'buy_price', name: 'buy_price', searchable: false },
             { data: 'subtotal', name: 'subtotal', searchable: false },
             { data: 'discount_amount', name: 'discount_amount', searchable: false },
@@ -1178,11 +1181,100 @@ $(document).ready(function () {
         }
     });
 
+
+    product_exchange_report_table = $('table#product_exchange_report_table').DataTable({
+        processing: true,
+        serverSide: true,
+        aaSorting: [[1, 'desc']],
+        ajax: {
+            url: '/reports/product-exchange-report',
+            data: function (d) {
+                var start = '';
+                var end = '';
+                var start_time = $('#product_sr_start_time').val();
+                var end_time = $('#product_sr_end_time').val();
+                if ($('#product_sr_date_filter').val()) {
+                    start = $('input#product_sr_date_filter')
+                        .data('daterangepicker')
+                        .startDate.format('YYYY-MM-DD');
+                    end = $('input#product_sr_date_filter')
+                        .data('daterangepicker')
+                        .endDate.format('YYYY-MM-DD');
+
+                    start = moment(start + " " + start_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                    end = moment(end + " " + end_time, "YYYY-MM-DD" + " " + moment_time_format).format('YYYY-MM-DD HH:mm');
+                }
+                d.start_date = start;
+                d.end_date = end;
+
+                d.variation_id = $('#variation_id').val();
+                d.customer_id = $('select#customer_id').val();
+                d.location_id = $('select#location_id').val();
+            },
+        },
+        columns: [
+            {
+                data: null, name: 'serial_number', searchable: false, orderable: false, render: function (data, type, row, meta) {
+                    return meta.row + 1;
+                }
+            },
+            { data: 'product_name', name: 'p.name' },
+            { data: 'product_price', name: 'v.sell_price_inc_tax' },
+            // { data: 'sub_sku', name: 'v.sub_sku' },
+            { data: 'total_qty_returned', name: 'total_qty_returned', searchable: false },
+            { data: 'adjustment_amount', name: 'adjustment_amount', searchable: false },
+            { data: 'old_invoice_no', name: 'old_invoice_no'},
+            { data: 'new_invoice_no', name: 'new_invoice_no'},
+            { data: 'transaction_date', name: 't.transaction_date' },
+            { data: 'old_transaction_date', name: 'trans.transaction_date' },
+            { data: 'days_difference', name: 'days_difference' },
+            { data: 'employee_name', name: 'employee_name',searchable: false },
+            { data: 'created_by', name: 'c.name' },
+
+        ],
+        fnDrawCallback: function (oSettings) {
+            $('#product_price').text(
+                sum_table_col($('#product_exchange_report_table'), 'product_price')
+            );
+            $('#adjustment_amount').text(
+                sum_table_col($('#product_exchange_report_table'), 'adjustment_amount')
+            );
+            $('#footer_total_grouped_sold').html(
+                __sum_stock($('#product_exchange_report_table'), 'sell_qty')
+            );
+            $('#footer_total_grouped_buy').html(
+                __sum_stock($('#product_exchange_report_table'), 'buy_price')
+            );
+            $('#footer_total_grouped_returned').html(
+                __sum_stock($('#product_exchange_report_table'), 'ret_qty')
+            );
+            $('#footer_grouped_profit').html(
+                __sum_stock($('#product_exchange_report_table'), 'profit')
+            );
+            $('#stock_by_name').html(
+                __sum_stock($('#product_exchange_report_table'), 'current_stock')
+            );
+            $('#stock_by_color').html(
+                __sum_stock($('#product_exchange_report_table'), 'stock_by_color')
+            );
+            $('#stock_by_code').html(
+                __sum_stock($('#product_exchange_report_table'), 'stock_by_code')
+            );
+
+            __currency_convert_recursively($('#product_exchange_report_table'));
+        },
+        createdRow: function (row, data, dataIndex) {
+            // Add a class to the row for styling purposes if needed
+            $(row).addClass('bank-transfer-row');
+        }
+    });
+
     $(
         '#product_sell_report_form #variation_id, #product_sell_report_form #location_id, #product_sell_report_form #customer_id'
     ).change(function () {
         product_sell_report.ajax.reload();
         product_sell_grouped_report.ajax.reload();
+        product_exchange_report_table.ajax.reload();
         product_sell_report_with_purchase_table.ajax.reload();
     });
 
