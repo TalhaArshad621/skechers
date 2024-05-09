@@ -297,20 +297,20 @@ class HomeController extends Controller
             ->where('sell_line_note','<>','international_return')
             ->where('t.status', 'final');
             if (!empty($start) && !empty($end) && $start != $end) {
-                $query3->whereDate('t.transaction_date', '>=', $start)
+                $query3ForInternationalReturn->whereDate('t.transaction_date', '>=', $start)
                     ->whereDate('t.transaction_date', '<=', $end);
             }
             if (!empty($start) && !empty($end) && $start == $end) {
-                $query3->whereDate('t.transaction_date', $end);
+                $query3ForInternationalReturn->whereDate('t.transaction_date', $end);
             }
                //Check for permitted locations of a user
                $permitted_locations = auth()->user()->permitted_locations();
                if ($permitted_locations != 'all') {
-                   $query3->whereIn('t.location_id', $permitted_locations);
+                   $query3ForInternationalReturn->whereIn('t.location_id', $permitted_locations);
                }
                //Filter by the location
                if (!empty($location_id)) {
-                   $query3->where('t.location_id', $location_id);
+                   $query3ForInternationalReturn->where('t.location_id', $location_id);
                }
 
             $invoice_data_for_international_exchange =   $query3ForInternationalReturn->select(
