@@ -220,6 +220,7 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
 
     Route::get('/reports/product-sell-report-with-purchase', 'ReportController@getproductSellReportWithPurchase');
     Route::get('/reports/product-sell-grouped-report', 'ReportController@getproductSellGroupedReport');
+    Route::get('/reports/product-exchange-report', 'ReportController@getproductExchangeReport');
     Route::get('/reports/lot-report', 'ReportController@getLotReport');
     Route::get('/reports/purchase-payment-report', 'ReportController@purchasePaymentReport');
     Route::get('/reports/sell-payment-report', 'ReportController@sellPaymentReport');

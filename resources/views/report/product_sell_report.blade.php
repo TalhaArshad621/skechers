@@ -28,17 +28,6 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        {!! Form::label('customer_id', __('contact.customer') . ':') !!}
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-user"></i>
-                            </span>
-                            {!! Form::select('customer_id', $customers, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
                         {!! Form::label('location_id', __('purchase.business_location').':') !!}
                         <div class="input-group">
                             <span class="input-group-addon">
@@ -91,7 +80,7 @@
                                         <th>Product Category</th>
                                         <th>Buying Date</th>
                                         <th>Sold Quantity</th>
-                                        <th>Returned Quantity</th>
+                                        {{-- <th>Returned Quantity</th> --}}
                                         <th>Buy Price</th>
                                         <th>Sell Price</th>
                                         <th>Discount</th>
@@ -106,7 +95,7 @@
                                     <tr class="bg-gray font-17 footer-total text-center">
                                         <td colspan="5"><strong>@lang('sale.total'):</strong></td>
                                         <td id="footer_total_grouped_sold"></td>
-                                        <td id="footer_total_grouped_returned"></td>
+                                        {{-- <td id="footer_total_grouped_returned"></td> --}}
                                         <td><span class="display_currency" id="footer_total_grouped_buy" data-currency_symbol ="true"></span></td>
                                         <td><span class="display_currency" id="footer_grouped_subtotal" data-currency_symbol ="true"></span></td>
                                         <td><span class="display_currency" id="footer_total_grouped_discount" data-currency_symbol ="true"></span></td>
