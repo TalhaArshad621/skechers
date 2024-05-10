@@ -293,7 +293,7 @@ class HomeController extends Controller
             // Cash Payment
             $query4 = DB::table('cash_register_transactions')->leftJoin('transactions', 'cash_register_transactions.transaction_id', 'transactions.id')
             ->where('transactions.business_id', $business_id)
-            ->whereIn('transactions.type', ['sell','sell_return'])
+            ->whereIn('transactions.type', ['sell','sell_return','international_return'])
             ->where('transactions.status', 'final')
             ->where('cash_register_transactions.pay_method', 'cash')
             ->where('cash_register_transactions.transaction_type','sell');
@@ -322,7 +322,7 @@ class HomeController extends Controller
 
             $query5 = DB::table('transactions')->leftJoin('transaction_payments','transactions.id','transaction_payments.transaction_id')
             ->where('transactions.business_id', $business_id)
-            ->whereIn('transactions.type', ['sell','sell_return'])
+            ->whereIn('transactions.type', ['sell','sell_return','international_return'])
             ->where('transactions.status', 'final')
             ->where('transaction_payments.method', 'card');
             if (!empty($start) && !empty($end) && $start != $end) {
@@ -359,6 +359,7 @@ class HomeController extends Controller
 
             // $output['total_sell'] = $total_sell_inc_tax - $total_sell_return_inc_tax;
             $output['total_sell'] = ($cash_payment->cash_amount) + ($card_payment->card_amount);
+            // dd($output);
             
             $output['invoice_due'] = $sell_details['invoice_due'];
             $output['total_expense'] = $transaction_totals['total_expense'];

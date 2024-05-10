@@ -1507,11 +1507,42 @@ $(document).ready(function () {
             { data: 'bank_transfer', name: 'bank_transfer' },
             { data: 'total_net_amount', name: 'total_net_amount' },
         ],
+
         fnDrawCallback: function (oSettings) {
-            var total_amount = sum_table_col($('#monthly_report_table'), 'paid-amount');
-            $('#footer_total_amount').text(total_amount);
+            $('#cash_amount').text(
+                sum_table_col($('#monthly_report_table'), 'cash_amount')
+            );
+            $('#card_amount').text(
+                sum_table_col($('#monthly_report_table'), 'card_amount')
+            );
+            $('#cash_and_card').html(
+                __sum_stock($('#monthly_report_table'), 'cash_and_card')
+            );
+            $('#mechant_tax').html(
+                __sum_stock($('#monthly_report_table'), 'mechant_tax')
+            );
+            $('#card_amount_after_tax').html(
+                __sum_stock($('#monthly_report_table'), 'card_amount_after_tax')
+            );
+            $('#bank_transfer').html(
+                __sum_stock($('#monthly_report_table'), 'bank_transfer')
+            );
+            $('#total_net_amount').html(
+                __sum_stock($('#monthly_report_table'), 'total_net_amount')
+            );
             __currency_convert_recursively($('#monthly_report_table'));
         },
+
+        // fnDrawCallback: function (oSettings) {
+        //     $('#cash_amount').html(
+        //         __sum_stock($('#monthly_report_table'), 'cash_amount')
+        //     );
+
+            
+        //     // var total_amount = sum_table_col($('#monthly_report_table'), 'paid-amount');
+        //     // $('#footer_total_amount').text(total_amount);
+        //     __currency_convert_recursively($('#monthly_report_table'));
+        // },
     });
 
     //Sell Payment Report
