@@ -20,6 +20,10 @@
                 <span class="display_currency" data-currency_symbol="true">{{ 12000 }}</span>
               </td>
             </tr>
+            @php
+              $cash_in_hand = $register_details->total_cash + 12000;
+            @endphp
+            {!! Form::hidden('cash_in_hand', $cash_in_hand); !!}
             <tr>
               <td>
                 @lang('cash_register.cash_in_hand'):
@@ -29,6 +33,10 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + 12000 }}</span>
               </td>
             </tr>
+            @php
+              $cash_sale = $register_details->total_cash;
+            @endphp
+            {!! Form::hidden('cash_sale', $cash_sale); !!}
             <tr>
               <td>
                 @lang('cash_register.cash_payment'):
@@ -46,6 +54,10 @@
                 <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cheque }}</span>
               </td>
             </tr>
+            @php
+              $card_sale = $register_details->total_card;
+            @endphp
+            {!! Form::hidden('card_sale', $card_sale); !!}
             <tr>
               <td>
                 @lang('cash_register.card_payment'):
@@ -263,6 +275,11 @@
                 <b><span class="display_currency" data-currency_symbol="true">{{ $details['transaction_details']->total_sales - $register_details->total_sale }}</span></b>
               </td>
             </tr> --}}
+            @php
+              $total_sales = $register_details->total_cash + $register_details->total_card;
+            @endphp
+            {!! Form::hidden('total_sales', $total_sales); !!}
+
             <tr class="success">
               <th>
                 @lang('cash_register.total_sales'):
