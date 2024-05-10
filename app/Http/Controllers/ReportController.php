@@ -5546,10 +5546,10 @@ class ReportController extends Controller
                 // })
                 ->editColumn('card_amount', function ($row) {
                     if ($row->status == 'close') {
-                        return '<span class="display_currency sell_qty" data-currency_symbol = true data-orig-value="' . $row->card_amount . '">' . $row->card_amount . '</span>';
+                        return '<span class="display_currency card_amount" data-currency_symbol = true data-orig-value="' . $row->card_amount . '">' . $row->card_amount . '</span>';
 
                     } else {
-                        return '<span class="display_currency sell_qty" data-currency_symbol = true data-orig-value="' . $row->card_amount . '">' . $row->card_amount . '</span>';
+                        return '<span class="display_currency card_amount" data-currency_symbol = true data-orig-value="' . $row->card_amount . '">' . $row->card_amount . '</span>';
                     }
                 })
                 ->editColumn('closed_at', function ($row) {
@@ -5567,12 +5567,12 @@ class ReportController extends Controller
                 })
                 ->editColumn('cash_amount', function ($row) {
                     if ($row->status == 'close') {
-                        return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->cash_amount . '">' . $row->cash_amount . '</span>';
+                        return '<span class="display_currency cash_amount" data-currency_symbol = true data-orig-value="' . $row->cash_amount . '">' . $row->cash_amount . '</span>';
 
                         // return '<span class="display_currency row_subtotal" data-currency_symbol="true">' .
                         // $row->cash_amount . '</span>';
                     } else {
-                        return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->cash_amount . '">' . $row->cash_amount . '</span>';
+                        return '<span class="display_currency cash_amount" data-currency_symbol = true data-orig-value="' . $row->cash_amount . '">' . $row->cash_amount . '</span>';
 
                         // return '<span class="display_currency row_subtotal" data-currency_symbol="true">' .
                         // $row->cash_amount . '</span>';                    
@@ -5580,30 +5580,30 @@ class ReportController extends Controller
                 })
                 ->editColumn('total_kamai', function ($row) {
                     $total_kamai = $row->cash_amount + $row->card_amount;
-                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $total_kamai . '">' . $total_kamai . '</span>';
+                    return '<span class="display_currency cash_and_card" data-currency_symbol = true data-orig-value="' . $total_kamai . '">' . $total_kamai . '</span>';
 
                     return $row->cash_amount + $row->card_amount;
                 })
                 ->editColumn('merchant_tax', function ($row) {
                     $total_kamai =  $row->card_amount * 0.0174;
-                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $total_kamai . '">' . $total_kamai . '</span>';
+                    return '<span class="display_currency mechant_tax" data-currency_symbol = true data-orig-value="' . $total_kamai . '">' . $total_kamai . '</span>';
                 })
                 ->editColumn('card_amount_after_tax', function ($row) {
                     $merchant_tax =  $row->card_amount * 0.0174;
                     $card_amount = $row->card_amount - $merchant_tax;
-                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $card_amount . '">' . $card_amount . '</span>';
+                    return '<span class="display_currency card_amount_after_tax" data-currency_symbol = true data-orig-value="' . $card_amount . '">' . $card_amount . '</span>';
                 })
                 ->editColumn('bank_transfer', function ($row) {
                     $cash_amount =  $row->cash_amount;
 
-                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $cash_amount . '">' . $cash_amount . '</span>';
+                    return '<span class="display_currency bank_transfer" data-currency_symbol = true data-orig-value="' . $cash_amount . '">' . $cash_amount . '</span>';
                 })
                 ->editColumn('total_net_amount', function ($row) {
                     $cash_amount =  $row->cash_amount;
                     $merchant_tax =  $row->card_amount * 0.0174;
                     $card_amount = $row->card_amount - $merchant_tax;
                     $total_net_amount = $cash_amount + $card_amount;
-                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $total_net_amount . '">' . $total_net_amount . '</span>';
+                    return '<span class="display_currency total_net_amount" data-currency_symbol = true data-orig-value="' . $total_net_amount . '">' . $total_net_amount . '</span>';
                 })
                 ->rawColumns(['action', 'user_name', 'closing_amount','cash_amount','card_amount','total_kamai','merchant_tax','total_net_amount','bank_transfer','card_amount_after_tax'])
                 ->make(true);
@@ -5671,7 +5671,7 @@ class ReportController extends Controller
                     'v.dpp_inc_tax as purchase_price',
                     'v.updated_at as buying_date',
                     'v.sub_sku',
-                    (DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS employee_name")),
+                    (DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS employee_name")),
                     (DB::raw("CONCAT(user.first_name, ' ', user.last_name) AS created_by")),
                     'v.sell_price_inc_tax',
                     't.id as transaction_id',

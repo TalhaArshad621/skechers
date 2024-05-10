@@ -64,15 +64,15 @@
                         </thead>
                         <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                {{-- <td></td> --}}
+                                <td colspan="2"><strong>@lang('sale.total'):</strong></td>
+                                <td><span class="display_currency" id="cash_amount" data-currency_symbol ="true"></span></td>
+                                <td><span class="display_currency" id="card_amount" data-currency_symbol ="true"></span></td>
+                                <td><span class="display_currency" id="cash_and_card" data-currency_symbol ="true"></span></td>
+                                <td><span class="display_currency" id="mechant_tax" data-currency_symbol ="true"></span></td>
+                                <td><span class="display_currency" id="card_amount_after_tax" data-currency_symbol ="true"></span></td>
+                                <td><span class="display_currency" id="bank_transfer" data-currency_symbol ="true"></span></td>
+                                <td><span class="display_currency" id="total_net_amount" data-currency_symbol ="true"></span></td>
                             </tr>
                         </tfoot>
                     </table>
