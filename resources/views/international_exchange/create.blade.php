@@ -753,25 +753,25 @@
 	// Assuming you have included jQuery in your project
 
 	// Function to extract and store the dynamically populated value
-	function extractAndStoreValue() {
-		// Get the dynamically populated value
-		var totalSubtotalValue = $('#total_subtotal').text().trim();
+	// function extractAndStoreValue() {
+	// 	// Get the dynamically populated value
+	// 	var totalSubtotalValue = $('#total_subtotal').text().trim();
 
-		// Check if the value is not empty
-		if (totalSubtotalValue !== "") {
-			// Remove currency symbol and comma, then convert the value to a numeric format
-			var numericTotalSubtotalValue = parseFloat(totalSubtotalValue.replace(/[^0-9.-]+/g, ''));
+	// 	// Check if the value is not empty
+	// 	if (totalSubtotalValue !== "") {
+	// 		// Remove currency symbol and comma, then convert the value to a numeric format
+	// 		var numericTotalSubtotalValue = parseFloat(totalSubtotalValue.replace(/[^0-9.-]+/g, ''));
 
-			// Check if the conversion was successful and the result is a valid number and non-zero
-			if (!isNaN(numericTotalSubtotalValue) && numericTotalSubtotalValue !== 0) {
-				// Now, 'numericTotalSubtotalValue' contains the extracted and non-zero numeric value
-				console.log(numericTotalSubtotalValue);
-				$(".payment-amount").val(numericTotalSubtotalValue);
+	// 		// Check if the conversion was successful and the result is a valid number and non-zero
+	// 		if (!isNaN(numericTotalSubtotalValue) && numericTotalSubtotalValue !== 0) {
+	// 			// Now, 'numericTotalSubtotalValue' contains the extracted and non-zero numeric value
+	// 			console.log(numericTotalSubtotalValue);
+	// 			$(".payment-amount").val(numericTotalSubtotalValue);
 
-				// You can store the value in a variable or use it as needed
-			}
-		}
-	}
+	// 			// You can store the value in a variable or use it as needed
+	// 		}
+	// 	}
+	// }
 
 	// Create a MutationObserver to listen for changes in the subtree of the span
 	var observer = new MutationObserver(extractAndStoreValue);
