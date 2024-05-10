@@ -5461,8 +5461,8 @@ class ReportController extends Controller
                 $end_date = $request->get('end_date');
 
                 if (!empty($start_date) && !empty($end_date)) {
-                    $registers->whereDate('cash_registers.created_at', '>=', $start_date)
-                    ->whereDate('cash_registers.created_at', '<=', $end_date);
+                    $registers->whereDate('cash_register_transactions.created_at', '>=', $start_date)
+                    ->whereDate('cash_register_transactions.created_at', '<=', $end_date);
                 }
                 // dd($registers,$request->input('user_id'));
             return Datatables::of($registers)

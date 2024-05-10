@@ -1467,12 +1467,34 @@ $(document).ready(function () {
 
 
     //Monthly  Report
+
+    $('#monthly_report_filter_date_range').daterangepicker(
+        dateRangeSettings,
+        function (start, end) {
+            $('#monthly_report_filter_date_range').val(start.format(moment_date_format) + ' ~ ' + end.format(moment_date_format));
+            monthly_report.ajax.reload();
+        }
+    );
+    $('#monthly_report_filter_date_range').on('cancel.daterangepicker', function(ev, picker) {
+        $('#monthly_report_filter_date_range').val('');
+        monthly_report.ajax.reload();
+    });
+
     monthly_report = $('table#monthly_report_table').DataTable({
         processing: true,
         serverSide: true,
         aaSorting: [[0, 'desc']],
-        ajax: {
-            url: '/reports/monthly-report-data',
+
+        "ajax": {
+            "url": "/reports/monthly-report-data",
+            "data": function ( d ) {
+                if($('#monthly_report_filter_date_range').val()) {
+                    var start = $('#monthly_report_filter_date_range').data('daterangepicker').startDate.format('YYYY-MM-DD');
+                    var end = $('#monthly_report_filter_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
+                    d.start_date = start;
+                    d.end_date = end;
+                }
+            }
         },
         columns: [
             { data: 'created_at', name: 'created_at' },

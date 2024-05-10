@@ -734,7 +734,7 @@ class AdminSidebarMenu
                             $sub->url(
                                 action('ReportController@exchangeReport'),
                                 __('Exchange Report'),
-                                ['icon' => 'fa fas fa-tasks', 'active' => request()->segment(2) == 'ecommerce-sell-report']
+                                ['icon' => 'fa fas fa-tasks', 'active' => request()->segment(2) == 'exchange-report']
                             );
                         }
                     },

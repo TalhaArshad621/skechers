@@ -9,6 +9,9 @@ use App\Utils\TransactionUtil;
 use App\Utils\ModuleUtil;
 use Illuminate\Http\Request;
 use App\Utils\SmsUtil;
+use App\User;
+use DB;
+use App\Utils\BusinessUtil;
 
 
 class CashRegisterController extends Controller
@@ -21,6 +24,7 @@ class CashRegisterController extends Controller
     protected $moduleUtil;
     protected $transactionUtil;
     protected $smsUtil;
+    protected $businessUtil;
 
 
     /**
@@ -29,10 +33,11 @@ class CashRegisterController extends Controller
      * @param CashRegisterUtil $cashRegisterUtil
      * @return void
      */
-    public function __construct(CashRegisterUtil $cashRegisterUtil, ModuleUtil $moduleUtil, TransactionUtil $transactionUtil,SmsUtil $smsUtil)
+    public function __construct(CashRegisterUtil $cashRegisterUtil, BusinessUtil $businessUtil, ModuleUtil $moduleUtil, TransactionUtil $transactionUtil,SmsUtil $smsUtil)
     {
         $this->cashRegisterUtil = $cashRegisterUtil;
         $this->moduleUtil = $moduleUtil;
+        $this->businessUtil = $businessUtil;
         $this->transactionUtil = $transactionUtil;
         $this->smsUtil = $smsUtil;
 
@@ -227,9 +232,15 @@ class CashRegisterController extends Controller
      */
     public function postCloseRegister(Request $request)
     {
+        // dd($request);
         if (!auth()->user()->can('close_cash_register')) {
             abort(403, 'Unauthorized action.');
         }
+        // $business_id = request()->session()->get('user.business_id');
+
+        // $business_details = $this->businessUtil->getDetails($business_id);
+        // dd($business_id, $business_details);
+
 
         try {
             //Disable in demo
@@ -244,8 +255,15 @@ class CashRegisterController extends Controller
                                     'closing_note']);
             $input['closing_amount'] = $this->cashRegisterUtil->num_uf($input['closing_amount']);
             $user_id = $request->input('user_id');
+            $user_name = User::where('id', $user_id)
+            ->select(DB::raw("CONCAT(first_name, ' ', last_name) AS full_name"))
+            ->first();
+            // dd($user_name);
+            // $business_location = BusinessLocation::select('id','location_id')->where('business_id', $business_id)->first();
+            // dd($business_location);
             $input['closed_at'] = \Carbon::now()->format('Y-m-d H:i:s');
             $input['status'] = 'close';
+            // dd($input);
 
             CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')
@@ -254,7 +272,30 @@ class CashRegisterController extends Controller
                             'msg' => __('cash_register.close_success')
                         ];
 
-            $messageText = "Register Closed";
+            $messageText = "DAY ENDED
+                DATE: " . $input['closed_at'] . "
+                USERNAME: " . $user_name->full_name . "
+                STORE: SKX Jhelum
+                Total Sale: " . $request->input('total_sales') . "
+                Card Sale: " . $request->input('card_sale') . "
+                Cash In Hand: " . $request->input('cash_in_hand') . "
+                Cash Sale: " . $request->input('cash_sale') . "
+                To block promotions from SKECHERS. send UNSUB to 9689128
+                To block all promotions, send REG to 3627";
+
+                // dd($messageText);
+            // $messageText = 
+            // // "Register Closed";
+            // "DAY ENDED
+            // DATE: $input['closed_at']
+            // USERNAME: $user_name->full_name
+            // STORE: SKX Jhelum
+            // Total Sale: $request->input('total_sales');
+            // Card Sale: $request->input('card_sale');
+            // Cash In Hand: $request->input('cash_in_hand');
+            // Cash Sale: $request->input('cash_sale');
+            // To block promotions from SKECHERS. send UNSUB to 9689128
+            // To block all promotions, send REG to 3627";
             $phone = "03416881318";
             
             $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone),'SKECHERS.', '');    
