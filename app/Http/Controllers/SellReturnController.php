@@ -370,16 +370,31 @@ class SellReturnController extends Controller
             $hasReturnedProducts = Transaction::where('return_parent_id', $transactionId)
                 ->exists();
     
-            if ($hasReturnedProducts) {
-                // Return the response with an error message
-                return response()->json(['success' => false, 'message' => 'Invoice number ' . $invoiceNumber . ' has already been exchanged!']);
-            }
+            // if ($hasReturnedProducts) {
+            //     // Return the response with an error message
+            //     return response()->json(['success' => false, 'message' => 'Invoice number ' . $invoiceNumber . ' has already been exchanged!']);
+            // }
     
             // Fetch the transaction data
             $sell = Transaction::where('business_id', $business_id)
-                ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
-                ->where('transactions.type', '!=', 'gift')
-                ->find($transactionId);
+            ->with([
+                'sell_lines' => function ($query) {
+                    $query->where('quantity_returned', '=', '0.0000');
+                },
+                'location',
+                'return_parent',
+                'contact',
+                'tax',
+                'sell_lines.sub_unit',
+                'sell_lines.product',
+                'sell_lines.product.unit'
+            ])
+            ->where('transactions.type', '!=', 'gift')
+            ->find($transactionId);
+            // $sell = Transaction::where('business_id', $business_id)
+            //     ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
+            //     ->where('transactions.type', '!=', 'gift')
+            //     ->find($transactionId);
     
             foreach ($sell->sell_lines as $key => $value) {
                 if (!empty($value->sub_unit_id)) {
