@@ -342,6 +342,7 @@
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('Invoice ID')</th>
                                 <th>@lang('Quantity')</th>
+                                <th>@lang('Quantity Returned')</th>
                                 <th>@lang('Store')</th>
                                 <th>@lang('Transaction Date')</th>
                                 <th>Created By</th>
@@ -351,6 +352,7 @@
                             <tr class="bg-gray font-17 footer-total text-center">
                                 <td colspan="2"><strong>@lang('sale.total'):</strong></td>
                                 <td id="product_international_report_table_footer"></td>
+                                <td id="product_international_returned_report_table_footer"></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -692,6 +694,7 @@
                 { data: 'product_sku', name: 'product_sku' },
                 { data: 'invoice_no', name: 'invoice_no' },
                 { data: 'quantity', name: 'quantity' },
+                { data: 'quantity_returned', name: 'quantity_returned' },
                 { data: 'location_name', name: 'location_name' },
                 { data: 'transaction_date', name: 'transaction_date' },
                 { data: 'full_name', name: 'full_name' }
@@ -699,6 +702,9 @@
             fnDrawCallback: function(oSettings) {
                 $('#product_international_report_table_footer').text(
                     sum_table_col($('#product_international_report_table'), 'sell_qty')
+                );
+                $('#product_international_returned_report_table_footer').text(
+                    sum_table_col($('#product_international_report_table'), 'quantity_returned')
                 );
                 __currency_convert_recursively($('#product_international_report_table'));
             },

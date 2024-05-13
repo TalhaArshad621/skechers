@@ -86,7 +86,7 @@
 								<th class="col-sm-3 text-center">
 									@lang('sale.qty')
 								</th>
-								<th class="col-sm-3 text-center">
+								<th class="col-sm-3 text-center" style="display: none">
 									@lang('sale.subtotal')
 								</th>
 								<th class="col-sm-2 text-center"><i class="fa fa-trash" aria-hidden="true"></i></th>
@@ -94,7 +94,7 @@
 						</thead>
 						<tbody>
 						</tbody>
-						<tfoot>
+						<tfoot style="display: none">
 							<tr class="text-center"><td colspan="2"></td><td><div class="pull-right"><b>@lang('stock_adjustment.total_amount'):</b> <span id="total_adjustment">0.00</span></div></td></tr>
 						</tfoot>
 					</table>
