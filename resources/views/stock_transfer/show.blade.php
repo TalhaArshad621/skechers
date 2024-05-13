@@ -165,12 +165,12 @@
 				    </p>
 				  </div>
 				</div>
-				<div class="row">
+				{{-- <div class="row">
 			      <div class="col-md-12">
 			            <strong>{{ __('lang_v1.activities') }}:</strong><br>
 			            @includeIf('activity_log.activities', ['activity_type' => 'sell'])
 			        </div>
-			    </div>
+			    </div> --}}
 				<div class="row print_section">
 				  <div class="col-xs-12">
 				    <img class="center-block" src="data:image/png;base64,{{DNS1D::getBarcodePNG($sell_transfer->ref_no, 'C128', 2,30,array(39, 48, 54), true)}}">
