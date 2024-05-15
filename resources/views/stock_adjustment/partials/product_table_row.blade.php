@@ -68,7 +68,7 @@
         {{$product->unit}}
         <input type="hidden" name="products[{{$row_index}}][unit_price]" class="form-control product_unit_price input_number" value="{{@num_format($product->last_purchased_price)}}">
     </td>
-    <td>
+    <td style="display: none">
         <input type="text" readonly name="products[{{$row_index}}][price]" class="form-control product_line_total" value="{{@num_format($product->quantity_ordered*$product->last_purchased_price)}}">
     </td>
     <td class="text-center">
