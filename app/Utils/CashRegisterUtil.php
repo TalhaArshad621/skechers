@@ -333,6 +333,7 @@ class CashRegisterUtil extends Util
         $sell_return_seperate = CashRegister::leftjoin('cash_register_transactions','cash_register_transactions.cash_register_id','=','cash_registers.id')
         ->leftjoin('transactions', 'transactions.id', '=', 'cash_register_transactions.transaction_id')
         ->where('transactions.type','sell_return')
+        ->where('cash_register_transactions.transaction_type', 'sell')
         ->where('transactions.location_id', $location_id)
         ->where('transactions.payment_status','paid')
         ->whereBetween('transactions.transaction_date', [$open_time, $close_time])

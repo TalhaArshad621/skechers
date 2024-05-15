@@ -271,7 +271,7 @@ class CashRegisterController extends Controller
             $output = ['success' => 1,
                             'msg' => __('cash_register.close_success')
                         ];
-
+ 
             $messageText = "DAY ENDED
                 DATE: " . $input['closed_at'] . "
                 USERNAME: " . $user_name->full_name . "

@@ -8152,12 +8152,30 @@ class TransactionUtil extends Util
 
             $this->activityLog($sell_return, 'added');
         } else {
-            $sell_return_data['invoice_no'] = $sell_return_data['invoice_no'] ?? $sell_return->invoice_no;
-            $sell_return_before = $sell_return->replicate();
-            
-            $sell_return->update($sell_return_data);
+            // dd("here");
+            // $sell_return_data['invoice_no'] = $sell_return_data['invoice_no'] ?? $sell_return->invoice_no;
+            $ref_count = $this->setAndGetReferenceCount('sell_return', $business_id);
+            $sell_return_data['invoice_no'] = $this->generateReferenceNumber('sell_return', $ref_count, $business_id);
 
-            $this->activityLog($sell_return, 'edited', $sell_return_before);
+            // $sell_return_before = $sell_return->replicate();
+
+            $sell_return_data['transaction_date'] = $sell_return_data['transaction_date'] ?? \Carbon::now();
+            $sell_return_data['business_id'] = $business_id;
+            $sell_return_data['location_id'] = $sell->location_id;
+            $sell_return_data['contact_id'] = $sell->contact_id;
+            $sell_return_data['customer_group_id'] = $sell->customer_group_id;
+            $sell_return_data['type'] = 'sell_return';
+            $sell_return_data['status'] = 'final';
+            $sell_return_data['created_by'] = $user_id;
+            $sell_return_data['return_parent_id'] = $sell->id;
+            $sell_return_data['commission_agent'] = $input['commission_agent'];
+
+            // dd($sell_return_before,$sell_return_data);
+            
+            $sell_return = Transaction::create($sell_return_data);
+            // $sell_return->update($sell_return_data);
+
+            $this->activityLog($sell_return, 'edited', $sell_return);
         }
 
         if ($business->enable_rp == 1 && !empty($sell->rp_earned)) {
