@@ -215,7 +215,10 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
     Route::get('/reports/product-sell-grouped-report-detailed-category', 'ReportController@getproductSellGroupedReportDetailedCategory');
     Route::get('/reports/product-sell-grouped-report-detailed-returns', 'ReportController@getproductSellGroupedReportDetailedReturns');
     Route::get('/reports/product-sell-grouped-report-detailed-returns-category', 'ReportController@getproductSellGroupedReportDetailedReturnsCategory');
+    Route::get('/reports/product-sell-grouped-report-detailed-returns-category-international', 'ReportController@getproductSellGroupedReportDetailedReturnsCategoryInternational');
+    Route::get('/reports/product-sell-grouped-report-detailed-returns-international', 'ReportController@getproductSellGroupedReportDetailedReturnsInternational');
     Route::get('/reports/detailed_product_category','ReportController@getDetailedProductCategory');
+    Route::get('/reports/detailed_product_category_international','ReportController@getDetailedProductCategoryInternational');
 
 
     Route::get('/reports/product-sell-report-with-purchase', 'ReportController@getproductSellReportWithPurchase');
@@ -237,6 +240,7 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
     Route::get('/reports/brandfolio-report','ReportController@getbrandfolioReport');
     Route::get('/reports/employee-report','ReportController@employeeReport');
     Route::get('/reports/employee-exchange-report','ReportController@employeeExchangeReport');
+    Route::get('/reports/employee-int-exchange-report','ReportController@employeeIntExchangeReport');
     Route::get('/reports/exchange-report','ReportController@exchangeReport');
 
     Route::get('/reports/dashboard-stock-report','HomeController@getStockDetail');

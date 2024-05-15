@@ -3606,7 +3606,8 @@ class ReportController extends Controller
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
                 // ->where('t.type', 'sell')
-                ->whereIN('t.type', ['sell','sell_return'])
+                ->whereIN('t.type', ['sell','sell_return','international_return'])
+                ->where('transaction_sell_lines.sell_line_note','<>','international_return')
                 ->where('t.status', 'final')
                 ->select(
                     'p.gender as product_gender',
@@ -3746,7 +3747,8 @@ class ReportController extends Controller
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
                 // ->where('t.type', 'sell')
-                ->whereIN('t.type', ['sell','sell_return'])
+                ->whereIN('t.type', ['sell','sell_return','international_return'])
+                ->where('transaction_sell_lines.sell_line_note','<>','international_return')
 
                 ->where('t.status', 'final')
                 ->select(
@@ -3849,6 +3851,137 @@ class ReportController extends Controller
                 'transactions as t',
                 'transaction_sell_lines.transaction_id',
                 '=',
+                't.return_parent_id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftJoin('categories as c2', 'p.sub_category_id', '=', 'c2.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell_return')
+                ->where('t.status', 'final')
+                ->where('transaction_sell_lines.quantity_returned', '>', 0)
+                ->select(
+                    'p.gender as product_gender',
+                    'p.image as product_image',
+                    'p.name as product_name',
+                    'p.enable_stock',
+                    'p.type as product_type',
+                    'pv.name as product_variation',
+                    'v.name as variation_name',
+                    'v.sub_sku',
+                    't.id as transaction_id',
+                    't.transaction_date as transaction_date',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_sold'),
+                    'u.short_name as unit',
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    // DB::raw('transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax as subtotal'),
+                    'cat.name as category_name',
+                    'c2.name as sub_category'
+                )
+                ->groupBy('v.id')
+                ->groupBy('formated_date');
+
+            if (!empty($variation_id)) {
+                $query->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $query->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $query->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $query->where('t.contact_id', $customer_id);
+            }
+
+            return Datatables::of($query)
+            ->editColumn('product_image', function ($row) {
+                $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
+                
+                if (!empty($row->product_image)) {
+                    $imagePath = asset('uploads/img/' . $row->product_image);
+                } else {
+                    $imagePath = asset('img/default.png');
+                }
+            
+                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+              })
+                ->editColumn('product_name', function ($row) {
+                    $product_name = $row->product_name;
+                    if ($row->product_type == 'variable') {
+                        $product_name .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
+                    }
+
+                    return $product_name;
+                })
+                ->addColumn('category_name', function ($row) {
+                    return $row->category_name;
+                })
+                ->editColumn('sub_category', function ($row) {
+                    $sub_category = $row->sub_category;
+                    if(!empty($sub_category)){
+                        return $sub_category;
+                    }
+                    else
+                        return "--";
+                })
+                ->addColumn('product_gender', function ($row) {
+                    return ucwords($row->product_gender);
+                })
+                ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
+                ->editColumn('total_qty_sold', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                })
+                ->editColumn('subtotal', function ($row) {
+                    return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
+                })
+                
+                ->rawColumns(['product_image','subtotal', 'total_qty_sold'])
+                ->make(true);
+        }
+    }
+
+
+    public function getproductSellGroupedReportDetailedReturnsInternational(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        $location_id = $request->get('location_id', null);
+
+        $vld_str = '';
+        if (!empty($location_id)) {
+            $vld_str = "AND vld.location_id=$location_id";
+        }
+
+        if ($request->ajax()) {
+            $variation_id = $request->get('variation_id', null);
+            $query = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
                 't.id'
                 )
                 ->join(
@@ -3863,7 +3996,7 @@ class ReportController extends Controller
                 ->leftJoin('categories as c2', 'p.sub_category_id', '=', 'c2.id')
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
-                ->where('t.type', 'sell')
+                ->where('t.type', 'international_return')
                 ->where('t.status', 'final')
                 ->where('transaction_sell_lines.quantity_returned', '>', 0)
                 ->select(
@@ -3980,6 +4113,113 @@ class ReportController extends Controller
                 'transactions as t',
                 'transaction_sell_lines.transaction_id',
                 '=',
+                't.return_parent_id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell_return')
+                ->where('t.status', 'final')
+                ->where('transaction_sell_lines.quantity_returned', '>', 0)
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_sold'),
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    'cat.name as category_name'
+                )
+                // ->get();
+                // dd($query);
+                ->groupBy('category_name');
+
+            if (!empty($variation_id)) {
+                $query->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $query->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $query->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $query->where('t.contact_id', $customer_id);
+            }
+
+            return Datatables::of($query)
+            // ->editColumn('product_image', function ($row) {
+            //     $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
+                
+            //     if (!empty($row->product_image)) {
+            //         $imagePath = asset('uploads/img/' . $row->product_image);
+            //     } else {
+            //         $imagePath = asset('img/default.png');
+            //     }
+            
+            //     return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            //   })
+                ->editColumn('product_name', function ($row) {
+                    $product_name = $row->product_name;
+                    if ($row->product_type == 'variable') {
+                        $product_name .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
+                    }
+
+                    return $product_name;
+                })
+                ->addColumn('category_name', function ($row) {
+                    return $row->category_name;
+                })                ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
+                ->editColumn('total_qty_sold', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                })
+                ->editColumn('subtotal', function ($row) {
+                    return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
+                })
+                
+                ->rawColumns(['product_image','subtotal', 'total_qty_sold'])
+                ->make(true);
+        }
+    }
+
+    public function getproductSellGroupedReportDetailedReturnsCategoryInternational(Request $request)
+    {
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        $location_id = $request->get('location_id', null);
+
+        $vld_str = '';
+        if (!empty($location_id)) {
+            $vld_str = "AND vld.location_id=$location_id";
+        }
+
+        if ($request->ajax()) {
+            $variation_id = $request->get('variation_id', null);
+            $query = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
                 't.id'
                 )
                 ->join(
@@ -3993,7 +4233,7 @@ class ReportController extends Controller
                 ->join('categories as cat', 'p.category_id', '=', 'cat.id')
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
-                ->where('t.type', 'sell')
+                ->where('t.type', 'international_return')
                 ->where('t.status', 'final')
                 ->where('transaction_sell_lines.quantity_returned', '>', 0)
                 ->select(
@@ -5307,6 +5547,137 @@ class ReportController extends Controller
         }
     }
 
+    public function getDetailedProductCategoryInternational(Request $request)
+    {
+
+        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = $request->session()->get('user.business_id');
+        $location_id = $request->get('location_id', null);
+        
+        $vld_str = '';
+        if (!empty($location_id)) {
+            $vld_str = "AND vld.location_id=$location_id";
+        }
+
+        if ($request->ajax() || true) {
+            $variation_id = $request->get('variation_id', null);
+
+            $query = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.id'
+                )
+                ->leftJoin(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftJoin('categories as c2', 'p.sub_category_id', '=', 'c2.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'international_return')
+                ->where('t.status', 'final')
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    // DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_returned_quantity'),
+                    DB::raw('SUM(transaction_sell_lines.quantity) - SUM(transaction_sell_lines.quantity_returned) as total_net_unit'),
+                    DB::raw('SUM(transaction_sell_lines.quantity * transaction_sell_lines.unit_price_inc_tax) as sale_value'),
+                    // DB::raw('SUM(t.final_total) as sale_value'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as return_value'),
+
+                    // DB::raw('IF(t.type="sell_return",SUM(transaction_sell_lines.unit_price_inc_tax), 0) as return_value'),
+                    'cat.name as category_name',
+                    'c2.name as sub_category',
+                    'cat.id as category_id'
+                );
+                // dd($query);
+            
+            if (!empty($variation_id)) {
+                $query->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $query->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $query->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $query->where('t.contact_id', $customer_id);
+            }
+
+            $query = $query->groupBy('cat.id')->get();
+
+            return Datatables::of($query)
+            ->editColumn('product_image', function ($row) {
+                $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
+                
+                if (!empty($row->product_image)) {
+                    $imagePath = asset('uploads/img/' . $row->product_image);
+                } else {
+                    $imagePath = asset('img/default.png');
+                }
+            
+                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+              })
+                ->addColumn('category_name', function ($row) {
+                    return $row->category_name;
+                })
+                // ->editColumn('sub_category', function ($row) {
+                //     $sub_category = $row->sub_category;
+                //     if(!empty($sub_category)){
+                //         return $sub_category;
+                //     }
+                //     else
+                //         return "--";
+                // }) 
+                ->editColumn('total_qty_sold', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency total_qty_sold" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                })
+                ->editColumn('total_qty_returned', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency total_qty_returned" data-currency_symbol=false data-orig-value="' . (float)$row->total_returned_quantity . '" data-unit="' . $row->unit . '" >' . (float) $row->total_returned_quantity . '</span> ' .$row->unit;
+                })
+                ->editColumn('total_net_qty', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency total_net_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_net_unit . '" data-unit="' . $row->unit . '" >' . (float) $row->total_net_unit . '</span> ' .$row->unit;
+                })
+                ->editColumn('sale_value', function ($row) {
+                    $sale = $row->sale_value;
+                    return '<span class="display_currency sale_value" data-currency_symbol = true data-orig-value="' . $sale . '">' . $sale . '</span>';
+                })
+                ->editColumn('return_value', function ($row) {
+                    return '<span class="display_currency return_value" data-currency_symbol = true data-orig-value="' . $row->return_value . '">' . $row->return_value . '</span>';
+                })
+                ->editColumn('subtotal', function ($row) {
+                    $net_total = $row->sale_value - $row->return_value;
+                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $net_total . '" data-unit="' . $row->unit . '">' . $net_total . '</span>' . $row->unit;
+                })
+                
+                ->rawColumns(['product_image','subtotal', 'total_qty_sold','total_qty_returned','total_net_qty','sale_value','return_value'])
+                ->make(true);
+        }
+    }
+
     public function employeeReport(Request $request)
     {
         $business_id = $request->session()->get('user.business_id');
@@ -5403,7 +5774,102 @@ class ReportController extends Controller
                 $join->on('cash_register_transactions.transaction_id', '=', 'transactions.id')
                      ->where('cash_register_transactions.type', '=', 'credit');
             })
-            ->whereIn('transactions.type', ['sell_return', 'international_return'])
+            ->where('transactions.type', 'sell_return')
+            ->select(
+                'transactions.id',
+                'users.first_name',
+                'users.last_name',
+                DB::raw('COUNT(DISTINCT transactions.id) as total_invoices'),
+                DB::raw('SUM(DISTINCT tsl.quantity) as total_items'),
+            // );
+            // dd($query->get());
+        
+                DB::raw('SUM(CASE 
+                    WHEN transactions.type = "sell_return" 
+                        THEN cash_register_transactions.amount 
+                    ELSE 0 
+                    END) as total_sales_return'),
+        
+                // DB::raw('(IF(transactions.type = "sell_return", (SELECT SUM(cash_register_transactions.amount) 
+                // FROM transactions
+                // LEFT JOIN cash_register_transactions ON cash_register_transactions.transaction_id = transactions.id 
+                // WHERE transactions.type = "sell_return" 
+                // AND cash_register_transactions.type = "credit"
+                // AND transactions.commission_agent = users.id), 0)
+                //     ) as total_sales_return')
+            )
+            ->groupBy('transactions.commission_agent');
+            // dd($query->toSql());
+            if (!empty($start_date) && !empty($end_date)) {
+                $query->where('transactions.transaction_date', '>=', $start_date)
+                    ->where('transactions.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $query->whereIn('transactions.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $query->where('transactions.location_id', $location_id);
+            }
+
+            if (!empty($commission_agent)) {
+                $query->where('transactions.commission_agent', $commission_agent);
+            }
+
+            $result = $query->groupBy('transactions.commission_agent')
+            ->get();
+
+            return Datatables::of($result)
+                ->addColumn('employee_name', function ($row) {
+                    return $row->first_name . ' ' . $row->last_name;
+                })
+                
+                ->editColumn('total_invoices', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency total_invoices" data-currency_symbol=false data-orig-value="' . (float)$row->total_invoices . '" >' . (float) $row->total_invoices . '</span> ';
+                })
+                ->editColumn('total_items', function ($row) {
+                    return '<span data-is_quantity="true" class="display_currency total_items" data-currency_symbol=false data-orig-value="' . (float)$row->total_items . '" >' . (float) $row->total_items . '</span> ';
+                })
+                // ->editColumn('total_sales', function ($row) {
+                    ->editColumn('total_sales', function ($row) {
+                        // dd($row);
+                        $total = $row->total_sales_return + ($row->total_sales / 2);
+                        return '<span class="display_currency total_sales" data-currency_symbol = true data-orig-value="' . $total . '">' . $total . '</span>';
+                    })                
+                ->rawColumns([ 'total_invoices','total_items','total_sales'])
+                ->make(true);
+        }
+    }
+
+    public function employeeIntExchangeReport(Request $request)
+    {
+        $business_id = $request->session()->get('user.business_id');
+        $location_id = $request->get('location_id', null);
+        $start_date  = $request->get('start_date', null);
+        $end_date    = $request->get('end_date', null);
+        $commission_agent = $request->get('commission_agent', null);
+
+        // Modify start date to include time
+        if ($start_date !== null) {
+            $start_date .= ' 00:00:00';
+        }
+
+        // Modify end date to include time
+        if ($end_date !== null) {
+            $end_date .= ' 23:59:59';
+        }
+        // dd($start_date, $end_date);
+        if($request->ajax() || true){
+            $query = Transaction::leftJoin('transaction_sell_lines as tsl', 'tsl.transaction_id', 'transactions.id')
+            ->join('users', 'users.id', 'transactions.commission_agent')
+            ->leftJoin('cash_register_transactions', function($join) {
+                $join->on('cash_register_transactions.transaction_id', '=', 'transactions.id')
+                     ->where('cash_register_transactions.type', '=', 'credit');
+            })
+            ->where('transactions.type', 'international_return')
+            // ->where('tsl.sell_line_note','international_return')
             ->select(
                 'transactions.id',
                 'users.first_name',
@@ -5412,18 +5878,18 @@ class ReportController extends Controller
                 DB::raw('SUM(DISTINCT tsl.quantity) as total_items'),
         
                 DB::raw('SUM(CASE 
-                    WHEN transactions.type = "international_return" 
-                        THEN cash_register_transactions.amount 
-                    ELSE 0 
-                    END) as total_sales'),
+                WHEN tsl.sell_line_note = "international_return" 
+                THEN cash_register_transactions.amount 
+                ELSE 0 
+                END) as total_sales_return')
         
-                DB::raw('(IF(transactions.type = "sell_return", (SELECT SUM(cash_register_transactions.amount) 
-                FROM transactions
-                LEFT JOIN cash_register_transactions ON cash_register_transactions.transaction_id = transactions.id 
-                WHERE transactions.type = "sell_return" 
-                AND cash_register_transactions.type = "credit"
-                AND transactions.commission_agent = users.id), 0)
-                    ) as total_sales_return')
+                // DB::raw('(IF(transactions.type = "sell_return", (SELECT SUM(cash_register_transactions.amount) 
+                // FROM transactions
+                // LEFT JOIN cash_register_transactions ON cash_register_transactions.transaction_id = transactions.id 
+                // WHERE transactions.type = "sell_return" 
+                // AND cash_register_transactions.type = "credit"
+                // AND transactions.commission_agent = users.id), 0)
+                //     ) as total_sales_return')
             )
             ->groupBy('transactions.commission_agent');
             // dd($query->toSql());

@@ -76,6 +76,23 @@
 
             </div>
         </div>
+        <div class="col-md-12">
+            <!-- Custom Tabs -->
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#sr_sales_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cog" aria-hidden="true"></i> Employee International Exchange Report</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane active" id="sr_sales_tab">
+                        @include('report.partials.sales_representative_commission_int_exchange')
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 
 </section>
