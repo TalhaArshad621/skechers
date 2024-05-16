@@ -758,7 +758,7 @@ class InternationalExchangeController extends Controller
             $invoice_layout = $this->businessUtil->invoiceLayout($business_id, $location_id, $location_details->invoice_layout_id);
             //Check if printer setting is provided.
             $receipt_printer_type = is_null($printer_type) ? $location_details->receipt_printer_type : $printer_type;
-            // $receipt_details = $this->transactionUtil->getReceiptDetails($transaction_id, $location_id, $invoice_layout, $business_details, $location_details, $receipt_printer_type);
+            $receipt_details = $this->transactionUtil->getInternationalReceiptDetails($transaction_id, $location_id, $invoice_layout, $business_details, $location_details, $receipt_printer_type);
             // dd($receipt_details);
             // dd("ok");
             //If print type browser - return the content, printer - return printer config data, and invoice format config
@@ -767,7 +767,8 @@ class InternationalExchangeController extends Controller
                 $output['printer_config'] = $this->businessUtil->printerConfig($business_id, $location_details->printer_id);
                 // $output['data'] = $receipt_details;
             } else {
-                $output['html_content'] = view('sell_return.receipt', compact('receipt_details'))->render();
+                // dd($invoice_layout) ;
+                $output['html_content'] = view('sell_return.international_receipt', compact('receipt_details'))->render();
             }
         }
         return $output;
@@ -887,7 +888,6 @@ class InternationalExchangeController extends Controller
                 if (empty($transaction)) {
                     return $output;
                 }
-                // dd($output);
 
                 $receipt = $this->receiptContent($business_id, $transaction->location_id, $transaction_id, 'browser');
 

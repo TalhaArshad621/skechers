@@ -56,7 +56,9 @@
               <tr>
                   <td>{{ $loop->iteration }}</td>
                   <td>
-                    {{ $sell_line->product->name }}
+                    {{ $sell_line->product->name }} @if ($sell_line->quantity_returned > 0)
+                        (Returned)
+                    @endif
                     @if( $sell_line->product->type == 'variable')
                       - {{ $sell_line->variations->product_variation->name}}
                       - {{ $sell_line->variations->name}}

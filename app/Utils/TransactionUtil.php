@@ -2673,6 +2673,703 @@ class TransactionUtil extends Util
         $output['table_tax_headings'] = !empty($il->table_tax_headings) ? array_filter(json_decode($il->table_tax_headings), 'strlen') : null;
         return (object)$output;
     }
+    public function getInternationalReceiptDetails($transaction_id, $location_id, $invoice_layout, $business_details, $location_details, $receipt_printer_type)
+    {
+        $il = $invoice_layout;
+
+        $transaction = Transaction::with('commision_agent')->find($transaction_id);
+        $transaction_type = $transaction->type;
+        $commission_agent_name = $transaction->commision_agent->surname . ' ' . $transaction->commision_agent->first_name . ' ' . $transaction->commision_agent->last_name;
+
+        $output = [
+            'header_text' => isset($il->header_text) ? $il->header_text : '',
+            'business_name' => ($il->show_business_name == 1) ? $business_details->name : '',
+            'location_name' => ($il->show_location_name == 1) ? $location_details->name : '',
+            'sub_heading_line1' => trim($il->sub_heading_line1),
+            'sub_heading_line2' => trim($il->sub_heading_line2),
+            'sub_heading_line3' => trim($il->sub_heading_line3),
+            'sub_heading_line4' => trim($il->sub_heading_line4),
+            'sub_heading_line5' => trim($il->sub_heading_line5),
+            'table_product_label' => $il->table_product_label,
+            'table_qty_label' => $il->table_qty_label,
+            'table_unit_price_label' => $il->table_unit_price_label,
+            'table_subtotal_label' => $il->table_subtotal_label,
+        ];
+
+        //Commission Agent Name
+        $output['commission_agent_name'] = $commission_agent_name;
+
+        //Display name
+        $output['display_name'] = $output['business_name'];
+        if (!empty($output['location_name'])) {
+            if (!empty($output['display_name'])) {
+                $output['display_name'] .= ', ';
+            }
+            $output['display_name'] .= $output['location_name'];
+        }
+
+        //Logo
+        $output['logo'] = $il->show_logo != 0 && !empty($il->logo) && file_exists(public_path('uploads/invoice_logos/' . $il->logo)) ? asset('uploads/invoice_logos/' . $il->logo) : false;
+
+        //Address
+        $output['address'] = '';
+        $temp = [];
+        if ($il->show_landmark == 1) {
+            $output['address'] .= $location_details->landmark . "\n";
+        }
+        if ($il->show_city == 1 &&  !empty($location_details->city)) {
+            $temp[] = $location_details->city;
+        }
+        if ($il->show_state == 1 && !empty($location_details->state)) {
+            $temp[] = $location_details->state;
+        }
+        if ($il->show_zip_code == 1 &&  !empty($location_details->zip_code)) {
+            $temp[] = $location_details->zip_code;
+        }
+        if ($il->show_country == 1 &&  !empty($location_details->country)) {
+            $temp[] = $location_details->country;
+        }
+        if (!empty($temp)) {
+            $output['address'] .= implode(',', $temp);
+        }
+
+        $output['website'] = $location_details->website;
+        $output['location_custom_fields'] = '';
+        $temp = [];
+        $location_custom_field_settings = !empty($il->location_custom_fields) ? $il->location_custom_fields : [];
+        if (!empty($location_details->custom_field1) && in_array('custom_field1', $location_custom_field_settings)) {
+            $temp[] = $location_details->custom_field1;
+        }
+        if (!empty($location_details->custom_field2) && in_array('custom_field2', $location_custom_field_settings)) {
+            $temp[] = $location_details->custom_field2;
+        }
+        if (!empty($location_details->custom_field3) && in_array('custom_field3', $location_custom_field_settings)) {
+            $temp[] = $location_details->custom_field3;
+        }
+        if (!empty($location_details->custom_field4) && in_array('custom_field4', $location_custom_field_settings)) {
+            $temp[] = $location_details->custom_field4;
+        }
+        if (!empty($temp)) {
+            $output['location_custom_fields'] .= implode(', ', $temp);
+        }
+
+        //Tax Info
+        if ($il->show_tax_1 == 1 && !empty($business_details->tax_number_1)) {
+            $output['tax_label1'] = !empty($business_details->tax_label_1) ? $business_details->tax_label_1 . ': ' : '';
+
+            $output['tax_info1'] = $business_details->tax_number_1;
+        }
+        if ($il->show_tax_2 == 1 && !empty($business_details->tax_number_2)) {
+            if (!empty($output['tax_info1'])) {
+                $output['tax_info1'] .= ', ';
+            }
+
+            $output['tax_label2'] = !empty($business_details->tax_label_2) ? $business_details->tax_label_2 . ': ' : '';
+
+            $output['tax_info2'] = $business_details->tax_number_2;
+        }
+
+        //Shop Contact Info
+        $output['contact'] = '';
+        if ($il->show_mobile_number == 1 && !empty($location_details->mobile)) {
+            $output['contact'] .= '<b>' . __('contact.mobile') . ':</b> ' . $location_details->mobile;
+        }
+        if ($il->show_alternate_number == 1 && !empty($location_details->alternate_number)) {
+            if (empty($output['contact'])) {
+                $output['contact'] .= __('contact.mobile') . ': ' . $location_details->alternate_number;
+            } else {
+                $output['contact'] .= ', ' . $location_details->alternate_number;
+            }
+        }
+        if ($il->show_email == 1 && !empty($location_details->email)) {
+            if (!empty($output['contact'])) {
+                $output['contact'] .= "\n";
+            }
+            $output['contact'] .= __('business.email') . ': ' . $location_details->email;
+        }
+
+        //Customer show_customer
+        $customer = Contact::find($transaction->contact_id);
+
+        $output['customer_info'] = '';
+        $output['customer_tax_number'] = '';
+        $output['customer_tax_label'] = '';
+        $output['customer_custom_fields'] = '';
+        if ($il->show_customer == 1) {
+            $output['customer_label'] = !empty($il->customer_label) ? $il->customer_label : '';
+            $output['customer_name'] = !empty($customer->name) ? $customer->name: '';
+            $output['customer_mobile'] = $customer->mobile;
+            
+            if (!empty($output['customer_name']) && $receipt_printer_type != 'printer') {
+                $output['customer_info'] .= $customer->contact_address;
+                if (!empty($customer->contact_address)) {
+                    $output['customer_info'] .= '<br>';
+                }
+                $output['customer_info'] .= $customer->mobile;
+                if (!empty($customer->landline)) {
+                    $output['customer_info'] .= ', ' . $customer->landline;
+                }
+            }
+
+            $output['customer_tax_number'] = $customer->tax_number;
+            $output['customer_tax_label'] = !empty($il->client_tax_label) ? $il->client_tax_label : '';
+
+            $temp = [];
+            $customer_custom_fields_settings = !empty($il->contact_custom_fields) ? $il->contact_custom_fields : [];
+            if (!empty($customer->custom_field1) && in_array('custom_field1', $customer_custom_fields_settings)) {
+                $temp[] = $customer->custom_field1;
+            }
+            if (!empty($customer->custom_field2) && in_array('custom_field2', $customer_custom_fields_settings)) {
+                $temp[] = $customer->custom_field2;
+            }
+            if (!empty($customer->custom_field3) && in_array('custom_field3', $customer_custom_fields_settings)) {
+                $temp[] = $customer->custom_field3;
+            }
+            if (!empty($customer->custom_field4) && in_array('custom_field4', $customer_custom_fields_settings)) {
+                $temp[] = $customer->custom_field4;
+            }
+            if (!empty($temp)) {
+                $output['customer_custom_fields'] .= implode('<br>', $temp);
+            }
+        }
+
+        if ($il->show_reward_point == 1) {
+            $output['customer_rp_label'] = $business_details->rp_name;
+            $output['customer_total_rp'] = $customer->total_rp;
+        }
+
+        $output['client_id'] = '';
+        $output['client_id_label'] = '';
+        if ($il->show_client_id == 1) {
+            $output['client_id_label'] = !empty($il->client_id_label) ? $il->client_id_label : '';
+            $output['client_id'] = !empty($customer->contact_id) ? $customer->contact_id : '';
+        }
+
+        //Sales person info
+        $output['sales_person'] = '';
+        $output['sales_person_label'] = '';
+        if ($il->show_sales_person == 1) {
+            $output['sales_person_label'] = !empty($il->sales_person_label) ? $il->sales_person_label : '';
+            $output['sales_person'] = !empty($transaction->sales_person->user_full_name) ? $transaction->sales_person->user_full_name : '';
+        }
+
+        //Invoice info
+        $output['invoice_no'] = $transaction->invoice_no;
+
+        $output['fbr_id'] = $transaction->custom_field_1;
+
+        $output['shipping_address'] = !empty($transaction->shipping_address()) ? $transaction->shipping_address() : $transaction->shipping_address;
+
+        //Heading & invoice label, when quotation use the quotation heading.
+        if ($transaction_type == 'sell_return') {
+            $output['invoice_heading'] = $il->cn_heading;
+            $output['invoice_no_prefix'] = $il->cn_no_label;
+        } elseif ($transaction->status == 'draft' && $transaction->is_quotation == 1) {
+            $output['invoice_heading'] = $il->quotation_heading;
+            $output['invoice_no_prefix'] = $il->quotation_no_prefix;
+        } else {
+            $output['invoice_no_prefix'] = $il->invoice_no_prefix;
+            $output['invoice_heading'] = $il->invoice_heading;
+            if ($transaction->payment_status == 'paid' && !empty($il->invoice_heading_paid)) {
+                $output['invoice_heading'] .= ' ' . $il->invoice_heading_paid;
+            } elseif (in_array($transaction->payment_status, ['due', 'partial']) && !empty($il->invoice_heading_not_paid)) {
+                $output['invoice_heading'] .= ' ' . $il->invoice_heading_not_paid;
+            }
+        }
+
+        $output['date_label'] = $il->date_label;
+        if (blank($il->date_time_format)) {
+            $output['invoice_date'] = $this->format_date($transaction->transaction_date, true, $business_details);
+        } else {
+            $output['invoice_date'] = \Carbon::createFromFormat('Y-m-d H:i:s', $transaction->transaction_date)->format($il->date_time_format);
+        }
+
+        $output['hide_price'] = !empty($il->common_settings['hide_price']) ? true : false;
+
+        if (!empty($il->common_settings['show_due_date']) && $transaction->payment_status != 'paid') {
+            $output['due_date_label'] = !empty($il->common_settings['due_date_label']) ? $il->common_settings['due_date_label'] : '';
+            $due_date = $transaction->due_date;
+            if (!empty($due_date)) {
+                if (blank($il->date_time_format)) {
+                    $output['due_date'] = $this->format_date($due_date->toDateTimeString(), true, $business_details);
+                } else {
+                    $output['due_date'] = \Carbon::createFromFormat('Y-m-d H:i:s', $due_date->toDateTimeString())->format($il->date_time_format);
+                }
+            }
+        }
+        
+        $show_currency = true;
+        if ($receipt_printer_type == 'printer' && trim($business_details->currency_symbol) != '$') {
+            $show_currency = false;
+        }
+
+        //Invoice product lines
+        $is_lot_number_enabled = $business_details->enable_lot_number;
+        $is_product_expiry_enabled = $business_details->enable_product_expiry;
+
+        $output['lines'] = [];
+        $total_exempt = 0;
+        if ($transaction_type == 'international_return') {
+            $sell_line_relations = ['modifiers', 'sub_unit', 'warranties'];
+
+            if ($is_lot_number_enabled == 1) {
+                $sell_line_relations[] = 'lot_details';
+            }
+
+            $lines = $transaction->sell_lines()->whereNull('parent_sell_line_id')->with($sell_line_relations)->get();
+
+            foreach ($lines as $key => $value) {
+                if (!empty($value->sub_unit_id)) {
+                    $formated_sell_line = $this->recalculateSellLineTotals($business_details->id, $value);
+
+                    $lines[$key] = $formated_sell_line;
+                }
+            }
+
+            $details = $this->_receiptDetailsInternationalSellLines($lines, $il, $business_details);
+
+            $output['lines'] = $details['lines'];
+            $output['taxes'] = [];
+            $total_quantity = 0;
+            foreach ($details['lines'] as $line) {
+                if (!empty($line['group_tax_details'])) {
+                    foreach ($line['group_tax_details'] as $tax_group_detail) {
+                        if (!isset($output['taxes'][$tax_group_detail['name']])) {
+                            $output['taxes'][$tax_group_detail['name']] = 0;
+                        }
+                        $output['taxes'][$tax_group_detail['name']] += $tax_group_detail['calculated_tax'];
+                    }
+                } elseif (!empty($line['tax_id'])) {
+                    if (!isset($output['taxes'][$line['tax_name']])) {
+                        $output['taxes'][$line['tax_name']] = 0;
+                    }
+
+                    $output['taxes'][$line['tax_name']] += ($line['tax_unformatted'] * $line['quantity_uf']);
+                }
+
+                if (!empty($line['tax_id']) && $line['tax_percent'] == 0) {
+                    $total_exempt += $line['line_total_uf'];
+                }
+
+                $total_quantity += $line['quantity_uf'];
+            }
+
+            if (!empty($il->common_settings['total_quantity_label'])) {
+                $output['total_quantity_label'] = $il->common_settings['total_quantity_label'];
+                $output['total_quantity'] = $this->num_f($total_quantity, false, $business_details, true);
+            }
+        } elseif ($transaction_type == 'sell_return') {
+            $parent_sell = Transaction::find($transaction->return_parent_id);
+            $return_sell = Transaction::find($transaction_id);
+
+            $return_lines = $return_sell->sell_lines;
+            $lines = $parent_sell->sell_lines;
+
+            foreach ($lines as $key => $value) {
+                if (!empty($value->sub_unit_id)) {
+                    $formated_sell_line = $this->recalculateSellLineTotals($business_details->id, $value);
+
+                    $lines[$key] = $formated_sell_line;
+                }
+            }
+
+            $details = $this->_receiptDetailsSellReturnLines($lines, $il, $business_details);
+            $excahnge_details = $this->_receiptDetailsSellExchangeLines($return_lines, $il, $business_details);
+
+            $output['lines'] = $details['lines'];
+            $output['exchanges'] = $excahnge_details['lines'];
+
+            $output['taxes'] = [];
+            foreach ($details['lines'] as $line) {
+                if (!empty($line['group_tax_details'])) {
+                    foreach ($line['group_tax_details'] as $tax_group_detail) {
+                        if (!isset($output['taxes'][$tax_group_detail['name']])) {
+                            $output['taxes'][$tax_group_detail['name']] = 0;
+                        }
+                        $output['taxes'][$tax_group_detail['name']] += $tax_group_detail['calculated_tax'];
+                    }
+                }
+            }
+        }
+        else if ($transaction_type == 'gift') {
+            $sell_line_relations = ['modifiers', 'sub_unit', 'warranties'];
+
+            if ($is_lot_number_enabled == 1) {
+                $sell_line_relations[] = 'lot_details';
+            }
+
+            $lines = $transaction->sell_lines()->whereNull('parent_sell_line_id')->with($sell_line_relations)->get();
+
+            foreach ($lines as $key => $value) {
+                if (!empty($value->sub_unit_id)) {
+                    $formated_sell_line = $this->recalculateSellLineTotals($business_details->id, $value);
+
+                    $lines[$key] = $formated_sell_line;
+                }
+            }
+
+            $details = $this->_receiptDetailsSellLines($lines, $il, $business_details);
+            
+            $output['lines'] = $details['lines'];
+            $output['taxes'] = [];
+            $total_quantity = 0;
+            foreach ($details['lines'] as $line) {
+                if (!empty($line['group_tax_details'])) {
+                    foreach ($line['group_tax_details'] as $tax_group_detail) {
+                        if (!isset($output['taxes'][$tax_group_detail['name']])) {
+                            $output['taxes'][$tax_group_detail['name']] = 0;
+                        }
+                        $output['taxes'][$tax_group_detail['name']] += $tax_group_detail['calculated_tax'];
+                    }
+                } elseif (!empty($line['tax_id'])) {
+                    if (!isset($output['taxes'][$line['tax_name']])) {
+                        $output['taxes'][$line['tax_name']] = 0;
+                    }
+
+                    $output['taxes'][$line['tax_name']] += ($line['tax_unformatted'] * $line['quantity_uf']);
+                }
+
+                if (!empty($line['tax_id']) && $line['tax_percent'] == 0) {
+                    $total_exempt += $line['line_total_uf'];
+                }
+
+                $total_quantity += $line['quantity_uf'];
+            }
+
+            if (!empty($il->common_settings['total_quantity_label'])) {
+                $output['total_quantity_label'] = $il->common_settings['total_quantity_label'];
+                $output['total_quantity'] = $this->num_f($total_quantity, false, $business_details, true);
+            }
+        }
+
+        //show cat code
+        $output['show_cat_code'] = $il->show_cat_code;
+        $output['cat_code_label'] = $il->cat_code_label;
+
+        //Subtotal
+        $output['subtotal_label'] = $il->sub_total_label . ':';
+        $output['subtotal'] = ($transaction->total_before_tax != 0) ? $this->num_f($transaction->total_before_tax, $show_currency, $business_details) : 0;
+        $output['subtotal_unformatted'] = ($transaction->total_before_tax != 0) ? $transaction->total_before_tax : 0;
+
+        //round off
+        $output['round_off_label'] = !empty($il->round_off_label) ? $il->round_off_label . ':' : __('lang_v1.round_off') . ':';
+        $output['round_off'] = $this->num_f($transaction->round_off_amount, $show_currency, $business_details);
+        $output['round_off_amount'] = $transaction->round_off_amount;
+        $output['total_exempt'] = $this->num_f($total_exempt, $show_currency, $business_details);
+        $output['total_exempt_uf'] = $total_exempt;
+
+        $taxed_subtotal = $output['subtotal_unformatted'] -  $total_exempt;
+        $output['taxed_subtotal'] = $this->num_f($taxed_subtotal, $show_currency, $business_details);
+
+        //Discount
+        $discount_amount = $this->num_f($transaction->discount_amount, $show_currency, $business_details);
+        $output['line_discount_label'] = $invoice_layout->discount_label;
+        $output['discount_label'] = $invoice_layout->discount_label;
+        $output['discount_label'] .= ($transaction->discount_type == 'percentage') ? ' <small>(' .  $discount_amount . '%)</small> :' : '';
+
+        if ($transaction->discount_type == 'percentage') {
+            $discount = ($transaction->discount_amount/100) * $transaction->total_before_tax;
+        } else {
+            $discount = $transaction->discount_amount;
+        }
+        $output['discount'] = ($discount != 0) ? $this->num_f($discount, $show_currency, $business_details) : 0;
+
+        //reward points
+        if ($business_details->enable_rp == 1 && !empty($transaction->rp_redeemed)) {
+            $output['reward_point_label'] = $business_details->rp_name;
+            $output['reward_point_amount'] = $this->num_f($transaction->rp_redeemed_amount, $show_currency, $business_details);
+        }
+
+        //Format tax
+        if (!empty($output['taxes'])) {
+            foreach ($output['taxes'] as $key => $value) {
+                $output['taxes'][$key] = $this->num_f($value, $show_currency, $business_details);
+            }
+        }
+
+        //Order Tax
+        $tax = $transaction->tax;
+        $output['tax_label'] = $invoice_layout->tax_label;
+        $output['line_tax_label'] = $invoice_layout->tax_label;
+        if (!empty($tax) && !empty($tax->name)) {
+            $output['tax_label'] .= ' (' . $tax->name . ')';
+        }
+        $output['tax_label'] .= ':';
+        $output['tax'] = ($transaction->tax_amount != 0) ? $this->num_f($transaction->tax_amount, $show_currency, $business_details) : 0;
+
+        if ($transaction->tax_amount != 0 && $tax->is_tax_group) {
+            $transaction_group_tax_details = $this->groupTaxDetails($tax, $transaction->tax_amount);
+
+            $output['group_tax_details'] = [];
+            foreach ($transaction_group_tax_details as $value) {
+                $output['group_tax_details'][$value['name']] = $this->num_f($value['calculated_tax'], $show_currency, $business_details);
+            }
+        }
+
+        //Shipping charges
+        $output['shipping_charges'] = ($transaction->shipping_charges != 0) ? $this->num_f($transaction->shipping_charges, $show_currency, $business_details) : 0;
+        $output['shipping_charges_label'] = trans("sale.shipping_charges");
+        //Shipping details
+        $output['shipping_details'] = $transaction->shipping_details;
+        $output['shipping_details_label'] = trans("sale.shipping_details");
+        $output['packing_charge_label'] = trans("lang_v1.packing_charge");
+        $output['packing_charge'] = ($transaction->packing_charge != 0) ? $this->num_f($transaction->packing_charge, $show_currency, $business_details) : 0;
+
+        //Total
+        if ($transaction_type == 'sell_return') {
+            $output['total_label'] = $invoice_layout->cn_amount_label . ':';
+            $output['total'] = $this->num_f($transaction->final_total, $show_currency, $business_details);
+            $output['total_uf'] = $transaction->final_total;
+        } else {
+            $output['total_label'] = $invoice_layout->total_label . ':';
+            $output['total'] = $this->num_f((int)$transaction->final_total, $show_currency, $business_details);
+            $output['total_uf'] = $transaction->final_total;
+        }
+        if (!empty($il->common_settings['show_total_in_words'])) {
+            $word_format = $il->common_settings['num_to_word_format'] ? $il->common_settings['num_to_word_format'] : 'international';
+            $output['total_in_words'] = $this->numToWord($transaction->final_total, null, $word_format);
+        }
+        
+        //Paid & Amount due, only if final
+        if ($transaction_type == 'sell' || $transaction_type == 'sell_return'  && $transaction->status == 'final') {
+            $paid_amount = $this->getTotalPaid($transaction->id);
+            $due = $transaction->final_total - $paid_amount;
+
+            $output['total_paid'] = ($paid_amount == 0) ? 0 : $this->num_f($paid_amount, $show_currency, $business_details);
+            $output['total_paid_uf'] = ($paid_amount == 0) ? 0 : $paid_amount;
+            $output['total_paid_label'] = $il->paid_label;
+            $output['total_due'] = ($due == 0) ? 0 : $this->num_f($due, $show_currency, $business_details);
+            $output['total_due_label'] = $il->total_due_label;
+
+            if ($il->show_previous_bal == 1) {
+                $all_due = $this->getContactDue($transaction->contact_id);
+                if (!empty($all_due)) {
+                    $output['all_bal_label'] = $il->prev_bal_label;
+                    $output['all_due'] = $this->num_f($all_due, $show_currency, $business_details);
+                }
+            }
+
+            //Get payment details
+            $output['payments'] = [];
+            if ($il->show_payments == 1) {
+                $payments = $transaction->payment_lines->toArray();
+                $payment_types = $this->payment_types($transaction->location_id, true);
+                if (!empty($payments)) {
+                    foreach ($payments as $value) {
+                        $method = !empty($payment_types[$value['method']]) ? $payment_types[$value['method']] : '';
+                        if ($value['method'] == 'cash') {
+                            $output['payments'][] =
+                                ['method' => $method . ($value['is_return'] == 1 ? ' (' . $il->change_return_label . ')(-)' : ''),
+                                'amount' => $this->num_f($value['amount'], $show_currency, $business_details),
+                                'amount_uf' => $value['amount'],
+                                'date' => $this->format_date($value['paid_on'], false, $business_details)
+                                ];
+                            if ($value['is_return'] == 1) {
+                            }
+                        } elseif ($value['method'] == 'card') {
+                            $output['payments'][] =
+                                ['method' => $method . (!empty($value['card_transaction_number']) ? (', Transaction Number:' . $value['card_transaction_number']) : ''),
+                                'amount' => $this->num_f($value['amount'], $show_currency, $business_details),
+                                'amount_uf' => $value['amount'],
+                                'date' => $this->format_date($value['paid_on'], false, $business_details)
+                                ];
+                        } elseif ($value['method'] == 'cheque') {
+                            $output['payments'][] =
+                                ['method' => $method . (!empty($value['cheque_number']) ? (', Cheque Number:' . $value['cheque_number']) : ''),
+                                'amount' => $this->num_f($value['amount'], $show_currency, $business_details),
+                                'date' => $this->format_date($value['paid_on'], false, $business_details)
+                                ];
+                        } elseif ($value['method'] == 'bank_transfer') {
+                            $output['payments'][] =
+                                ['method' => $method . (!empty($value['bank_account_number']) ? (', Account Number:' . $value['bank_account_number']) : ''),
+                                'amount' => $this->num_f($value['amount'], $show_currency, $business_details),
+                                'date' => $this->format_date($value['paid_on'], false, $business_details)
+                                ];
+                        } elseif ($value['method'] == 'advance') {
+                            $output['payments'][] =
+                                ['method' => $method,
+                                'amount' => $this->num_f($value['amount'], $show_currency, $business_details),
+                                'date' => $this->format_date($value['paid_on'], false, $business_details)
+                                ];
+                        } elseif ($value['method'] == 'other') {
+                            $output['payments'][] =
+                                ['method' => $method,
+                                'amount' => $this->num_f($value['amount'], $show_currency, $business_details),
+                                'date' => $this->format_date($value['paid_on'], false, $business_details)
+                                ];
+                        } 
+
+                        for ($i=1; $i<8; $i++) { 
+                            if ($value['method'] == "custom_pay_{$i}") {
+                                $output['payments'][] =
+                                    ['method' => $method . (!empty($value['transaction_no']) ? (', ' . trans("lang_v1.transaction_no") . ':' . $value['transaction_no']) : ''),
+                                    'amount' => $this->num_f($value['amount'], $show_currency, $business_details),
+                                    'date' => $this->format_date($value['paid_on'], false, $business_details)
+                                    ];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //Check for barcode
+        $output['barcode'] = ($il->show_barcode == 1) ? $transaction->invoice_no : false;
+
+        //Additional notes
+        $output['additional_notes'] = $transaction->additional_notes;
+        $output['footer_text'] = $invoice_layout->footer_text;
+        
+        //Barcode related information.
+        $output['show_barcode'] = !empty($il->show_barcode) ? true : false;
+
+        //Module related information.
+        $il->module_info = !empty($il->module_info) ? json_decode($il->module_info, true) : [];
+        if (!empty($il->module_info['tables']) && $this->isModuleEnabled('tables')) {
+            //Table label & info
+            $output['table_label'] = null;
+            $output['table'] = null;
+            if (isset($il->module_info['tables']['show_table'])) {
+                $output['table_label'] = !empty($il->module_info['tables']['table_label']) ? $il->module_info['tables']['table_label'] : '';
+                if (!empty($transaction->res_table_id)) {
+                    $table = ResTable::find($transaction->res_table_id);
+                }
+                
+                //res_table_id
+                $output['table'] = !empty($table->name) ? $table->name : '';
+            }
+        }
+
+        if (!empty($il->module_info['types_of_service']) && $this->isModuleEnabled('types_of_service') && !empty($transaction->types_of_service_id)) {
+            //Table label & info
+            $output['types_of_service_label'] = null;
+            $output['types_of_service'] = null;
+            if (isset($il->module_info['types_of_service']['show_types_of_service'])) {
+                $output['types_of_service_label'] = !empty($il->module_info['types_of_service']['types_of_service_label']) ? $il->module_info['types_of_service']['types_of_service_label'] : '';
+                $output['types_of_service'] = $transaction->types_of_service->name;
+            }
+
+            if (isset($il->module_info['types_of_service']['show_tos_custom_fields'])) {
+                $types_of_service_custom_labels = $this->getCustomLabels($business_details, 'types_of_service'); 
+                $output['types_of_service_custom_fields'] = [];
+                if (!empty($transaction->service_custom_field_1)) {
+                    $tos_custom_label_1 = $types_of_service_custom_labels['custom_field_1'] ?? __('lang_v1.service_custom_field_1');
+                    $output['types_of_service_custom_fields'][$tos_custom_label_1] = $transaction->service_custom_field_1;
+                }
+                if (!empty($transaction->service_custom_field_2)) {
+                    $tos_custom_label_2 = $types_of_service_custom_labels['custom_field_2'] ?? __('lang_v1.service_custom_field_2');
+                    $output['types_of_service_custom_fields'][$tos_custom_label_2] = $transaction->service_custom_field_2;
+                }
+                if (!empty($transaction->service_custom_field_3)) {
+                    $tos_custom_label_3 = $types_of_service_custom_labels['custom_field_3'] ?? __('lang_v1.service_custom_field_3');
+                    $output['types_of_service_custom_fields'][$tos_custom_label_3] = $transaction->service_custom_field_3;
+                }
+                if (!empty($transaction->service_custom_field_4)) {
+                    $tos_custom_label_4 = $types_of_service_custom_labels['custom_field_4'] ?? __('lang_v1.service_custom_field_4');
+                    $output['types_of_service_custom_fields'][$tos_custom_label_4] = $transaction->service_custom_field_4;
+                }
+            }
+        }
+
+        if (!empty($il->module_info['service_staff']) && $this->isModuleEnabled('service_staff')) {
+            //Waiter label & info
+            $output['service_staff_label'] = null;
+            $output['service_staff'] = null;
+            if (isset($il->module_info['service_staff']['show_service_staff'])) {
+                $output['service_staff_label'] = !empty($il->module_info['service_staff']['service_staff_label']) ? $il->module_info['service_staff']['service_staff_label'] : '';
+                if (!empty($transaction->res_waiter_id)) {
+                    $waiter = \App\User::find($transaction->res_waiter_id);
+                }
+                
+                //res_table_id
+                $output['service_staff'] = !empty($waiter->id) ? implode(' ', [$waiter->first_name, $waiter->last_name]) : '';
+            }
+        }
+
+        //Repair module details
+        if (!empty($il->module_info['repair']) && $transaction->sub_type == 'repair') {
+            if (!empty($il->module_info['repair']['show_repair_status'])) {
+                $output['repair_status_label'] = $il->module_info['repair']['repair_status_label'];
+                $output['repair_status'] = '';
+                if (!empty($transaction->repair_status_id)) {
+                    $repair_status = \Modules\Repair\Entities\RepairStatus::find($transaction->repair_status_id);
+                    $output['repair_status'] = $repair_status->name;
+                }
+            }
+
+            if (!empty($il->module_info['repair']['show_repair_warranty'])) {
+                $output['repair_warranty_label'] = $il->module_info['repair']['repair_warranty_label'];
+                $output['repair_warranty'] = '';
+                if (!empty($transaction->repair_warranty_id)) {
+                    $repair_warranty = \App\Warranty::find($transaction->repair_warranty_id);
+                    $output['repair_warranty'] = $repair_warranty->name;
+                }
+            }
+
+            if (!empty($il->module_info['repair']['show_serial_no'])) {
+                $output['serial_no_label'] = $il->module_info['repair']['serial_no_label'];
+                $output['repair_serial_no'] = $transaction->repair_serial_no;
+            }
+
+            if (!empty($il->module_info['repair']['show_defects'])) {
+                $output['defects_label'] = $il->module_info['repair']['defects_label'];
+                $output['repair_defects'] = $transaction->repair_defects;
+            }
+
+            if (!empty($il->module_info['repair']['show_model'])) {
+                $output['model_no_label'] = $il->module_info['repair']['model_no_label'];
+
+                $output['repair_model_no'] = '';
+
+                if (!empty($transaction->repair_model_id)) {
+                    $device_model = \Modules\Repair\Entities\DeviceModel::find($transaction->repair_model_id);
+
+                    if (!empty($device_model)) {
+                        $output['repair_model_no'] = $device_model->name;
+                    }
+                }
+            }
+
+            if (!empty($il->module_info['repair']['show_repair_checklist'])) {
+                $output['repair_checklist_label'] = $il->module_info['repair']['repair_checklist_label'];
+                $output['checked_repair_checklist'] = $transaction->repair_checklist;
+
+                $checklists = [];
+                if (!empty($transaction->repair_model_id)) {
+                    $model = \Modules\Repair\Entities\DeviceModel::find($transaction->repair_model_id);
+
+                    if (!empty($model) && !empty($model->repair_checklist)) {
+                        $checklists = explode('|', $model->repair_checklist);
+                    }
+                }
+
+                $output['repair_checklist'] = $checklists;
+            }
+
+            if (!empty($il->module_info['repair']['show_device'])) {
+                $output['device_label'] = $il->module_info['repair']['device_label'];
+                $device = \App\Category::find($transaction->repair_device_id);
+
+                $output['repair_device'] = '';
+                if (!empty($device)) {
+                    $output['repair_device'] = $device->name;
+                }
+            }
+
+            if (!empty($il->module_info['repair']['show_brand'])) {
+                $output['brand_label'] = $il->module_info['repair']['brand_label'];
+                $brand = \App\Brands::find($transaction->repair_brand_id);
+                $output['repair_brand'] = '';
+                if (!empty($brand)) {
+                    $output['repair_brand'] = $brand->name;
+                }
+            }
+        }
+
+        $output['design'] = $il->design;
+        $output['table_tax_headings'] = !empty($il->table_tax_headings) ? array_filter(json_decode($il->table_tax_headings), 'strlen') : null;
+        return (object)$output;
+    }
     /**
      * Gives the receipt details in proper format.
      *
@@ -3412,6 +4109,211 @@ class TransactionUtil extends Util
                 //Field for 2nd column
                 'quantity' => $this->num_f($line->quantity, false, $business_details, true),
                 'quantity_uf' => $line->quantity,
+                'units' => $unit_name,
+
+                'unit_price' => $this->num_f($line->unit_price, false, $business_details),
+                'tax' => $this->num_f($line->item_tax, false, $business_details),
+                'tax_id' => $line->tax_id,
+                'tax_unformatted' => $line->item_tax,
+                'tax_name' => !empty($tax_details) ? $tax_details->name : null,
+                'tax_percent' => !empty($tax_details) ? $tax_details->amount : null,
+
+                //Field for 3rd column
+                'unit_price_inc_tax' => $this->num_f($line->unit_price_inc_tax, false, $business_details),
+                'unit_price_inc_tax_uf' => $line->unit_price_inc_tax,
+                'unit_price_exc_tax' => $this->num_f($line->unit_price, false, $business_details),
+                'price_exc_tax' => $line->quantity * $line->unit_price,
+                'unit_price_before_discount' => $this->num_f($line->unit_price_before_discount, false, $business_details),
+                'unit_price_before_discount_uf' => $line->unit_price_before_discount,
+                
+                //Fields for 4th column
+                'line_total' => $this->num_f($line->unit_price_inc_tax * $line->quantity, false, $business_details),
+                'line_total_uf' => $line->unit_price_inc_tax * $line->quantity,
+
+                'original_price' => $original_price,
+                'new_discount_amount' => $discount_amount_new * $line->quantity
+            ];
+
+            $temp = [];
+            
+            if (!empty($product->product_custom_field1) && in_array('product_custom_field1', $product_custom_fields_settings)) {
+                $temp[] = $product->product_custom_field1;
+            }
+            if (!empty($product->product_custom_field2) && in_array('product_custom_field2', $product_custom_fields_settings)) {
+                $temp[] = $product->product_custom_field2;
+            }
+            if (!empty($product->product_custom_field3) && in_array('product_custom_field3', $product_custom_fields_settings)) {
+                $temp[] = $product->product_custom_field3;
+            }
+            if (!empty($product->product_custom_field4) && in_array('product_custom_field4', $product_custom_fields_settings)) {
+                $temp[] = $product->product_custom_field4;
+            }
+            if (!empty($temp)) {
+                $line_array['product_custom_fields'] = implode(',', $temp);
+            }
+
+            //Group product taxes by name.
+            if (!empty($tax_details)) {
+                if ($tax_details->is_tax_group) {
+                    $group_tax_details = $this->groupTaxDetails($tax_details, $line->quantity * $line->item_tax);
+
+                    $line_array['group_tax_details'] = $group_tax_details;
+
+                    // foreach ($group_tax_details as $key => $value) {
+                    //     if (!isset($output_taxes['taxes'][$key])) {
+                    //         $output_taxes['taxes'][$key] = 0;
+                    //     }
+                    //     $output_taxes['taxes'][$key] += $value;
+                    // }
+                }
+                // else {
+                //     $tax_name = $tax_details->name;
+                //     if (!isset($output_taxes['taxes'][$tax_name])) {
+                //         $output_taxes['taxes'][$tax_name] = 0;
+                //     }
+                //     $output_taxes['taxes'][$tax_name] += ($line->quantity * $line->item_tax);
+                // }
+            }
+
+            $line_array['line_discount'] = method_exists($line, 'get_discount_amount') ? $this->num_f($line->get_discount_amount(), false, $business_details) : 0;
+            $line_array['line_discount_uf'] = method_exists($line, 'get_discount_amount') ? $line->get_discount_amount() : 0;
+            if ($line->line_discount_type == 'percentage') {
+                $line_array['line_discount'] .= ' (' . $this->num_f($line->line_discount_amount, false, $business_details) . '%)';
+            }
+
+            if ($il->show_brand == 1) {
+                $line_array['brand'] = !empty($brand->name) ? $brand->name : '';
+            }
+            if ($il->show_sku == 1) {
+                $line_array['sub_sku'] = !empty($variation->sub_sku) ? $variation->sub_sku : '' ;
+            }
+            if ($il->show_image == 1) {
+                $media = $variation->media;
+                if (count($media)) {
+                    $first_img = $media->first();
+                    $line_array['image'] = !empty($first_img->display_url) ? $first_img->display_url : asset('/img/default.png');
+                } else {
+                    $line_array['image'] = $product->image_url;
+                }
+            }
+            if ($il->show_cat_code == 1) {
+                $line_array['cat_code'] = !empty($cat->short_code) ? $cat->short_code : '';
+            }
+            if ($il->show_sale_description == 1) {
+                $line_array['sell_line_note'] = !empty($line->sell_line_note) ? $line->sell_line_note : '';
+            }
+            if ($is_lot_number_enabled == 1 && $il->show_lot == 1) {
+                $line_array['lot_number'] = !empty($line->lot_details->lot_number) ? $line->lot_details->lot_number : null;
+                $line_array['lot_number_label'] = __('lang_v1.lot');
+            }
+
+            if ($is_product_expiry_enabled == 1 && $il->show_expiry == 1) {
+                $line_array['product_expiry'] = !empty($line->lot_details->exp_date) ? $this->format_date($line->lot_details->exp_date, false, $business_details) : null;
+                $line_array['product_expiry_label'] = __('lang_v1.expiry');
+            }
+
+            //Set warranty data if enabled
+            if ($is_warranty_enabled && !empty($line->warranties->first())) {
+                $warranty = $line->warranties->first();
+                if (!empty($il->common_settings['show_warranty_name'])) {
+                    $line_array['warranty_name'] = $warranty->name;
+                }
+                if (!empty($il->common_settings['show_warranty_description'])) {
+                    $line_array['warranty_description'] = $warranty->description;
+                }
+                if (!empty($il->common_settings['show_warranty_exp_date'])) {
+                    $line_array['warranty_exp_date'] = $warranty->getEndDate($line->transaction->transaction_date);
+                }
+            }
+
+            //If modifier is set set modifiers line to parent sell line
+            if (!empty($line->modifiers)) {
+                foreach ($line->modifiers as $modifier_line) {
+                    $product = $modifier_line->product;
+                    $variation = $modifier_line->variations;
+                    $unit = $modifier_line->product->unit;
+                    $brand = $modifier_line->product->brand;
+                    $cat = $modifier_line->product->category;
+
+                    $modifier_line_array = [
+                        //Field for 1st column
+                        'name' => $product->name,
+                        'variation' => (empty($variation->name) || $variation->name == 'DUMMY') ? '' : $variation->name,
+                        //Field for 2nd column
+                        'quantity' => $this->num_f($modifier_line->quantity, false, $business_details),
+                        'units' => !empty($unit->short_name) ? $unit->short_name : '',
+
+                        //Field for 3rd column
+                        'unit_price_inc_tax' => $this->num_f($modifier_line->unit_price_inc_tax, false, $business_details),
+                        'unit_price_exc_tax' => $this->num_f($modifier_line->unit_price, false, $business_details),
+                        'price_exc_tax' => $modifier_line->quantity * $modifier_line->unit_price,
+
+                        //Fields for 4th column
+                        'line_total' => $this->num_f($modifier_line->unit_price_inc_tax * $line->quantity, false, $business_details),
+                    ];
+                    
+                    if ($il->show_sku == 1) {
+                        $modifier_line_array['sub_sku'] = !empty($variation->sub_sku) ? $variation->sub_sku : '' ;
+                    }
+                    if ($il->show_cat_code == 1) {
+                        $modifier_line_array['cat_code'] = !empty($cat->short_code) ? $cat->short_code : '';
+                    }
+                    if ($il->show_sale_description == 1) {
+                        $modifier_line_array['sell_line_note'] = !empty($line->sell_line_note) ? $line->sell_line_note : '';
+                    }
+
+                    $line_array['modifiers'][] = $modifier_line_array;
+                }
+            }
+
+            $output_lines[] = $line_array;
+        }
+
+        return ['lines' => $output_lines];
+    }
+    protected function _receiptDetailsInternationalSellLines($lines, $il, $business_details)
+    {
+        $is_lot_number_enabled = $business_details->enable_lot_number;
+        $is_product_expiry_enabled = $business_details->enable_product_expiry;
+
+        $output_lines = [];
+        //$output_taxes = ['taxes' => []];
+        $product_custom_fields_settings = !empty($il->product_custom_fields) ? $il->product_custom_fields : [];
+
+        $is_warranty_enabled = !empty($business_details->common_settings['enable_product_warranty']) ? true : false;
+        
+        foreach ($lines as $line) {
+            $original_price = $line->unit_price_inc_tax / ( 1 - ($line->line_discount_amount / 100));   
+            if($line->line_discount_type == "percentage") {
+                $discount_amount_new  = ($line->unit_price_inc_tax / ( 1 - ($line->line_discount_amount / 100))) -  $line->unit_price_inc_tax;
+            } else {
+                $discount_amount_new = $line->line_discount_amount;
+            }
+            
+            $product = $line->product;
+            $variation = $line->variations;
+            $product_variation = $line->variations->product_variation;
+            $unit = $line->product->unit;
+            $brand = $line->product->brand;
+            $cat = $line->product->category;
+            $tax_details = TaxRate::find($line->tax_id);
+
+            $unit_name = !empty($unit->short_name) ? $unit->short_name : '';
+
+            if (!empty($line->sub_unit->short_name)) {
+                $unit_name = $line->sub_unit->short_name;
+            }
+
+            $line_array = [
+                //Field for 1st column
+                'name' => $product->name,
+                'variation' => (empty($variation->name) || $variation->name == 'DUMMY') ? '' : $variation->name,
+                'product_variation' => (empty($product_variation->name) || $product_variation->name == 'DUMMY') ? '' : $product_variation->name,
+                //Field for 2nd column
+                'quantity' => $this->num_f($line->quantity, false, $business_details, true),
+                'quantity_uf' => $line->quantity,
+                'quantity_returned' => $this->num_f($line->quantity_returned, false, $business_details, true),
+                'quantity_returned_uf' => $line->quantity_returned,
                 'units' => $unit_name,
 
                 'unit_price' => $this->num_f($line->unit_price, false, $business_details),
