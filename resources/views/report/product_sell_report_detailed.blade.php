@@ -623,7 +623,7 @@
             __currency_convert_recursively($('#product_sell_grouped_report_table_returned_international'));
         },
     });
-
+// Product sell reutrn category
     product_sell_grouped_report_return_category = $('table#category_wise_return').DataTable({
         processing: true,
         serverSide: true,
