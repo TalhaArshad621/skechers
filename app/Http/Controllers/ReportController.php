@@ -5769,34 +5769,17 @@ class ReportController extends Controller
         // dd($start_date, $end_date);
         if($request->ajax() || true){
             $query = Transaction::leftJoin('transaction_sell_lines as tsl', 'tsl.transaction_id', 'transactions.id')
+            ->leftJoin('cash_register_transactions','cash_register_transactions.transaction_id', 'transactions.id')
             ->join('users', 'users.id', 'transactions.commission_agent')
-            ->leftJoin('cash_register_transactions', function($join) {
-                $join->on('cash_register_transactions.transaction_id', '=', 'transactions.id')
-                     ->where('cash_register_transactions.type', '=', 'credit');
-            })
             ->where('transactions.type', 'sell_return')
+            ->where('cash_register_transactions.type', 'credit')
             ->select(
                 'transactions.id',
                 'users.first_name',
                 'users.last_name',
                 DB::raw('COUNT(DISTINCT transactions.id) as total_invoices'),
                 DB::raw('SUM(DISTINCT tsl.quantity) as total_items'),
-            // );
-            // dd($query->get());
-        
-                DB::raw('SUM(CASE 
-                    WHEN transactions.type = "sell_return" 
-                        THEN cash_register_transactions.amount 
-                    ELSE 0 
-                    END) as total_sales_return'),
-        
-                // DB::raw('(IF(transactions.type = "sell_return", (SELECT SUM(cash_register_transactions.amount) 
-                // FROM transactions
-                // LEFT JOIN cash_register_transactions ON cash_register_transactions.transaction_id = transactions.id 
-                // WHERE transactions.type = "sell_return" 
-                // AND cash_register_transactions.type = "credit"
-                // AND transactions.commission_agent = users.id), 0)
-                //     ) as total_sales_return')
+                DB::raw('SUM(DISTINCT cash_register_transactions.amount) as total_sales ')
             )
             ->groupBy('transactions.commission_agent');
             // dd($query->toSql());
@@ -5835,7 +5818,7 @@ class ReportController extends Controller
                 // ->editColumn('total_sales', function ($row) {
                     ->editColumn('total_sales', function ($row) {
                         // dd($row);
-                        $total = $row->total_sales_return + ($row->total_sales / 2);
+                        $total = $row->total_sales ;
                         return '<span class="display_currency total_sales" data-currency_symbol = true data-orig-value="' . $total . '">' . $total . '</span>';
                     })                
                 ->rawColumns([ 'total_invoices','total_items','total_sales'])
