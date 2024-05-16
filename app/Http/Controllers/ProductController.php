@@ -2417,6 +2417,7 @@ class ProductController extends Controller
 
             })
             ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+
             ->editColumn('return_quantity', function ($row) {
                 return '<span data-is_quantity="true" class="display_currency sell_qtyy" data-currency_symbol=false data-orig-value="' . (float)$row->return_quantity . '" >' . (float) $row->return_quantity . '</span> ';
 
