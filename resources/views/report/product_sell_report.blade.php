@@ -85,9 +85,9 @@
                                         <th>Sell Price</th>
                                         <th>Discount</th>
                                         <th>Profit</th>
-                                        <th>Stock By Name</th>
-                                        <th>Stock By Color</th>
-                                        <th>Stock By Code</th>
+                                        <th>Stock By Size Wise</th>
+                                        <th>Stock By Color Wise</th>
+                                        <th>Stock By Name Wise</th>
                                         <th>Image</th>
                                     </tr>
                                 </thead>

@@ -2930,12 +2930,13 @@ class ProductController extends Controller
                     ->where('transactions.business_id', $business_id)
                     ->where('transaction_sell_lines.product_id', $request->id)
                     ->where('transactions.type', 'international_return')
-                    ->where('transaction_sell_lines.sell_line_note','<>','international_return')
+                    // ->where('transaction_sell_lines.sell_line_note','<>','international_return')
                     ->select(
                         'transactions.transaction_date as transaction_date',
-                        'ref_no as invoice_no',
+                        'invoice_no as invoice_no',
                         'BL.name as location_name',
                         'transaction_sell_lines.quantity as quantity',
+                        'transaction_sell_lines.quantity_returned as quantity_returned',
                         'products.sku as product_sku',
                         'products.image as product_image',
                         DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
@@ -2956,13 +2957,17 @@ class ProductController extends Controller
                 return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->quantity . '" >' . (float) $row->quantity . '</span> ';
 
             })
+            ->editColumn('quantity_returned', function ($row) {
+                return '<span data-is_quantity="true" class="display_currency returned_qty" data-currency_symbol=false data-orig-value="' . (float)$row->quantity_returned . '" >' . (float) $row->quantity_returned . '</span> ';
+
+            })
             ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
             ->editColumn('location_name', function ($row) {
                 $location_name = $row->location_name;
 
                 return $location_name;
             })
-            ->rawColumns(['quantity'])
+            ->rawColumns(['quantity','quantity_returned'])
             ->make(true);
         }
     }

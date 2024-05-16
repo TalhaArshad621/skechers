@@ -1647,7 +1647,7 @@ function pos_total_row() {
 
     $('#subtotal_input').val(subtotal);
     $('#subtotal_field').text(subtotal);
-    console.log(price_total, subtotal);
+    $(".payment-amount").val(subtotal);
     calculate_billing_details(parseInt(subtotal));
 }
 
