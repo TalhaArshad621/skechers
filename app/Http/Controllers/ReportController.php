@@ -6119,6 +6119,7 @@ class ReportController extends Controller
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell_return')
+                ->where('transaction_sell_lines.quantity_returned', '>' , 0)
                 ->where('t.status', 'final')
                 ->select(
                     't.type as transaction_type',
@@ -6163,7 +6164,8 @@ class ReportController extends Controller
                     ) as total_sell_discount")
                 )
                 ->groupBy('v.id')
-                ->groupBy('formated_date');
+                ->groupBy('formated_date')
+                ->groupBy('t.id');
 
             if (!empty($variation_id)) {
                 $query->where('transaction_sell_lines.variation_id', $variation_id);
