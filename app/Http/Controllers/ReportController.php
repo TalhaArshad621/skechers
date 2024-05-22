@@ -5434,6 +5434,651 @@ class ReportController extends Controller
         if ($request->ajax() || true) {
             $variation_id = $request->get('variation_id', null);
 
+            //Categories
+            $excludedCategories = ['MEN', 'INFANT'];
+
+            $categories = Category::where('parent_id', 0)
+                ->whereNotIn('name', $excludedCategories)
+                ->select('id', 'name')
+                ->get();
+
+            //Total Quantity Sold Fo Bags
+            $total_quantity_sold_for_bags = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('cat.name','BAGS')
+                ->whereIN('t.type', ['sell','sell_return','international_return'])
+                ->where('transaction_sell_lines.sell_line_note','<>','international_return')
+
+                ->where('t.status', 'final')
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    // DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_qty_sold'),
+
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+
+                    'cat.name as category_name',
+                    'cat.id as category_id'
+                )
+                ->whereRaw('transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned <> 0');
+
+                if (!empty($variation_id)) {
+                $total_quantity_sold_for_bags->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = Carbon::parse($request->get('start_date'));
+            $end_date = Carbon::parse($request->get('end_date'));
+            // dd($start_date, $end_date);
+
+            if (!empty($start_date) && !empty($end_date)) {
+                $total_quantity_sold_for_bags->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $total_quantity_sold_for_bags->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $total_quantity_sold_for_bags->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $total_quantity_sold_for_bags->where('t.contact_id', $customer_id);
+            }
+
+            $total_quantity_sold_for_bags =   $total_quantity_sold_for_bags->groupBy('category_name')
+            ->first();
+
+
+            //Total Quantity Sold Fo Caps
+            $total_quantity_sold_for_caps = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('cat.name','CAPS')
+                ->whereIN('t.type', ['sell','sell_return','international_return'])
+                ->where('transaction_sell_lines.sell_line_note','<>','international_return')
+
+                ->where('t.status', 'final')
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    // DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_qty_sold'),
+
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+
+                    'cat.name as category_name',
+                    'cat.id as category_id'
+                )
+                ->whereRaw('transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned <> 0');
+
+                if (!empty($variation_id)) {
+                $total_quantity_sold_for_caps->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = Carbon::parse($request->get('start_date'));
+            $end_date = Carbon::parse($request->get('end_date'));
+            // dd($start_date, $end_date);
+
+            if (!empty($start_date) && !empty($end_date)) {
+                $total_quantity_sold_for_caps->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $total_quantity_sold_for_caps->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $total_quantity_sold_for_caps->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $total_quantity_sold_for_caps->where('t.contact_id', $customer_id);
+            }
+
+            $total_quantity_sold_for_caps =   $total_quantity_sold_for_caps->groupBy('category_name')
+            ->first();
+
+            //Total Quantity Sold Fo Socks
+            $total_quantity_sold_for_socks = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('cat.name','SOCKS')
+                ->whereIN('t.type', ['sell','sell_return','international_return'])
+                ->where('transaction_sell_lines.sell_line_note','<>','international_return')
+
+                ->where('t.status', 'final')
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    // DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_qty_sold'),
+
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+
+                    'cat.name as category_name',
+                    'cat.id as category_id'
+                )
+                ->whereRaw('transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned <> 0');
+
+                if (!empty($variation_id)) {
+                $total_quantity_sold_for_socks->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = Carbon::parse($request->get('start_date'));
+            $end_date = Carbon::parse($request->get('end_date'));
+            // dd($start_date, $end_date);
+
+            if (!empty($start_date) && !empty($end_date)) {
+                $total_quantity_sold_for_socks->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $total_quantity_sold_for_socks->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $total_quantity_sold_for_socks->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $total_quantity_sold_for_socks->where('t.contact_id', $customer_id);
+            }
+
+            $total_quantity_sold_for_socks =   $total_quantity_sold_for_socks->groupBy('category_name')
+            ->first();
+
+            //Total Quantity Sold Fo Accessories
+            $total_quantity_sold_for_accessories = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('cat.name','Accessories')
+                ->whereIN('t.type', ['sell','sell_return','international_return'])
+                ->where('transaction_sell_lines.sell_line_note','<>','international_return')
+
+                ->where('t.status', 'final')
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    // DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_qty_sold'),
+
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+
+                    'cat.name as category_name',
+                    'cat.id as category_id'
+                )
+                ->whereRaw('transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned <> 0');
+
+                if (!empty($variation_id)) {
+                $total_quantity_sold_for_accessories->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = Carbon::parse($request->get('start_date'));
+            $end_date = Carbon::parse($request->get('end_date'));
+            // dd($start_date, $end_date);
+
+            if (!empty($start_date) && !empty($end_date)) {
+                $total_quantity_sold_for_accessories->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $total_quantity_sold_for_accessories->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $total_quantity_sold_for_accessories->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $total_quantity_sold_for_accessories->where('t.contact_id', $customer_id);
+            }
+
+            $total_quantity_sold_for_accessories =   $total_quantity_sold_for_accessories->groupBy('category_name')
+            ->first();
+
+            //Total Quantity Sold Fo Shoes
+            $total_quantity_sold_for_shoes = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('cat.name','Shoes')
+                ->whereIN('t.type', ['sell','sell_return','international_return'])
+                ->where('transaction_sell_lines.sell_line_note','<>','international_return')
+
+                ->where('t.status', 'final')
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    // DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                    DB::raw('SUM(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as total_qty_sold'),
+
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+                    DB::raw('SUM((transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax) as total_sale'),
+
+                    'cat.name as category_name',
+                    'cat.id as category_id'
+                )
+                ->whereRaw('transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned <> 0');
+
+                if (!empty($variation_id)) {
+                $total_quantity_sold_for_shoes->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = Carbon::parse($request->get('start_date'));
+            $end_date = Carbon::parse($request->get('end_date'));
+            // dd($start_date, $end_date);
+
+            if (!empty($start_date) && !empty($end_date)) {
+                $total_quantity_sold_for_shoes->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $total_quantity_sold_for_shoes->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $total_quantity_sold_for_shoes->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $total_quantity_sold_for_shoes->where('t.contact_id', $customer_id);
+            }
+
+            $total_quantity_sold_for_shoes =   $total_quantity_sold_for_shoes->groupBy('category_name')
+            ->first();
+
+            //Return Quantity For Bags
+            $total_quantity_returned_for_bags = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.return_parent_id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell_return')
+                ->where('t.status', 'final')
+                ->where('cat.name','BAGS')
+                ->where('transaction_sell_lines.quantity_returned', '>', 0)
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_sold'),
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    'cat.name as category_name'
+                );
+                // ->get();
+                // dd($query);
+                // ->groupBy('category_name');
+
+            if (!empty($variation_id)) {
+                $total_quantity_returned_for_bags->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $total_quantity_returned_for_bags->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $total_quantity_returned_for_bags->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $total_quantity_returned_for_bags->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $total_quantity_returned_for_bags->where('t.contact_id', $customer_id);
+            }
+            $total_quantity_returned_for_bags =   $total_quantity_returned_for_bags->groupBy('category_name')
+            ->first();
+
+
+            //Return Quantity For CAPS
+            $total_quantity_returned_for_caps = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.return_parent_id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell_return')
+                ->where('t.status', 'final')
+                ->where('cat.name','CAPS')
+                ->where('transaction_sell_lines.quantity_returned', '>', 0)
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_sold'),
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    'cat.name as category_name'
+                );
+                // ->get();
+                // dd($query);
+                // ->groupBy('category_name');
+
+            if (!empty($variation_id)) {
+                $total_quantity_returned_for_caps->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $total_quantity_returned_for_caps->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $total_quantity_returned_for_caps->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $total_quantity_returned_for_caps->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $total_quantity_returned_for_caps->where('t.contact_id', $customer_id);
+            }
+            $total_quantity_returned_for_caps =   $total_quantity_returned_for_caps->groupBy('category_name')
+            ->first();
+
+
+            //Return Quantity For SOCKS
+            $total_quantity_returned_for_socks = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.return_parent_id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell_return')
+                ->where('t.status', 'final')
+                ->where('cat.name','SOCKS')
+                ->where('transaction_sell_lines.quantity_returned', '>', 0)
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_sold'),
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    'cat.name as category_name'
+                );
+                // ->get();
+                // dd($query);
+                // ->groupBy('category_name');
+
+            if (!empty($variation_id)) {
+                $total_quantity_returned_for_socks->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $total_quantity_returned_for_socks->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $total_quantity_returned_for_socks->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $total_quantity_returned_for_socks->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $total_quantity_returned_for_socks->where('t.contact_id', $customer_id);
+            }
+            $total_quantity_returned_for_socks =   $total_quantity_returned_for_socks->groupBy('category_name')
+            ->first();
+
+            //Return Quantity For Accessories
+            $total_quantity_returned_for_accessories = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.return_parent_id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell_return')
+                ->where('t.status', 'final')
+                ->where('cat.name','Accessories')
+                ->where('transaction_sell_lines.quantity_returned', '>', 0)
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_sold'),
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    'cat.name as category_name'
+                );
+                // ->get();
+                // dd($query);
+                // ->groupBy('category_name');
+
+            if (!empty($variation_id)) {
+                $total_quantity_returned_for_accessories->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $total_quantity_returned_for_accessories->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $total_quantity_returned_for_accessories->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $total_quantity_returned_for_accessories->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $total_quantity_returned_for_accessories->where('t.contact_id', $customer_id);
+            }
+            $total_quantity_returned_for_accessories =   $total_quantity_returned_for_accessories->groupBy('category_name')
+            ->first();
+
+
+            //Return Quantity For Shoes
+            $total_quantity_returned_for_shoes = TransactionSellLine::join(
+                'transactions as t',
+                'transaction_sell_lines.transaction_id',
+                '=',
+                't.return_parent_id'
+                )
+                ->join(
+                    'variations as v',
+                    'transaction_sell_lines.variation_id',
+                    '=',
+                    'v.id'
+                )
+                ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                ->join('products as p', 'pv.product_id', '=', 'p.id')
+                ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->where('t.business_id', $business_id)
+                ->where('t.type', 'sell_return')
+                ->where('t.status', 'final')
+                ->where('cat.name','Shoes')
+                ->where('transaction_sell_lines.quantity_returned', '>', 0)
+                ->select(
+                    'p.image as product_image',
+                    DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_qty_sold'),
+                    // DB::raw('SUM(transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    'cat.name as category_name'
+                );
+                // ->get();
+                // dd($query);
+                // ->groupBy('category_name');
+
+            if (!empty($variation_id)) {
+                $total_quantity_returned_for_shoes->where('transaction_sell_lines.variation_id', $variation_id);
+            }
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+            if (!empty($start_date) && !empty($end_date)) {
+                $total_quantity_returned_for_shoes->where('t.transaction_date', '>=', $start_date)
+                    ->where('t.transaction_date', '<=', $end_date);
+            }
+
+            $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $total_quantity_returned_for_shoes->whereIn('t.location_id', $permitted_locations);
+            }
+
+            if (!empty($location_id)) {
+                $total_quantity_returned_for_shoes->where('t.location_id', $location_id);
+            }
+
+            $customer_id = $request->get('customer_id', null);
+            if (!empty($customer_id)) {
+                $total_quantity_returned_for_shoes->where('t.contact_id', $customer_id);
+            }
+            $total_quantity_returned_for_shoes =   $total_quantity_returned_for_shoes->groupBy('category_name')
+            ->first();
+            
+
+            // dd($total_quantity_sold);
+
             $query = TransactionSellLine::join(
                 'transactions as t',
                 'transaction_sell_lines.transaction_id',
@@ -5452,14 +6097,19 @@ class ReportController extends Controller
                 ->leftJoin('categories as c2', 'p.sub_category_id', '=', 'c2.id')
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
                 ->where('t.business_id', $business_id)
-                ->whereIN('t.type', ['sell','sell_return'])
+                ->where('t.type','sell')
                 ->where('t.status', 'final')
                 ->select(
+                    't.type',
                     'p.image as product_image',
                     DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
                     // DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
                     DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
                     DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_returned_quantity'),
+                    // DB::raw('(SELECT SUM(tsl.quantity_returned)
+                    // FROM transaction_sell_lines tsl
+                    // LEFT JOIN transactions t2 on t2.return_parent_id = tsl.transaction_id
+                    // WHERE t2.type = "sell_return") as total_returned_quantity'),
                     DB::raw('SUM(transaction_sell_lines.quantity) - SUM(transaction_sell_lines.quantity_returned) as total_net_unit'),
                     DB::raw('SUM(transaction_sell_lines.quantity * transaction_sell_lines.unit_price_inc_tax) as sale_value'),
                     // DB::raw('SUM(t.final_total) as sale_value'),
@@ -5470,80 +6120,327 @@ class ReportController extends Controller
                     'c2.name as sub_category',
                     'cat.id as category_id'
                 );
-                // dd($query);
+
+                $query1 = TransactionSellLine::join(
+                    'transactions as t',
+                    'transaction_sell_lines.transaction_id',
+                    '=',
+                    't.return_parent_id'
+                    )
+                    // ->leftJoin('transactions as return','transaction_sell_lines.transaction_id','=','return.return_parent_id')
+                    ->leftJoin(
+                        'variations as v',
+                        'transaction_sell_lines.variation_id',
+                        '=',
+                        'v.id'
+                    )
+                    ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+                    ->join('products as p', 'pv.product_id', '=', 'p.id')
+                    ->join('categories as cat', 'p.category_id', '=', 'cat.id')
+                    ->leftJoin('categories as c2', 'p.sub_category_id', '=', 'c2.id')
+                    ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                    ->where('t.business_id', $business_id)
+                    ->where('t.type','sell_return')
+                    ->where('t.status', 'final')
+                    ->where('transaction_sell_lines.quantity_returned', '>', 0)
+
+                    ->select(
+                        't.type',
+                        't.final_total as final_total',
+                        // 'p.image as product_image',
+                        // DB::raw('DATE_FORMAT(t.transaction_date, "%Y-%m-%d") as formated_date'),
+                        // DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                        DB::raw('SUM(transaction_sell_lines.quantity) as total_qty_sold'),
+                        DB::raw('SUM(transaction_sell_lines.quantity_returned) as total_returned_quantity'),
+                        // DB::raw('(SELECT SUM(tsl.quantity_returned)
+                        // FROM transaction_sell_lines tsl
+                        // LEFT JOIN transactions t2 on t2.return_parent_id = tsl.transaction_id
+                        // WHERE t2.type = "sell_return") as total_returned_quantity'),
+                        DB::raw('SUM(transaction_sell_lines.quantity) - SUM(transaction_sell_lines.quantity_returned) as total_net_unit'),
+                        DB::raw('SUM(transaction_sell_lines.quantity * transaction_sell_lines.unit_price_inc_tax) as sale_value'),
+                        // DB::raw('SUM(t.final_total) as sale_value'),
+                        DB::raw('SUM(transaction_sell_lines.quantity_returned * transaction_sell_lines.unit_price_inc_tax) as return_value'),
+    
+                        DB::raw('IF(t.type="sell_return",SUM(transaction_sell_lines.unit_price_inc_tax), 0) as return_value'),
+                        // 'cat.name as category_name',
+                        // 'c2.name as sub_category',
+                        'cat.id as category_id'
+                    );
+                // dd($query->get(),$query1->get());
             
             if (!empty($variation_id)) {
                 $query->where('transaction_sell_lines.variation_id', $variation_id);
+                $query1->where('transaction_sell_lines.variation_id', $variation_id);
             }
-            $start_date = $request->get('start_date');
-            $end_date = $request->get('end_date');
+            // $start_date = $request->get('start_date');
+            // $end_date = $request->get('end_date');
+
+            $start_date = Carbon::parse($request->get('start_date'));
+            $end_date = Carbon::parse($request->get('end_date'));
+
             if (!empty($start_date) && !empty($end_date)) {
                 $query->where('t.transaction_date', '>=', $start_date)
                     ->where('t.transaction_date', '<=', $end_date);
+
+                $query1->where('t.transaction_date', '>=', $start_date)
+                ->where('t.transaction_date', '<=', $end_date);
+
             }
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
                 $query->whereIn('t.location_id', $permitted_locations);
+                $query1->whereIn('t.location_id', $permitted_locations);
+
             }
 
             if (!empty($location_id)) {
                 $query->where('t.location_id', $location_id);
+                $query1->where('t.location_id', $location_id);
+
             }
 
             $customer_id = $request->get('customer_id', null);
             if (!empty($customer_id)) {
                 $query->where('t.contact_id', $customer_id);
+                $query1->where('t.contact_id', $customer_id);
+
             }
 
             $query = $query->groupBy('cat.id')->get();
+            $query1 = $query1->groupBy('cat.id')->get();
+            // dd($query, $query1);
+            $query1Data = $query1;
+            // dd($query1Data);
 
-            return Datatables::of($query)
-            ->editColumn('product_image', function ($row) {
-                $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
-                
-                if (!empty($row->product_image)) {
-                    $imagePath = asset('uploads/img/' . $row->product_image);
-                } else {
-                    $imagePath = asset('img/default.png');
-                }
+            // total_sale
+            $total_sale_for_bags = isset($total_quantity_sold_for_bags) && is_object($total_quantity_sold_for_bags) ? $total_quantity_sold_for_bags->total_sale : 0;
+            $total_sale_for_caps = isset($total_quantity_sold_for_caps) && is_object($total_quantity_sold_for_caps) ? $total_quantity_sold_for_caps->total_sale : 0;
+            $total_sale_for_socks = isset($total_quantity_sold_for_socks) && is_object($total_quantity_sold_for_socks) ? $total_quantity_sold_for_socks->total_sale : 0;
+            $total_sale_for_accessories = isset($total_quantity_sold_for_accessories) && is_object($total_quantity_sold_for_accessories) ? $total_quantity_sold_for_accessories->total_sale : 0;
+            $total_sale_for_shoes = isset($total_quantity_sold_for_shoes) && is_object($total_quantity_sold_for_shoes) ? $total_quantity_sold_for_shoes->total_sale : 0;
+
+
+            $total_quantity_sold_for_bags = isset($total_quantity_sold_for_bags) && is_object($total_quantity_sold_for_bags) ? $total_quantity_sold_for_bags->total_qty_sold : 0;
+            $total_quantity_sold_for_caps = isset($total_quantity_sold_for_caps) && is_object($total_quantity_sold_for_caps) ? $total_quantity_sold_for_caps->total_qty_sold : 0;
+            $total_quantity_sold_for_socks = isset($total_quantity_sold_for_socks) && is_object($total_quantity_sold_for_socks) ? $total_quantity_sold_for_socks->total_qty_sold : 0;
+            $total_quantity_sold_for_accessories = isset($total_quantity_sold_for_accessories) && is_object($total_quantity_sold_for_accessories) ? $total_quantity_sold_for_accessories->total_qty_sold : 0;
+            $total_quantity_sold_for_shoes = isset($total_quantity_sold_for_shoes) && is_object($total_quantity_sold_for_shoes) ? $total_quantity_sold_for_shoes->total_qty_sold : 0;
             
-                return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
-              })
-                ->addColumn('category_name', function ($row) {
-                    return $row->category_name;
-                })
-                // ->editColumn('sub_category', function ($row) {
-                //     $sub_category = $row->sub_category;
-                //     if(!empty($sub_category)){
-                //         return $sub_category;
-                //     }
-                //     else
-                //         return "--";
-                // }) 
-                ->editColumn('total_qty_sold', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency total_qty_sold" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
-                })
-                ->editColumn('total_qty_returned', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency total_qty_returned" data-currency_symbol=false data-orig-value="' . (float)$row->total_returned_quantity . '" data-unit="' . $row->unit . '" >' . (float) $row->total_returned_quantity . '</span> ' .$row->unit;
-                })
-                ->editColumn('total_net_qty', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency total_net_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_net_unit . '" data-unit="' . $row->unit . '" >' . (float) $row->total_net_unit . '</span> ' .$row->unit;
-                })
-                ->editColumn('sale_value', function ($row) {
-                    $sale = $row->sale_value;
-                    return '<span class="display_currency sale_value" data-currency_symbol = true data-orig-value="' . $sale . '">' . $sale . '</span>';
-                })
-                ->editColumn('return_value', function ($row) {
-                    return '<span class="display_currency return_value" data-currency_symbol = true data-orig-value="' . $row->return_value . '">' . $row->return_value . '</span>';
-                })
-                ->editColumn('subtotal', function ($row) {
-                    $net_total = $row->sale_value - $row->return_value;
-                    return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $net_total . '" data-unit="' . $row->unit . '">' . $net_total . '</span>' . $row->unit;
-                })
+            $total_sale_returned_for_bags = isset($total_quantity_returned_for_bags) && is_object($total_quantity_returned_for_bags) ? $total_quantity_returned_for_bags->subtotal : 0;
+            $total_sale_returned_for_caps = isset($total_quantity_returned_for_caps) && is_object($total_quantity_returned_for_caps) ? $total_quantity_returned_for_caps->subtotal : 0;
+            $total_sale_returned_for_socks = isset($total_quantity_returned_for_socks) && is_object($total_quantity_returned_for_socks) ? $total_quantity_returned_for_socks->subtotal : 0;
+            $total_sale_returned_for_accessories = isset($total_quantity_returned_for_accessories) && is_object($total_quantity_returned_for_accessories) ? $subtotal->total_qty_sold : 0;
+            $total_sale_returned_for_shoes = isset($total_quantity_returned_for_shoes) && is_object($total_quantity_returned_for_shoes) ? $total_quantity_returned_for_shoes->subtotal : 0;
+
+            $total_quantity_returned_for_bags = isset($total_quantity_returned_for_bags) && is_object($total_quantity_returned_for_bags) ? $total_quantity_returned_for_bags->total_qty_sold : 0;
+            $total_quantity_returned_for_caps = isset($total_quantity_returned_for_caps) && is_object($total_quantity_returned_for_caps) ? $total_quantity_returned_for_caps->total_qty_sold : 0;
+            $total_quantity_returned_for_socks = isset($total_quantity_returned_for_socks) && is_object($total_quantity_returned_for_socks) ? $total_quantity_returned_for_socks->total_qty_sold : 0;
+            $total_quantity_returned_for_accessories = isset($total_quantity_returned_for_accessories) && is_object($total_quantity_returned_for_accessories) ? $total_quantity_returned_for_accessories->total_qty_sold : 0;
+            $total_quantity_returned_for_shoes = isset($total_quantity_returned_for_shoes) && is_object($total_quantity_returned_for_shoes) ? $total_quantity_returned_for_shoes->total_qty_sold : 0;
+            // Combine the total quantity sold data for each category into an array
+
+
+
+            $total_quantity_sold = [
+                'BAGS' => $total_quantity_sold_for_bags,
+                'CAPS' => $total_quantity_sold_for_caps,
+                'SOCKS' => $total_quantity_sold_for_socks,
+                'Accessories' => $total_quantity_sold_for_accessories,
+                'Shoes' => $total_quantity_sold_for_shoes
+            ];
+            
+            $total_quantity_return = [
+                'BAGS' => $total_quantity_returned_for_bags,
+                'CAPS' => $total_quantity_returned_for_caps,
+                'SOCKS' => $total_quantity_returned_for_socks,
+                'Accessories' => $total_quantity_returned_for_accessories,
+                'Shoes' => $total_quantity_returned_for_shoes
+            ];
+
+            $total_sale_values = [
+                'BAGS' => $total_sale_for_bags,
+                'CAPS' => $total_sale_for_caps,
+                'SOCKS' => $total_sale_for_socks,
+                'Accessories' => $total_sale_for_accessories,
+                'Shoes' => $total_sale_for_shoes
+            ];
+
+            $total_return_values = [
+                'BAGS' => $total_sale_returned_for_bags,
+                'CAPS' => $total_sale_returned_for_caps,
+                'SOCKS' => $total_sale_returned_for_socks,
+                'Accessories' => $total_sale_returned_for_accessories,
+                'Shoes' => $total_sale_returned_for_shoes
+            ];
+
+            // dd($total_sale_values);
+            // Create the response array
+            $response = [
+                'categories' => $categories,
+                'total_quantity_sold' => $total_quantity_sold,
+                'total_quantity_return' => $total_quantity_return,
+                'total_sale_values' => $total_sale_values,
+                'total_return_values' => $total_return_values
+            ];
+            
+            // Return the response as JSON
+            return response()->json($response);
+
+
+
+            // return Datatables::of($query)
+            // ->editColumn('product_image', function ($row) {
+            //     $basePath = config('app.url'); // Use your base URL, e.g., http://127.0.0.1:8000
                 
-                ->rawColumns(['product_image','subtotal', 'total_qty_sold','total_qty_returned','total_net_qty','sale_value','return_value'])
-                ->make(true);
+            //     if (!empty($row->product_image)) {
+            //         $imagePath = asset('uploads/img/' . $row->product_image);
+            //     } else {
+            //         $imagePath = asset('img/default.png');
+            //     }
+            
+            //     return '<div style="display: flex; justify-content: center; align-items: center;"><img src="' . $imagePath . '" alt="Product image" class="product-thumbnail-small"></div>';
+            //   })
+            //     ->addColumn('category_name', function ($row) {
+            //         return $row->category_name;
+            //     })
+            //     // ->editColumn('sub_category', function ($row) {
+            //     //     $sub_category = $row->sub_category;
+            //     //     if(!empty($sub_category)){
+            //     //         return $sub_category;
+            //     //     }
+            //     //     else
+            //     //         return "--";
+            //     // }) 
+            //     ->editColumn('total_qty_sold', function ($row) use ($query1Data) {
+            //         $additionalQtySold = 0;
+            //         // dd($query1Data, $row);
+
+            //         // foreach ($query1Data as $item) {
+            //         //     if ($item->type !== $row->type) {
+            //         //         $additionalQtySold += $item->total_qty_sold;
+            //         //     }
+            //         // }
+            //         foreach ($query1Data as $item) {
+            //             if ($item->category_id == $row->category_id) {
+            //                 $additionalQtySold += $item->total_returned_quantity;
+            //             }
+            //             // if ($item->type == $row->type) {
+            //             //     $additionalQtySold -= $item->total_qty_sold;
+            //             // }
+
+            //         }
+
+            //         // return $additionalQtySold;
+            //         // dd($additionalQtySold);
+            //         // dd($query1Data,$row->category_id);
+            //         // $additionalQtySold = isset($query1Data[$row->category_id]) ? $query1Data[$row->category_id]->total_qty_sold : 0;
+
+            //         // $additionalQtySold = $query1Data['total_qty_sold'];
+            //         // dd($additionalQtySold);
+            //         $totalQtySold = $row->total_qty_sold + $additionalQtySold;
+        
+            //         return '<span data-is_quantity="true" class="display_currency total_qty_sold" data-currency_symbol=false data-orig-value="' . (float)$totalQtySold . '" data-unit="' . $row->unit . '" >' . (float) $totalQtySold . '</span> ' . $row->unit;
+            //     })
+            //     // ->editColumn('total_qty_sold', function ($row) {
+            //     //     return '<span data-is_quantity="true" class="display_currency total_qty_sold" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+            //     // })
+            //     // ->editColumn('total_qty_returned', function ($row) {
+            //     //     return '<span data-is_quantity="true" class="display_currency total_qty_returned" data-currency_symbol=false data-orig-value="' . (float)$row->total_returned_quantity . '" data-unit="' . $row->unit . '" >' . (float) $row->total_returned_quantity . '</span> ' .$row->unit;
+            //     // })
+
+            //     ->editColumn('total_qty_returned', function ($row) use ($query1Data) {
+            //         $additionalReturnedQty = 0;
+            //         // dd($query1Data);
+
+            //         foreach ($query1Data as $item) {
+            //             if ($item->type !== $row->type) {
+            //                 $additionalReturnedQty += $item->total_returned_quantity;
+            //             }
+            //         }
+            //         // foreach ($query1Data as $item) {
+            //         //     if ($item->category_id == $row->category_id) {
+            //         //         $additionalReturnedQty -= $item->total_returned_quantity;
+            //         //     }
+            //         // }
+                    
+
+            //         // dd($query1Data);
+            //         // $additionalReturnedQty = isset($query1Data[$row->category_id]) ? $query1Data[$row->category_id]->total_returned_quantity : 0;
+            //         // dd($additionalReturnedQty);
+            //         $totalReturnedQty = $row->total_returned_quantity + $additionalReturnedQty;
+        
+            //         return '<span data-is_quantity="true" class="display_currency total_qty_returned" data-currency_symbol=false data-orig-value="' . (float)$totalReturnedQty . '" data-unit="' . $row->unit . '" >' . (float) $totalReturnedQty . '</span> ' . $row->unit;
+            //     })
+        
+
+            //     ->editColumn('total_net_qty', function ($row) {
+            //         return '<span data-is_quantity="true" class="display_currency total_net_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_net_unit . '" data-unit="' . $row->unit . '" >' . (float) $row->total_net_unit . '</span> ' .$row->unit;
+            //     })
+            //     // ->editColumn('sale_value', function ($row) {
+            //     //     $sale = $row->sale_value;
+            //     //     return '<span class="display_currency sale_value" data-currency_symbol = true data-orig-value="' . $sale . '">' . $sale . '</span>';
+            //     // })
+
+            //     ->editColumn('sale_value', function ($row) use ($query1Data) {
+            //         $additionalSaleValue = 0;
+            //         $final_total_vale = 0;
+            //         // dd($query1Data, $row);
+
+            //         foreach ($query1Data as $item) {
+            //             if ($item->type !== $row->type) {
+            //                 $additionalSaleValue += $item->sale_value;
+            //             }
+            //         }
+                    
+            //         // foreach ($query1Data as $item) {
+            //         //     // if ($item->type !== $row->type) {
+            //         //         $final_total_vale += $item->final_total;
+            //         //     // }
+            //         // }
+
+
+            //         // foreach ($query1Data as $item) {
+            //         //     if ($item->category_id == $row->category_id) {
+            //         //         $additionalSaleValue -= $item->sale_value;
+            //         //     }
+            //         // }
+
+
+            //         // dd($query1Data);
+            //         // $additionalSaleValue = isset($query1Data[$row->category_id]) ? $query1Data[$row->category_id]->sale_value : 0;
+            //         // dd($additionalReturnedQty);
+            //         $totalSaleValue = $row->sale_value + $additionalSaleValue + $final_total_vale;
+        
+            //         return '<span data-is_quantity="true" class="display_currency sale_value" data-currency_symbol=false data-orig-value="' . (float)$totalSaleValue . '" data-unit="' . $row->unit . '" >' . (float) $totalSaleValue . '</span> ' . $row->unit;
+            //     })
+            //     ->editColumn('return_value', function ($row) {
+            //         return '<span class="display_currency return_value" data-currency_symbol = true data-orig-value="' . $row->return_value . '">' . $row->return_value . '</span>';
+            //     })
+
+            //     ->editColumn('return_value', function ($row) use ($query1Data) {
+
+            //         $additionalReturnValue = 0;
+
+            //         foreach ($query1Data as $item) {
+            //             if ($item->type !== $row->type) {
+            //                 $additionalReturnValue += $item->return_value;
+            //             }
+            //         }
+            //         // dd($query1Data);
+            //         // $additionalReturnValue = isset($query1Data[$row->category_id]) ? $query1Data[$row->category_id]->return_value : 0;
+            //         // dd($additionalReturnedQty);
+            //         $totalReturnValue = $row->return_value + $additionalReturnValue;
+        
+            //         return '<span data-is_quantity="true" class="display_currency return_value" data-currency_symbol=false data-orig-value="' . (float)$totalReturnValue . '" data-unit="' . $row->unit . '" >' . (float) $totalReturnValue . '</span> ' . $row->unit;
+            //     })
+            //     ->editColumn('subtotal', function ($row) {
+            //         $net_total = $row->sale_value - $row->return_value;
+            //         return '<span class="display_currency subtotal" data-currency_symbol = true data-orig-value="' . $net_total . '" data-unit="' . $row->unit . '">' . $net_total . '</span>' . $row->unit;
+            //     })
+                
+            //     ->rawColumns(['product_image','subtotal', 'total_qty_sold','total_qty_returned','total_net_qty','sale_value','return_value'])
+            //     ->make(true);
         }
     }
 
