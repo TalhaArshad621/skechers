@@ -810,29 +810,29 @@ class AdminSidebarMenu
             //     $menu->url(action('GiftController@create'), __('Gift'), ['icon' => 'fa fas fa-gift', 'active' => request()->segment(1) == 'gift-create'])->order(80);
             // }
 
-
-            //International Exchange
-            $menu->dropdown(
-                __('International Exchange'),
-                function ($sub) {
-                    if (auth()->user()->can('purchase.create')) {
-                        $sub->url(
-                            action('InternationalExchangeController@create'),
-                            __('Add International Exchange'),
-                            ['icon' => 'fa fas fa-swap-arrows', 'active' => request()->segment(1) == 'international-exchange' && request()->segment(2) == 'create']
-                        );
-                    }
-                    if (auth()->user()->can('purchase.create')) {
-                        $sub->url(
-                            action('InternationalExchangeController@index'),
-                            __('List International Exchange'),
-                            ['icon' => 'fa fas fa-swap-arrows', 'active' => request()->segment(1) == 'international-exchange' && request()->segment(2) == null]
-                        );
-                    }
-                },
-                ['icon' => 'fa fa-american-sign-language-interpreting']
-            )->order(36);
-
+            if (auth()->user()->can('view_international_exchange') || auth()->user()->can('create_international_exchange')) {
+                //International Exchange
+                $menu->dropdown(
+                    __('International Exchange'),
+                    function ($sub) {
+                        if (auth()->user()->can('create_international_exchange')) {
+                            $sub->url(
+                                action('InternationalExchangeController@create'),
+                                __('Add International Exchange'),
+                                ['icon' => 'fa fas fa-swap-arrows', 'active' => request()->segment(1) == 'international-exchange' && request()->segment(2) == 'create']
+                            );
+                        }
+                        if (auth()->user()->can('view_international_exchange')) {
+                            $sub->url(
+                                action('InternationalExchangeController@index'),
+                                __('List International Exchange'),
+                                ['icon' => 'fa fas fa-swap-arrows', 'active' => request()->segment(1) == 'international-exchange' && request()->segment(2) == null]
+                            );
+                        }
+                    },
+                    ['icon' => 'fa fa-american-sign-language-interpreting']
+                )->order(36);
+            }
             //Settings Dropdown
             if (auth()->user()->can('business_settings.access') ||
                 auth()->user()->can('barcode_settings.access') ||

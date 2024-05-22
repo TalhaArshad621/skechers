@@ -67,7 +67,7 @@ class InternationalExchangeController extends Controller
 
     public function index()
     {
-        if (!auth()->user()->can('access_sell_return')) {
+        if (!auth()->user()->can('view_international_exchange')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -248,7 +248,7 @@ class InternationalExchangeController extends Controller
 
     public function create()
     {
-        if (!auth()->user()->can('purchase.create')) {
+        if (!auth()->user()->can('create_international_exchange')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -341,7 +341,7 @@ class InternationalExchangeController extends Controller
     public function store(Request $request) 
     {
 
-        if (!auth()->user()->can('access_sell_return')) {
+        if (!auth()->user()->can('create_international_exchange')) {
             abort(403, 'Unauthorized action.');
         }
 
