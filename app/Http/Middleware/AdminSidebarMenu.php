@@ -457,18 +457,18 @@ class AdminSidebarMenu
                 )->order(40);
             }
 
-            if (in_array('stock_adjustment', $enabled_modules) && (auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create'))) {
+            if (in_array('stock_adjustment', $enabled_modules) && (auth()->user()->can('create_bank_transfer') || auth()->user()->can('view_bank_transfer'))) {
                 $menu->dropdown(
                     __('Bank Transfer'),
                     function ($sub) {
-                        if (auth()->user()->can('purchase.view')) {
+                        if (auth()->user()->can('view_bank_transfer')) {
                             $sub->url(
                                 action('BankTransferController@index'),
                                 __('List Bank Transfer'),
                                 ['icon' => 'fa fas fa-list', 'active' => request()->segment(1) == 'bank-transfers' && request()->segment(2) == null]
                             );
                         }
-                        if (auth()->user()->can('purchase.create')) {
+                        if (auth()->user()->can('create_bank_transfer')) {
                             $sub->url(
                                 action('BankTransferController@create'),
                                 __('Add Bank Transfer'),

@@ -25,6 +25,9 @@ class BankTransferController extends Controller
 
     public function index(Request $request)
     {
+        if (!auth()->user()->can('view_bank_transfer')) {
+            abort(403, 'Unauthorized action.');
+        }
         if (request()->ajax()) {
 
             $bank_trasnfer = BankTransfer::
@@ -62,7 +65,7 @@ class BankTransferController extends Controller
 
     public function create()
     {
-        if (!auth()->user()->can('brand.create')) {
+        if (!auth()->user()->can('create_bank_transfer')) {
             abort(403, 'Unauthorized action.');
         }
 
