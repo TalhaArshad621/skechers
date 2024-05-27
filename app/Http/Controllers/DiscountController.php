@@ -177,14 +177,21 @@ class DiscountController extends Controller
                     'msg' => __("lang_v1.added_success")
                 ];
             }
+            return response()->json(['success' => true, 'message' => __("lang_v1.added_success")]);
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
-            $output[] = [
-                'success' => false,
-                'msg' => __("messages.something_went_wrong")
-            ];
+            \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+    
+            return response()->json(['success' => false, 'message' => __("messages.something_went_wrong")]);
         }
+    
+        // } catch (\Exception $e) {
+        //     \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            
+        //     $output[] = [
+        //         'success' => false,
+        //         'msg' => __("messages.something_went_wrong")
+        //     ];
+        // }
 
         return $output;
     }

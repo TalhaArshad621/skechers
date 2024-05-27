@@ -119,3 +119,50 @@
 
   </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
+@section('scripts')
+<!-- Include necessary scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#discount_form').on('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            var formData = $(this).serialize(); // Serialize the form data
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'), // Get the form action URL
+                data: formData, // Send the serialized data
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            location.reload(); // Reload the page on success
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again.'
+                    });
+                }
+            });
+        });
+    });
+</script>
+@endsection

@@ -90,6 +90,8 @@
       @else
         {{$sell->shipping_address ?? '--'}}
       @endif
+      <br>
+      <b>{{ __('Employee Name') }}:</b> {{ $agent_name->full_name }}<br>
       @if(!empty($sell->delivered_to))
         <br><strong>@lang('lang_v1.delivered_to'): </strong> {{$sell->delivered_to}}
       @endif
