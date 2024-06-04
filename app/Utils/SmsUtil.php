@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 class SmsUtil extends Util
 {	public function sendSmsMessage($messageText,$toNumbersCsv,$mask,$sessionKey)
 	{
+		// dd($messageText);
 		global $planetbeyondApiSendSmsUrl;
 		$planetbeyondApiSendSmsUrl="api.bizsms.pk/api-send-branded-sms.aspx?username=#username#&pass=#password#&text=#message_text#&masking=#masking#&destinationnum=#to_number_csv#&language=English";
 

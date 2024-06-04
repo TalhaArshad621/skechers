@@ -104,7 +104,7 @@
                 { data: 'quantity', name: 'quantity'},
                 { data: 'name', name: 'contacts.name'},
                 { data: 'business_location', name: 'bl.name'},
-                { data: 'payment_status', name: 'payment_status'},
+                // { data: 'payment_status', name: 'payment_status'},
                 { data: 'final_total', name: 'final_total'},
                 // { data: 'payment_due', name: 'payment_due'},
                 { data: 'action', name: 'action'}

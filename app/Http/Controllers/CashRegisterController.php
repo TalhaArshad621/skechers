@@ -12,7 +12,7 @@ use App\Utils\SmsUtil;
 use App\User;
 use DB;
 use App\Utils\BusinessUtil;
-
+use Illuminate\Support\Facades\Auth;
 
 class CashRegisterController extends Controller
 {
@@ -110,6 +110,26 @@ class CashRegisterController extends Controller
                             'transaction_type' => 'initial'
                         ]);
             }
+            $input = $request->only(['amount', 'location_id']);
+            $user_name = User::where('id', $user_id)
+            ->select(DB::raw("CONCAT(first_name, ' ', last_name) AS full_name"))
+            ->first();
+            // dd($user_name);
+            // dd($user_name);
+            // $business_location = BusinessLocation::select('id','location_id')->where('business_id', $business_id)->first();
+            // dd($business_location);
+            $input['started_at'] = \Carbon::now()->format('Y-m-d H:i:s');
+            // dd($input);
+ 
+            $messageText = "DAY STARTED\n" .
+            "DATE: " . $input['started_at'] . "\n" .
+            "USERNAME: " . $user_name->full_name . "\n" .
+            "STORE: SKX Jhelum\n" .
+            "Opening Balance: " .  12000 . " ";
+         
+            $phone = "03416881318";
+            
+            $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone),'SKECHERS.', '');
             
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
@@ -272,16 +292,15 @@ class CashRegisterController extends Controller
                             'msg' => __('cash_register.close_success')
                         ];
  
-            $messageText = "DAY ENDED
-                DATE: " . $input['closed_at'] . "
-                USERNAME: " . $user_name->full_name . "
-                STORE: SKX Jhelum
-                Total Sale: " . $request->input('total_sales') . "
-                Card Sale: " . $request->input('card_sale') . "
-                Cash In Hand: " . $request->input('cash_in_hand') . "
-                Cash Sale: " . $request->input('cash_sale') . "
-                To block promotions from SKECHERS. send UNSUB to 9689128
-                To block all promotions, send REG to 3627";
+                        $messageText = "DAY ENDED\n" .
+                        "DATE: " . $input['closed_at'] . "\n" .
+                        "USERNAME: " . $user_name->full_name . "\n" .
+                        "STORE: SKX Jhelum\n" .
+                        "Total Sale: " . (int)$request->input('total_sales') . "\n" .
+                        "Card Sale: " . (int)$request->input('card_sale') . "\n" .
+                        "Cash In Hand: " . (int)$request->input('cash_in_hand') . "\n" .
+                        "Cash Sale: " . (int)$request->input('cash_sale') . " ";
+         
 
                 // dd($messageText);
             // $messageText = 

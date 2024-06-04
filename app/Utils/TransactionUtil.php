@@ -1982,8 +1982,10 @@ class TransactionUtil extends Util
 
         $transaction = Transaction::with('commision_agent')->find($transaction_id);
         $transaction_type = $transaction->type;
-        $commission_agent_name = $transaction->commision_agent->surname . ' ' . $transaction->commision_agent->first_name . ' ' . $transaction->commision_agent->last_name;
-
+        if($transaction->commision_agent){
+            $commission_agent_name = $transaction->commision_agent->surname . ' ' . $transaction->commision_agent->first_name . ' ' . $transaction->commision_agent->last_name;
+            }
+    
         $output = [
             'header_text' => isset($il->header_text) ? $il->header_text : '',
             'business_name' => ($il->show_business_name == 1) ? $business_details->name : '',
@@ -2000,8 +2002,9 @@ class TransactionUtil extends Util
         ];
 
         //Commission Agent Name
-        $output['commission_agent_name'] = $commission_agent_name;
-
+        if($transaction->commision_agent){
+            $output['commission_agent_name'] = $commission_agent_name;
+        }
         //Display name
         $output['display_name'] = $output['business_name'];
         if (!empty($output['location_name'])) {

@@ -2220,7 +2220,8 @@ class ProductController extends Controller
                         'transactions.ref_no as invoice_id',
                         'purchase_lines.quantity as purchase_quantity',
                         'transactions.transaction_date as transaction_date',
-                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
                         )
                     ->get();
                     return Datatables::of($query)
@@ -2269,7 +2270,8 @@ class ProductController extends Controller
                     'transactions.transaction_date as transaction_date',
                     'transaction_sell_lines.quantity as sell_quantity',
                     'business_locations.name as store_name',
-                    DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                    // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                    DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
                 )
                 ->get();
 
@@ -2335,7 +2337,8 @@ class ProductController extends Controller
                     'transactions.transaction_date as transaction_date',
                     'transaction_sell_lines.quantity_returned as sell_quantity',
                     'business_locations.name as store_name',
-                    DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                    // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                    DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
                 )
                 ->get();
 
@@ -2397,7 +2400,9 @@ class ProductController extends Controller
                     'transactions.transaction_date as transaction_date',
                     'transaction_sell_lines.quantity as sell_quantity',
                     'transaction_sell_lines.quantity_returned as return_quantity',
-                    DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                    // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                    DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
+
                 )
                 ->get();
 
@@ -2451,7 +2456,8 @@ class ProductController extends Controller
                     'products.image as product_image',
                     'ecommerce_sell_lines.quantity as quantity',
                     'business_locations.name as store_name',
-                    DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                    // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                    DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
                 );
 
             return Datatables::of($query)
@@ -2510,7 +2516,9 @@ class ProductController extends Controller
                         'ecommerce_sell_lines.quantity_returned as quantity',
                         'products.sku as product_sku',
                         'business_locations.name as store_name',
-                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
+
                         )
                         ->where('ecommerce_sell_lines.product_id', $request->id );
 
@@ -2590,7 +2598,9 @@ class ProductController extends Controller
                         'l2.name as receiver',
                         'transactions.id as DT_RowId',
                         'transactions.status',
-                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
+
                     );
 
             return Datatables::of($stock_transfers)
@@ -2668,7 +2678,9 @@ class ProductController extends Controller
                         'l2.name as receiver',
                         'transactions.id as DT_RowId',
                         'transactions.status',
-                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
+
                     );
 
             return Datatables::of($stock_transfers)
@@ -2746,7 +2758,8 @@ class ProductController extends Controller
                         'l2.name as receiver',
                         'transactions.id as DT_RowId',
                         'transactions.status',
-                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
                     );
 
             return Datatables::of($stock_transfers)
@@ -2813,7 +2826,8 @@ class ProductController extends Controller
                         'product_adjustment_lines.quantity as quantity',
                         'products.sku as product_sku',
                         'products.image as product_image',
-                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
                     );
 
             return Datatables::of($stock_adjustments)
@@ -2876,7 +2890,8 @@ class ProductController extends Controller
                         'stock_adjustment_lines.quantity as quantity',
                         'products.sku as product_sku',
                         'products.image as product_image',
-                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
                     );
 
             return Datatables::of($stock_adjustments)
@@ -2940,7 +2955,8 @@ class ProductController extends Controller
                         'transaction_sell_lines.quantity_returned as quantity_returned',
                         'products.sku as product_sku',
                         'products.image as product_image',
-                        DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
                     );
 
             return Datatables::of($stock_adjustments)
