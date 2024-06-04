@@ -365,7 +365,7 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
     //Gift Module
     Route::get('gift-create', 'GiftController@create');
     Route::get('gift-index', 'GiftController@index');
-
+    Route::get('/gift/print/{id}', 'GiftController@printInvoice');
 
 
     Route::post('/purchase-return/update', 'CombinedPurchaseReturnController@update');

@@ -370,10 +370,10 @@ class SellReturnController extends Controller
             $hasReturnedProducts = Transaction::where('return_parent_id', $transactionId)
                 ->exists();
     
-            // if ($hasReturnedProducts) {
-            //     // Return the response with an error message
-            //     return response()->json(['success' => false, 'message' => 'Invoice number ' . $invoiceNumber . ' has already been exchanged!']);
-            // }
+            if ($hasReturnedProducts) {
+                // Return the response with an error message
+                return response()->json(['success' => false, 'message' => 'Invoice number ' . $invoiceNumber . ' has already been exchanged!']);
+            }
     
             // Fetch the transaction data
             $sell = Transaction::where('business_id', $business_id)

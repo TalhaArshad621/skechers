@@ -24,7 +24,7 @@
     <tfoot>
         <tr class="bg-gray font-17 text-center footer-total">
             <td colspan="3"><strong>@lang('sale.total'):</strong></td>
-            <td class="footer_total_sold"></td>
+            <td class="stock"></td>
             <td class="footer_total_stock"></td>
             @can('view_product_stock_value')
             <td class="footer_total_stock_price"></td>

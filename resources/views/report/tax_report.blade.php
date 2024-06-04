@@ -159,6 +159,7 @@
                                     <th>@lang('contact.tax_no')</th>
                                     <th>@lang('sale.total_amount')</th>
                                     <th>@lang('receipt.discount')</th>
+                                    {{-- {{ dd($taxes) }} --}}
                                     @foreach($taxes as $tax)
                                         <th>
                                             {{$tax['name']}}

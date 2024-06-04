@@ -669,7 +669,9 @@ class SellController extends Controller
         $is_warranty_enabled = !empty($common_settings['enable_product_warranty']) ? true : false;
 
         $statuses = Transaction::getSellStatuses();
-        // dd($sell);
+        $agent_name = User::where('id', $sell->commission_agent)
+        ->selectRaw("TRIM(CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, ''))) as full_name")
+        ->first();
         return view('sale_pos.show')
             ->with(compact(
                 'taxes',
@@ -681,7 +683,8 @@ class SellController extends Controller
                 'shipping_status_colors',
                 'is_warranty_enabled',
                 'activities',
-                'statuses'
+                'statuses',
+                'agent_name'
             ));
     }
 

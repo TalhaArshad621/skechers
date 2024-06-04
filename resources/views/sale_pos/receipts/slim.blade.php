@@ -119,7 +119,11 @@
 				<div class="textbox-info">
 					<p class="f-left"><strong>Sales person</strong></p>
 				
-					<p class="f-right">{{$receipt_details->commission_agent_name}}</p>
+					@if(!empty($receipt_details->commission_agent_name))
+						<p class="f-right">{{$receipt_details->commission_agent_name}}</p>
+					@endif
+
+					{{-- <p class="f-right">{{$receipt_details->commission_agent_name}}</p> --}}
 				</div>
 			{{-- @endif --}}
 

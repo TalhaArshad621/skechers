@@ -663,6 +663,7 @@ class ReportController extends Controller
             $business_id = $request->session()->get('user.business_id');
             $taxes = TaxRate::forBusiness($business_id);
             $type = $request->input('type');
+            // dd($business_id, $taxes, $type);
 
             $sells = Transaction::leftJoin('tax_rates as tr', 'transactions.tax_id', '=', 'tr.id')
                             ->leftJoin('contacts as c', 'transactions.contact_id', '=', 'c.id')
@@ -681,17 +682,20 @@ class ReportController extends Controller
                         'transactions.discount_type',
                         'transactions.discount_amount'
                     );
-                if ($type == 'sell') {
-                    $sells->where('transactions.type', 'sell')
+                    // dd($sells->get());
+                if ($type == 'sell' || $type == 'sell_return') {
+                    $sells->whereIn('transactions.type', ['sell','sell_return'])
                     ->where('transactions.status', 'final')
                     ->where( function($query){
                         $query->whereHas('sell_lines',function($q){
                             $q->whereNotNull('transaction_sell_lines.tax_id');
                         })->orWhereNotNull('transactions.tax_id');
                     })
+                    // dd($sells->get());
                     ->with(['sell_lines' => function($q){
                         $q->whereNotNull('transaction_sell_lines.tax_id');
                     }, 'sell_lines.line_tax']);
+                    // dd($sells->get());
                 }
                 if ($type == 'purchase') {
                     $sells->where('transactions.type', 'purchase')
@@ -736,11 +740,16 @@ class ReportController extends Controller
                     $col = 'tax_' . $tax['id'];
                     $raw_cols[] = $col;
                     $datatable->addColumn($col, function($row) use($tax, $type, $col, $group_taxes) {
+                        $tax_amount1 = 0;
                         $tax_amount = 0;
-                        if ($type == 'sell') {
+                        if ($type == 'sell' || $type == 'sell_return') {
+                            // dd($row->sell_lines);
                             foreach ($row->sell_lines as $sell_line) {
+                                // dd($sell_line->tax_id, $tax['id']);
                                 if ($sell_line->tax_id == $tax['id']) {
                                     $tax_amount += ($sell_line->item_tax * ($sell_line->quantity - $sell_line->quantity_returned) );
+                                    // $tax_amount += ($tax_amount1 + ($sell_line->item_tax * ($sell_line->quantity_returned) ) - $sell_line->quantity);
+
                                 }
 
                                 //break group tax
@@ -7037,6 +7046,7 @@ class ReportController extends Controller
                 ->join('users', 'users.id', '=', 't.commission_agent')
                 ->join('users as user', 'user.id', '=', 't.created_by')
                 ->leftjoin('units as u', 'p.unit_id', '=', 'u.id')
+                ->join('users as created_by','trans.created_by', '=', 'created_by.id')
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell_return')
                 ->where('transaction_sell_lines.quantity_returned', '>' , 0)
@@ -7059,7 +7069,8 @@ class ReportController extends Controller
                     'v.updated_at as buying_date',
                     'v.sub_sku',
                     (DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS employee_name")),
-                    (DB::raw("CONCAT(user.first_name, ' ', user.last_name) AS created_by")),
+                    // (DB::raw("CONCAT(user.first_name, ' ', user.last_name) AS created_by")),
+                    DB::raw("CONCAT(COALESCE(created_by.first_name, ''), ' ', COALESCE(created_by.last_name, '')) AS created_by"),
                     'v.sell_price_inc_tax',
                     't.id as transaction_id',
                     't.transaction_date as transaction_date',
@@ -7086,6 +7097,7 @@ class ReportController extends Controller
                 ->groupBy('v.id')
                 ->groupBy('formated_date')
                 ->groupBy('t.id');
+                // dd($query->get());
 
             if (!empty($variation_id)) {
                 $query->where('transaction_sell_lines.variation_id', $variation_id);

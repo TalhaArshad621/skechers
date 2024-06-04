@@ -125,7 +125,7 @@ $(document).ready(function () {
         },
         "footerCallback": function (row, data, start, end, display) {
             var footer_total_stock = 0;
-            var footer_total_sold = 0;
+            var stock = 0;
             var footer_total_transfered = 0;
             var total_adjusted = 0;
             var total_stock_price = 0;
@@ -135,11 +135,11 @@ $(document).ready(function () {
             var sold_stock_value_by_purchase_price = 0;
             var sold_stock_value_by_sale_price = 0;
             for (var r in data) {
-                footer_total_stock += $(data[r].stock).data('orig-value') ?
-                    parseFloat($(data[r].stock).data('orig-value')) : 0;
-
-                footer_total_sold += $(data[r].total_sold).data('orig-value') ?
+                footer_total_stock += $(data[r].total_sold).data('orig-value') ?
                     parseFloat($(data[r].total_sold).data('orig-value')) : 0;
+
+                stock += $(data[r].stock).data('orig-value') ?
+                    parseFloat($(data[r].stock).data('orig-value')) : 0;
 
                 footer_total_transfered += $(data[r].total_transfered).data('orig-value') ?
                     parseFloat($(data[r].total_transfered).data('orig-value')) : 0;
@@ -168,7 +168,7 @@ $(document).ready(function () {
 
             $('.footer_total_stock').html(__currency_trans_from_en(footer_total_stock, false));
             $('.footer_total_stock_price').html(__currency_trans_from_en(total_stock_price));
-            $('.footer_total_sold').html(__currency_trans_from_en(footer_total_sold, false));
+            $('.stock').html(__currency_trans_from_en(stock, false));
             $('.footer_total_transfered').html(__currency_trans_from_en(footer_total_transfered, false));
             $('.footer_total_adjusted').html(__currency_trans_from_en(total_adjusted, false));
             $('.footer_stock_value_by_sale_price').html(__currency_trans_from_en(footer_stock_value_by_sale_price));
