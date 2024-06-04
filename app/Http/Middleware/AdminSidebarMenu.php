@@ -457,18 +457,18 @@ class AdminSidebarMenu
                 )->order(40);
             }
 
-            if (in_array('stock_adjustment', $enabled_modules) && (auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create'))) {
+            if (in_array('stock_adjustment', $enabled_modules) && (auth()->user()->can('create_bank_transfer') || auth()->user()->can('view_bank_transfer'))) {
                 $menu->dropdown(
                     __('Bank Transfer'),
                     function ($sub) {
-                        if (auth()->user()->can('purchase.view')) {
+                        if (auth()->user()->can('view_bank_transfer')) {
                             $sub->url(
                                 action('BankTransferController@index'),
                                 __('List Bank Transfer'),
                                 ['icon' => 'fa fas fa-list', 'active' => request()->segment(1) == 'bank-transfers' && request()->segment(2) == null]
                             );
                         }
-                        if (auth()->user()->can('purchase.create')) {
+                        if (auth()->user()->can('create_bank_transfer')) {
                             $sub->url(
                                 action('BankTransferController@create'),
                                 __('Add Bank Transfer'),
@@ -573,13 +573,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-arrow-circle-up', 'active' => request()->segment(2) == 'sale-report']
                             );
                         }
-                        if ((in_array('purchases', $enabled_modules) || in_array('add_sale', $enabled_modules) || in_array('pos_sale', $enabled_modules)) && auth()->user()->can('purchase_n_sell_report.view')) {
-                            $sub->url(
-                                action('ReportController@getPurchaseSell'),
-                                __('report.purchase_sell_report'),
-                                ['icon' => 'fa fas fa-exchange-alt', 'active' => request()->segment(2) == 'purchase-sell']
-                            );
-                        }
+                        // if ((in_array('purchases', $enabled_modules) || in_array('add_sale', $enabled_modules) || in_array('pos_sale', $enabled_modules)) && auth()->user()->can('purchase_n_sell_report.view')) {
+                        //     $sub->url(
+                        //         action('ReportController@getPurchaseSell'),
+                        //         __('report.purchase_sell_report'),
+                        //         ['icon' => 'fa fas fa-exchange-alt', 'active' => request()->segment(2) == 'purchase-sell']
+                        //     );
+                        // }
 
                         if (auth()->user()->can('tax_report.view')) {
                             $sub->url(
@@ -669,11 +669,11 @@ class AdminSidebarMenu
                             //     ['icon' => 'fa fas fa-search-dollar', 'active' => request()->segment(2) == 'purchase-payment-report']
                             // );
 
-                            $sub->url(
-                                action('ReportController@sellPaymentReport'),
-                                __('lang_v1.sell_payment_report'),
-                                ['icon' => 'fa fas fa-search-dollar', 'active' => request()->segment(2) == 'sell-payment-report']
-                            );
+                            // $sub->url(
+                            //     action('ReportController@sellPaymentReport'),
+                            //     __('lang_v1.sell_payment_report'),
+                            //     ['icon' => 'fa fas fa-search-dollar', 'active' => request()->segment(2) == 'sell-payment-report']
+                            // );
                             $sub->url(
                                 action('ReportController@getbrandfolioReport'),
                                 __('Brandfolio Report'),
