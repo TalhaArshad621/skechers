@@ -105,7 +105,7 @@
                     </li>
                     {{-- @if (auth()->user()->can('stock_report.view')) --}}
                     <li>
-                        <a href="#product_stock_report_new" data-toggle="tab" aria-expanded="true"><i class="fa fa-hourglass-half" aria-hidden="true"></i> @lang('report.stock_report')</a>
+                        <a href="#product_stock_report_new" data-toggle="tab" aria-expanded="true"><i class="fa fa-hourglass-half" aria-hidden="true"></i>In Store</a>
                     </li>
                     {{-- @endif --}}
                 </ul>

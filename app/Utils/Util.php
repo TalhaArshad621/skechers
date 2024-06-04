@@ -63,21 +63,21 @@ class Util
         // $currency_precision = config('constants.currency_precision', 0);
 
         if ($is_quantity) {
-            $currency_precision = config('constants.quantity_precision', 2);
+            $currency_precision = config('constants.quantity_precision', 0);
         }
 
         $formatted = number_format($input_number, 0, $decimal_separator, $thousand_separator);
 
-        if ($add_symbol) {
-            $currency_symbol_placement = !empty($business_details) ? $business_details->currency_symbol_placement : session('business.currency_symbol_placement');
-            $symbol = !empty($business_details) ? $business_details->currency_symbol : session('currency')['symbol'];
+        // if ($add_symbol) {
+        //     $currency_symbol_placement = !empty($business_details) ? $business_details->currency_symbol_placement : session('business.currency_symbol_placement');
+        //     $symbol = !empty($business_details) ? $business_details->currency_symbol : session('currency')['symbol'];
 
-            if ($currency_symbol_placement == 'after') {
-                $formatted = $formatted . ' ' . $symbol;
-            } else {
-                $formatted = $symbol . ' ' . $formatted;
-            }
-        }
+        //     if ($currency_symbol_placement == 'after') {
+        //         $formatted = $formatted . ' ' . $symbol;
+        //     } else {
+        //         $formatted = $symbol . ' ' . $formatted;
+        //     }
+        // }
 
         return $formatted;
     }

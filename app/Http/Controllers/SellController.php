@@ -293,9 +293,9 @@ class SellController extends Controller
                         //         }
                         //     }
 
-                            // if (auth()->user()->can("direct_sell.delete") || auth()->user()->can("sell.delete")) {
-                            //     $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fas fa-trash"></i> ' . __("messages.delete") . '</a></li>';
-                            // }
+                            if (auth()->user()->can("direct_sell.delete") || auth()->user()->can("sell.delete")) {
+                                $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fas fa-trash"></i> ' . __("messages.delete") . '</a></li>';
+                            }
                         // }
                         if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access")) {
                             if (!empty($row->document)) {

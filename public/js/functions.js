@@ -12,7 +12,7 @@ function __calculate_amount(calculation_type, calculation_amount, amount) {
             return parseFloat(calculation_amount);
         case 'percentage':
         case 'percent':
-                var div = Decimal.div(calculation_amount, 100).toNumber();
+            var div = Decimal.div(calculation_amount, 100).toNumber();
             return Decimal.mul(div, amount).toNumber();
         default:
             return 0;
@@ -70,9 +70,9 @@ function __tab_key_up(e) {
 
 function __currency_trans_from_en(
     input,
-    show_symbol = true,
+    show_symbol = false,
     use_page_currency = false,
-    precision = __currency_precision,
+    precision = 0,
     is_quantity = false
 ) {
     if (use_page_currency && __p_currency_symbol) {
@@ -96,14 +96,14 @@ function __currency_trans_from_en(
     }
 
     if (is_quantity) {
-        precision = __quantity_precision;
+        precision = 0;
     }
 
     return accounting.formatMoney(input, symbol, precision, thousand, decimal, format);
 }
 
 function __currency_convert_recursively(element, use_page_currency = false) {
-    element.find('.display_currency').each(function() {
+    element.find('.display_currency').each(function () {
         var value = $(this).text();
 
         var show_symbol = $(this).data('currency_symbol');
@@ -125,13 +125,13 @@ function __currency_convert_recursively(element, use_page_currency = false) {
             show_symbol = false;
         }
 
-        $(this).text(__currency_trans_from_en(value, show_symbol, use_page_currency, __currency_precision, is_quantity));
+        $(this).text(__currency_trans_from_en(value, false, use_page_currency, 0, is_quantity));
     });
 }
 
 function __translate(str, obj = []) {
     var trans = LANG[str];
-    $.each(obj, function(key, value) {
+    $.each(obj, function (key, value) {
         trans = trans.replace(':' + key, value);
     });
     if (trans) {
@@ -184,7 +184,7 @@ function __write_number(
     use_page_currency = false,
     precision = __currency_precision
 ) {
-    if(input_element.hasClass('input_quantity')) {
+    if (input_element.hasClass('input_quantity')) {
         precision = __quantity_precision;
     }
 
@@ -199,12 +199,12 @@ function __fa_awesome($class = 'fa-sync fa-spin fa-fw ') {
 //Converts standard dates (YYYY-MM-DD) to human readable dates
 function __show_date_diff_for_human(element) {
     moment.locale(app_locale);
-    element.find('.time-to-now').each(function() {
+    element.find('.time-to-now').each(function () {
         var string = $(this).text();
         $(this).text(moment(string).toNow(true));
     });
 
-    element.find('.time-from-now').each(function() {
+    element.find('.time-from-now').each(function () {
         var string = $(this).text();
         $(this).text(moment(string).from(moment()));
     });
@@ -238,7 +238,7 @@ function update_font_size() {
     if (typeof font_size !== 'undefined') {
         $('header').css('font-size', 'calc(100% ' + font_size_array[font_size] + ')');
         $('footer').css('font-size', 'calc(100% ' + font_size_array[font_size] + ')');
-        $('section').each(function() {
+        $('section').each(function () {
             if (!$(this).hasClass('print_section')) {
                 $(this).css('font-size', 'calc(100% ' + font_size_array[font_size] + ')');
             }
@@ -252,7 +252,7 @@ function sum_table_col(table, class_name) {
     table
         .find('tbody')
         .find('tr')
-        .each(function() {
+        .each(function () {
             if (
                 parseFloat(
                     $(this)
@@ -273,7 +273,7 @@ function sum_table_col(table, class_name) {
 
 function __count_status(data, key) {
     var statuses = [];
-    for (var r in data){
+    for (var r in data) {
         var element = $(data[r][key]);
         if (element.data('orig-value')) {
             var status_name = element.data('orig-value');
@@ -305,7 +305,7 @@ function __sum_status(table, class_name) {
     table
         .find('tbody')
         .find('tr')
-        .each(function() {
+        .each(function () {
             element = $(this).find('.' + class_name);
             if (element.data('orig-value')) {
                 var status_name = element.data('orig-value');
@@ -340,7 +340,7 @@ function __sum_stock(table, class_name, label_direction = 'right') {
     table
         .find('tbody')
         .find('tr')
-        .each(function() {
+        .each(function () {
             element = $(this).find('.' + class_name);
             if (element.data('orig-value')) {
                 var unit_name = element.data('unit');
@@ -382,40 +382,40 @@ function __print_receipt(section_id = null) {
     } else {
         var imgs = document.images;
     }
-    
+
     img_len = imgs.length;
     if (img_len) {
         img_counter = 0;
 
-        [].forEach.call( imgs, function( img ) {
-            img.addEventListener( 'load', incrementImageCounter, false );
-        } );
+        [].forEach.call(imgs, function (img) {
+            img.addEventListener('load', incrementImageCounter, false);
+        });
     } else {
-        setTimeout(function() {
+        setTimeout(function () {
             window.print();
 
             // setTimeout(function() {
             //     $('#receipt_section').html('');
             // }, 5000);
-            
+
         }, 1000);
     }
 }
 
 function incrementImageCounter() {
     img_counter++;
-    if ( img_counter === img_len ) {
+    if (img_counter === img_len) {
         window.print();
-        
+
         // setTimeout(function() {
         //     $('#receipt_section').html('');
         // }, 5000);
     }
 }
 
-function __getUnitMultiplier(row){
+function __getUnitMultiplier(row) {
     multiplier = row.find('select.sub_unit').find(':selected').data('multiplier');
-    if(multiplier == undefined){
+    if (multiplier == undefined) {
         return 1;
     } else {
         return parseFloat(multiplier);
@@ -423,10 +423,10 @@ function __getUnitMultiplier(row){
 }
 
 //Rounds a number to the nearest given multiple
-function __round(number, multiple = 0){
+function __round(number, multiple = 0) {
 
     rounded_number = number;
-    if(multiple > 0) {
+    if (multiple > 0) {
         x = new Decimal(number)
         rounded_number = x.toNearest(multiple);
     }
@@ -435,14 +435,14 @@ function __round(number, multiple = 0){
         number: rounded_number,
         diff: rounded_number - number
     }
-    
+
     return output;
 }
 
 //This method removes unwanted get parameter from the data.
-function __datatable_ajax_callback(data){
+function __datatable_ajax_callback(data) {
     for (var i = 0, len = data.columns.length; i < len; i++) {
-        if (! data.columns[i].search.value) delete data.columns[i].search;
+        if (!data.columns[i].search.value) delete data.columns[i].search;
         if (data.columns[i].searchable === true) delete data.columns[i].searchable;
         if (data.columns[i].orderable === true) delete data.columns[i].orderable;
         if (data.columns[i].data === data.columns[i].name) delete data.columns[i].name;
@@ -457,12 +457,12 @@ function __page_leave_confirmation(form) {
     var form_obj = $(form);
     var orig_form_data = form_obj.serialize();
 
-    setTimeout(function(){ orig_form_data = form_obj.serialize(); }, 1000);
-    
-    $(document).on("submit", "form", function(event){
+    setTimeout(function () { orig_form_data = form_obj.serialize(); }, 1000);
+
+    $(document).on("submit", "form", function (event) {
         window.onbeforeunload = null;
     });
-    window.onbeforeunload = function() {
+    window.onbeforeunload = function () {
         if (form_obj.serialize() != orig_form_data) {
             return LANG.sure;
         }
@@ -474,15 +474,15 @@ function init_tinymce(editor_id) {
     tinymce.init({
         selector: 'textarea#' + editor_id,
         plugins: [
-        'advlist autolink link image lists charmap print preview hr anchor pagebreak',
-        'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking',
-        'table template paste help'
+            'advlist autolink link image lists charmap print preview hr anchor pagebreak',
+            'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking',
+            'table template paste help'
         ],
         toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify |' +
-          ' bullist numlist outdent indent | link image | print preview fullpage | ' +
-          'forecolor backcolor',
+            ' bullist numlist outdent indent | link image | print preview fullpage | ' +
+            'forecolor backcolor',
         menu: {
-          favs: {title: 'My Favorites', items: 'code | searchreplace'}
+            favs: { title: 'My Favorites', items: 'code | searchreplace' }
         },
         menubar: 'favs file edit view insert format tools table help'
     });
@@ -495,7 +495,7 @@ function getSelectedRows() {
         selected_rows[i++] = $(this).val();
     });
 
-    return selected_rows; 
+    return selected_rows;
 }
 
 function __is_online() {

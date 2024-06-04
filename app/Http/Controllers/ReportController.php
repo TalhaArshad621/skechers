@@ -325,7 +325,7 @@ class ReportController extends Controller
                         $total_sold =  (float)$row->total_sold;
                     }
 
-                    return '<span data-is_quantity="true" class="display_currency total_sold" data-currency_symbol=false data-orig-value="' . $total_sold . '" data-unit="' . $row->unit . '" >' . $total_sold . '</span> ' . $row->unit;
+                    return '<span data-is_quantity="true" class="display_currency total_sold" data-currency_symbol=false data-orig-value="' . $total_sold . '" data-unit="' . $row->unit . '" >' . $total_sold . '</span> ';
                 })
                 ->editColumn('total_transfered', function ($row) {
                     $total_transfered = 0;
@@ -333,7 +333,7 @@ class ReportController extends Controller
                         $total_transfered =  (float)$row->total_transfered;
                     }
 
-                    return '<span data-is_quantity="true" class="display_currency total_transfered" data-currency_symbol=false data-orig-value="' . $total_transfered . '" data-unit="' . $row->unit . '" >' . $total_transfered . '</span> ' . $row->unit;
+                    return '<span data-is_quantity="true" class="display_currency total_transfered" data-currency_symbol=false data-orig-value="' . $total_transfered . '" data-unit="' . $row->unit . '" >' . $total_transfered . '</span> ';
                 })
                 
                 ->editColumn('total_adjusted', function ($row) {
@@ -342,7 +342,7 @@ class ReportController extends Controller
                         $total_adjusted =  (float)$row->total_adjusted;
                     }
 
-                    return '<span data-is_quantity="true" class="display_currency total_adjusted" data-currency_symbol=false  data-orig-value="' . $total_adjusted . '" data-unit="' . $row->unit . '" >' . $total_adjusted . '</span> ' . $row->unit;
+                    return '<span data-is_quantity="true" class="display_currency total_adjusted" data-currency_symbol=false  data-orig-value="' . $total_adjusted . '" data-unit="' . $row->unit . '" >' . $total_adjusted . '</span> ';
                 })
                 ->editColumn('unit_price', function ($row) use ($allowed_selling_price_group) {
                     $html = '';
@@ -2398,7 +2398,7 @@ class ReportController extends Controller
                 })
                 ->editColumn('amount', function ($row) {
                     $amount = $row->is_return == 1 ? -1 * $row->amount : $row->amount;
-                    return '<span class="display_currency paid-amount" data-orig-value="' . $amount . '" data-currency_symbol = true>' . $amount . '</span>';
+                    return '<span class="display_currency paid-amount" data-orig-value="' . $amount . '" data-currency_symbol = false>' . $amount . '</span>';
                 })
                 ->addColumn('action', '<button type="button" class="btn btn-primary btn-xs view_payment" data-href="{{ action("TransactionPaymentController@viewPayment", [$DT_RowId]) }}">@lang("messages.view")
                     </button> @if(!empty($document))<a href="{{asset("/uploads/documents/" . $document)}}" class="btn btn-success btn-xs" download=""><i class="fa fa-download"></i> @lang("purchase.download_document")</a>@endif')
@@ -2645,7 +2645,7 @@ class ReportController extends Controller
 
                     if ($stocks->isNotEmpty()) {
                         // return $stocks->sum();
-                        return '<span data-is_quantity="true" class="display_currency stock_by_color" data-currency_symbol=false data-orig-value="' . (float)$stocks->sum() . '" data-unit="' . $row->unit . '" >' . (float) $stocks->sum() . '</span> ' .$row->unit;
+                        return '<span data-is_quantity="true" class="display_currency stock_by_color" data-currency_symbol=false data-orig-value="' . (float)$stocks->sum() . '" data-unit="' . $row->unit . '" >' . (float) $stocks->sum() . '</span> ';
 
                     } else {
                         return 0;
@@ -2661,7 +2661,7 @@ class ReportController extends Controller
                     $stocks = $stock->pluck('stock');
 
                     if ($stocks->isNotEmpty()) {
-                        return '<span data-is_quantity="true" class="display_currency stock_by_code" data-currency_symbol=false data-orig-value="' . (float)$stocks->sum() . '" data-unit="' . $row->unit . '" >' . (float) $stocks->sum() . '</span> ' .$row->unit;
+                        return '<span data-is_quantity="true" class="display_currency stock_by_code" data-currency_symbol=false data-orig-value="' . (float)$stocks->sum() . '" data-unit="' . $row->unit . '" >' . (float) $stocks->sum() . '</span> ';
 
                     } else {
                         return 0;
@@ -2681,14 +2681,14 @@ class ReportController extends Controller
                 ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
                 ->editColumn('buying_date', '{{@format_date($formated_date)}}')
                 ->editColumn('total_qty_sold', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ';
                 })
                 ->editColumn('total_qty_returned', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency ret_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_returned . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_returned . '</span> ' .$row->unit;
+                    return '<span data-is_quantity="true" class="display_currency ret_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_returned . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_returned . '</span> ';
                 })
                 ->editColumn('current_stock', function ($row) {
                     if ($row->enable_stock) {
-                        return '<span data-is_quantity="true" class="display_currency current_stock" data-currency_symbol=false data-orig-value="' . (float)$row->current_stock . '" data-unit="' . $row->unit . '" >' . (float) $row->current_stock . '</span> ' .$row->unit;
+                        return '<span data-is_quantity="true" class="display_currency current_stock" data-currency_symbol=false data-orig-value="' . (float)$row->current_stock . '" data-unit="' . $row->unit . '" >' . (float) $row->current_stock . '</span> ';
                     } else {
                         return '';
                     }
@@ -3704,7 +3704,7 @@ class ReportController extends Controller
                 })
                 ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
                 ->editColumn('total_qty_sold', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ';
                 })
                 ->editColumn('subtotal', function ($row) {
                     return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
@@ -3828,7 +3828,7 @@ class ReportController extends Controller
                 })
                 ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
                 ->editColumn('total_qty_sold', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ';
                 })
                 ->editColumn('subtotal', function ($row) {
                     return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->total_sale . '">' . $row->total_sale . '</span>';
@@ -3959,7 +3959,7 @@ class ReportController extends Controller
                 })
                 ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
                 ->editColumn('total_qty_sold', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ';
                 })
                 ->editColumn('subtotal', function ($row) {
                     return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
@@ -4090,7 +4090,7 @@ class ReportController extends Controller
                 })
                 ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
                 ->editColumn('total_qty_sold', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ';
                 })
                 ->editColumn('subtotal', function ($row) {
                     return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
@@ -4198,7 +4198,7 @@ class ReportController extends Controller
                     return $row->category_name;
                 })                ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
                 ->editColumn('total_qty_sold', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ';
                 })
                 ->editColumn('subtotal', function ($row) {
                     return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
@@ -4305,7 +4305,7 @@ class ReportController extends Controller
                     return $row->category_name;
                 })                ->editColumn('transaction_date', '{{@format_date($formated_date)}}')
                 ->editColumn('total_qty_sold', function ($row) {
-                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ' .$row->unit;
+                    return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->total_qty_sold . '" data-unit="' . $row->unit . '" >' . (float) $row->total_qty_sold . '</span> ';
                 })
                 ->editColumn('subtotal', function ($row) {
                     return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
@@ -4699,10 +4699,9 @@ class ReportController extends Controller
                 JOIN purchase_lines AS pl2 
                 ON tspl2.purchase_line_id = pl2.id 
                 WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax,   
-                (TSPL.quantity - TSPL.qty_returned) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
+                (TSPL.quantity) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
                 )->groupBy('L.id');
                 $results_new = $exchange_one_profit->first();
-
                 $result_new_profit = $results_new ?  $results_new['gross_profit']: 0;
 
                 $exchange_two_profit =  TransactionSellLine::join('transactions as sale', 'transaction_sell_lines.transaction_id', '=', 'sale.id')
@@ -4743,7 +4742,6 @@ class ReportController extends Controller
                 )->groupBy('L.id');
                 $results_two = $exchange_two_profit->first();
                 $result_two_pofit = $results_two ?  $results_two['gross_profit']: 0;
-
                 $exchanged_profit =  $result_two_pofit - $result_new_profit ;
 
                 // International Exchange profit
@@ -4867,7 +4865,7 @@ class ReportController extends Controller
                 // GST tax
                 $query8 = TransactionSellLine::join('transactions as t', 't.id', 'transaction_sell_lines.transaction_id')
                 ->where('t.business_id', $business_id)
-                ->whereIN('t.type', ['sell','sell_return'])
+                ->whereIN('t.type', ['sell'])
                 // ->where('t.type', 'sell')
                 ->where('transaction_sell_lines.quantity_returned' , 0)
                 ->where('t.status', 'final');
@@ -4884,6 +4882,48 @@ class ReportController extends Controller
                     $query8->where('t.location_id', $location_id);
                 }
                 $gst_tax = $query8->select(DB::raw('SUM(item_tax) as tax'))
+                ->first();
+
+                $query11 = TransactionSellLine::join('transactions as t', 't.id', 'transaction_sell_lines.transaction_id')
+                ->where('t.business_id', $business_id)
+                ->whereIN('t.type', ['sell_return'])
+                // ->where('t.type', 'sell')
+                ->where('transaction_sell_lines.quantity_returned' , 0)
+                ->where('t.status', 'final');
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query11->whereDate('t.transaction_date', '>=', $start_date)
+                        ->whereDate('t.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query11->whereDate('t.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query11->where('t.location_id', $location_id);
+                }
+                $gst_tax_new = $query11->select(DB::raw('SUM(item_tax) as tax'))
+                ->first();
+                
+                $query12 = TransactionSellLine::join('transactions as t', 't.return_parent_id', 'transaction_sell_lines.transaction_id')
+                ->where('t.business_id', $business_id)
+                ->whereIN('t.type', ['sell_return'])
+                // ->where('t.type', 'sell')
+                ->where('transaction_sell_lines.quantity_returned' , '>' , 0)
+                ->where('t.status', 'final');
+                if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                    $query12->whereDate('t.transaction_date', '>=', $start_date)
+                        ->whereDate('t.transaction_date', '<=', $end_date);
+                }
+                if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                    $query12->whereDate('t.transaction_date', $end_date);
+                }
+        
+                //Filter by the location
+                if (!empty($location_id)) {
+                    $query12->where('t.location_id', $location_id);
+                }
+                $gst_tax_new_returned = $query12->select(DB::raw('SUM(item_tax) as tax'))
                 ->first();
 
                 $query9 = TransactionSellLine::join('transactions as sale', 'sale.id','transaction_sell_lines.transaction_id')
@@ -4961,7 +5001,7 @@ class ReportController extends Controller
                 'profit_loss' => $gross_profit + $exchanged_profit + $final_international_profit,
                 'total_gift_amount' => $gift_amount->amount,
                 'total_gift_items' => $gift_items['gift_items'],
-                'gst_tax' => $gst_tax['tax'],
+                'gst_tax' => $gst_tax['tax'] + ($gst_tax_new['tax'] - $gst_tax_new_returned['tax']),
                 'amount' => $amount
             ]);
 

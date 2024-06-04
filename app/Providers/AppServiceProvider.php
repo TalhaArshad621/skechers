@@ -108,12 +108,12 @@ class AppServiceProvider extends ServiceProvider
         
         //Blade directive to format number into required format.
         Blade::directive('num_format', function ($expression) {
-            return "number_format($expression, config('constants.currency_precision', 2), session('currency')['decimal_separator'], session('currency')['thousand_separator'])";
+            return "number_format($expression, config('constants.currency_precision', 0), session('currency')['decimal_separator'], session('currency')['thousand_separator'])";
         });
 
         //Blade directive to format quantity values into required format.
         Blade::directive('format_quantity', function ($expression) {
-            return "number_format($expression, config('constants.quantity_precision', 2), session('currency')['decimal_separator'], session('currency')['thousand_separator'])";
+            return "number_format($expression, config('constants.quantity_precision', 0), session('currency')['decimal_separator'], session('currency')['thousand_separator'])";
         });
 
         //Blade directive to return appropiate class according to transaction status
@@ -194,10 +194,8 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('format_currency', function ($number) {
             return '<?php 
             $formated_number = "";
-            if (session("business.currency_symbol_placement") == "before") {
-                $formated_number .= session("currency")["symbol"] . " ";
-            } 
-            $formated_number .= number_format((float) ' . $number . ', config("constants.currency_precision", 2) , session("currency")["decimal_separator"], session("currency")["thousand_separator"]);
+
+            $formated_number .= number_format((float) ' . $number . ', config("constants.currency_precision", 0 ) , session("currency")["decimal_separator"], session("currency")["thousand_separator"]);
 
             if (session("business.currency_symbol_placement") == "after") {
                 $formated_number .= " " . session("currency")["symbol"];
