@@ -69,10 +69,10 @@
                     <li class="active">
                         <a href="#sell_overview" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes" aria-hidden="true"></i> @lang('Sell Overview')</a>
                     </li>
-
+{{-- 
                     <li>
                         <a href="#buy_overview" data-toggle="tab" aria-expanded="true"><i class="fa fa-tags" aria-hidden="true"></i> @lang('Buy Overview')</a>
-                    </li>
+                    </li> --}}
 
                     <li>
                         <a href="#ecommerce" data-toggle="tab" aria-expanded="true"><i class="fa fa-diamond" aria-hidden="true"></i> @lang('Ecommerce')</a>
@@ -85,9 +85,9 @@
                         @include('report.partials.sell_overview_report')
                     </div>
 
-                    <div class="tab-pane" id="buy_overview">
+                    {{-- <div class="tab-pane" id="buy_overview">
                         @include('report.partials.buy_overview_report')
-                    </div>
+                    </div> --}}
 
                     <div class="tab-pane" id="ecommerce">
                         @include('report.partials.ecommerce_overview_report')

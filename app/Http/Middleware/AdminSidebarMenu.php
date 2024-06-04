@@ -573,13 +573,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-arrow-circle-up', 'active' => request()->segment(2) == 'sale-report']
                             );
                         }
-                        if ((in_array('purchases', $enabled_modules) || in_array('add_sale', $enabled_modules) || in_array('pos_sale', $enabled_modules)) && auth()->user()->can('purchase_n_sell_report.view')) {
-                            $sub->url(
-                                action('ReportController@getPurchaseSell'),
-                                __('report.purchase_sell_report'),
-                                ['icon' => 'fa fas fa-exchange-alt', 'active' => request()->segment(2) == 'purchase-sell']
-                            );
-                        }
+                        // if ((in_array('purchases', $enabled_modules) || in_array('add_sale', $enabled_modules) || in_array('pos_sale', $enabled_modules)) && auth()->user()->can('purchase_n_sell_report.view')) {
+                        //     $sub->url(
+                        //         action('ReportController@getPurchaseSell'),
+                        //         __('report.purchase_sell_report'),
+                        //         ['icon' => 'fa fas fa-exchange-alt', 'active' => request()->segment(2) == 'purchase-sell']
+                        //     );
+                        // }
 
                         if (auth()->user()->can('tax_report.view')) {
                             $sub->url(
@@ -669,11 +669,11 @@ class AdminSidebarMenu
                             //     ['icon' => 'fa fas fa-search-dollar', 'active' => request()->segment(2) == 'purchase-payment-report']
                             // );
 
-                            $sub->url(
-                                action('ReportController@sellPaymentReport'),
-                                __('lang_v1.sell_payment_report'),
-                                ['icon' => 'fa fas fa-search-dollar', 'active' => request()->segment(2) == 'sell-payment-report']
-                            );
+                            // $sub->url(
+                            //     action('ReportController@sellPaymentReport'),
+                            //     __('lang_v1.sell_payment_report'),
+                            //     ['icon' => 'fa fas fa-search-dollar', 'active' => request()->segment(2) == 'sell-payment-report']
+                            // );
                             $sub->url(
                                 action('ReportController@getbrandfolioReport'),
                                 __('Brandfolio Report'),
