@@ -33,14 +33,13 @@ class CashRegisterController extends Controller
      * @param CashRegisterUtil $cashRegisterUtil
      * @return void
      */
-    public function __construct(CashRegisterUtil $cashRegisterUtil, BusinessUtil $businessUtil, ModuleUtil $moduleUtil, TransactionUtil $transactionUtil,SmsUtil $smsUtil)
+    public function __construct(CashRegisterUtil $cashRegisterUtil, BusinessUtil $businessUtil, ModuleUtil $moduleUtil, TransactionUtil $transactionUtil, SmsUtil $smsUtil)
     {
         $this->cashRegisterUtil = $cashRegisterUtil;
         $this->moduleUtil = $moduleUtil;
         $this->businessUtil = $businessUtil;
         $this->transactionUtil = $transactionUtil;
         $this->smsUtil = $smsUtil;
-
     }
 
     /**
@@ -86,7 +85,7 @@ class CashRegisterController extends Controller
         // dd($request->input('amount'));
         //like:repair
         $sub_type = request()->get('sub_type');
-            
+
         try {
             $initial_amount = 0;
             if (!empty($request->input('amount'))) {
@@ -96,43 +95,43 @@ class CashRegisterController extends Controller
             $business_id = $request->session()->get('user.business_id');
 
             $register = CashRegister::create([
-                        'business_id' => $business_id,
-                        'user_id' => $user_id,
-                        'status' => 'open',
-                        'location_id' => $request->input('location_id'),
-                        'created_at' => \Carbon::now()->format('Y-m-d H:i:00')
-                    ]);
+                'business_id' => $business_id,
+                'user_id' => $user_id,
+                'status' => 'open',
+                'location_id' => $request->input('location_id'),
+                'created_at' => \Carbon::now()->format('Y-m-d H:i:00')
+            ]);
             if (!empty($initial_amount)) {
                 $register->cash_register_transactions()->create([
-                            'amount' => $initial_amount,
-                            'pay_method' => 'cash',
-                            'type' => 'credit',
-                            'transaction_type' => 'initial'
-                        ]);
+                    'amount' => $initial_amount,
+                    'pay_method' => 'cash',
+                    'type' => 'credit',
+                    'transaction_type' => 'initial'
+                ]);
             }
             $input = $request->only(['amount', 'location_id']);
             $user_name = User::where('id', $user_id)
-            ->select(DB::raw("CONCAT(first_name, ' ', last_name) AS full_name"))
-            ->first();
+                // ->select(DB::raw("CONCAT(first_name, ' ', last_name) AS full_name"))
+                ->select(DB::raw("CONCAT(COALESCE(first_name, ''),' ', COALESCE(last_name,'')) AS full_name"))
+                ->first();
             // dd($user_name);
             // dd($user_name);
             // $business_location = BusinessLocation::select('id','location_id')->where('business_id', $business_id)->first();
             // dd($business_location);
             $input['started_at'] = \Carbon::now()->format('Y-m-d H:i:s');
             // dd($input);
- 
+
             $messageText = "DAY STARTED\n" .
-            "DATE: " . $input['started_at'] . "\n" .
-            "USERNAME: " . $user_name->full_name . "\n" .
-            "STORE: SKX Jhelum\n" .
-            "Opening Balance: " .  12000 . " ";
-         
+                "DATE: " . $input['started_at'] . "\n" .
+                "USERNAME: " . $user_name->full_name . "\n" .
+                "STORE: SKX Jhelum\n" .
+                "Opening Balance: " .  12000 . " ";
+
             $phone = "03416881318";
-            
-            $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone),'SKECHERS.', '');
-            
+
+            $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone), 'SKECHERS.', '');
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
         }
 
         return redirect()->action('SellPosController@create', ['sub_type' => $sub_type]);
@@ -154,13 +153,13 @@ class CashRegisterController extends Controller
 
         $register_details =  $this->cashRegisterUtil->getRegisterDetails($id);
 
-        
+
         $user_id = $register_details->user_id;
         $open_time = $register_details['open_time'];
         $close_time = !empty($register_details['closed_at']) ? $register_details['closed_at'] : \Carbon::now()->toDateTimeString();
         $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_id, $open_time, $close_time);
         $sell_return =  $this->cashRegisterUtil->getSaleReturnDetails($register_details->location_id, $open_time, $close_time);
-        
+
         $payment_types = $this->cashRegisterUtil->payment_types(null, false, $business_id);
         $start_date = \Carbon\Carbon::parse($open_time)->format('Y-m-d');
         $end_date = \Carbon\Carbon::parse($close_time)->format('Y-m-d');
@@ -169,7 +168,7 @@ class CashRegisterController extends Controller
 
 
         return view('cash_register.register_details')
-                    ->with(compact('register_details', 'details', 'payment_types', 'close_time','sell_return','data'));
+            ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'sell_return', 'data'));
     }
 
     /**
@@ -185,7 +184,7 @@ class CashRegisterController extends Controller
         }
 
         $business_id = request()->session()->get('user.business_id');
-        
+
         $register_details =  $this->cashRegisterUtil->getRegisterDetails();
         $open_time = $register_details['open_time'];
         $close_time = \Carbon::now()->toDateTimeString();
@@ -200,7 +199,7 @@ class CashRegisterController extends Controller
         $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_id, $open_time, $close_time, $is_types_of_service_enabled);
         // dd($details);
         $payment_types = $this->cashRegisterUtil->payment_types($register_details->location_id, true, $business_id);
-        
+
         $start_date = \Carbon\Carbon::parse($open_time)->format('Y-m-d');
         $end_date = \Carbon\Carbon::parse($close_time)->format('Y-m-d');
 
@@ -210,8 +209,7 @@ class CashRegisterController extends Controller
         // dd($data);
 
         return view('cash_register.register_details')
-                ->with(compact('register_details', 'details', 'payment_types', 'close_time','sell_return','data'));
-
+            ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'sell_return', 'data'));
     }
 
     /**
@@ -237,11 +235,10 @@ class CashRegisterController extends Controller
         $is_types_of_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
 
         $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_id, $open_time, $close_time, $is_types_of_service_enabled);
-        
+
         $payment_types = $this->cashRegisterUtil->payment_types($register_details->location_id, true, $business_id);
         return view('cash_register.close_register_modal')
-                    ->with(compact('register_details', 'details', 'payment_types', 'sell_return'));
-
+            ->with(compact('register_details', 'details', 'payment_types', 'sell_return'));
     }
 
     /**
@@ -265,19 +262,24 @@ class CashRegisterController extends Controller
         try {
             //Disable in demo
             if (config('app.env') == 'demo') {
-                $output = ['success' => 0,
-                                'msg' => 'Feature disabled in demo!!'
-                            ];
+                $output = [
+                    'success' => 0,
+                    'msg' => 'Feature disabled in demo!!'
+                ];
                 return redirect()->action('HomeController@index')->with('status', $output);
             }
-            
-            $input = $request->only(['closing_amount', 'total_card_slips', 'total_cheques',
-                                    'closing_note']);
+
+            $input = $request->only([
+                'closing_amount', 'total_card_slips', 'total_cheques',
+                'closing_note'
+            ]);
             $input['closing_amount'] = $this->cashRegisterUtil->num_uf($input['closing_amount']);
             $user_id = $request->input('user_id');
             $user_name = User::where('id', $user_id)
-            ->select(DB::raw("CONCAT(first_name, ' ', last_name) AS full_name"))
-            ->first();
+            // (DB::raw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) AS full_name")),
+
+                ->select(DB::raw("CONCAT(COALESCE(first_name, ''),' ', COALESCE(last_name,'')) AS full_name"))
+                ->first();
             // dd($user_name);
             // $business_location = BusinessLocation::select('id','location_id')->where('business_id', $business_id)->first();
             // dd($business_location);
@@ -286,23 +288,32 @@ class CashRegisterController extends Controller
             // dd($input);
 
             CashRegister::where('user_id', $user_id)
-                                ->where('status', 'open')
-                                ->update($input);
-            $output = ['success' => 1,
-                            'msg' => __('cash_register.close_success')
-                        ];
- 
-                        $messageText = "DAY ENDED\n" .
-                        "DATE: " . $input['closed_at'] . "\n" .
-                        "USERNAME: " . $user_name->full_name . "\n" .
-                        "STORE: SKX Jhelum\n" .
-                        "Total Sale: " . (int)$request->input('total_sales') . "\n" .
-                        "Card Sale: " . (int)$request->input('card_sale') . "\n" .
-                        "Cash In Hand: " . (int)$request->input('cash_in_hand') . "\n" .
-                        "Cash Sale: " . (int)$request->input('cash_sale') . " ";
-         
+                ->where('status', 'open')
+                ->update($input);
+            $output = [
+                'success' => 1,
+                'msg' => __('cash_register.close_success')
+            ];
 
-                // dd($messageText);
+            // $messageText = "DAY ENDED\n" .
+            // "DATE: " . $input['closed_at'] . "\n" .
+            // "USERNAME: " . $user_name->full_name . "\n" .
+            // "STORE: SKX Jhelum\n" .
+            // "Total Sale: " . (int)$request->input('total_sales') . "\n" .
+            // "Card Sale: " . (int)$request->input('card_sale') . "\n" .
+            // "Cash In Hand: " . (int)$request->input('cash_in_hand') . "\n" .
+            // "Cash Sale: " . (int)$request->input('cash_sale') . " ";
+
+            $messageText = "DAY ENDED\n" .
+                "DATE: " . $input['closed_at'] . "\n" .
+                "USERNAME: " . $user_name->full_name . "\n" .
+                "STORE: SKX Jhelum\n" .
+                "Total Sale: " . number_format((int)$request->input('total_sales')) . "\n" .
+                "Card Sale: " . number_format((int)$request->input('card_sale')) . "\n" .
+                "Cash Sale: " . number_format((int)$request->input('cash_sale')) . "\n" .
+                "Cash In Hand: " . number_format((int)$request->input('cash_in_hand')) . " ";
+
+            // dd($messageText);
             // $messageText = 
             // // "Register Closed";
             // "DAY ENDED
@@ -316,13 +327,14 @@ class CashRegisterController extends Controller
             // To block promotions from SKECHERS. send UNSUB to 9689128
             // To block all promotions, send REG to 3627";
             $phone = "03416881318";
-            
-            $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone),'SKECHERS.', '');    
+
+            $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone), 'SKECHERS.', '');
         } catch (\Exception $e) {
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            $output = ['success' => 0,
-                            'msg' => __("messages.something_went_wrong")
-                        ];
+            \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+            $output = [
+                'success' => 0,
+                'msg' => __("messages.something_went_wrong")
+            ];
         }
 
         return redirect()->back()->with('status', $output);
