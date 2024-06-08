@@ -2599,5 +2599,65 @@ class ProductUtil extends Util
             ->get();
             return $query;
     }
+
+    function calculateStockBySku($product_code, $variation_id, $vld_str, $business_id) {
+        $query = TransactionSellLine::join(
+            'transactions as t',
+            'transaction_sell_lines.transaction_id',
+            '=',
+            't.id'
+        )
+            ->join(
+                'variations as v',
+                'transaction_sell_lines.variation_id',
+                '=',
+                'v.id'
+            )
+            ->join('product_variations as pv', 'v.product_variation_id', '=', 'pv.id')
+            ->where('v.id', $product_code)
+            ->select(
+                'v.id',
+                DB::raw("(SELECT SUM(vld.qty_available) FROM variation_location_details as vld WHERE vld.variation_id=v.id $vld_str) as stock"),
+            )
+            ->groupBy('v.id')
+            ->get();
+            return $query;
+    }
+
+
+
+    function splitSKU($sku, $type)
+    {
+        // Split the SKU into parts
+        $parts = explode('-', $sku);
+
+        // Initialize the parts
+        $part1 = '';
+        $part2 = '';
+        $part3 = '';
+
+        if (count($parts) == 2) {
+            // If there are exactly 2 parts
+            $part1 = $parts[0] . '-' . $parts[1];
+        } elseif (count($parts) >= 3) {
+            // If there are 3 or more parts
+            $part1 = $parts[0] . '-' . $parts[1];
+            $part2 = $parts[1];
+            $part3 = implode('-', array_slice($parts, 2));
+        } else {
+            // If there's only one part
+            $part1 = $sku;
+        }
+
+        if($type == "one") {
+            return $part1;
+        }
+        if($type == "two") {
+            return $part2;
+        }
+        if($type == "three") {
+            return $part3;
+        }
+    }
     
 }
