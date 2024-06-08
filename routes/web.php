@@ -148,6 +148,9 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('indexForSellPriceUpdate', 'SellController@indexForSellPriceUpdate');
     Route::post('importSellUpdatePrices', 'SellController@importSellUpdatePrices');
 
+    Route::get('/change-article-price','ProductController@updateProductPriceManually');
+    Route::post('/store-article-price', 'ProductController@storeProductPriceManually');
+
     Route::get('/import-sales', 'ImportSalesController@index');
     Route::post('/import-sales/preview', 'ImportSalesController@preview');
     Route::post('/import-sales', 'ImportSalesController@import');
