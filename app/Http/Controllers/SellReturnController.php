@@ -22,6 +22,7 @@ use App\TransactionSellLine;
 use App\Events\TransactionPaymentDeleted;
 use Spatie\Activitylog\Models\Activity;
 use App\Utils\CashRegisterUtil;
+use Illuminate\Support\Facades\Auth;
 
 class SellReturnController extends Controller
 {
@@ -358,22 +359,40 @@ class SellReturnController extends Controller
         $business_id = request()->session()->get('user.business_id');
     
         // Get the transaction ID for the entered invoice number
+        // $transactionId = Transaction::where('invoice_no', $invoiceNumber)
+        //     ->where('business_id', $business_id)
+        //     ->value('id');
         $transactionId = Transaction::where('invoice_no', $invoiceNumber)
-            ->where('business_id', $business_id)
-            ->value('id');
-    
+        ->where('business_id', $business_id)
+        ->first(['id', 'created_at']);
+
         // Check if a matching transaction is found
         // dd("hehe");
+        // dd(Auth::user()->roles->pluck('name'));
         if ($transactionId) {
+            $transactionDate = $transactionId->created_at;
+
             // dd("hehe");
             // Check if the transaction ID is present in the return_parent_id column
-            $hasReturnedProducts = Transaction::where('return_parent_id', $transactionId)
+            $hasReturnedProducts = Transaction::where('return_parent_id', $transactionId->id)
                 ->exists();
     
             if ($hasReturnedProducts) {
-                // Return the response with an error message
                 return response()->json(['success' => false, 'message' => 'Invoice number ' . $invoiceNumber . ' has already been exchanged!']);
             }
+            $userRoles = Auth::user()->roles->pluck('name')->map(function($role) {
+                return strtolower($role);
+            });
+        
+            if (!$userRoles->contains('admin#4')) {
+                $currentDate = now();
+                $daysDifference = $currentDate->diffInDays($transactionDate);
+        
+                if ($daysDifference > 20) {
+                return response()->json(['success' => false, 'message' => 'Access denied: More than 20 days have passed since the sale was made.']);
+                }
+            }
+        
     
             // Fetch the transaction data
             $sell = Transaction::where('business_id', $business_id)
@@ -390,7 +409,7 @@ class SellReturnController extends Controller
                 'sell_lines.product.unit'
             ])
             ->where('transactions.type', '!=', 'gift')
-            ->find($transactionId);
+            ->find($transactionId->id);
             // $sell = Transaction::where('business_id', $business_id)
             //     ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
             //     ->where('transactions.type', '!=', 'gift')

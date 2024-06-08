@@ -4318,60 +4318,66 @@ class ReportController extends Controller
 
     public function ecommerceSellReport(Request $request)
     {
-        $business_id = request()->session()->get('user.business_id');
-        
-        if (request()->ajax()) {
-            $query = EcommerceTransaction::leftJoin('ecommerce_payments as EP', 'EP.ecommerce_transaction_id', '=', 'ecommerce_transactions.id')
-            ->leftJoin('ecommerce_sell_lines as ESL', 'ESL.ecommerce_transaction_id','=','ecommerce_transactions.id')
-            ->leftJoin('variations', 'variations.id', '=' , 'ESL.variation_id')
-            ->leftJoin('products', 'products.id', '=' , 'ESL.product_id')
-            ->leftJoin('categories', 'categories.id', '=', 'products.category_id')
-            ->leftJoin('variation_location_details as VLD', 'VLD.id', '=', 'ESL.location_id')
-            ->whereNull('ecommerce_transactions.return_parent_id')
-            ->select(
-                'ecommerce_transactions.transaction_date AS transaction_date',
-                'products.name AS product_name',
-                'categories.name AS category_name',
-                'ESL.quantity as quantity',
-                'ESL.unit_price_inc_tax AS sell_price',
-                'VLD.qty_available',
-                'ESL.quantity_returned AS quantity_returned'
-                );
+        $business_id = $request->session()->get('user.business_id');
 
-            return Datatables::of($query)
-                ->editColumn('product_name', function ($row) {
-                    $product_name = $row->product_name;
-                    if ($row->product_type == 'variable') {
-                        $product_name .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
-                    }
-                    return $product_name;
-                })
-                ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
-                ->addColumn('quantity_returned', function ($row){
-                    $quantity_returned = $row->quantity_returned;
-                    return $quantity_returned;
-                })
-                ->addColumn('category_name', function ($row){
-                    $category_name = $row->category_name;
-                    return $category_name;
-                })
-                ->addColumn('quantity', function ($row){
-                    $quantity = $row->quantity;
-                    return $quantity;
-                })
-                ->addColumn('sell_price', function ($row){
-                    $sell_price = $row->sell_price;
-                    return $sell_price;
-                })
-                ->addColumn('qty_available', function ($row){
-                    $qty_available = $row->qty_available;
-                    return $qty_available;
-                })
-                ->rawColumns(['product_name','transaction_date','quantity_returned'])
-                ->make(true);
-        }
-        return view('report.ecommerce_sell_report');
+        $business_locations = BusinessLocation::forDropdown($business_id, true);
+        return view('report.ecommerce_sell_report', compact('business_locations'));
     }
+    // {
+    //     $business_id = request()->session()->get('user.business_id');
+        
+    //     if (request()->ajax()) {
+    //         $query = EcommerceTransaction::leftJoin('ecommerce_payments as EP', 'EP.ecommerce_transaction_id', '=', 'ecommerce_transactions.id')
+    //         ->leftJoin('ecommerce_sell_lines as ESL', 'ESL.ecommerce_transaction_id','=','ecommerce_transactions.id')
+    //         ->leftJoin('variations', 'variations.id', '=' , 'ESL.variation_id')
+    //         ->leftJoin('products', 'products.id', '=' , 'ESL.product_id')
+    //         ->leftJoin('categories', 'categories.id', '=', 'products.category_id')
+    //         ->leftJoin('variation_location_details as VLD', 'VLD.id', '=', 'ESL.location_id')
+    //         ->whereNull('ecommerce_transactions.return_parent_id')
+    //         ->select(
+    //             'ecommerce_transactions.transaction_date AS transaction_date',
+    //             'products.name AS product_name',
+    //             'categories.name AS category_name',
+    //             'ESL.quantity as quantity',
+    //             'ESL.unit_price_inc_tax AS sell_price',
+    //             'VLD.qty_available',
+    //             'ESL.quantity_returned AS quantity_returned'
+    //             );
+
+    //         return Datatables::of($query)
+    //             ->editColumn('product_name', function ($row) {
+    //                 $product_name = $row->product_name;
+    //                 if ($row->product_type == 'variable') {
+    //                     $product_name .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
+    //                 }
+    //                 return $product_name;
+    //             })
+    //             ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
+    //             ->addColumn('quantity_returned', function ($row){
+    //                 $quantity_returned = $row->quantity_returned;
+    //                 return $quantity_returned;
+    //             })
+    //             ->addColumn('category_name', function ($row){
+    //                 $category_name = $row->category_name;
+    //                 return $category_name;
+    //             })
+    //             ->addColumn('quantity', function ($row){
+    //                 $quantity = $row->quantity;
+    //                 return $quantity;
+    //             })
+    //             ->addColumn('sell_price', function ($row){
+    //                 $sell_price = $row->sell_price;
+    //                 return $sell_price;
+    //             })
+    //             ->addColumn('qty_available', function ($row){
+    //                 $qty_available = $row->qty_available;
+    //                 return $qty_available;
+    //             })
+    //             ->rawColumns(['product_name','transaction_date','quantity_returned'])
+    //             ->make(true);
+    //     }
+    //     return view('report.ecommerce_sell_report');
+    // }
 
     public function overviewReport(Request $request)
     {
@@ -4398,11 +4404,11 @@ class ReportController extends Controller
                 ->where('transactions.business_id', $business_id);
                 
                 if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
-                    $query1->whereDate('transactions.transaction_date', '>=', $start_date)
-                        ->whereDate('transactions.transaction_date', '<=', $end_date);
+                    $query1->whereDate('transactions.created_at', '>=', $start_date)
+                        ->whereDate('transactions.created_at', '<=', $end_date);
                 }
                 if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
-                    $query1->whereDate('transactions.transaction_date', $end_date);
+                    $query1->whereDate('transactions.created_at', $end_date);
                 }
         
                 //Filter by the location
@@ -4422,11 +4428,11 @@ class ReportController extends Controller
                 ->where('t.type', 'sell_return')
                 ->where('t.business_id', $business_id);
                 if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
-                    $query2->whereDate('t.transaction_date', '>=', $start_date)
-                        ->whereDate('t.transaction_date', '<=', $end_date);
+                    $query2->whereDate('t.created_at', '>=', $start_date)
+                        ->whereDate('t.created_at', '<=', $end_date);
                 }
                 if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
-                    $query2->whereDate('t.transaction_date', $end_date);
+                    $query2->whereDate('t.created_at', $end_date);
                 }
         
                 //Filter by the location
