@@ -33,70 +33,274 @@ $.ajax({
         console.error(error);
     }
 });
+// var debounceTimeout;
+
+// function debouncedGetProductDetails() {
+//     clearTimeout(debounceTimeout);
+//     debounceTimeout = setTimeout(getProductDetails, 1); // Adjust debounce time as needed
+// }
+
+// function getProductDetails() {
+//     var barcodeNumber = $('#code').val();
+//     var locationId = $('input#location_id').val();
+
+//     $.ajax({
+//         type: 'GET',
+//         url: '/products-list',
+//         data: { barcode: barcodeNumber, location_id: locationId },
+//         success: function (response) {
+//             if (!response.data.id) {
+//                 toastr.error("Product Not Found");
+//                 return;
+//             }
+
+//             var productData = response.data;
+//             var scan = {
+//                 id: productData.id,
+//                 categoryName: productData.category,
+//                 sku: productData.sku,
+//                 img: productData.image_url,
+//                 product: productData.product
+//             };
+
+//             ScannedProduct.unshift(scan);
+//             $('#rowCount').text(ScannedProduct.length);
+
+//             var existingProduct = physicalProductArray.find(item => item.id === productData.id);
+
+//             if (existingProduct) {
+//                 existingProduct.quantity++;
+//             } else {
+//                 physicalProductArray.push({
+//                     id: productData.id,
+//                     categoryName: productData.category,
+//                     sku: productData.sku,
+//                     quantity_in_stock: productData.available_qty,
+//                     quantity: 1
+//                 });
+//             }
+
+//             $('#code').val('');
+//         },
+//         error: function (error) {
+//             console.error('Error retrieving product details:', error);
+//         }
+//     });
+// }
+
+// var debounceTimeout;
+// var entryCount = 0;
+// var totalEntries = 1900;
+// var entryValue = '95010816';
+
+// function debouncedGetProductDetails() {
+//     clearTimeout(debounceTimeout);
+//     debounceTimeout = setTimeout(getProductDetails, 300); // Adjust debounce time as needed
+// }
+
+// function getProductDetails() {
+//     var barcodeInput = $('#code');
+//     var barcodeNumber = barcodeInput.val().trim();
+//     var locationId = $('input#location_id').val();
+
+//     if (!barcodeNumber) {
+//         toastr.error("Please enter a barcode number");
+//         return;
+//     }
+
+//     // Disable the input field to restrict adding another barcode
+//     barcodeInput.prop('disabled', true);
+
+//     $.ajax({
+//         type: 'GET',
+//         url: '/products-list',
+//         data: { barcode: barcodeNumber, location_id: locationId },
+//         success: function (response) {
+//             if (!response.data || !response.data.id) {
+//                 toastr.error("Product Not Found");
+//             } else {
+//                 var productData = response.data;
+//                 var scan = {
+//                     id: productData.id,
+//                     categoryName: productData.category,
+//                     sku: productData.sku,
+//                     img: productData.image_url,
+//                     product: productData.product
+//                 };
+
+//                 ScannedProduct.unshift(scan);
+//                 $('#rowCount').text(ScannedProduct.length);
+
+//                 var existingProduct = physicalProductArray.find(item => item.id === productData.id);
+
+//                 if (existingProduct) {
+//                     existingProduct.quantity++;
+//                 } else {
+//                     physicalProductArray.push({
+//                         id: productData.id,
+//                         categoryName: productData.category,
+//                         sku: productData.sku,
+//                         quantity_in_stock: productData.available_qty,
+//                         quantity: 1
+//                     });
+//                 }
+//             }
+//             // Re-enable the input field after the request completes
+//             barcodeInput.prop('disabled', false).val('').focus();
+
+//             // Continue with the next entry if not finished
+//             if (entryCount < totalEntries) {
+//                 entryCount++;
+//                 setTimeout(enterBarcode, 300); // Adjust delay as needed
+//             }
+//         },
+//         error: function (error) {
+//             console.error('Error retrieving product details:', error);
+//             toastr.error('Error retrieving product details');
+//             // Re-enable the input field in case of error
+//             barcodeInput.prop('disabled', false);
+//         }
+//     });
+// }
+
+function enterBarcode() {
+    $('#code').val(entryValue);
+    getProductDetails();
+}
+
+// Start the process
+enterBarcode();
+
+var debounceTimeout;
+
+function debouncedGetProductDetails() {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(getProductDetails, 300); // Adjust debounce time as needed
+}
 
 function getProductDetails() {
-    // Get the entered barcode number
-    var barcodeNumber = $('#code').val();
-    
-    // console.log(barcodeNumber);
+    var barcodeInput = $('#code');
+    var barcodeNumber = barcodeInput.val().trim();
+    var locationId = $('input#location_id').val();
 
-    // Make an AJAX request to retrieve product details
+    if (!barcodeNumber) {
+        toastr.error("Please enter a barcode number");
+        return;
+    }
+
+    // Disable the input field to restrict adding another barcode
+    barcodeInput.prop('disabled', true);
+
     $.ajax({
         type: 'GET',
-        url: '/products-list', // Replace with your actual API endpoint
-        data: {
-            barcode: barcodeNumber,
-            location_id: $('input#location_id').val(),
-        },
+        url: '/products-list',
+        data: { barcode: barcodeNumber, location_id: locationId },
         success: function (response) {
-            console.log(response);
-            if (response.data.id) {
-
+            if (!response.data || !response.data.id) {
+                toastr.error("Product Not Found");
+            } else {
+                var productData = response.data;
                 var scan = {
-                    id: response.data.id,
-                    categoryName: response.data.category,
-                    sku: response.data.sku,
-                    img: response.data.image_url,
-                    product: response.data.product
-                }
-                ScannedProduct.unshift(scan);
+                    id: productData.id,
+                    categoryName: productData.category,
+                    sku: productData.sku,
+                    img: productData.image_url,
+                    product: productData.product
+                };
 
-                console.log(ScannedProduct);
+                ScannedProduct.unshift(scan);
                 $('#rowCount').text(ScannedProduct.length);
 
-                // Populate the table with the retrieved product details
-                // populateTable(response.data);
+                var existingProduct = physicalProductArray.find(item => item.id === productData.id);
 
-                var find = $.grep(physicalProductArray, function (item) {
-                    return item.id == response.data.id;
-                });
-                if (find.length > 0) {
-                    $.each(physicalProductArray, function (index, item) {
-                        if (response.data.id == item.id) {
-                            item.quantity++;
-                        }
-                    });
+                if (existingProduct) {
+                    existingProduct.quantity++;
                 } else {
-                    var data = {
-                        id: response.data.id,
-                        categoryName: response.data.category,
-                        sku: response.data.sku,
-                        quantity_in_stock: response.data.available_qty,
+                    physicalProductArray.push({
+                        id: productData.id,
+                        categoryName: productData.category,
+                        sku: productData.sku,
+                        quantity_in_stock: productData.available_qty,
                         quantity: 1
-                    };
-                    physicalProductArray.push(data);
+                    });
                 }
-                // console.log(physicalProductArray, ScannedProduct);
-                $('#code').val('');
-            } else {
-                toastr.error("Product Not Found");
             }
+            // Re-enable the input field after the request completes
+            barcodeInput.prop('disabled', false).val('').focus();
         },
         error: function (error) {
             console.error('Error retrieving product details:', error);
+            toastr.error('Error retrieving product details');
+            // Re-enable the input field in case of error
+            barcodeInput.prop('disabled', false);
         }
     });
 }
+
+
+// function getProductDetails() {
+//     // Get the entered barcode number
+//     var barcodeNumber = $('#code').val();
+    
+//     // console.log(barcodeNumber);
+
+//     // Make an AJAX request to retrieve product details
+//     $.ajax({
+//         type: 'GET',
+//         url: '/products-list', // Replace with your actual API endpoint
+//         data: {
+//             barcode: barcodeNumber,
+//             location_id: $('input#location_id').val(),
+//         },
+//         success: function (response) {
+//             console.log(response);
+//             if (response.data.id) {
+
+//                 var scan = {
+//                     id: response.data.id,
+//                     categoryName: response.data.category,
+//                     sku: response.data.sku,
+//                     img: response.data.image_url,
+//                     product: response.data.product
+//                 }
+//                 ScannedProduct.unshift(scan);
+
+//                 console.log(ScannedProduct);
+//                 $('#rowCount').text(ScannedProduct.length);
+
+//                 // Populate the table with the retrieved product details
+//                 // populateTable(response.data);
+
+//                 var find = $.grep(physicalProductArray, function (item) {
+//                     return item.id == response.data.id;
+//                 });
+//                 if (find.length > 0) {
+//                     $.each(physicalProductArray, function (index, item) {
+//                         if (response.data.id == item.id) {
+//                             item.quantity++;
+//                         }
+//                     });
+//                 } else {
+//                     var data = {
+//                         id: response.data.id,
+//                         categoryName: response.data.category,
+//                         sku: response.data.sku,
+//                         quantity_in_stock: response.data.available_qty,
+//                         quantity: 1
+//                     };
+//                     physicalProductArray.push(data);
+//                 }
+//                 // console.log(physicalProductArray, ScannedProduct);
+//                 $('#code').val('');
+//             } else {
+//                 toastr.error("Product Not Found");
+//             }
+//         },
+//         error: function (error) {
+//             console.error('Error retrieving product details:', error);
+//         }
+//     });
+// }
 
     // Event handler for the "Check Audit" button
     $('#check-audit').click(function() {

@@ -262,6 +262,14 @@
                 <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + $register_details->total_card  }}</span></b>
               </td>
             </tr>
+            <tr>
+              <th>
+                Bank Transfer:
+              </th>
+              <td>
+                <b><span class="display_currency" data-currency_symbol="true">{{ $bank_transfer->bank_transfer }}</span></b>
+              </td>
+            </tr>
             <tr class="success" style="display: none;">
               <th>
                 @lang('lang_v1.gross_profit'):

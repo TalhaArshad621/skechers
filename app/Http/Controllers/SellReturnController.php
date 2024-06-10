@@ -404,12 +404,18 @@ class SellReturnController extends Controller
                 'return_parent',
                 'contact',
                 'tax',
+                'return_parent_sell.sell_lines' => function ($query) {
+                    $query->where('quantity_returned', '=', '0.0000');
+                },
+                'return_parent_sell.sell_lines.product',
+                'return_parent_sell.sell_lines.product.unit',
                 'sell_lines.sub_unit',
                 'sell_lines.product',
                 'sell_lines.product.unit'
             ])
             ->where('transactions.type', '!=', 'gift')
             ->find($transactionId->id);
+            // dd($sell);
             // $sell = Transaction::where('business_id', $business_id)
             //     ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
             //     ->where('transactions.type', '!=', 'gift')

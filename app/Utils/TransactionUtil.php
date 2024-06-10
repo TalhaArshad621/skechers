@@ -8987,6 +8987,7 @@ class TransactionUtil extends Util
 
     public function addSellReturn($input, $business_id, $user_id, $uf_number = true)
     {
+        dd($input);
         $location_id_new = auth()->user()->permitted_locations();
 
         $register =  CashRegister::where('user_id', $user_id)

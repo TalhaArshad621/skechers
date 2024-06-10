@@ -164,11 +164,13 @@ class CashRegisterController extends Controller
         $start_date = \Carbon\Carbon::parse($open_time)->format('Y-m-d');
         $end_date = \Carbon\Carbon::parse($close_time)->format('Y-m-d');
 
+        $bank_transfer = CashRegister::where('id',$id)->select('bank_transfer')->first();
+        // dd($bank_transfer);
         $data = $this->transactionUtil->getProfitLossDetailsForRegister($business_id, $register_details->location_id, $start_date, $end_date);
 
 
         return view('cash_register.register_details')
-            ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'sell_return', 'data'));
+            ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'sell_return', 'data','bank_transfer'));
     }
 
     /**
@@ -271,7 +273,7 @@ class CashRegisterController extends Controller
 
             $input = $request->only([
                 'closing_amount', 'total_card_slips', 'total_cheques',
-                'closing_note'
+                'closing_note','bank_transfer'
             ]);
             $input['closing_amount'] = $this->cashRegisterUtil->num_uf($input['closing_amount']);
             $user_id = $request->input('user_id');

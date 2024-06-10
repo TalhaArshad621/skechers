@@ -1077,10 +1077,23 @@ class ReportController extends Controller
                 }
                 $start_date = $request->get('start_date');
                 $end_date = $request->get('end_date');
+                // Modify start date to include time
+                // if ($start_date !== null) {
+                //     // Remove the existing time part and append '00:00:00'
+                //     $start_date = substr($start_date, 0, 10) . ' 00:00:00';
+                // }
+                
+                // if ($end_date !== null) {
+                //     // Remove the existing time part and append '23:59:59'
+                //     $end_date = substr($end_date, 0, 10) . ' 23:59:59';
+                // }
+
 
                 if (!empty($start_date) && !empty($end_date)) {
+                    // dd($start_date,$end_date);
                     $registers->whereDate('cash_registers.created_at', '>=', $start_date)
                     ->whereDate('cash_registers.created_at', '<=', $end_date);
+                    // dd($registers->get());
                 }
                 // dd($registers,$request->input('user_id'));
             return Datatables::of($registers)
@@ -1128,13 +1141,16 @@ class ReportController extends Controller
 
                     return $row->cash_amount + $row->card_amount;
                 })
+                ->editColumn('bank_transfer', function ($row) {
+                    return '<span class="display_currency bank_transfer" data-currency_symbol = true data-orig-value="' . $row->bank_transfer . '">' . $row->bank_transfer . '</span>';
+                })
                 ->addColumn('action', '<button type="button" data-href="{{action(\'CashRegisterController@show\', [$id])}}" class="btn btn-xs btn-info btn-modal" 
                     data-container=".view_register"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</button> @if($status != "close" && auth()->user()->can("close_cash_register"))<button type="button" data-href="{{action(\'CashRegisterController@getCloseRegister\', [$id])}}" class="btn btn-xs btn-danger btn-modal" 
                         data-container=".view_register"><i class="fas fa-window-close"></i> @lang("messages.close")</button> @endif')
                 ->filterColumn('user_name', function ($query, $keyword) {
                     $query->whereRaw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) like ?", ["%{$keyword}%"]);
                 })
-                ->rawColumns(['action', 'user_name', 'closing_amount','cash_amount','card_amount','total_kamai'])
+                ->rawColumns(['action', 'user_name', 'closing_amount','cash_amount','card_amount','total_kamai','bank_transfer'])
                 ->make(true);
         }
 
