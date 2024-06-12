@@ -10,9 +10,9 @@ var ScannedProduct = [];
 $.ajax({
     type: 'GET',
     url: '/all-products-list',
-    success: function(response) {
+    success: function (response) {
         if (response && response.data) {
-            response.data.forEach(function(product) {
+            response.data.forEach(function (product) {
                 var data = {
                     id: product.id,
                     categoryName: product.category,
@@ -29,7 +29,7 @@ $.ajax({
             console.error("No data received or data format incorrect.");
         }
     },
-    error: function(xhr, status, error) {
+    error: function (xhr, status, error) {
         console.error(error);
     }
 });
@@ -37,7 +37,7 @@ $.ajax({
 function getProductDetails() {
     // Get the entered barcode number
     var barcodeNumber = $('#code').val();
-    
+
     // console.log(barcodeNumber);
 
     // Make an AJAX request to retrieve product details
@@ -98,34 +98,34 @@ function getProductDetails() {
     });
 }
 
-    // Event handler for the "Check Audit" button
-    $('#check-audit').click(function() {
-        // Clear existing table rows
-        $('#audit_table tbody').empty();
-        
-        // Get the last 20 entries from the ScannedProduct array
-        var lastEntries = ScannedProduct.slice(0, 20);
-        
-        // Iterate over the last entries and append them to the table
-        $.each(lastEntries, function(index, item) {
-            // console.log(item);
-            var newRow = '<tr>';
-            var imagePath = item.img ? ('uploads/img/' + item.img) : 'img/default.png';
-            newRow += '<td><div style="display: flex; justify-content: center; align-items: center;"><img src="' + item.img + '" alt="Product image" class="product-thumbnail-small"></div></td>';
-            newRow += '<td>' + item.id + '</td>';
-            newRow += '<td>' + item.product + '</td>';
-            newRow += '<td>' + item.sku + '</td>';
-            newRow += '<td>' + item.categoryName + '</td>';
-            newRow += '</tr>';
-    
-            // var newRow = '<tr>';
-            // newRow += '<td>' + item.id + '</td>';
-            // newRow += '<td>' + item.categoryName + '</td>';
-            // newRow += '<td>' + item.sku + '</td>';
-            // newRow += '</tr>';
-            $('#audit_table tbody').append(newRow);
-        });
+// Event handler for the "Check Audit" button
+$('#check-audit').click(function () {
+    // Clear existing table rows
+    $('#audit_table tbody').empty();
+
+    // Get the last 20 entries from the ScannedProduct array
+    var lastEntries = ScannedProduct.slice(0, 20);
+
+    // Iterate over the last entries and append them to the table
+    $.each(lastEntries, function (index, item) {
+        // console.log(item);
+        var newRow = '<tr>';
+        var imagePath = item.img ? ('uploads/img/' + item.img) : 'img/default.png';
+        newRow += '<td><div style="display: flex; justify-content: center; align-items: center;"><img src="' + item.img + '" alt="Product image" class="product-thumbnail-small"></div></td>';
+        newRow += '<td>' + item.id + '</td>';
+        newRow += '<td>' + item.product + '</td>';
+        newRow += '<td>' + item.sku + '</td>';
+        newRow += '<td>' + item.categoryName + '</td>';
+        newRow += '</tr>';
+
+        // var newRow = '<tr>';
+        // newRow += '<td>' + item.id + '</td>';
+        // newRow += '<td>' + item.categoryName + '</td>';
+        // newRow += '<td>' + item.sku + '</td>';
+        // newRow += '</tr>';
+        $('#audit_table tbody').append(newRow);
     });
+});
 
 
 // Array to store all products
@@ -166,60 +166,6 @@ function populateTable(productDetails) {
         }
     }
 }
-// function populateTable(productDetails) {
-//     // Check if productDetails is not empty
-//     if (productDetails) {
-//         // Add productDetails to the allProducts array
-//         // allAppendedProducts.push(productDetails);
-
-//         // Increment the product count
-//         productCount++;
-
-//         // Clear existing table rows if there are more than 10 rows
-//         if ($('#productDetails tr').length >= 19) {
-//             $('#productDetails tr').slice(19).remove();
-//         }
-
-//         // Add a new row with product details
-//         var newRow = '<tr>';
-//         var imagePath = productDetails.image ? ('uploads/img/' + productDetails.image) : 'img/default.png';
-//         newRow += '<td><div style="display: flex; justify-content: center; align-items: center;"><img src="' + imagePath + '" alt="Product image" class="product-thumbnail-small"></div></td>';
-//         newRow += '<td>' + productDetails.id + '</td>';
-//         newRow += '<td>' + productDetails.product + '</td>';
-//         newRow += '<td>' + productDetails.sku + '</td>';
-//         newRow += '<td>' + productDetails.category + '</td>';
-//         newRow += '</tr>';
-
-//         // Append the new row to the table
-//         $('#productDetails').prepend(newRow);
-
-//         // Update the count of all rows
-//         $('#rowCount').text(productCount);
-//     }
-// }
-
-
-
-// function populateTable(productDetails) {
-//     // Clear existing table rows
-//     //   $('#productDetails').empty();
-
-//     // Check if productDetails is not empty
-//     if (productDetails) {
-//         // Add a new row with product details
-//         var newRow = '<tr>';
-//         var imagePath = productDetails.image ? ('uploads/img/' + productDetails.image) : 'img/default.png';
-//         newRow += '<td><div style="display: flex; justify-content: center; align-items: center;"><img src="' + imagePath + '" alt="Product image" class="product-thumbnail-small"></div></td>';
-//         newRow += '<td>' + productDetails.id + '</td>';
-//         newRow += '<td>' + productDetails.product + '</td>';
-//         newRow += '<td>' + productDetails.sku + '</td>';
-//         newRow += '<td>' + productDetails.category + '</td>';
-//         newRow += '</tr>';
-
-//         // Append the new row to the table
-//         $('#productDetails').append(newRow);
-//     }
-// }
 
 
 $("#submit-audit").on("click", function (e) {

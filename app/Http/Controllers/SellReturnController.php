@@ -1161,6 +1161,22 @@ class SellReturnController extends Controller
             'variations.sell_price_inc_tax'
         )
         ->get();
+       
+        $sale = TransactionSellLine::
+        leftJoin('products', 'products.id', 'transaction_sell_lines.product_id')
+        ->leftJoin('variations', 'variations.product_id', 'products.id')
+        ->where('business_id', $business_id)
+        ->where('transaction_sell_lines.sell_line_note',$returnTransactionId)
+        ->select(
+            'transaction_sell_lines.id as tsl_id',
+            'transaction_sell_lines.quantity as sold_quantity',
+            'transaction_sell_lines.item_tax as item_tax',
+            'variations.sub_sku as sku',
+            'variations.default_sell_price as unit_price',
+            'variations.sell_price_inc_tax'
+        )
+        ->get();
+        // dd($returnexchangedSale);
         return view('sell_return.show')->with(compact('sellOrg', 'sell', 'sell_taxes', 'total_discount', 'activities','exchangedSale'));
     }
 

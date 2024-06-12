@@ -4665,8 +4665,8 @@ class ReportController extends Controller
                     ON tsl.id=tspl2.sell_line_id 
                     JOIN purchase_lines AS pl2 
                     ON tspl2.purchase_line_id = pl2.id 
-                    WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax,   
-                    (TSPL.quantity - TSPL.qty_returned) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
+                    WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax,   
+                    (TSPL.quantity ) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
                 )->groupBy('L.id');
                 $results = $gross_profit->first();
                 $gross_profit = $results ?  $results['gross_profit']: 0;
@@ -4873,7 +4873,7 @@ class ReportController extends Controller
                 ->where('t.business_id', $business_id)
                 ->whereIN('t.type', ['sell'])
                 // ->where('t.type', 'sell')
-                ->where('transaction_sell_lines.quantity_returned' , 0)
+                // ->where('transaction_sell_lines.quantity_returned' , 0)
                 ->where('t.status', 'final');
                 if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
                     $query8->whereDate('t.transaction_date', '>=', $start_date)
