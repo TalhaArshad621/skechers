@@ -11,6 +11,15 @@
 
 <!-- Main content -->
 <section class="content no-print">
+    @component('components.filters', ['title' => __('report.filters')])
+    <div class="col-md-3">
+        <div class="form-group">
+            {!! Form::label('stock_transfer_list_filter_location_id',  __('purchase.business_location') . ':') !!}
+
+            {!! Form::select('stock_transfer_list_filter_location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all') ]); !!}
+        </div>
+    </div>
+    @endcomponent
     @component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.all_stock_transfers')])
         @slot('tool')
             <div class="box-tools">

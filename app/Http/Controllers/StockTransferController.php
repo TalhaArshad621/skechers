@@ -62,6 +62,8 @@ class StockTransferController extends Controller
         }
 
         $statuses = $this->stockTransferStatuses();
+        $business_id = request()->session()->get('user.business_id');
+        // dd($business_id);
 
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
@@ -94,6 +96,25 @@ class StockTransferController extends Controller
                         'transactions.id as DT_RowId',
                         'transactions.status'
                     );
+
+                $permitted_locations = auth()->user()->permitted_locations();
+            if ($permitted_locations != 'all') {
+                $stock_transfers->whereIn('transactions.location_id', $permitted_locations);
+            }
+
+            if (request()->has('location_id')) {
+                // dd("inside");
+                $location_id = request()->get('location_id');
+                // dd($location_id);
+                if (!empty($location_id)) {
+                    // dd($location_id);
+                    $stock_transfers->where('t2.location_id', $location_id);
+                    // dd($stock_transfers->first());
+                }
+            }
+
+            // dd($stock_transfers->get());
+            $stock_transfers->groupBy('transactions.id');
             
             return Datatables::of($stock_transfers)
                 ->addColumn('action', function ($row) use ($edit_days) {
@@ -244,8 +265,10 @@ class StockTransferController extends Controller
                 }])
                 ->make(true);
         }
+        $business_locations = BusinessLocation::forDropdown($business_id, false);
 
-        return view('stock_transfer.index')->with(compact('statuses'));
+
+        return view('stock_transfer.index')->with(compact('statuses','business_locations'));
     }
 
     /**

@@ -380,8 +380,10 @@ class SellController extends Controller
                         return '<span class="total-original-amount" data-orig-value="' . $original_amount . '">' . $this->transactionUtil->num_f($original_amount, true) . '</span>';
                     }
                 )
-                ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
-
+                // ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
+                ->editColumn('transaction_date', function ($row) {
+                    return \Carbon\Carbon::parse($row->transaction_date)->format('d/m/Y H:i:s');
+                })
                 ->editColumn(
                     'payment_status',
                     function ($row) {
