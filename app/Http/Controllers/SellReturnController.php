@@ -1197,8 +1197,13 @@ class SellReturnController extends Controller
             'variations.sell_price_inc_tax'
         )
         ->get();
+
+        $agent_name = User::where('id', $sell->commission_agent)
+        ->selectRaw("TRIM(CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, ''))) as full_name")
+        ->first();
+
         // dd($returnexchangedSale);
-        return view('sell_return.show')->with(compact('sellOrg', 'sell', 'sell_taxes', 'total_discount', 'activities','exchangedSale'));
+        return view('sell_return.show')->with(compact('sellOrg', 'sell', 'sell_taxes', 'total_discount', 'activities','exchangedSale','agent_name'));
     }
 
     public function showGiftReceipt($id)

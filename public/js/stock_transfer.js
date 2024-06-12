@@ -160,7 +160,15 @@ $(document).ready(function () {
         processing: true,
         serverSide: true,
         aaSorting: [[0, 'desc']],
-        ajax: '/stock-transfers',
+        // ajax: '/stock-transfers',
+        "ajax": {
+                "url": "/stock-transfers",
+                "data": function ( d ) {
+                    if($('#stock_transfer_list_filter_location_id').length) {
+                        d.location_id = $('#stock_transfer_list_filter_location_id').val();
+                    }
+                }
+            },
         columnDefs: [
             {
                 targets: 5,
@@ -184,6 +192,11 @@ $(document).ready(function () {
         },
     });
     var detailRows = [];
+
+    $(document).on('change', '#stock_transfer_list_filter_location_id',  function() {
+        stock_transfer_table.ajax.reload();
+    });
+
 
     $('#stock_transfer_table tbody').on('click', '.view_stock_transfer', function () {
         var tr = $(this).closest('tr');
