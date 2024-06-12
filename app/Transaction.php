@@ -34,6 +34,11 @@ class Transaction extends Model
     {
         return $this->hasMany(\App\TransactionSellLine::class);
     }
+    
+    public function return_sell_lines($id)
+    {
+        return $this->hasMany(\App\TransactionSellLine::class)->where('sell_line_note', $id);
+    }
 
     public function contact()
     {
