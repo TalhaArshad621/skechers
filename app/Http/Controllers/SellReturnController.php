@@ -650,12 +650,12 @@ class SellReturnController extends Controller
                 $sell_return =  $this->transactionUtil->addSellReturn($input, $business_id, $user_id);
                 $receipt = $this->receiptContent($business_id, $sell_return->location_id, $sell_return->id);
                 
-                DB::commit();
+                // DB::commit();
 
-                $output = ['success' => 1,
-                            'msg' => __('lang_v1.success'),
-                            'receipt' => $receipt
-                        ];
+                // $output = ['success' => 1,
+                //             'msg' => __('lang_v1.success'),
+                //             'receipt' => $receipt
+                //         ];
             }
 
             // dd($input['exchange_products']);
@@ -708,7 +708,7 @@ class SellReturnController extends Controller
                 // $input['exchange_products'];
                 $invoice_total = $this->productUtil->calculateInvoiceTotal($input['exchange_products'], $input['tax_rate_id'], $discount);
 
-                DB::beginTransaction();
+                // DB::beginTransaction();
                 
                 $is_direct_sale = false;
                 if (!empty($request->input('is_direct_sale'))) {
@@ -1183,7 +1183,21 @@ class SellReturnController extends Controller
         )
         ->get();
        
-        $sale = TransactionSellLine::
+        // $sale = TransactionSellLine::
+        // leftJoin('products', 'products.id', 'transaction_sell_lines.product_id')
+        // ->leftJoin('variations', 'variations.product_id', 'products.id')
+        // ->where('business_id', $business_id)
+        // ->where('transaction_sell_lines.sell_line_note',$returnTransactionId)
+        // ->select(
+        //     'transaction_sell_lines.id as tsl_id',
+        //     'transaction_sell_lines.quantity as sold_quantity',
+        //     'transaction_sell_lines.item_tax as item_tax',
+        //     'variations.sub_sku as sku',
+        //     'variations.default_sell_price as unit_price',
+        //     'variations.sell_price_inc_tax'
+        // )
+        // ->get();
+        $saleReturn = TransactionSellLine::
         leftJoin('products', 'products.id', 'transaction_sell_lines.product_id')
         ->leftJoin('variations', 'variations.product_id', 'products.id')
         ->where('business_id', $business_id)
@@ -1194,7 +1208,22 @@ class SellReturnController extends Controller
             'transaction_sell_lines.item_tax as item_tax',
             'variations.sub_sku as sku',
             'variations.default_sell_price as unit_price',
-            'variations.sell_price_inc_tax'
+            'variations.sell_price_inc_tax',
+            'transaction_sell_lines.line_discount_amount',
+            'transaction_sell_lines.unit_price_before_discount',
+            DB::raw("
+            IF(
+                transaction_sell_lines.line_discount_type = 'percentage',
+                COALESCE(
+                    (
+                        COALESCE(transaction_sell_lines.unit_price_inc_tax, 0) / 
+                        (1 - (COALESCE(transaction_sell_lines.line_discount_amount, 0) / 100))
+                        - transaction_sell_lines.unit_price_inc_tax
+                    ), 
+                    0
+                ),
+                COALESCE(transaction_sell_lines.line_discount_amount, 0)
+            ) as total_sell_discount")
         )
         ->get();
 
