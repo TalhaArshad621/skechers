@@ -26,6 +26,7 @@ use App\VariationGroupPrice;
 use App\VariationLocationDetails;
 use App\VariationTemplate;
 use App\Warranty;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -3060,6 +3061,85 @@ class ProductController extends Controller
             return response()->json([
                 'data' => $products
             ]);
+    }
+
+
+    public function updateProductPriceManually()
+    {
+        if (!auth()->user()->can('product.create')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('product.update_sell_price');
+
+    }
+
+    public function storeProductPriceManually(Request $request)
+    {
+        try{
+            $product_name = $request->input('p_name');
+            $new_price = $request->input('sell_price');
+
+            $products = DB::table('products')
+            ->leftJoin('variations','products.id', '=', 'variations.product_id')
+            ->select('products.id AS product_id','products.name AS product_sku', 'products.unit_id AS product_unit_id','products.sub_unit_ids AS sub_unit_id','variations.product_variation_id AS variation_id','variations.default_purchase_price AS pp_without_discount','variations.profit_percent AS profit_percent','variations.default_sell_price','variations.dpp_inc_tax AS dpp_inc_tax','products.tax AS tax_id')
+            ->where('variations.sub_sku','LIKE', '%'.$product_name.'%')
+            ->get();
+            DB::beginTransaction();
+            if(!$products->isEmpty()) {
+                foreach($products as $product) {
+                    $variation = Variation::where('sub_sku', $product->product_sku)
+                    ->first();
+
+
+                    $tax_percentage = DB::table('tax_rates')
+                    ->where('id', $product->tax_id)
+                    ->select('amount')
+                    ->first();
+                    // dd($tax_percentage);
+
+                    $tax =  ($tax_percentage->amount/100) + 1;
+                    // dd($tax);
+
+
+                    $dpp_inc_tax = $variation->dpp_inc_tax;
+                    $new_selling_price = $new_price;
+                    $profit_margin_percentage = ($new_selling_price - $dpp_inc_tax) / $dpp_inc_tax * 100;
+                    $profit_margin_percentages[$product->product_sku] = $profit_margin_percentage;
+                    
+
+                    $defaut_sell_price = $new_selling_price/$tax;
+                    $selling_price_without_tax[$product->product_sku] = $defaut_sell_price;
+
+                    // Update profit_percent and sell_price_inc_tax columns separately
+                    $variation->update(['profit_percent' => $profit_margin_percentage]);
+                    $variation->update(['sell_price_inc_tax' => $new_selling_price]);
+                    $variation->update(['default_sell_price' => $defaut_sell_price]);
+                }
+                DB::commit();
+                    $output = ['success' => 1,
+                    'msg' => __('lang_v1.product_grp_prices_imported_successfully')
+                ];
+            } else {
+                $error_msg = __('Product Not Found');
+
+                throw new \Exception($error_msg);
+            }
+
+
+        } catch(Exception $e) {
+            DB::rollBack();
+
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            
+            $output = ['success' => 0,
+                            'msg' => $e->getMessage()
+                        ];
+            return redirect('change-article-price')->with('notification', $output);
+        }
+
+        return redirect('change-article-price')->with('status', $output);
+
     }
 
 }

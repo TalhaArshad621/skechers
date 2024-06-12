@@ -161,6 +161,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-circle', 'active' => request()->segment(1) == 'indexForSellPriceUpdate']
                             );
                         }
+                        if (auth()->user()->can('product.create')) {
+                            $sub->url(
+                                action('ProductController@updateProductPriceManually'),
+                                __('Change Price Manually'),
+                                ['icon' => 'fa fas fa-circle', 'active' => request()->segment(1) == 'change-article-price']
+                            );
+                        }
                         // if (auth()->user()->can('product.create')) {
                         //     $sub->url(
                         //         action('SellingPriceGroupController@index'),

@@ -4681,8 +4681,8 @@ class ReportController extends Controller
                     ON tsl.id=tspl2.sell_line_id 
                     JOIN purchase_lines AS pl2 
                     ON tspl2.purchase_line_id = pl2.id 
-                    WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax,   
-                    (TSPL.quantity - TSPL.qty_returned) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
+                    WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax,   
+                    (TSPL.quantity ) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
                 )->groupBy('L.id');
                 $results = $gross_profit->first();
                 $gross_profit = $results ?  $results['gross_profit']: 0;
@@ -4889,7 +4889,7 @@ class ReportController extends Controller
                 ->where('t.business_id', $business_id)
                 ->whereIN('t.type', ['sell'])
                 // ->where('t.type', 'sell')
-                ->where('transaction_sell_lines.quantity_returned' , 0)
+                // ->where('transaction_sell_lines.quantity_returned' , 0)
                 ->where('t.status', 'final');
                 if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
                     $query8->whereDate('t.transaction_date', '>=', $start_date)
@@ -5383,6 +5383,13 @@ class ReportController extends Controller
     public function getbrandfolioReport(Request $request)
     {
         $business_id = $request->session()->get('user.business_id');
+        $location_id = $request->get('location_id', null);
+
+        $vld_str = '';
+        if (!empty($location_id)) {
+            $vld_str = "AND vld.location_id=$location_id";
+        }
+
         if ($request->ajax()) {
             $variation_id = $request->get('variation_id', null);
             $query = TransactionSellLine::join(
@@ -5409,6 +5416,7 @@ class ReportController extends Controller
                 ->where('t.type', 'sell')
                 ->where('t.status', 'final')
                 ->select(
+                    'v.id as v_id',
                     'v.sub_sku',
                     'c.name as customer',
                     'c.supplier_business_name',
@@ -5417,8 +5425,8 @@ class ReportController extends Controller
                     't.transaction_date as transaction_date',
                     'v.sell_price_inc_tax as unit_price',
                     'transaction_sell_lines.unit_price_inc_tax as unit_sale_price',
-                    DB::raw('(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) as sell_qty'),
-                    DB::raw('((transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
+                    DB::raw('(transaction_sell_lines.quantity ) as sell_qty'),
+                    DB::raw('((transaction_sell_lines.quantity ) * transaction_sell_lines.unit_price_inc_tax) as subtotal'),
                     'bl.name as location_name',
                     'categories.name as category_name',
                 )
@@ -5430,7 +5438,14 @@ class ReportController extends Controller
                 $query->where('transaction_sell_lines.variation_id', $variation_id);
             }
             $start_date = $request->get('start_date');
-            $end_date = $request->get('end_date');
+            // $end_date = $request->get('end_date');
+
+             // Convert the end date to "YYYY-MM-DD 23:59"
+            $endDateCarbon = Carbon::createFromFormat('Y-m-d H:i', $request->get('end_date'));
+            $endDateCarbon->setTime(23, 59);
+
+            $end_date  = $endDateCarbon->format('Y-m-d H:i');
+            // dd($start_date, $end_date);
             if (!empty($start_date) && !empty($end_date)) {
                 $query->where('t.transaction_date', '>=', $start_date)
                     ->where('t.transaction_date', '<=', $end_date);
@@ -5452,6 +5467,15 @@ class ReportController extends Controller
             }
 
             return Datatables::of($query)
+                ->addColumn('style_no', function($row) {
+                    return $this->productUtil->splitSKU($row->sub_sku, "one");
+                })
+                ->addColumn('color', function($row){
+                    return $this->productUtil->splitSKU($row->sub_sku, "two");
+                })
+                ->addColumn('size', function($row){
+                    return $this->productUtil->splitSKU($row->sub_sku, "three");
+                })
                  ->editColumn('distributor', function ($row) {
                      return 'BrandFolio';
                  })
@@ -5462,11 +5486,21 @@ class ReportController extends Controller
                 ->editColumn('sell_qty', function ($row) {
                     return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->sell_qty . '" data-unit="' . $row->unit . '" >' . (float) $row->sell_qty . '</span> ' .$row->unit;
                 })
-                ->editColumn('closing_stock', function ($row) {
-                    return 0;
+                ->editColumn('closing_stock', function ($row) use($vld_str, $business_id) {
+                    
+                    $stock = $this->productUtil->calculateStockBySku($row->v_id, $row->variation_id, $vld_str, $business_id);
+                    $stocks = $stock->pluck('stock');
+
+                    if ($stocks->isNotEmpty()) {
+                        // return $stocks->sum();
+                        return '<span data-is_quantity="true" class="display_currency stock_by_color" data-currency_symbol=false data-orig-value="' . (float)$stocks->sum() . '" data-unit="' . $row->unit . '" >' . (float) $stocks->sum() . '</span> ';
+
+                    } else {
+                        return 0;
+                    }
                 })
                  ->editColumn('subtotal', function ($row) {
-                     return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . $row->subtotal . '</span>';
+                     return '<span class="display_currency row_subtotal" data-currency_symbol = true data-orig-value="' . $row->subtotal . '">' . (int)$row->subtotal . '</span>';
                  })
                 ->editColumn('country', function ($row) {
                     return 'Pakistan';
@@ -5477,14 +5511,14 @@ class ReportController extends Controller
                 ->editColumn('category', function ($row) {
                     return $row->category_name;
                 })
-                ->rawColumns(['subtotal', 'sell_qty'])
+                ->rawColumns(['subtotal', 'sell_qty','closing_stock'])
                 ->make(true);
         }
 
         $business_locations = BusinessLocation::forDropdown($business_id);
         $customers = Contact::customersDropdown($business_id);
 
-        return view('report.brandfolio_report');
+        return view('report.brandfolio_report', compact('business_locations','customers'));
     }
 
     public function getDetailedProductCategory(Request $request)

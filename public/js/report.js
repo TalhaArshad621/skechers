@@ -686,60 +686,60 @@ $(document).ready(function () {
 
         //Sales representative report -> International Exchange
         sr_sales_with_commission_int_exchange = $('table#sr_sales_with_commission_int_exchange_table').DataTable({
-        processing: true,
-        serverSide: true,
-        aaSorting: [[0, 'desc']],
-        ajax: {
-            url: '/reports/employee-int-exchange-report',
-            data: function (d) {
-                var start = $('input#sr_date_filter')
-                    .data('daterangepicker')
-                    .startDate.format('YYYY-MM-DD');
-                var end = $('input#sr_date_filter')
-                    .data('daterangepicker')
-                    .endDate.format('YYYY-MM-DD');
-                console.log(start, end);
-                (d.commission_agent = $('select#sr_id').val()),
-                    (d.location_id = $('select#sr_business_id').val()),
-                    (d.start_date = start),
-                    (d.end_date = end);
+            processing: true,
+            serverSide: true,
+            aaSorting: [[0, 'desc']],
+            ajax: {
+                url: '/reports/employee-int-exchange-report',
+                data: function (d) {
+                    var start = $('input#sr_date_filter')
+                        .data('daterangepicker')
+                        .startDate.format('YYYY-MM-DD');
+                    var end = $('input#sr_date_filter')
+                        .data('daterangepicker')
+                        .endDate.format('YYYY-MM-DD');
+                    console.log(start, end);
+                    (d.commission_agent = $('select#sr_id').val()),
+                        (d.location_id = $('select#sr_business_id').val()),
+                        (d.start_date = start),
+                        (d.end_date = end);
+                },
             },
-        },
-        columns: [
-            { data: 'employee_name', name: 'users.first_name' },
-            { data: 'total_invoices', name: 'total_invoices' },
-            { data: 'total_items', name: 'total_items' },
-            { data: 'total_sales', name: 'total_sales' },
-        ],
-        columnDefs: [
-            {
-                searchable: false,
-                targets: [3],
+            columns: [
+                { data: 'employee_name', name: 'users.first_name' },
+                { data: 'total_invoices', name: 'total_invoices' },
+                { data: 'total_items', name: 'total_items' },
+                { data: 'total_sales', name: 'total_sales' },
+            ],
+            columnDefs: [
+                {
+                    searchable: false,
+                    targets: [3],
+                },
+            ],
+            fnDrawCallback: function (oSettings) {
+                $('#footer_total_invoices_exchange_int').text(
+                    sum_table_col($('#sr_sales_with_commission_int_exchange_table'), 'total_invoices')
+                );
+
+                $('#footer_total_items_exchange_int').text(
+                    sum_table_col($('#sr_sales_with_commission_int_exchange_table'), 'total_items')
+                );
+
+                $('#footer_total_sales_exchange_int').text(
+                    sum_table_col($('#sr_sales_with_commission_int_exchange_table'), 'total_sales')
+                );
+                __currency_convert_recursively($('#sr_sales_with_commission_int_exchange_table'));
+                __currency_convert_recursively($('#sr_sales_with_commission_exchange_table'));
+                __currency_convert_recursively($('#sr_sales_with_commission'));
             },
-        ],
-        fnDrawCallback: function (oSettings) {
-            $('#footer_total_invoices_exchange_int').text(
-                sum_table_col($('#sr_sales_with_commission_int_exchange_table'), 'total_invoices')
-            );
+        });
 
-            $('#footer_total_items_exchange_int').text(
-                sum_table_col($('#sr_sales_with_commission_int_exchange_table'), 'total_items')
-            );
-
-            $('#footer_total_sales_exchange_int').text(
-                sum_table_col($('#sr_sales_with_commission_int_exchange_table'), 'total_sales')
-            );
-            __currency_convert_recursively($('#sr_sales_with_commission_int_exchange_table'));
-            __currency_convert_recursively($('#sr_sales_with_commission_exchange_table'));
-            __currency_convert_recursively($('#sr_sales_with_commission'));
-        },
-    });
-
-    //Sales representive filter
-    $('select#sr_id, select#sr_business_id').change(function () {
-        updateSalesRepresentativeReport();
-    });
-}
+        //Sales representive filter
+        $('select#sr_id, select#sr_business_id').change(function () {
+            updateSalesRepresentativeReport();
+        });
+    }
 
     //Stock expiry report table
     stock_expiry_report_table = $('table#stock_expiry_report_table').DataTable({
@@ -971,6 +971,7 @@ $(document).ready(function () {
                 product_sell_grouped_report.ajax.reload();
                 product_exchange_report_table.ajax.reload();
                 product_sell_report_with_purchase_table.ajax.reload();
+                brandfolio_report.ajax.reload();
             }
         );
         $('#product_sr_date_filter').on('cancel.daterangepicker', function (ev, picker) {
@@ -979,6 +980,7 @@ $(document).ready(function () {
             product_sell_grouped_report.ajax.reload();
             product_exchange_report_table.ajax.reload();
             product_sell_report_with_purchase_table.ajax.reload();
+            brandfolio_report.ajax.reload();
         });
 
         $('#product_sr_start_time, #product_sr_end_time').datetimepicker({
@@ -1078,7 +1080,14 @@ $(document).ready(function () {
         },
         columns: [
             // { data: 'product_name', name: 'p.name' },
-            { data: 'sub_sku', name: 'v.sub_sku' },
+            {
+                data: null, name: 'serial_number', searchable: false, orderable: false, render: function (data, type, row, meta) {
+                    return meta.row + 1;
+                }
+            },
+            { data: 'style_no', name: 'style_no' },
+            { data: 'color', name: 'color' },
+            { data: 'size', name: 'size' },
             { data: 'distributor', name: 'distributor' },
             { data: 'country', name: 'country' },
             { data: 'transaction_date', name: 't.transaction_date' },
@@ -1278,12 +1287,12 @@ $(document).ready(function () {
             // { data: 'sub_sku', name: 'v.sub_sku' },
             { data: 'total_qty_returned', name: 'total_qty_returned', searchable: false },
             { data: 'adjustment_amount', name: 'adjustment_amount', searchable: false },
-            { data: 'old_invoice_no', name: 'old_invoice_no'},
-            { data: 'new_invoice_no', name: 'new_invoice_no'},
+            { data: 'old_invoice_no', name: 'old_invoice_no' },
+            { data: 'new_invoice_no', name: 'new_invoice_no' },
             { data: 'transaction_date', name: 't.transaction_date' },
             { data: 'old_transaction_date', name: 'trans.transaction_date' },
             { data: 'days_difference', name: 'days_difference' },
-            { data: 'employee_name', name: 'employee_name',searchable: false },
+            { data: 'employee_name', name: 'employee_name', searchable: false },
             { data: 'created_by', name: 'c.name' },
 
         ],
@@ -1530,7 +1539,7 @@ $(document).ready(function () {
             monthly_report.ajax.reload();
         }
     );
-    $('#monthly_report_filter_date_range').on('cancel.daterangepicker', function(ev, picker) {
+    $('#monthly_report_filter_date_range').on('cancel.daterangepicker', function (ev, picker) {
         $('#monthly_report_filter_date_range').val('');
         monthly_report.ajax.reload();
     });
@@ -1542,8 +1551,8 @@ $(document).ready(function () {
 
         "ajax": {
             "url": "/reports/monthly-report-data",
-            "data": function ( d ) {
-                if($('#monthly_report_filter_date_range').val()) {
+            "data": function (d) {
+                if ($('#monthly_report_filter_date_range').val()) {
                     var start = $('#monthly_report_filter_date_range').data('daterangepicker').startDate.format('YYYY-MM-DD');
                     var end = $('#monthly_report_filter_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
                     d.start_date = start;
@@ -1593,7 +1602,7 @@ $(document).ready(function () {
         //         __sum_stock($('#monthly_report_table'), 'cash_amount')
         //     );
 
-            
+
         //     // var total_amount = sum_table_col($('#monthly_report_table'), 'paid-amount');
         //     // $('#footer_total_amount').text(total_amount);
         //     __currency_convert_recursively($('#monthly_report_table'));
