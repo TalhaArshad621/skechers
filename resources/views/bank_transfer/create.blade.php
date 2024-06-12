@@ -20,16 +20,19 @@
                         <label for="bank" class="form-label">Bank: *</label>
                         <select name="bank" id="bank" class="form-control select2" required>
                             <option value="" selected disabled>Please Select</option>
-                            <option value="united_bank">United Bank</option>
-                            <option value="habib_bank">Habib Bank</option>
-                            <option value="al_habib_bank">Al-Habib Bank</option>
+                            <option value="islami_bank">Islami Bank</option>
+                            <option value="hbl_bank">HBL Bank</option>
                             <option value="mcb_bank">MCB Bank</option>
-                            <option value="alfalah_bank">Alfalah Bank</option>
                             <option value="meezan_bank">Meezan Bank</option>
-                            <option value="ceo">CEO</option>
-                            <option value="mcb_8141">MCB 8141</option>
+                            <option value="alfalah_bank">Alfalah Bank</option>
+							<option value="faysal_bank">Faysal Bank</option>
+                            <option value="habib_bank">Habib Bank</option>
+                            <option value="united_bank">United Bank</option>
+                            <option value="al_habib_bank">Al-Habib Bank</option>
                             <option value="albaraka_bank">Albaraka Bank</option>
                             <option value="js_bank">JS Bank</option>
+                            <option value="allied_bank">Allied Bank</option>
+                            <option value="askari_bank">Askari Bank</option>
                         </select>					
                     </div>
 				</div>

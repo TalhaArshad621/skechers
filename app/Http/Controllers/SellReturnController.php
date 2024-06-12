@@ -185,7 +185,7 @@ class SellReturnController extends Controller
                         </span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                        <li><a href="#" class="btn-modal" data-container=".view_modal" data-href="{{action(\'SellReturnController@show\', [$parent_sale_id])}}"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</a></li>
+                        <li><a href="#" class="btn-modal" data-container=".view_modal" data-href="{{action(\'SellReturnController@showMergedReceipt\', [$parent_sale_id])}}"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</a></li>
                         <li><a href="#" class="print-invoice" data-href="{{action(\'SellReturnController@printInvoice\', [$id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("messages.print")</a></li>
                     </ul>
                     </div>'
@@ -1164,7 +1164,22 @@ class SellReturnController extends Controller
             'transaction_sell_lines.item_tax as item_tax',
             'variations.sub_sku as sku',
             'variations.default_sell_price as unit_price',
-            'variations.sell_price_inc_tax'
+            'variations.sell_price_inc_tax',
+            'transaction_sell_lines.line_discount_amount',
+            'transaction_sell_lines.unit_price_before_discount',
+            DB::raw("
+            IF(
+                transaction_sell_lines.line_discount_type = 'percentage',
+                COALESCE(
+                    (
+                        COALESCE(transaction_sell_lines.unit_price_inc_tax, 0) / 
+                        (1 - (COALESCE(transaction_sell_lines.line_discount_amount, 0) / 100))
+                        - transaction_sell_lines.unit_price_inc_tax
+                    ), 
+                    0
+                ),
+                COALESCE(transaction_sell_lines.line_discount_amount, 0)
+            ) as total_sell_discount")
         )
         ->get();
         return view('sell_return.show')->with(compact('sellOrg', 'sell', 'sell_taxes', 'total_discount', 'activities','exchangedSale'));
