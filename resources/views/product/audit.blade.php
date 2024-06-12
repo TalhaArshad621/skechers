@@ -17,7 +17,9 @@
                 <div class="col-sm-4">
                   <div class="form-group">
                     <label>Barcode No.</label>
-                    <input type="text" name="code" id="code" class="form-control" placeholder="Enter Barcode Number" oninput="getProductDetails()">
+                    {{-- <input type="text" name="code" id="code" class="form-control" placeholder="Enter Barcode Number" oninput="getProductDetails()"> --}}
+                    <input type="text" name="code" id="code" class="form-control" placeholder="Enter Barcode Number" oninput="debouncedGetProductDetails()">
+
                     <label style="color: red; font-size:17px; margin-top:15px;">Scanned Products:</label>
                     <span style="font-size:17px;" id="rowCount">0</span>
                     <br>

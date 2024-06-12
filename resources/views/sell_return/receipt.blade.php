@@ -304,7 +304,7 @@
 	                        </td>
 	                        <td class="quantity text-right">{{$line['quantity']}}</td>
 	                        @if(empty($receipt_details->hide_price))
-	                        <td class="unit_price text-right">{{$line['unit_price_inc_tax']}}</td>
+	                        <td class="unit_price text-right">{{$line['original_price']}}</td>
 							<td class="discount text-right">{{(int)$line['new_discount_amount']}}</td>
 	                        <td class="price text-right">{{$line['line_total']}}</td>
 	                        @endif
@@ -325,7 +325,7 @@
 	                        </td>
 	                        <td class="quantity text-right">{{$line['quantity']}}</td>
 	                        @if(empty($receipt_details->hide_price))
-	                        <td class="unit_price text-right">{{$line['unit_price_inc_tax']}}</td>
+	                        <td class="unit_price text-right">{{$line['original_price']}}</td>
 							<td class="discount text-right">{{(int)$line['new_discount_amount']}}</td>
 	                        <td class="price text-right">{{$line['line_total']}}</td>
 	                        @endif

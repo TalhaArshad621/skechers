@@ -95,10 +95,10 @@
                 @lang('restaurant.service_staff')
             </th>
         @endif
-        <th>{{ __('sale.unit_price') }}</th>
-        {{-- <th>{{ __('sale.discount') }}</th> --}}
-        <th>{{ __('sale.tax') }}</th>
-        <th>{{ __('sale.price_inc_tax') }}</th>
+        <th>{{ 'Price' }}</th>
+        <th>{{ __('sale.discount') }}</th>
+        {{-- <th>{{ __('sale.tax') }}</th>
+        <th>{{ __('sale.price_inc_tax') }}</th> --}}
         <th>{{ __('sale.subtotal') }}</th>
     </tr>
     @foreach($exchangedSale as $sell_line)
@@ -148,12 +148,13 @@
                 </td>
             @endif
             <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->unit_price }}</span>
+                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->sell_price_inc_tax }}</span>
+            </td>
+            {{-- {{ dd($sell_line) }} --}}
+            <td>
+              <span class="display_currency" data-currency_symbol="true">{{ $sell_line->total_sell_discount }}</span> ({{intval($sell_line->line_discount_amount)}}%)
             </td>
             {{-- <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->get_discount_amount() }}</span> @if($sell_line->line_discount_type == 'percentage') ({{$sell_line->line_discount_amount}}%) @endif
-            </td> --}}
-            <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $sell_line->item_tax }}</span> 
                 @if(!empty($taxes[$sell_line->tax_id]))
                 ( {{ $taxes[$sell_line->tax_id]}} )
@@ -161,13 +162,14 @@
             </td>
             <td>
                 <span class="display_currency" data-currency_symbol="true">{{ $sell_line->sell_price_inc_tax }}</span>
-            </td>
+            </td> --}}
+            {{-- {{ dd($sell_line) }} --}}
             <td>
               @php
-                $exchange_line_total = $sell_line->sold_quantity * $sell_line->sell_price_inc_tax;
+                $exchange_line_total = ($sell_line->sold_quantity * $sell_line->sell_price_inc_tax) - $sell_line->total_sell_discount;
                 $exchange_total += $exchange_line_total ;
               @endphp
-                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->sold_quantity * $sell_line->sell_price_inc_tax }}</span>
+                <span class="display_currency" data-currency_symbol="true">{{ ($sell_line->sold_quantity * $sell_line->sell_price_inc_tax) - $sell_line->total_sell_discount }}</span>
             </td>
         </tr>
         @if(!empty($sell_line->modifiers))

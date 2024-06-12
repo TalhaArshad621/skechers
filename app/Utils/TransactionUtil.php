@@ -8987,6 +8987,7 @@ class TransactionUtil extends Util
 
     public function addSellReturn($input, $business_id, $user_id, $uf_number = true)
     {
+        // dd($input);
         $location_id_new = auth()->user()->permitted_locations();
 
         $register =  CashRegister::where('user_id', $user_id)
@@ -9012,6 +9013,14 @@ class TransactionUtil extends Util
         $sell = Transaction::where('business_id', $business_id)
         ->with(['sell_lines', 'sell_lines.sub_unit','contact'])
         ->findOrFail($input['transaction_id']);
+
+        if($input['old_transaction_id']){
+            $grandSell = Transaction::where('business_id', $business_id)
+            ->with(['sell_lines', 'sell_lines.sub_unit','contact'])
+            ->findOrFail($input['old_transaction_id']);
+        // dd($grandSell);
+        }
+        // dd("here");
         
         // dd($location_id_new, $sell->location_id);
         //Check if any sell return exists for the sale
@@ -9019,6 +9028,12 @@ class TransactionUtil extends Util
         ->where('type', 'sell_return')
         ->where('return_parent_id', $sell->id)
                 ->first();
+        
+        // $grand_sell_return = Transaction::where('business_id', $business_id)
+        // ->where('type', 'sell_return')
+        // ->where('return_parent_id', $grandSell->id)
+        //         ->first();
+                // dd($grandSell);
         $sell_return_data = [
             'invoice_no' => $input['invoice_no'] ?? null,
             'discount_type' => $discount['discount_type'],
@@ -9198,6 +9213,53 @@ class TransactionUtil extends Util
 
                 // Update quantity in variation location details
                 $productUtil->updateProductQuantity( $location_id_new == "all" ? $sell_return->location_id : $location_id_new[0], $sell_line->product_id, $sell_line->variation_id, $quantity, $quantity_before, null, false);
+            }
+        }
+        if($input['old_transaction_id']){
+
+            foreach ($grandSell->sell_lines as $sell_line) {
+                if (array_key_exists($sell_line->id, $returns)) {
+                    $multiplier = 1;
+                    if (!empty($sell_line->sub_unit)) {
+                        $multiplier = $sell_line->sub_unit->base_unit_multiplier;
+                    }
+
+                    $quantity = $returns[$sell_line->id] * $multiplier;
+
+                    $quantity_before = $sell_line->quantity_returned;
+
+                    $sell_line->quantity_returned = $quantity;
+                    $sell_line->save();
+
+                    $total_tax += $sell_line->item_tax;
+                    $total_items += $sell_line->quantity;
+                    $unit_price += $sell_line->unit_price;
+                    $line_discount_amount += $sell_line->line_discount_amount;
+
+                    // $variation_data = DB::table('variations')->select("sub_sku")->where('product_id', $sell_line['product_id'])->first();
+
+                    // $item_data_for_fbr = [  
+                    //     'ItemCode'    => $sell_line['product_id'],
+                    //     "ItemName"    => $variation_data->sub_sku,
+                    //     "Quantity"    => $quantity,
+                    //     "PCTCode"     => 6404,
+                    //     "TaxRate"     => $sell_line['tax_id'] / $multiplier,
+                    //     "SaleValue"   => $sell_line['unit_price'],
+                    //     "TotalAmount" => $sell_line['unit_price_inc_tax'] / $multiplier,
+                    //     "TaxCharged"  => $sell_line['item_tax'] / $multiplier,
+                    //     "Discount"    => $sell_line['line_discount_amount'],
+                    //     "FurtherTax"  => 0.0,
+                    //     "InvoiceType" => 3,
+                    //     "RefUSIN"     => $sell->invoice_no
+                    // ];
+                    // array_push( $fbr_lines, $item_data_for_fbr);
+
+                    //update quantity sold in corresponding purchase lines
+                    $this->updateQuantitySoldFromSellLine($sell_line, $quantity, $quantity_before, false);
+
+                    // Update quantity in variation location details
+                    $productUtil->updateProductQuantity( $location_id_new == "all" ? $sell_return->location_id : $location_id_new[0], $sell_line->product_id, $sell_line->variation_id, $quantity, $quantity_before, null, false);
+                }
             }
         }
 

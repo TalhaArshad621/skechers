@@ -208,7 +208,31 @@
             <tr>
               <th>{{ __('sale.discount') }}:</th>
               <td><b>(-)</b></td>
-              <td><div class="pull-right"><span class="display_currency" @if( $sell->discount_type == 'fixed') data-currency_symbol="true" @endif>{{ $sell->discount_amount }}</span> @if( $sell->discount_type == 'percentage') {{ '%'}} @endif</span></div></td>
+              {{-- {{ dd($sell->sell_lines[0]->line_discount_amount) }} --}}
+              {{-- <td><div class="pull-right">@if( $sell->discount_type == 'percentage') {{ $sell->sell_lines[0]->line_discount_amount }}% @endif</span></div></td> --}}
+              <td>
+                <div class="pull-right">
+                    @php
+                        $discount = null;
+                        foreach ($sell->sell_lines as $line) {
+                            if ($line->line_discount_amount > 0) {
+                                // $discount = $line->line_discount_amount;
+                                $discount = floor($line->line_discount_amount);
+
+                                break;
+                            }
+                        }
+                    @endphp
+                    @php
+                      $discount_amount = ($line->unit_price_before_discount * $line->line_discount_amount) / 100;
+                    @endphp
+                  
+                  <span class="display_currency" data-currency_symbol="true">{{ $discount_amount }}</span>
+                    @if($sell->discount_type == 'percentage' && $discount !== null)
+                        ({{ $discount }}%)
+                    @endif
+                </div>
+              </td>
             </tr>
             @if(in_array('types_of_service' ,$enabled_modules) && !empty($sell->packing_charge))
               <tr>

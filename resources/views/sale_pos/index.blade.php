@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', __( 'sale.list_pos'))
+@section('title', __( 'Invoices'))
 
 @section('content')
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>@lang('sale.pos_sale')
+    <h1>@lang('Invoices')
     </h1>
 </section>
 
@@ -15,7 +15,7 @@
         @include('sell.partials.sell_list_filters')
     @endcomponent
 
-    @component('components.widget', ['class' => 'box-primary', 'title' => __( 'sale.list_pos')])
+    @component('components.widget', ['class' => 'box-primary', 'title' => __( 'Invoices')])
         @can('sell.create')
             @slot('tool')
                 <div class="box-tools">

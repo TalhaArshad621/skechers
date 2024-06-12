@@ -288,6 +288,14 @@
                 <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash + $register_details->total_card  }}</span></b>
               </td>
             </tr>
+            <tr>
+              <th>
+                Bank Transfer:
+              </th>
+              <td>
+                <b><input type="number" name="bank_transfer" id="bank_transfer"></input</b>
+              </td>
+            </tr>
           </table>
         </div>
       </div>

@@ -415,6 +415,7 @@ $(document).ready(function () {
             // { data: 'total_card_slips', name: 'total_card_slips' },
             { data: 'card_amount', name: 'card_amount' },
             { data: 'cash_amount', name: 'cash_amount' },
+            { data: 'bank_transfer', name: 'bank_transfer' },
             { data: 'total_kamai', name: 'total_kamai' },
             { data: 'action', name: 'action' },
         ],
@@ -424,6 +425,9 @@ $(document).ready(function () {
             );
             $('#card_total').html(
                 sum_table_col($('#register_report_table'), 'sell_qty')
+            );
+            $('#bank_transfer').html(
+                sum_table_col($('#register_report_table'), 'bank_transfer')
             );
             $('#final_total').html(
                 sum_table_col($('#register_report_table'), 'subtotal')

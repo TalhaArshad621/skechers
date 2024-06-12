@@ -36,6 +36,8 @@
 	@endif
 @endcomponent
         <input id="transaction_id" name="transaction_id" type="hidden">
+		<input id="old_transaction_id" name="old_transaction_id" type="hidden">
+
 	<div class="box box-solid">
 		<div class="box-header">
 			<h3 class="box-title">@lang('lang_v1.parent_sale')</h3>
@@ -475,6 +477,7 @@
 					// Add any other data you want to send to the controller
 				},
 				success: function(response) {
+					// console.log(response);
 					// Handle the success response from the controller
 					if (response.success) {
 						// Update your view with the received data
@@ -626,10 +629,12 @@
         }
 
     function updateView(sellData) {
+		// console.log(sellData);
             // Implement your logic to update the view with the received sellData
             // console.log(sellData);
             // console.log(sellData.id)
             $('#transaction_id').val(sellData.id ? sellData.id : '');
+			$('#old_transaction_id').val( sellData.return_parent_sell ? (sellData.return_parent_sell.id ? sellData.return_parent_sell.id : '') : '');
             $('#transaction_date').text(sellData.transaction_date ? formatDate(sellData.transaction_date) : '');
             $('#business_location').text(sellData.location ? sellData.location.name : '');
             $('#customer').text(sellData.contact ? sellData.contact.name : '');
@@ -647,6 +652,7 @@
             var sellLinesHtml = '';
 
             if (sellData.sell_lines && sellData.sell_lines.length > 0) {
+				// console.log(sellData.sell_lines.length);
                 sellLinesHtml += '<table class="table bg-gray" id="sell_return_table">';
                 // sellLinesHtml += '<thead><tr class="bg-green">';
                 // sellLinesHtml += '<th>#</th>';
@@ -658,7 +664,9 @@
                 // sellLinesHtml += '</tr></thead>';
                 sellLinesHtml += '<tbody id="sell_lines_container">';
 
+					console.log(sellData);
                 $.each(sellData.sell_lines, function (index, sellLine) {
+					// console.log(sellLine);
                     sellLinesHtml += '<tr>';
                     sellLinesHtml += '<td>' + (index + 1) + '</td>';
                     sellLinesHtml += '<td>' + sellLine.product.name;
@@ -690,6 +698,57 @@
             } else {
                 sellLinesHtml = '<td colspan="6" style="color:black; font-size: 18px; align-items:center; padding:5px; text-align:center;"><marquee> No sell lines available.</marquee></td>';
             }
+
+			// console.log(sellData);
+			if(sellData.return_parent_sell) {
+				if (sellData.return_parent_sell.sell_lines && sellData.return_parent_sell.sell_lines.length > 0) {
+					// console.log(sellData.return_parent_sell.sell_lines);
+					sellLinesHtml += '<table class="table bg-gray" id="sell_return_table">';
+					// sellLinesHtml += '<thead><tr class="bg-green">';
+					// sellLinesHtml += '<th>#</th>';
+					// sellLinesHtml += '<th>Product Name</th>'; // Replace with the actual translated text
+					// sellLinesHtml += '<th>Unit Price</th>'; // Replace with the actual translated text
+					// sellLinesHtml += '<th>Sell Quantity</th>'; // Replace with the actual translated text
+					// sellLinesHtml += '<th>Return Quantity</th>'; // Replace with the actual translated text
+					// sellLinesHtml += '<th>Return Subtotal</th>'; // Replace with the actual translated text
+					// sellLinesHtml += '</tr></thead>';
+					sellLinesHtml += '<tbody id="sell_lines_container">';
+					// console.log(sellData.return_parent_sell.sell_lines);
+					$.each(sellData.return_parent_sell.sell_lines, function (index, sellLine) {
+						// console.log(sellLine);
+						sellLinesHtml += '<tr>';
+						sellLinesHtml += '<td>' + (index + 1) + '</td>';
+						sellLinesHtml += '<td>' + sellLine.product.name;
+	
+						if (sellLine.product.type == 'variable') {
+							sellLinesHtml += ' - ' + sellLine.variations.product_variation.name;
+							sellLinesHtml += ' - ' + sellLine.variations.name;
+						}
+	
+						sellLinesHtml += '</td>';
+						sellLinesHtml += '<td><span class="display_currency" data-currency_symbol="true">' + sellLine.unit_price_inc_tax + '</span></td>';
+						sellLinesHtml += '<td>' + sellLine.quantity + ' ' + (sellLine.sub_unit ? sellLine.sub_unit.short_name : sellLine.product.unit.short_name) + '</td>';
+						sellLinesHtml += '<td>';
+						sellLinesHtml += '<input type="text" name="products[' + index + '][quantity]" value="' + format_quantity(sellLine.quantity_returned) + '"';
+						sellLinesHtml += 'class="form-control input-sm input_number return_qty input_quantity"';
+						sellLinesHtml += 'data-rule-abs_digit="' + (sellLine.product.unit.allow_decimal == 0 ? 'true' : 'false') + '"';
+						sellLinesHtml += 'data-msg-abs_digit="Decimal value not allowed"';
+						sellLinesHtml += 'data-rule-max-value="' + sellLine.quantity + '"';
+						sellLinesHtml += 'data-msg-max-value="Validation message for maximum value"';
+						sellLinesHtml += '>';
+						sellLinesHtml += '<input name="products[' + index + '][unit_price_inc_tax]" type="hidden" class="unit_price" value="' + num_format(sellLine.unit_price_inc_tax) + '">';
+						sellLinesHtml += '<input name="products[' + index + '][sell_line_id]" type="hidden" value="' + sellLine.id + '">';
+						sellLinesHtml += '</td>';
+						sellLinesHtml += '<td><div class="return_subtotal"></div></td>';
+						sellLinesHtml += '</tr>';
+					});
+	
+					sellLinesHtml += '</tbody></table>';
+				}
+				//  else {
+				// 	sellLinesHtml = '<td colspan="6" style="color:black; font-size: 18px; align-items:center; padding:5px; text-align:center;"><marquee> No sell lines available.</marquee></td>';
+				// }
+			}
 
             $('#sell_lines_container').html(sellLinesHtml);
         }
