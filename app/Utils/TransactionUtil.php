@@ -9167,6 +9167,7 @@ class TransactionUtil extends Util
                 $quantity_before = $sell_line->quantity_returned;
 
                 $sell_line->quantity_returned = $quantity;
+                $sell_line->sell_line_note = $sell_return->id;
                 $sell_line->save();
 
                 $total_tax += $sell_line->item_tax;
