@@ -8,7 +8,12 @@
 <div class="modal-body">
     <div class="row">
       <div class="col-xs-12">
-          <p class="pull-right"><b>@lang('messages.date'):</b> {{ @format_date($sell->transaction_date) }}</p>
+        @php
+            use Carbon\Carbon;
+            $formattedDate = Carbon::parse($sell->transaction_date)->format('d/m/Y g:i A');
+        @endphp
+          <p class="pull-right"><b>@lang('messages.date'):</b> {{ $formattedDate }}</p>
+          {{-- <p class="pull-right"><b>@lang('messages.date'):</b> {{ @format_date($sell->transaction_date) }}</p> --}}
       </div>
     </div>
     <div class="row">

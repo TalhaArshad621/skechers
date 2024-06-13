@@ -17,7 +17,11 @@
       <div class="col-sm-6 col-xs-6">
         <h4>@lang('lang_v1.sell_details'):</h4>
         <strong>@lang('sale.invoice_no'):</strong> {{ $sell->invoice_no }} <br>
-        <strong>@lang('messages.date'):</strong> {{@format_date($sell->transaction_date)}}<br>
+        @php
+          use Carbon\Carbon;
+          $formattedDate = Carbon::parse($sell->transaction_date)->format('d/m/Y g:i A');
+        @endphp
+        <strong>@lang('messages.date'):</strong> {{$formattedDate}}<br>
         <b>{{ __('Employee Name') }}:</b> {{ $agent_name->full_name }}<br>
 
       </div>

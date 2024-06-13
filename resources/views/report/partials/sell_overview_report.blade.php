@@ -19,6 +19,10 @@
                 <td style="font-weight: 700">Exchange Amount</td>
                 <td style="font-weight: 700" id="return-amount">0</td>
             </tr>
+            <tr>
+                <td>Total Invoices</td>
+                <td id="total-sale-invoices">0</td>
+            </tr>
             {{-- <tr>
                 <td>Exchange Amount</td>
                 <td id="return-amount">0</td>
