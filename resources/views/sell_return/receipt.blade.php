@@ -290,6 +290,29 @@
                     </tr>
                 </thead>
                 <tbody>
+					@if ($receipt_details->return_new)
+					@forelse($receipt_details->return_new as $line)
+					{{-- @if ($line['quantity'] > 0) --}}
+					@php
+					$total_new_discount += $line['new_discount_amount'];
+					@endphp
+					<tr>
+						<td class="serial_number" style="vertical-align: top;">
+							{{$loop->iteration}}
+						</td>
+						<td class="description">
+							@if(!empty($line['sub_sku'])) {{$line['sub_sku'] . '(EX)'}} @endif
+						</td>
+						<td class="quantity text-right">{{$line['quantity']}}</td>
+						@if(empty($receipt_details->hide_price))
+						<td class="unit_price text-right">{{$line['original_price']}}</td>
+						<td class="discount text-right">{{(int)$line['new_discount_amount']}}</td>
+						<td class="price text-right">{{$line['line_total']}}</td>
+						@endif
+					</tr>
+					{{-- @endif --}}
+				@endforeach
+					@else
                 	@forelse($receipt_details->lines as $line)
 						@if ($line['quantity'] > 0)
 						@php
@@ -311,6 +334,7 @@
 	                    </tr>
 						@endif
                     @endforeach
+					@endif
                 	@forelse($receipt_details->exchanges as $line)
 						@php
 							$total_ex_discount += $line['new_discount_amount'];

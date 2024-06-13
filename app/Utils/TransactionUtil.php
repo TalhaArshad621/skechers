@@ -2278,12 +2278,14 @@ class TransactionUtil extends Util
                     $lines[$key] = $formated_sell_line;
                 }
             }
-
+            $exchanged_lines = TransactionSellLine::where('sell_line_note', $transaction_id)->get();
             $details = $this->_receiptDetailsSellReturnLines($lines, $il, $business_details);
             $excahnge_details = $this->_receiptDetailsSellExchangeLines($return_lines, $il, $business_details);
+            $return_details = $this->_receiptDetailsExchangedSellReturnLines($exchanged_lines, $il, $business_details);
 
             $output['lines'] = $details['lines'];
             $output['exchanges'] = $excahnge_details['lines'];
+            $output['return_new'] = $return_details['lines'];
 
             $output['taxes'] = [];
             foreach ($details['lines'] as $line) {
@@ -4486,6 +4488,125 @@ class TransactionUtil extends Util
      * @return array
      */
     protected function _receiptDetailsSellReturnLines($lines, $il, $business_details)
+    {
+        $is_lot_number_enabled = $business_details->enable_lot_number;
+        $is_product_expiry_enabled = $business_details->enable_product_expiry;
+
+        $output_lines = [];
+        $output_taxes = ['taxes' => []];
+        foreach ($lines as $line) {
+            $original_price = $line->unit_price_inc_tax / ( 1 - ($line->line_discount_amount / 100));   
+            if($line->line_discount_type == "percentage") {
+                $discount_amount_new  = ($line->unit_price_inc_tax / ( 1 - ($line->line_discount_amount / 100))) -  $line->unit_price_inc_tax;
+            } else {
+                $discount_amount_new = $line->line_discount_amount;
+            }
+            //Group product taxes by name.
+            $tax_details = TaxRate::find($line->tax_id);
+            // if (!empty($tax_details)) {
+            //     if ($tax_details->is_tax_group) {
+            //         $group_tax_details = $this->groupTaxDetails($tax_details, $line->quantity_returned * $line->item_tax);
+            //         foreach ($group_tax_details as $key => $value) {
+            //             if (!isset($output_taxes['taxes'][$key])) {
+            //                 $output_taxes['taxes'][$key] = 0;
+            //             }
+            //             $output_taxes['taxes'][$key] += $value;
+            //         }
+            //     } else {
+            //         $tax_name = $tax_details->name;
+            //         if (!isset($output_taxes['taxes'][$tax_name])) {
+            //             $output_taxes['taxes'][$tax_name] = 0;
+            //         }
+            //         $output_taxes['taxes'][$tax_name] += ($line->quantity_returned * $line->item_tax);
+            //     }
+            // }
+
+            $product = $line->product;
+            $variation = $line->variations;
+            $unit = $line->product->unit;
+            $brand = $line->product->brand;
+            $cat = $line->product->category;
+
+            $unit_name = !empty($unit->short_name) ? $unit->short_name : '';
+            if (!empty($line->sub_unit->short_name)) {
+                $unit_name = $line->sub_unit->short_name;
+            }
+
+            $line_array = [
+                //Field for 1st column
+                'name' => $product->name,
+                'variation' => (empty($variation->name) || $variation->name == 'DUMMY') ? '' : $variation->name,
+                //Field for 2nd column
+                'quantity' => $this->num_f($line->quantity_returned, false, $business_details, true),
+                'units' => $unit_name,
+
+                'unit_price' => $this->num_f($line->unit_price, false, $business_details),
+                'tax' => $this->num_f($line->item_tax, false, $business_details),
+                'tax_name' => !empty($tax_details) ? $tax_details->name: null,
+
+                //Field for 3rd column
+                'unit_price_inc_tax' => $this->num_f($line->unit_price_inc_tax, false, $business_details),
+                'unit_price_exc_tax' => $this->num_f($line->unit_price, false, $business_details),
+
+                //Fields for 4th column
+                'line_total' => $this->num_f($line->unit_price_inc_tax * $line->quantity_returned, false, $business_details),
+
+                'original_price' => $original_price,
+                'new_discount_amount' => $discount_amount_new * $line->quantity
+            ];
+            $line_array['line_discount'] = 0;
+
+            //Group product taxes by name.
+            if (!empty($tax_details)) {
+                if ($tax_details->is_tax_group) {
+                    $group_tax_details = $this->groupTaxDetails($tax_details, $line->quantity * $line->item_tax);
+
+                    $line_array['group_tax_details'] = $group_tax_details;
+
+                    // foreach ($group_tax_details as $key => $value) {
+                    //     if (!isset($output_taxes['taxes'][$key])) {
+                    //         $output_taxes['taxes'][$key] = 0;
+                    //     }
+                    //     $output_taxes['taxes'][$key] += $value;
+                    // }
+                }
+                // else {
+                //     $tax_name = $tax_details->name;
+                //     if (!isset($output_taxes['taxes'][$tax_name])) {
+                //         $output_taxes['taxes'][$tax_name] = 0;
+                //     }
+                //     $output_taxes['taxes'][$tax_name] += ($line->quantity * $line->item_tax);
+                // }
+            }
+
+            if ($il->show_brand == 1) {
+                $line_array['brand'] = !empty($brand->name) ? $brand->name : '';
+            }
+            if ($il->show_sku == 1) {
+                $line_array['sub_sku'] = !empty($variation->sub_sku) ? $variation->sub_sku : '' ;
+            }
+            if ($il->show_cat_code == 1) {
+                $line_array['cat_code'] = !empty($cat->short_code) ? $cat->short_code : '';
+            }
+            if ($il->show_sale_description == 1) {
+                $line_array['sell_line_note'] = !empty($line->sell_line_note) ? $line->sell_line_note : '';
+            }
+            // if ($is_lot_number_enabled == 1 && $il->show_lot == 1) {
+            //     $line_array['lot_number'] = !empty($line->lot_details->lot_number) ? $line->lot_details->lot_number : null;
+            //     $line_array['lot_number_label'] = __('lang_v1.lot');
+            // }
+
+            // if ($is_product_expiry_enabled == 1 && $il->show_expiry == 1) {
+            //     $line_array['product_expiry'] = !empty($line->lot_details->exp_date) ? $this->format_date($line->lot_details->exp_date) : null;
+            //     $line_array['product_expiry_label'] = __('lang_v1.expiry');
+            // }
+
+            $output_lines[] = $line_array;
+        }
+
+        return ['lines' => $output_lines, 'taxes' => $output_taxes];
+    }
+    protected function _receiptDetailsExchangedSellReturnLines($lines, $il, $business_details)
     {
         $is_lot_number_enabled = $business_details->enable_lot_number;
         $is_product_expiry_enabled = $business_details->enable_product_expiry;
@@ -9182,7 +9303,7 @@ class TransactionUtil extends Util
                 $quantity_before = $sell_line->quantity_returned;
                 // dd($quantity, $quantity_before);
                 $sell_line->quantity_returned = $sell_line->quantity_returned  + $quantity;
-                $sell_line->sell_line_note = $sell_return->id;
+                $sell_line->sell_line_note = $returns[$sell_line->id] > 0 ? $sell_return->id : null;
                 $sell_line->save();
 
                 $total_tax += $sell_line->item_tax;
@@ -9229,6 +9350,8 @@ class TransactionUtil extends Util
                     $quantity_before = $sell_line->quantity_returned;
 
                     $sell_line->quantity_returned = $sell_line->quantity_returned  + $quantity;
+                    $sell_line->sell_line_note = $returns[$sell_line->id] > 0 ? $sell_return->id : null;
+
                     $sell_line->save();
 
                     $total_tax += $sell_line->item_tax;

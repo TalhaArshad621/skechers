@@ -4701,6 +4701,7 @@ class ReportController extends Controller
                 ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
                 ->where('sale.business_id', $business_id)
                 ->where('sale.location_id', '<>', 9)
+                ->where('transaction_sell_lines.quantity_returned','>',0)
                 ->where('transaction_sell_lines.children_type', '!=', 'combo');
                   //Filter by the location
                 if (!empty($location_id)) {
@@ -4760,7 +4761,7 @@ class ReportController extends Controller
                 JOIN purchase_lines AS pl2 
                 ON tspl2.purchase_line_id = pl2.id 
                 WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax,   
-                (TSPL.quantity - TSPL.qty_returned) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
+                (TSPL.quantity) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
                 )->groupBy('L.id');
                 $results_two = $exchange_two_profit->first();
                 $result_two_pofit = $results_two ?  $results_two['gross_profit']: 0;
@@ -7074,6 +7075,8 @@ class ReportController extends Controller
                 ->where('transaction_sell_lines.quantity_returned', '>' , 0)
                 ->where('t.status', 'final')
                 ->select(
+                    'transaction_sell_lines.transaction_id as transaction_sell_id',
+                    'transaction_sell_lines.sell_line_note as new_t_id',
                     't.type as transaction_type',
                     // 'p.image as product_image'.
                     'p.name as product_name',
@@ -7155,14 +7158,30 @@ class ReportController extends Controller
                     return '<span class="display_currency product_price" data-currency_symbol = true data-orig-value="' . $row->sell_price_inc_tax . '">' . $row->sell_price_inc_tax . '</span>';
                 })
                 ->editColumn('adjustment_amount', function ($row) {
-                    return '<span class="display_currency adjustment_amount" data-currency_symbol = true data-orig-value="' . $row->final_total . '">' . $row->final_total . '</span>';
+                    $final_total = DB::table('transactions')->select('final_total')->where('id',$row->new_t_id)->first();
+                    if($final_total) {
+                        return '<span class="display_currency adjustment_amount" data-currency_symbol = true data-orig-value="' . $final_total->final_total . '">' . $final_total->final_total . '</span>';
+                    } else {
+                        return '<span class="display_currency adjustment_amount" data-currency_symbol = true data-orig-value="' . $row->final_total . '">' . $row->final_total . '</span>';   
+                    }
+                    // return $final_total->final_total;
                 })
                 ->editColumn('old_invoice_no', function ($row) {
+                    $old_invoice_no = DB::table('transactions')->select('return_parent_id')->where('id',$row->new_t_id)->first();
+                    if($old_invoice_no) {
+                        $result = DB::table('transactions')->select('invoice_no')->where('id', $old_invoice_no->return_parent_id)->first();
+                        return $result->invoice_no;
+                    } else {
+                        return $row->old_invoice_no;
+                    }
                     // dd($row);
-                    return $row->old_invoice_no;
+                    // return $row->transaction_sell_id;
                 })
                 ->editColumn('new_invoice_no', function ($row) {
-                    return $row->new_invoice_no;
+                    $new_invoice_no = DB::table('transactions')->select('invoice_no')->where('id',$row->new_t_id)->first();
+                    
+                    return $new_invoice_no ? $new_invoice_no->invoice_no : $row->new_invoice_no;
+                    return $row->new_t_id;
                 })
                 ->editColumn('employee_name', function ($row) {
                     return $row->employee_name;
