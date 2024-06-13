@@ -9180,8 +9180,8 @@ class TransactionUtil extends Util
                 $quantity = $returns[$sell_line->id] * $multiplier;
 
                 $quantity_before = $sell_line->quantity_returned;
-
-                $sell_line->quantity_returned = $quantity;
+                // dd($quantity, $quantity_before);
+                $sell_line->quantity_returned = $sell_line->quantity_returned  + $quantity;
                 $sell_line->sell_line_note = $sell_return->id;
                 $sell_line->save();
 
@@ -9209,10 +9209,10 @@ class TransactionUtil extends Util
                 array_push( $fbr_lines, $item_data_for_fbr);
 
                 //update quantity sold in corresponding purchase lines
-                $this->updateQuantitySoldFromSellLine($sell_line, $quantity, $quantity_before, false);
+                $this->updateQuantitySoldFromSellLine($sell_line, $quantity + $quantity_before, $quantity_before, false);
 
                 // Update quantity in variation location details
-                $productUtil->updateProductQuantity( $location_id_new == "all" ? $sell_return->location_id : $location_id_new[0], $sell_line->product_id, $sell_line->variation_id, $quantity, $quantity_before, null, false);
+                $productUtil->updateProductQuantity( $location_id_new == "all" ? $sell_return->location_id : $location_id_new[0], $sell_line->product_id, $sell_line->variation_id,$quantity + $quantity_before, $quantity_before, null, false);
             }
         }
         if($input['old_transaction_id']){
@@ -9228,7 +9228,7 @@ class TransactionUtil extends Util
 
                     $quantity_before = $sell_line->quantity_returned;
 
-                    $sell_line->quantity_returned = $quantity;
+                    $sell_line->quantity_returned = $sell_line->quantity_returned  + $quantity;
                     $sell_line->save();
 
                     $total_tax += $sell_line->item_tax;
@@ -9255,10 +9255,10 @@ class TransactionUtil extends Util
                     // array_push( $fbr_lines, $item_data_for_fbr);
 
                     //update quantity sold in corresponding purchase lines
-                    $this->updateQuantitySoldFromSellLine($sell_line, $quantity, $quantity_before, false);
+                    $this->updateQuantitySoldFromSellLine($sell_line, $quantity + $quantity_before, $quantity_before, false);
 
                     // Update quantity in variation location details
-                    $productUtil->updateProductQuantity( $location_id_new == "all" ? $sell_return->location_id : $location_id_new[0], $sell_line->product_id, $sell_line->variation_id, $quantity, $quantity_before, null, false);
+                    $productUtil->updateProductQuantity( $location_id_new == "all" ? $sell_return->location_id : $location_id_new[0], $sell_line->product_id, $sell_line->variation_id, $quantity + $quantity_before, $quantity_before, null, false);
                 }
             }
         }

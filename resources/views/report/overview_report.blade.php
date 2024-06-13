@@ -182,6 +182,7 @@
                 $("#return-invoices").html(response.return_invoices);
                 $("#return-amount").html(__currency_trans_from_en(response.return_amount));
                 $("#return-items").html(returnItemsFloat);
+                $("#total-sale-invoices").html(response.total_invoice_count);
                 $("#total-items-sold").html(soldItemsFloat);
                 $("#invoice-amount").html(__currency_trans_from_en(response.invoice_amount));
                 $("#purchase-amount").html(__currency_trans_from_en(response.buy_price));

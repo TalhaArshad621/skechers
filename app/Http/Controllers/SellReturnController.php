@@ -398,6 +398,8 @@ class SellReturnController extends Controller
             $sell = Transaction::where('business_id', $business_id)
             ->with([
                 'sell_lines' => function ($query) {
+                    $query->whereColumn('quantity_returned', '<', 'quantity');
+
                     $query->where('quantity_returned', '=', '0.0000');
                 },
                 'location',
@@ -405,7 +407,9 @@ class SellReturnController extends Controller
                 'contact',
                 'tax',
                 'return_parent_sell.sell_lines' => function ($query) {
-                    $query->where('quantity_returned', '=', '0.0000');
+                    $query->whereColumn('quantity_returned', '<', 'quantity');
+
+                    // $query->where('quantity_returned', '=', '0.0000');
                 },
                 'return_parent_sell.sell_lines.product',
                 'return_parent_sell.sell_lines.product.unit',
