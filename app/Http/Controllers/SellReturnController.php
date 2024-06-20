@@ -1209,6 +1209,7 @@ class SellReturnController extends Controller
         ->select(
             'transaction_sell_lines.id as tsl_id',
             'transaction_sell_lines.quantity as sold_quantity',
+            'transaction_sell_lines.quantity_returned as quantity_returned',
             'transaction_sell_lines.item_tax as item_tax',
             'variations.sub_sku as sku',
             'variations.default_sell_price as unit_price',
@@ -1230,13 +1231,13 @@ class SellReturnController extends Controller
             ) as total_sell_discount")
         )
         ->get();
-
+            // dd($saleReturn);
         $agent_name = User::where('id', $sell->commission_agent)
         ->selectRaw("TRIM(CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, ''))) as full_name")
         ->first();
 
         // dd($returnexchangedSale);
-        return view('sell_return.show')->with(compact('sellOrg', 'sell', 'sell_taxes', 'total_discount', 'activities','exchangedSale','agent_name'));
+        return view('sell_return.show')->with(compact('sellOrg', 'sell', 'sell_taxes', 'total_discount', 'activities','exchangedSale','agent_name','saleReturn'));
     }
 
     public function showGiftReceipt($id)
