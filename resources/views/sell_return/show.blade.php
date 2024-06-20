@@ -112,7 +112,7 @@
                     {{ $sell_line->sku }}
                 </td>
                 <td>
-                    <span class="display_currency" data-currency_symbol="false" data-is_quantity="true">{{ $sell_line->sold_quantity }}</span>
+                    <span class="display_currency" data-currency_symbol="false" data-is_quantity="true">{{ $sell_line->quantity_returned }}</span>
                 </td>
                 @if(!empty($pos_settings['inline_service_staff']))
                     <td>
@@ -127,9 +127,9 @@
                 </td>
                 <td>
                   @php
-                     $line_total = ($sell_line->sold_quantity * $sell_line->sell_price_inc_tax) - $sell_line->total_sell_discount;
+                     $line_total = ($sell_line->quantity_returned * $sell_line->sell_price_inc_tax) - $sell_line->total_sell_discount;
                   @endphp
-                    <span class="display_currency" data-currency_symbol="true">{{ ($sell_line->sold_quantity * $sell_line->sell_price_inc_tax) - $sell_line->total_sell_discount }}</span>
+                    <span class="display_currency" data-currency_symbol="true">{{ ($sell_line->quantity_returned * $sell_line->sell_price_inc_tax) - $sell_line->total_sell_discount }}</span>
                 </td>
             </tr>
         @endforeach

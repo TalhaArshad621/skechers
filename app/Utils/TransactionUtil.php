@@ -9291,6 +9291,7 @@ class TransactionUtil extends Util
         $unit_price = 0;
         $line_discount_amount = 0;
 
+        // dd($sell->sell_lines, $returns, $grandSell->sell_lines);
         foreach ($sell->sell_lines as $sell_line) {
             if (array_key_exists($sell_line->id, $returns)) {
                 $multiplier = 1;
@@ -9303,7 +9304,10 @@ class TransactionUtil extends Util
                 $quantity_before = $sell_line->quantity_returned;
                 // dd($quantity, $quantity_before);
                 $sell_line->quantity_returned = $sell_line->quantity_returned  + $quantity;
-                $sell_line->sell_line_note = $returns[$sell_line->id] > 0 ? $sell_return->id : null;
+                if(!$sell_line->sell_line_note && $returns[$sell_line->id] > 0) {
+                    $sell_line->sell_line_note = $sell_return->id ;
+                }
+                // $sell_line->sell_line_note = $returns[$sell_line->id] > 0 ? $sell_return->id : null;
                 $sell_line->save();
 
                 $total_tax += $sell_line->item_tax;
@@ -9339,6 +9343,7 @@ class TransactionUtil extends Util
         if($input['old_transaction_id']){
 
             foreach ($grandSell->sell_lines as $sell_line) {
+
                 if (array_key_exists($sell_line->id, $returns)) {
                     $multiplier = 1;
                     if (!empty($sell_line->sub_unit)) {
@@ -9350,7 +9355,9 @@ class TransactionUtil extends Util
                     $quantity_before = $sell_line->quantity_returned;
 
                     $sell_line->quantity_returned = $sell_line->quantity_returned  + $quantity;
-                    $sell_line->sell_line_note = $returns[$sell_line->id] > 0 ? $sell_return->id : null;
+                    if(!$sell_line->sell_line_note && $returns[$sell_line->id] > 0) {
+                        $sell_line->sell_line_note =$sell_return->id ;
+                    }
 
                     $sell_line->save();
 
