@@ -650,6 +650,8 @@
 			$('#location_id').val(locationId);
 
             var sellLinesHtml = '';
+			var count = 0;
+
 
             if (sellData.sell_lines && sellData.sell_lines.length > 0) {
 				// console.log(sellData.sell_lines.length);
@@ -668,7 +670,7 @@
                 $.each(sellData.sell_lines, function (index, sellLine) {
 					// console.log(sellLine);
                     sellLinesHtml += '<tr>';
-                    sellLinesHtml += '<td>' + (index + 1) + '</td>';
+                    sellLinesHtml += '<td>' + (count) + '</td>';
                     sellLinesHtml += '<td>' + sellLine.product.name;
 
                     if (sellLine.product.type == 'variable') {
@@ -680,18 +682,19 @@
                     sellLinesHtml += '<td><span class="display_currency" data-currency_symbol="true">' + sellLine.unit_price_inc_tax + '</span></td>';
                     sellLinesHtml += '<td>' + sellLine.quantity + ' ' + (sellLine.sub_unit ? sellLine.sub_unit.short_name : sellLine.product.unit.short_name) + '</td>';
                     sellLinesHtml += '<td>';
-                    sellLinesHtml += '<input type="text" name="products[' + index + '][quantity]" value="' + format_quantity(sellLine.quantity_returned) + '"';
+                    sellLinesHtml += '<input type="text" name="products[' + count + '][quantity]" value="' + format_quantity(sellLine.quantity_returned) + '"';
                     sellLinesHtml += 'class="form-control input-sm input_number return_qty input_quantity"';
                     sellLinesHtml += 'data-rule-abs_digit="' + (sellLine.product.unit.allow_decimal == 0 ? 'true' : 'false') + '"';
                     sellLinesHtml += 'data-msg-abs_digit="Decimal value not allowed"';
                     sellLinesHtml += 'data-rule-max-value="' + sellLine.quantity + '"';
                     sellLinesHtml += 'data-msg-max-value="Validation message for maximum value"';
                     sellLinesHtml += '>';
-                    sellLinesHtml += '<input name="products[' + index + '][unit_price_inc_tax]" type="hidden" class="unit_price" value="' + num_format(sellLine.unit_price_inc_tax) + '">';
-                    sellLinesHtml += '<input name="products[' + index + '][sell_line_id]" type="hidden" value="' + sellLine.id + '">';
+                    sellLinesHtml += '<input name="products[' + count + '][unit_price_inc_tax]" type="hidden" class="unit_price" value="' + num_format(sellLine.unit_price_inc_tax) + '">';
+                    sellLinesHtml += '<input name="products[' + count + '][sell_line_id]" type="hidden" value="' + sellLine.id + '">';
                     sellLinesHtml += '</td>';
                     sellLinesHtml += '<td><div class="return_subtotal"></div></td>';
                     sellLinesHtml += '</tr>';
+					count ++;
                 });
 
                 sellLinesHtml += '</tbody></table>';
@@ -717,7 +720,7 @@
 					$.each(sellData.return_parent_sell.sell_lines, function (index, sellLine) {
 						// console.log(sellLine);
 						sellLinesHtml += '<tr>';
-						sellLinesHtml += '<td>' + (index + 1) + '</td>';
+						sellLinesHtml += '<td>' + (count) + '</td>';
 						sellLinesHtml += '<td>' + sellLine.product.name;
 	
 						if (sellLine.product.type == 'variable') {
@@ -729,18 +732,19 @@
 						sellLinesHtml += '<td><span class="display_currency" data-currency_symbol="true">' + sellLine.unit_price_inc_tax + '</span></td>';
 						sellLinesHtml += '<td>' + (sellLine.quantity - sellLine.quantity_returned) + ' ' + (sellLine.sub_unit ? sellLine.sub_unit.short_name : sellLine.product.unit.short_name) + '</td>';
 						sellLinesHtml += '<td>';
-						sellLinesHtml += '<input type="text" name="products[' + index + '][quantity]" value="' + format_quantity(sellLine.quantity_returned) + '"';
+						sellLinesHtml += '<input type="text" name="products[' + count + '][quantity]" value="' + format_quantity(sellLine.quantity_returned) + '"';
 						sellLinesHtml += 'class="form-control input-sm input_number return_qty input_quantity"';
 						sellLinesHtml += 'data-rule-abs_digit="' + (sellLine.product.unit.allow_decimal == 0 ? 'true' : 'false') + '"';
 						sellLinesHtml += 'data-msg-abs_digit="Decimal value not allowed"';
 						sellLinesHtml += 'data-rule-max-value="' + (sellLine.quantity - sellLine.quantity_returned) + '"';
 						sellLinesHtml += 'data-msg-max-value="Validation message for maximum value"';
 						sellLinesHtml += '>';
-						sellLinesHtml += '<input name="products[' + index + '][unit_price_inc_tax]" type="hidden" class="unit_price" value="' + num_format(sellLine.unit_price_inc_tax) + '">';
-						sellLinesHtml += '<input name="products[' + index + '][sell_line_id]" type="hidden" value="' + sellLine.id + '">';
+						sellLinesHtml += '<input name="products[' + count + '][unit_price_inc_tax]" type="hidden" class="unit_price" value="' + num_format(sellLine.unit_price_inc_tax) + '">';
+						sellLinesHtml += '<input name="products[' + count + '][sell_line_id]" type="hidden" value="' + sellLine.id + '">';
 						sellLinesHtml += '</td>';
 						sellLinesHtml += '<td><div class="return_subtotal"></div></td>';
 						sellLinesHtml += '</tr>';
+						count++;
 					});
 	
 					sellLinesHtml += '</tbody></table>';
@@ -759,7 +763,7 @@
         event.preventDefault();
 		var data = $(this).serialize();
 		var url = $(this).attr('action');
-
+		console.log(data);
         $.ajax({
             method: 'POST',
 			url: url,

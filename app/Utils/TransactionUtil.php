@@ -9302,7 +9302,7 @@ class TransactionUtil extends Util
                 $quantity = $returns[$sell_line->id] * $multiplier;
 
                 $quantity_before = $sell_line->quantity_returned;
-                // dd($quantity, $quantity_before);
+                // dd($quantity, $quantity_before, $sell_line);
                 $sell_line->quantity_returned = $sell_line->quantity_returned  + $quantity;
                 if(!$sell_line->sell_line_note && $returns[$sell_line->id] > 0) {
                     $sell_line->sell_line_note = $sell_return->id ;
@@ -9353,6 +9353,7 @@ class TransactionUtil extends Util
                     $quantity = $returns[$sell_line->id] * $multiplier;
 
                     $quantity_before = $sell_line->quantity_returned;
+                // dd($quantity, $quantity_before, $sell_line);
 
                     $sell_line->quantity_returned = $sell_line->quantity_returned  + $quantity;
                     if(!$sell_line->sell_line_note && $returns[$sell_line->id] > 0) {

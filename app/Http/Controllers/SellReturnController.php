@@ -654,12 +654,12 @@ class SellReturnController extends Controller
                 $sell_return =  $this->transactionUtil->addSellReturn($input, $business_id, $user_id);
                 $receipt = $this->receiptContent($business_id, $sell_return->location_id, $sell_return->id);
                 
-                // DB::commit();
+                DB::commit();
 
-                // $output = ['success' => 1,
-                //             'msg' => __('lang_v1.success'),
-                //             'receipt' => $receipt
-                //         ];
+                $output = ['success' => 1,
+                            'msg' => __('lang_v1.success'),
+                            'receipt' => $receipt
+                        ];
             }
 
             // dd($input['exchange_products']);
