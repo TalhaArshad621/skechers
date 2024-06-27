@@ -30,11 +30,11 @@ class ShopifyAPIController extends Controller
         }
 
         $discount = DB::table('discount_variations')
-        ->join('discounts', 'discount_variations.discount_id', '=', 'discounts.id')
-        ->join('variations', 'discount_variations.variation_id', '=', 'variations.id')
-        ->where('variations.sub_sku', $sku)
-        ->select('discounts.discount_amount', 'variations.sub_sku AS sku')
-        ->first();
+            ->join('discounts', 'discount_variations.discount_id', '=', 'discounts.id')
+            ->join('variations', 'discount_variations.variation_id', '=', 'variations.id')
+            ->where('variations.sub_sku', $sku)
+            ->select('discounts.discount_amount', 'variations.sub_sku AS sku')
+            ->first();
 
         if (!$discount) {
             return response()->json(['original_price' => $variation->sell_price_inc_tax, 'sku' => $sku]);
@@ -62,10 +62,26 @@ class ShopifyAPIController extends Controller
             ->where('location_id', '<>', 9)
             ->sum('qty_available');
 
-            return response()->json([
-                'sku' => $sku,
-                'total_quantity_available' => $totalQuantity
-            ]);
-        }
+        return response()->json([
+            'sku' => $sku,
+            'total_quantity_available' => $totalQuantity
+        ]);
+    }
 
+    public function getAllProducts(Request $request)
+    {
+        $allProducts = DB::table('variation_location_details')
+        ->join('products', 'variation_location_details.product_id', 'products.id')
+        ->join('variations', 'variation_location_details.variation_id', 'variations.id')
+            ->where('location_id', '<>', 9)
+            ->select('products.name',
+            'products.sku',
+            'variations.sell_price_inc_tax as sell_price',
+            'variation_location_details.qty_available as available_quantity')
+            ->get();
+
+        return response()->json([
+            'products_data' => $allProducts
+        ]);
+    }
 }

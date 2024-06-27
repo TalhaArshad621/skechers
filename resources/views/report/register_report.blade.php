@@ -48,8 +48,8 @@
                                 <th>@lang('sale.location')</th>
                                 <th>@lang('report.user')</th>
                                 {{-- <th>@lang('cash_register.total_card_slips')</th> --}}
-                                <th>Card Amount</th>
                                 <th>@lang('cash_register.total_cash')</th>
+                                <th>Card Amount</th>
                                 <th>Bank Transfer</th>
                                 <th>Total Amount</th>
                                 <th>@lang('messages.action')</th>
@@ -58,8 +58,8 @@
                         <tfoot>
                             <tr class="bg-gray font-17 footer-total text-center">
                                 <td colspan="4"><strong>@lang('sale.total'):</strong></td>
-                                <td><span class="display_currency" id="card_total" data-currency_symbol ="true"></span></td>
                                 <td><span class="display_currency" id="cash_total" data-currency_symbol ="true"></span></td>
+                                <td><span class="display_currency" id="card_total" data-currency_symbol ="true"></span></td>
                                 <td><span class="display_currency" id="bank_transfer" data-currency_symbol ="true"></span></td>
                                 <td><span class="display_currency" id="final_total" data-currency_symbol ="true"></span></td>
                                 <td></td>

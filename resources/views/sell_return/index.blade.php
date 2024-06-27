@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', __('Product Exchange'))
+@section('title', __('Exchange Invoices'))
 
 @section('content')
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1>@lang('Product Exchange')
+    <h1>@lang('Exchange Invoices')
     </h1>
 </section>
 
@@ -39,7 +39,7 @@
             </div>
         </div>
     @endcomponent
-    @component('components.widget', ['class' => 'box-primary', 'title' => __('Product Exchange')])
+    @component('components.widget', ['class' => 'box-primary', 'title' => __('Exchange Invoices')])
         @include('sell_return.partials.sell_return_list')
     @endcomponent
     <div class="modal fade payment_modal" tabindex="-1" role="dialog" 

@@ -40,6 +40,23 @@
                 <th>{{ $custom_labels['product']['custom_field_4'] ?? __('lang_v1.product_custom_field4') }}</th> --}}
             </tr>
         </thead>
+        <tfoot>
+            <tr class="bg-gray font-17 text-center footer-total">
+                <td></td>
+                <td></td>
+                <td colspan="5"><strong>@lang('sale.total'):</strong></td>
+                <td id="unit_price"></td>
+                <td id="selling_price"></td>
+                <td class="current_stock"></td>
+                <td></td>
+                @can('view_product_stock_value')
+                <td></td>
+                @endcan
+                @if($show_manufacturing_data)
+                    <td class="footer_total_mfg_stock"></td>
+                @endif
+            </tr>
+        </tfoot>
         {{-- <tfoot>
             <tr>
                 <td colspan="{{$colspan}}">

@@ -19,3 +19,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('/product/price', 'ShopifyAPIController@getProductPrice');
 Route::get('/product/discount', 'ShopifyAPIController@getDiscountPriceBySku');
 Route::get('/product/quantity', 'ShopifyAPIController@getStockQuantityBySku');
+Route::get('/getProduct', 'ShopifyAPIController@getAllProducts');

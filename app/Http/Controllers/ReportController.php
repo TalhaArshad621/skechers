@@ -4904,7 +4904,7 @@ class ReportController extends Controller
                 if (!empty($location_id)) {
                     $query8->where('t.location_id', $location_id);
                 }
-                $gst_tax = $query8->select(DB::raw('SUM(item_tax) as tax'))
+                $gst_tax = $query8->select(DB::raw('SUM(item_tax * quantity) as tax'))
                 ->first();
 
                 $query11 = TransactionSellLine::join('transactions as t', 't.id', 'transaction_sell_lines.transaction_id')
@@ -4925,7 +4925,7 @@ class ReportController extends Controller
                 if (!empty($location_id)) {
                     $query11->where('t.location_id', $location_id);
                 }
-                $gst_tax_new = $query11->select(DB::raw('SUM(item_tax) as tax'))
+                $gst_tax_new = $query11->select(DB::raw('SUM(item_tax * quantity) as tax'))
                 ->first();
                 
                 $query12 = TransactionSellLine::join('transactions as t', 't.return_parent_id', 'transaction_sell_lines.transaction_id')
