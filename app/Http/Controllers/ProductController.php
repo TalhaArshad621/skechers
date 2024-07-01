@@ -2247,6 +2247,59 @@ class ProductController extends Controller
 
     }
 
+    public function productOpeningStockHistory(Request $request)
+    {   
+        if (!auth()->user()->can('product.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (request()->ajax()) {
+            $query = PurchaseLine::join('transactions','purchase_lines.transaction_id','=','transactions.id')
+                    ->join('products', 'purchase_lines.product_id', '=', 'products.id')
+                    ->join('users','transactions.created_by', '=', 'users.id')
+                    ->join('business_locations', 'transactions.location_id', '=', 'business_locations.id')
+                    ->where('transactions.type', 'opening_stock')
+                    ->where('purchase_lines.product_id', $request->id)
+                    ->select(
+                        'products.sku as product_sku',
+                        'products.image as product_image',
+                        'purchase_lines.quantity as purchase_quantity',
+                        'transactions.transaction_date as transaction_date',
+                        'business_locations.name as store_name',
+                        // DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS full_name")
+                        DB::raw("CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, '')) AS full_name")
+                        )
+                    ->get();
+                    return Datatables::of($query)
+                    ->editColumn('product_sku', function ($row) {
+                        $product_sku = $row->product_sku;
+    
+                        return $product_sku;
+                    })
+                    ->addColumn("invoice_no", function($row) {
+                        return "Opening Stock";
+                    })
+                    ->editColumn('invoice_id', function ($row) {
+                        $invoice_id = $row->invoice_id;
+    
+                        return $invoice_id;
+                    })
+                    ->editColumn('purchase_quantity', function ($row) {
+                        return '<span data-is_quantity="true" class="display_currency sell_qty" data-currency_symbol=false data-orig-value="' . (float)$row->purchase_quantity . '" >' . (float) $row->purchase_quantity . '</span> ';
+
+                    })
+                    ->editColumn('store_name', function ($row) {
+                        $store_name = $row->store_name;
+        
+                        return $store_name;
+                    })
+                    ->editColumn('transaction_date', '{{@format_date($transaction_date)}}')
+                    ->rawColumns(['product_sku', 'invoice_id', 'purchase_quantity', 'transaction_date','store_name'])
+                    ->make(true);
+        }                    
+
+    }
+
     public function productSellHistory(Request $request)
     {
         if (!auth()->user()->can('purchase_n_sell_report.view')) {
