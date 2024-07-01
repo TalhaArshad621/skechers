@@ -68,4 +68,15 @@ class ShopifyAPIController extends Controller
             ]);
         }
 
+    public function getProducts()
+    {
+        $products = DB::table('variations')->leftJoin('variation_location_details','variation_location_details.variation_id','variations.product_variation_id')
+        ->select("variations.sub_sku as sku","variations.sell_price_inc_tax as sell_price" , DB::raw("SUM(variation_location_details.qty_available) as qty_available"))
+        ->groupBy("variation_location_details.variation_id")
+        ->get();
+
+        return response()->json([
+            "result" => $products
+        ]);
+    }
 }

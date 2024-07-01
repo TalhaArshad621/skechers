@@ -153,13 +153,21 @@ class ImportOpeningStockController extends Controller
                         $opening_stock['exp_date'] = $this->productUtil->uf_date($value[5]);
                     }
 
-                    if (!empty(trim($value[3]))) {
-                        $unit_cost_before_tax = trim($value[3]);
-                    } else {
-                        $is_valid = false;
-                        $error_msg = "Invalid UNIT COST in row no. $row_no";
-                        break;
-                    }
+                    // if (!empty(trim($value[3]))) {
+                        $sku = trim($value[0]);
+                        $purchase_info = Variation::where('sub_sku', $sku)
+                        ->join('products AS P', 'variations.product_id', '=', 'P.id')
+                        ->leftjoin('tax_rates AS TR', 'P.tax', 'TR.id')
+                        ->where('P.business_id', $business_id)
+                        ->select('variations.default_purchase_price')
+                        ->first();
+                        $unit_cost_before_tax = $purchase_info->default_purchase_price;
+                        
+                    // } else {
+                    //     $is_valid = false;
+                    //     $error_msg = "Invalid UNIT COST in row no. $row_no";
+                    //     break;
+                    // }
 
                     if (!is_numeric(trim($value[2]))) {
                         $is_valid = false;
