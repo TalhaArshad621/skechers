@@ -289,14 +289,16 @@ class CashRegisterController extends Controller
             $input['status'] = 'close';
             // dd($input);
 
-            CashRegister::where('user_id', $user_id)
-                ->where('status', 'open')
-                ->update($input);
+           $cashRegister =   CashRegister::where('user_id', $user_id)
+                ->where('status', 'open')->first();
+                $cashRegister->update($input);
             $output = [
                 'success' => 1,
                 'msg' => __('cash_register.close_success')
             ];
 
+            $business_location = DB::table('business_locations')->select('name')->where('id', $cashRegister->location_id)->first();
+            // dd($cashRegister);
             // $messageText = "DAY ENDED\n" .
             // "DATE: " . $input['closed_at'] . "\n" .
             // "USERNAME: " . $user_name->full_name . "\n" .
@@ -309,7 +311,7 @@ class CashRegisterController extends Controller
             $messageText = "DAY ENDED\n" .
                 "DATE: " . $input['closed_at'] . "\n" .
                 "USERNAME: " . $user_name->full_name . "\n" .
-                "STORE: SKX Jhelum\n" .
+                "STORE: ".$business_location->name."\n" .
                 "Total Sale: " . number_format((int)$request->input('total_sales')) . "\n" .
                 "Card Sale: " . number_format((int)$request->input('card_sale')) . "\n" .
                 "Cash Sale: " . number_format((int)$request->input('cash_sale')) . "\n" .
@@ -330,7 +332,7 @@ class CashRegisterController extends Controller
             // To block all promotions, send REG to 3627";
             $phone = "03416881318";
 
-            $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone), 'SKECHERS.', '');
+            // $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone), 'SKECHERS.', '');
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
             $output = [

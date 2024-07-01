@@ -76,6 +76,30 @@
                     </table>
                 </div>
                 <div class="table-responsive">
+                    <h4 class="purchase-wise-heading text-secondary font-weight-bold mb-4">Opening Stock Wise</h4>
+                    <table class="table table-bordered table-striped" id="opening_stock_report_table">
+                        <thead>
+                            <tr>
+                                <th>@lang('product.sku')</th>
+                                <th>@lang('Ref No.')</th>
+                                <th>@lang('sale.qty')</th>
+                                <th>@lang('Store')</th>
+                                <th>@lang('Date')</th>
+                                <th>Created By</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr class="bg-gray font-17 footer-total text-center">
+                                <td colspan="2"><strong>@lang('sale.total'):</strong></td>
+                                <td id="opening_stock_report_table_footer"></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="table-responsive">
                     <h4 class="purchase-wise-heading text-secondary font-weight-bold mb-4">Sell Wise</h4>
                     <table class="table table-bordered table-striped" 
                     id="product_sell_report_table">
@@ -398,6 +422,32 @@
                     sum_table_col($('#product_purchase_report_table'), 'sell_qty')
                 );
                 __currency_convert_recursively($('#product_purchase_report_table'));
+            },
+        });
+
+        //opening stock table js code
+        product_opening_stock_report = $('table#opening_stock_report_table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '/products/opening-stock-history/',
+                data: function (d) {
+                d.id = productId;
+                },
+            },
+            columns: [
+                { data: 'product_sku', name: 'product_sku' },
+                { data: 'invoice_no', name: 'invoice_no' },
+                { data: 'purchase_quantity', name: 'purchase_lines.quantity' },
+                { data: 'store_name', name: 'store_name' },
+                { data: 'transaction_date', name: 'transaction_date' },
+                { data: 'full_name', name: 'full_name' }
+            ],
+            fnDrawCallback: function(oSettings) {
+                $('#opening_stock_report_table_footer').text(
+                    sum_table_col($('#opening_stock_report_table'), 'sell_qty')
+                );
+                __currency_convert_recursively($('#opening_stock_report_table'));
             },
         });
 
