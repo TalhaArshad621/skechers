@@ -820,13 +820,13 @@ class HomeController extends Controller
                 $query->where('vld.location_id', $location_id);
                 // dd($query);
 
-                $location_filter .= "AND transactions.location_id=$location_id";
+                // $location_filter .= "AND transactions.location_id=$location_id";
 
-                //If filter by location then hide products not available in that location
-                $query->join('product_locations as pl', 'pl.product_id', '=', 'p.id')
-                    ->where(function ($q) use ($location_id) {
-                        $q->where('pl.location_id', $location_id);
-                    });
+                // //If filter by location then hide products not available in that location
+                // $query->join('product_locations as pl', 'pl.product_id', '=', 'p.id')
+                //     ->where(function ($q) use ($location_id) {
+                //         $q->where('pl.location_id', $location_id);
+                //     });
             }
             $start_date = $request->get('start_date');
             $end_date = $request->get('end_date');
