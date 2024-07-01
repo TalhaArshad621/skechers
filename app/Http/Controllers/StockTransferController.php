@@ -299,9 +299,9 @@ class StockTransferController extends Controller
         $formatted_business_locations = BusinessLocation::forDropdown($business_id);
 
         $statuses = $this->stockTransferStatuses();
-
+        // dd($all_business_locations);
         return view('stock_transfer.create')
-                ->with(compact('business_locations', 'statuses', 'formatted_business_locations'));
+                ->with(compact('business_locations', 'statuses', 'formatted_business_locations','all_business_locations'));
     }
 
     private function stockTransferStatuses()

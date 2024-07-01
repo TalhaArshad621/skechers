@@ -137,7 +137,16 @@ class ImportProductsController extends Controller
                     $product_array = [];
                     $product_array['business_id'] = $business_id;
                     $product_array['created_by'] = $user_id;
-                    
+
+                    $sku = trim($value[3]);
+
+                    //Check if product with same SKU already exist
+                    $is_exist = Product::where('sku', $sku)
+                    ->where('business_id', $business_id)
+                    ->exists();
+                    if ($is_exist) {
+                        continue;
+                    }
                     //Add name
                     $product_name = trim($value[0]);
                     if (!empty($product_name)) {
@@ -151,10 +160,10 @@ class ImportProductsController extends Controller
                     $product_gender = trim($value[8]);
 
                     // Allowed gender values
-                    $allowed_genders = ['men', 'women', 'kids', 'infant' ,'unisex','children'];
+                    $allowed_genders = ['men', 'women', 'kids', 'infant' ,'unisex','children',''];
 
                     // Check if the provided gender is empty or not in the allowed values list
-                    if (!empty($product_gender) && in_array(strtolower($product_gender), $allowed_genders)) {
+                    if (in_array(strtolower($product_gender), $allowed_genders)) {
                         $product_array['gender'] = $product_gender;
                     } else {
                         $is_valid =  false;
@@ -359,16 +368,19 @@ class ImportProductsController extends Controller
                     if (!empty($sku)) {
                         $product_array['sku'] = $sku;
                         //Check if product with same SKU already exist
-                        $is_exist = Product::where('sku', $product_array['sku'])
-                                        ->where('business_id', $business_id)
-                                        ->exists();
-                        if ($is_exist) {
-                            $is_valid = false;
-                            $error_msg = "$sku SKU already exist in row no. $row_no";
-                            break;
-                        }
+                        // $is_exist = Product::where('sku', $product_array['sku'])
+                        //                 ->where('business_id', $business_id)
+                        //                 ->exists();
+                        // if ($is_exist) {
+                        //     $is_valid = false;
+                        //     $error_msg = "$sku SKU already exist in row no. $row_no";
+                        //     break;
+                        // }
                     } else {
-                        $product_array['sku'] = ' ';
+                        $is_valid = false;
+                        $error_msg = "SKU must not be empty. in row no. $row_no";
+                        break;
+                        // $product_array['sku'] = ' ';
                     }
 
 

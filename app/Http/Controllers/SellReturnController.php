@@ -346,11 +346,20 @@ class SellReturnController extends Controller
                 $usersCollection[$user->id] = $user->first_name . ' ' . $user->last_name;
             }
         }
-        $business_locations = BusinessLocation::fortransferDropdown($business_id);
+        // $business_locations = BusinessLocation::fortransferDropdown($business_id);
+        $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+        $bl_attributes = $business_locations['attributes'];
+        $business_locations = $business_locations['locations'];
 
+        $default_location = null;
+        foreach ($business_locations as $id => $name) {
+            $default_location = BusinessLocation::findOrFail($id);
+            break;
+        }
 
-
-        return view('sell_return.new_sell_return',compact('business_locations','commission_agent','usersCollection','sell','default_location','business_details','pos_settings','payment_lines','payment_types','change_return'));
+        $location_id = $this->cashRegisterUtil->getCurrentLocation(auth()->user()->id);
+        
+        return view('sell_return.new_sell_return',compact('business_locations','bl_attributes','commission_agent','usersCollection','sell','default_location','business_details','pos_settings','payment_lines','payment_types','change_return','location_id'));
     }
 
 
@@ -654,12 +663,12 @@ class SellReturnController extends Controller
                 $sell_return =  $this->transactionUtil->addSellReturn($input, $business_id, $user_id);
                 $receipt = $this->receiptContent($business_id, $sell_return->location_id, $sell_return->id);
                 
-                // DB::commit();
+                DB::commit();
 
-                // $output = ['success' => 1,
-                //             'msg' => __('lang_v1.success'),
-                //             'receipt' => $receipt
-                //         ];
+                $output = ['success' => 1,
+                            'msg' => __('lang_v1.success'),
+                            'receipt' => $receipt
+                        ];
             }
 
             // dd($input['exchange_products']);
