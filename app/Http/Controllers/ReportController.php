@@ -1036,7 +1036,6 @@ class ReportController extends Controller
             abort(403, 'Unauthorized action.');
         }
         $business_id = $request->session()->get('user.business_id');
-
         //Return the details in ajax call
         if ($request->ajax()) {
             $registers = CashRegister::join(
@@ -1065,9 +1064,12 @@ class ReportController extends Controller
                     DB::raw("SUM(IF(cash_register_transactions.pay_method='card', IF(transaction_type='sell', amount, 0), 0)) as card_amount"),
                     DB::raw("SUM(IF(pay_method='cash', IF(transaction_type='sell', amount, 0), 0)) as cash_amount"),
 
-                )
-                ->groupBy('cash_registers.id');
+                );
                 
+                $permitted_locations = auth()->user()->permitted_locations();
+                if ($permitted_locations != 'all') {
+                    $registers->whereIn('cash_registers.location_id', $permitted_locations);
+                }
                 if ($request->input('user_id')){
                     // dd($request->input('user_id'));
                     $registers->where('cash_registers.user_id', $request->input('user_id'));
@@ -1078,25 +1080,19 @@ class ReportController extends Controller
                 $start_date = $request->get('start_date');
                 $end_date = $request->get('end_date');
                 // Modify start date to include time
-                // if ($start_date !== null) {
-                //     // Remove the existing time part and append '00:00:00'
-                //     $start_date = substr($start_date, 0, 10) . ' 00:00:00';
-                // }
+                if ($start_date !== null) {
+                    $start_date = substr($start_date, 0, 10) . ' 00:00:00';
+                }
                 
-                // if ($end_date !== null) {
-                //     // Remove the existing time part and append '23:59:59'
-                //     $end_date = substr($end_date, 0, 10) . ' 23:59:59';
-                // }
-
-
+                if ($end_date !== null) {
+                    $end_date = substr($end_date, 0, 10) . ' 23:59:59';
+                }
                 if (!empty($start_date) && !empty($end_date)) {
-                    // dd($start_date,$end_date);
                     $registers->whereDate('cash_registers.created_at', '>=', $start_date)
                     ->whereDate('cash_registers.created_at', '<=', $end_date);
-                    // dd($registers->get());
                 }
-                // dd($registers,$request->input('user_id'));
-            return Datatables::of($registers)
+               $result = $registers->groupBy('cash_registers.id');
+            return Datatables::of($result)
                 // ->editColumn('total_card_slips', function ($row) {
                 //     if ($row->status == 'close') {
                 //         return $row->total_card_slips;
