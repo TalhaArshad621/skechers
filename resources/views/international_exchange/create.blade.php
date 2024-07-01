@@ -157,6 +157,7 @@
 		@endif
 		<hr/>
 
+		<h4>Return Products</h4>
 		<div class="row">
 			<div class="col-sm-8 col-sm-offset-2">
 				<div class="form-group">
@@ -492,6 +493,7 @@
 	</div>
     <div class="box box-solid">
 		<div class="box-body">
+			<h4>Exchange Products</h4>
 			<div class="col-sm-10 col-sm-offset-1">
 				<div class="form-group">
 					<div class="input-group">

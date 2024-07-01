@@ -1251,6 +1251,7 @@ class SellReturnController extends Controller
 
     public function showGiftReceipt($id)
     {
+        // dd($id);
         $business_id = request()->session()->get('user.business_id');
             $taxes = TaxRate::where('business_id', $business_id)
                                 ->pluck('name', 'id');

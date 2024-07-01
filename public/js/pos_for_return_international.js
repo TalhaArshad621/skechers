@@ -954,6 +954,11 @@ $(document).ready(function () {
     //             });
     //         },
     //     });
+    $('.contact_modal').on('shown.bs.modal', function () {
+        $('form#quick_add_contact')
+        .find('button[type="submit"]')
+        .removeAttr('disabled');
+    });
     $('.contact_modal').on('hidden.bs.modal', function () {
         $('form#quick_add_contact')
             .find('button[type="submit"]')

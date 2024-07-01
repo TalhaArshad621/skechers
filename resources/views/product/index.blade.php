@@ -209,9 +209,9 @@
                 processing: true,
                 serverSide: true,
                 aaSorting: [[3, 'asc']],
-                scrollY:        "75vh",
-                scrollX:        true,
-                scrollCollapse: true,
+                // scrollY:        "75vh",
+                // scrollX:        true,
+                // scrollCollapse: true,
                 "ajax": {
                     "url": "/products",
                     "data": function ( d ) {
@@ -277,9 +277,24 @@
                         }
                         $( row ).find('td:eq(0)').attr('class', 'selectable_td');
                     },
-                    fnDrawCallback: function(oSettings) {
-                        __currency_convert_recursively($('#product_table'));
-                    },
+                fnDrawCallback: function (oSettings) {
+                    $('#unit_price').text(
+                        sum_table_col($('#product_table'), 'unit_price')
+                    );
+                    $('#selling_price').html(
+                        sum_table_col($('#product_table'), 'selling_price')
+                    );
+                    __currency_convert_recursively($('#product_table'));
+                }
+                    // fnDrawCallback: function(oSettings) {
+                    //     // __currency_convert_recursively($('#product_table'));
+                    // $('#unit_price').text(
+                    //     sum_table_col($('#product_table'), 'unit_price')
+                    // );
+                    // $('#selling_price').html(
+                    //     sum_table_col($('#product_table'), 'selling_price')
+                    // );
+                    // },
             });
             // Array to track the ids of the details displayed rows
             var detailRows = [];

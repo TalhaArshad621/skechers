@@ -112,7 +112,7 @@ class GiftController extends Controller
                         'transactions.final_total',
                         'transactions.payment_status',
                         'bl.name as business_location',
-                        'transaction_sell_lines.quantity as quantity',
+                            'transaction_sell_lines.quantity',
                         DB::raw('COUNT(SR.id) as return_exists')
                         // 'T1.invoice_no as parent_sale',
                         // 'T1.id as parent_sale_id',
@@ -193,6 +193,7 @@ class GiftController extends Controller
                         </span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        <li><a href="#" class="btn-modal" data-container=".view_modal" data-href="{{action(\'SellReturnController@showGiftReceipt\', [$id])}}"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</a></li>
                         <li><a href="#" class="print-invoice" data-href="{{action(\'GiftController@printInvoice\', [$id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("messages.print")</a></li>
 
                     @if($payment_status != "paid")
@@ -213,7 +214,7 @@ class GiftController extends Controller
                     if (!empty($row->return_exists)) {
                         $row->quantity .= ' &nbsp;<small class="label bg-red label-round no-print" title="' . __('lang_v1.some_qty_returned_from_sell') .'"><i class="fas fa-undo"></i></small>';
                     }
-                    return '<button type="button" class="btn btn-link btn-modal" data-container=".view_modal" data-href="' . '">' . $row->quantity . '</button>';
+                    return '<button type="button" class="btn btn-link btn-modal" data-container=".view_modal" data-href="' . '">' . intval($row->quantity) . '</button>';
                 })
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
                 ->editColumn(

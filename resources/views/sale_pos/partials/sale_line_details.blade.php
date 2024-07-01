@@ -17,6 +17,7 @@
         <th>{{ __('sale.price_inc_tax') }}</th>
         <th>{{ __('sale.subtotal') }}</th>
     </tr>
+    {{-- {{ dd($sell) }} --}}
     @foreach($sell->sell_lines as $sell_line)
         <tr>
             <td>{{ $loop->iteration }}</td>
