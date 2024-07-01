@@ -12,9 +12,9 @@
 {{-- {{ dd($sell) }} --}}
 <section class="content no-print">
 
-{!! Form::hidden('location_id', null, ['id' => 'location_id', 'data-receipt_printer_type' => 'browser' ]); !!}
-
-	{!! Form::open(['url' => action('SellReturnController@store'), 'method' => 'post', 'id' => 'sell_return_form_new' ]) !!}
+	{{-- {!! Form::hidden('location_id', null, ['id' => 'location_id', 'data-receipt_printer_type' => 'browser' ]); !!} --}}
+	<input type="hidden" id="location_id" name="location_id" value="{{$location_id}}">
+{!! Form::open(['url' => action('SellReturnController@store'), 'method' => 'post', 'id' => 'sell_return_form_new' ]) !!}
 	{{-- {!! Form::hidden('transaction_id', $sell->id); !!} --}}
 @component('components.widget', ['class' => 'box-primary'])
 	@if(count($business_locations) > 0)
@@ -31,6 +31,22 @@
 					</div>
 				</div>
 			@endif
+		</div>
+		<div class="col-sm-3">
+			<div class="form-group">
+				{!! Form::label('commission_agent', __('Location') . ':*') !!}
+				<div class="input-group">
+					<span class="input-group-addon">
+						<i class="fa fa-map-marker"></i>
+					</span>
+					{!! Form::select('location_id', $business_locations, $default_location->id ?? null, ['class' => 'form-control input-sm',
+					'id' => 'select_location_id', 
+					'required', 'autofocus'], $bl_attributes); !!}
+					<span class="input-group-addon">
+						@show_tooltip(__('tooltip.sale_location'))
+					</span> 
+				</div>
+			</div>
 		</div>
 	</div>
 	@endif
@@ -647,7 +663,7 @@
 			var locationId = sellData.location ? sellData.location.id : '';
 
 			// Update the value of the hidden input field with the retrieved location id
-			$('#location_id').val(locationId);
+			// $('#location_id').val(locationId);
 
             var sellLinesHtml = '';
 			var count = 0;

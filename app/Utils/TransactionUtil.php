@@ -9109,7 +9109,8 @@ class TransactionUtil extends Util
     public function addSellReturn($input, $business_id, $user_id, $uf_number = true)
     {
         // dd($input);
-        $location_id_new = auth()->user()->permitted_locations();
+        // $location_id_new = auth()->user()->permitted_locations();
+        // dd($location_id_new);
 
         $register =  CashRegister::where('user_id', $user_id)
         ->where('status', 'open')
@@ -9179,7 +9180,7 @@ class TransactionUtil extends Util
             
             $sell_return_data['transaction_date'] = $sell_return_data['transaction_date'] ?? \Carbon::now();
             $sell_return_data['business_id'] = $business_id;
-            $sell_return_data['location_id'] = $sell->location_id;
+            $sell_return_data['location_id'] = $input['location_id'];
             // Issue found on line below. Fix in future.
             // $sell_return_data['location_id'] = ($location_id_new == "all" ) ? $sell->location_id : $location_id_new[0];
             $sell_return_data['contact_id'] = $sell->contact_id;
@@ -9202,7 +9203,7 @@ class TransactionUtil extends Util
 
             $sell_return_data['transaction_date'] = $sell_return_data['transaction_date'] ?? \Carbon::now();
             $sell_return_data['business_id'] = $business_id;
-            $sell_return_data['location_id'] = $sell->location_id;
+            $sell_return_data['location_id'] = $input['location_id'];
             $sell_return_data['contact_id'] = $sell->contact_id;
             $sell_return_data['customer_group_id'] = $sell->customer_group_id;
             $sell_return_data['type'] = 'sell_return';
@@ -9337,7 +9338,7 @@ class TransactionUtil extends Util
                 $this->updateQuantitySoldFromSellLine($sell_line, $quantity + $quantity_before, $quantity_before, false);
 
                 // Update quantity in variation location details
-                $productUtil->updateProductQuantity( $location_id_new == "all" ? $sell_return->location_id : $location_id_new[0], $sell_line->product_id, $sell_line->variation_id,$quantity + $quantity_before, $quantity_before, null, false);
+                $productUtil->updateProductQuantity( $input['location_id'], $sell_line->product_id, $sell_line->variation_id,$quantity + $quantity_before, $quantity_before, null, false);
             }
         }
         if($input['old_transaction_id']){
@@ -9389,7 +9390,7 @@ class TransactionUtil extends Util
                     $this->updateQuantitySoldFromSellLine($sell_line, $quantity + $quantity_before, $quantity_before, false);
 
                     // Update quantity in variation location details
-                    $productUtil->updateProductQuantity( $location_id_new == "all" ? $sell_return->location_id : $location_id_new[0], $sell_line->product_id, $sell_line->variation_id, $quantity + $quantity_before, $quantity_before, null, false);
+                    $productUtil->updateProductQuantity( $input['location_id'], $sell_line->product_id, $sell_line->variation_id, $quantity + $quantity_before, $quantity_before, null, false);
                 }
             }
         }

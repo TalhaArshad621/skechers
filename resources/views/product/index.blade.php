@@ -537,8 +537,8 @@
                             var total_potential_profit = 0;
                             var footer_total_mfg_stock = 0;
                             for (var r in data){
-                                footer_total_stock += $(data[r].stock).data('orig-value') ? 
-                                parseFloat($(data[r].stock).data('orig-value')) : 0;
+                                footer_total_stock += $(data[r].current_stock).data('orig-value') ? 
+                                parseFloat($(data[r].current_stock).data('orig-value')) : 0;
 
                                 footer_total_sold += $(data[r].total_sold).data('orig-value') ? 
                                 parseFloat($(data[r].total_sold).data('orig-value')) : 0;

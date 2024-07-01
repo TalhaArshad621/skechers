@@ -2322,11 +2322,11 @@ class ProductController extends Controller
         $business_id = $request->session()->get('user.business_id');
         if ($request->ajax()) {
             // $variation_id = $request->get('variation_id', null);
-            $query = TransactionSellLine::join('transactions', 'transaction_sell_lines.transaction_id','=','transactions.id')
+            $query = TransactionSellLine::join('transactions', 'transaction_sell_lines.transaction_id','=','transactions.return_parent_id')
                 ->join('products', 'transaction_sell_lines.product_id', '=', 'products.id')
                 ->join('business_locations', 'transactions.location_id', '=', 'business_locations.id')
                 ->join('users','transactions.created_by', '=', 'users.id')
-                ->where('transactions.type', 'sell')
+                ->where('transactions.type', 'sell_return')
                 ->where('transactions.status', 'final')
                 ->where('transaction_sell_lines.product_id', $request->id)
                 ->whereRaw("transaction_sell_lines.quantity_returned > 0")

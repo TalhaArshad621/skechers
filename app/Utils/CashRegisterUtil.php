@@ -598,4 +598,13 @@ class CashRegisterUtil extends Util
 
         return $register;
     }
+
+    public function getCurrentLocation($user_id)
+    {
+        $location_id = CashRegister::
+                        select('location_id')
+                        ->where('user_id', $user_id)
+                        ->where('status', 'open')->first();
+        return $location_id->location_id;
+    }
 }
