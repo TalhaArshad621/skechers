@@ -21,6 +21,8 @@ $(document).ready(function () {
     }
 
     $('select#select_location_id').change(function () {
+        var location_id = $(this).val();
+        $("#location_id").val(location_id);
         reset_pos_form();
 
         var default_price_group = $(this).find(':selected').data('default_price_group')
@@ -1050,6 +1052,7 @@ $(document).ready(function () {
     $('select#product_category, select#product_brand, select#select_location_id').on('change', function (e) {
         $('input#suggestion_page').val(1);
         var location_id = $('input#location_id').val();
+        console.log(location_id);
         if (location_id != '' || location_id != undefined) {
             get_product_suggestion_list(
                 $('select#product_category').val(),
@@ -1803,9 +1806,9 @@ function reset_pos_form() {
     if (pos_form_obj[0]) {
         pos_form_obj[0].reset();
     }
-    if (sell_form[0]) {
-        sell_form[0].reset();
-    }
+    // if (sell_form[0]) {
+    //     sell_form[0].reset();
+    // }
     set_default_customer();
     set_location();
 
