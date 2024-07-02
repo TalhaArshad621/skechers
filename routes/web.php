@@ -17,6 +17,7 @@ include_once('install_r.php');
 
 Route::middleware(['setData'])->group(function () {
     Route::get('/', function () {
+        // dd(env('DB_PASSWORD'));
         return view('welcome');
     });
 
@@ -42,7 +43,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/home/sales-payment-dues', 'HomeController@getSalesPaymentDues');
     Route::post('/attach-medias-to-model', 'HomeController@attachMediasToGivenModel')->name('attach.medias.to.model');
     Route::get('/calendar', 'HomeController@getCalendar')->name('calendar');
-    
+
     Route::post('/test-email', 'BusinessController@testEmailConfiguration');
     Route::post('/test-sms', 'BusinessController@testSmsConfiguration');
     Route::get('/business/settings', 'BusinessController@getBusinessSettings')->name('business.getBusinessSettings');
@@ -52,7 +53,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::post('/user/update-password', 'UserController@updatePassword')->name('user.updatePassword');
 
     Route::resource('brands', 'BrandController');
-    
+
     Route::resource('payment-account', 'PaymentAccountController');
 
     Route::resource('tax-rates', 'TaxRateController');
@@ -96,7 +97,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/products-list', 'ProductController@productList');
     Route::get('/all-products-list', 'ProductController@allProductsList');
 
-    
+
     // Product Audit 
     Route::get('/products-audit', 'AuditController@productAudit');
 
@@ -114,7 +115,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::post('/products/bulk-update', 'ProductController@bulkUpdate');
     Route::post('/products/bulk-update-location', 'ProductController@updateProductLocation');
     Route::get('/products/get-product-to-edit/{product_id}', 'ProductController@getProductToEdit');
-    
+
     Route::post('/products/get_sub_categories', 'ProductController@getSubCategories');
     Route::get('/products/get_sub_units', 'ProductController@getSubUnits');
     Route::post('/products/product_form_part', 'ProductController@getProductVariationFormPart');
@@ -125,7 +126,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/products/quick_add', 'ProductController@quickAdd');
     Route::post('/products/save_quick_product', 'ProductController@saveQuickProduct');
     Route::get('/products/get-combo-product-entry-row', 'ProductController@getComboProductEntryRow');
-    
+
     Route::resource('products', 'ProductController');
 
     Route::post('/purchases/update-status', 'PurchaseController@updateStatus');
@@ -149,7 +150,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('indexForSellPriceUpdate', 'SellController@indexForSellPriceUpdate');
     Route::post('importSellUpdatePrices', 'SellController@importSellUpdatePrices');
 
-    Route::get('/change-article-price','ProductController@updateProductPriceManually');
+    Route::get('/change-article-price', 'ProductController@updateProductPriceManually');
     Route::post('/store-article-price', 'ProductController@storeProductPriceManually');
 
     Route::get('/import-sales', 'ImportSalesController@index');
@@ -157,7 +158,9 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::post('/import-sales', 'ImportSalesController@import');
     Route::get('/revert-sale-import/{batch}', 'ImportSalesController@revertSaleImport');
 
-Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}', 'SellPosController@getProductRowForReturn');
+    Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}', 'SellPosController@getProductRowForReturn');
+    Route::get('/sells/pos/new/get_product_row_for_return/{variation_id}/{location_id}', 'SellPosController@getProductRowForReturnNew');
+
     Route::get('/sells/pos/get_product_row/{variation_id}/{location_id}', 'SellPosController@getProductRow');
     Route::post('/sells/pos/get_payment_row', 'SellPosController@getPaymentRow');
     Route::post('/sells/pos/get-reward-details', 'SellPosController@getRewardDetails');
@@ -221,8 +224,8 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
     Route::get('/reports/product-sell-grouped-report-detailed-returns-category', 'ReportController@getproductSellGroupedReportDetailedReturnsCategory');
     Route::get('/reports/product-sell-grouped-report-detailed-returns-category-international', 'ReportController@getproductSellGroupedReportDetailedReturnsCategoryInternational');
     Route::get('/reports/product-sell-grouped-report-detailed-returns-international', 'ReportController@getproductSellGroupedReportDetailedReturnsInternational');
-    Route::get('/reports/detailed_product_category','ReportController@getDetailedProductCategory');
-    Route::get('/reports/detailed_product_category_international','ReportController@getDetailedProductCategoryInternational');
+    Route::get('/reports/detailed_product_category', 'ReportController@getDetailedProductCategory');
+    Route::get('/reports/detailed_product_category_international', 'ReportController@getDetailedProductCategoryInternational');
 
 
     Route::get('/reports/product-sell-report-with-purchase', 'ReportController@getproductSellReportWithPurchase');
@@ -241,13 +244,13 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
     Route::get('/reports/get-sell-overview', 'ReportController@getSellOverviewReport');
     Route::get('/reports/get-buy-overview', 'ReportController@getBuyOverviewReport');
     Route::get('/reports/get-ecommerce-overview', 'ReportController@getEcommerceOverviewReport');
-    Route::get('/reports/brandfolio-report','ReportController@getbrandfolioReport');
-    Route::get('/reports/employee-report','ReportController@employeeReport');
-    Route::get('/reports/employee-exchange-report','ReportController@employeeExchangeReport');
-    Route::get('/reports/employee-int-exchange-report','ReportController@employeeIntExchangeReport');
-    Route::get('/reports/exchange-report','ReportController@exchangeReport');
+    Route::get('/reports/brandfolio-report', 'ReportController@getbrandfolioReport');
+    Route::get('/reports/employee-report', 'ReportController@employeeReport');
+    Route::get('/reports/employee-exchange-report', 'ReportController@employeeExchangeReport');
+    Route::get('/reports/employee-int-exchange-report', 'ReportController@employeeIntExchangeReport');
+    Route::get('/reports/exchange-report', 'ReportController@exchangeReport');
 
-    Route::get('/reports/dashboard-stock-report','HomeController@getStockDetail');
+    Route::get('/reports/dashboard-stock-report', 'HomeController@getStockDetail');
     Route::get('business-location/activate-deactivate/{location_id}', 'BusinessLocationController@activateDeactivateLocation');
 
     //Business Location Settings...
@@ -307,7 +310,7 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
     Route::post('/import-purchase/store', 'ImportPurchaseController@store');
 
     // Import Discount 
-    Route::get('/import-discount','ImportDiscountController@create');
+    Route::get('/import-discount', 'ImportDiscountController@create');
 
     //Sales Commission Agent
     Route::resource('sales-commission-agents', 'SalesCommissionAgentController');
@@ -348,7 +351,7 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
     Route::post('/store-gift-return', 'SellReturnController@storeGiftReturn');
 
 
-    
+
     //Backup
     Route::get('backup/download/{file_name}', 'BackUpController@download');
     Route::get('backup/delete/{file_name}', 'BackUpController@delete');
@@ -389,12 +392,12 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
     // Route::get('/ecommerce/{id}',[EcommerceController::class, 'show']);
     Route::get('ecommerce/edit-shipping/{id}', 'EcommerceController@editShipping');
     Route::put('ecommerce/update-shipping/{id}', 'EcommerceController@updateShipping');
-    Route::get('/ecommerce/return-item/{id}','EcommerceController@returnItem');
-    Route::resource('/ecommerce','EcommerceController')->except(['store']);
-    Route::get('/shopify-ecommerce-api','EcommerceController@store');
-    
+    Route::get('/ecommerce/return-item/{id}', 'EcommerceController@returnItem');
+    Route::resource('/ecommerce', 'EcommerceController')->except(['store']);
+    Route::get('/shopify-ecommerce-api', 'EcommerceController@store');
+
     // Ecommerce Payments
-    Route::resource('ecommerce-payments','EcommercePaymentController');
+    Route::resource('ecommerce-payments', 'EcommercePaymentController');
     Route::get('/ecommerce-payments/add_payment/{transaction_id}', 'EcommercePaymentController@addPayment');
 
 
@@ -421,7 +424,7 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
         Route::post('/link-account', 'AccountReportsController@postLinkAccount');
         Route::get('/cash-flow', 'AccountController@cashFlow');
     });
-    
+
     Route::resource('account-types', 'AccountTypeController');
 
     //Restaurant module
@@ -449,7 +452,7 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
 
     Route::get('bookings/get-todays-bookings', 'Restaurant\BookingController@getTodaysBookings');
     Route::resource('bookings', 'Restaurant\BookingController');
-    
+
     Route::resource('types-of-service', 'TypesOfServiceController');
     Route::get('sells/edit-shipping/{id}', 'SellController@editShipping');
     Route::put('sells/update-shipping/{id}', 'SellController@updateShipping');
@@ -461,7 +464,7 @@ Route::get('/sells/pos/get_product_row_for_return/{variation_id}/{location_id}',
     Route::resource('warranties', 'WarrantyController');
 
     Route::resource('dashboard-configurator', 'DashboardConfiguratorController')
-    ->only(['edit', 'update']);
+        ->only(['edit', 'update']);
 
     Route::get('view-media/{model_id}', 'SellController@viewMedia');
 
