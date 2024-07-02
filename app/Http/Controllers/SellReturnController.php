@@ -307,6 +307,12 @@ class SellReturnController extends Controller
         if (!auth()->user()->can('access_sell_return')) {
             abort(403, 'Unauthorized action.');
         }
+        // $sub_type = request()->get('sub_type');
+
+        //   //Check if there is a open register, if no then redirect to Create Register screen.
+        //   if ($this->cashRegisterUtil->countOpenedRegister() == 0) {
+        //     return redirect()->action('CashRegisterController@create', ['sub_type' => $sub_type]);
+        // }
 
         $business_id = request()->session()->get('user.business_id');
         //Check if subscribed or not
@@ -361,9 +367,9 @@ class SellReturnController extends Controller
             break;
         }
 
-        $location_id = $this->cashRegisterUtil->getCurrentLocation(auth()->user()->id);
+        
+        return view('sell_return.new_sell_return',compact('business_locations','bl_attributes','commission_agent','usersCollection','sell','default_location','business_details','pos_settings','payment_lines','payment_types','change_return'));
 
-        return view('sell_return.new_sell_return', compact('business_locations', 'bl_attributes', 'commission_agent', 'usersCollection', 'sell', 'default_location', 'business_details', 'pos_settings', 'payment_lines', 'payment_types', 'change_return', 'location_id'));
     }
 
 
