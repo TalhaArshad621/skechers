@@ -81,6 +81,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
 
     Route::get('/products/history-ajax/{id}', 'ProductController@productHistoryAJAX');
     Route::get('/products/history', 'ProductController@productHistory');
+    Route::get('/products/opening-stock-history', 'ProductController@productOpeningStockHistory');
     Route::get('/products/sell-history', 'ProductController@productSellHistory');
     Route::get('/products/exchange-history', 'ProductController@productExchangeHistory');
     Route::get('/products/gift-history', 'ProductController@productGiftHistory');
