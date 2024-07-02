@@ -1932,22 +1932,20 @@ class SellPosController extends Controller
             $products = [];
 
             foreach ($product_ids as $index => $pid) {
-                $product = $this->productUtil->getDetailsFromVariation($variation_id, $business_id, $location_id, $check_qty);
+                $product = $this->productUtil->getDetailsFromVariation($pid, $business_id, $location_id, $check_qty);
                 $product->quantity_ordered = $product_qty[$index];
                 $product->lot_numbers = [];
-
+                $product->qty_available = $product->qty_available;
                 $product->default_sell_price = $product->default_sell_price + ($percent * $product->default_sell_price / 100);
                 $product->sell_price_inc_tax = $product->sell_price_inc_tax + ($percent * $product->sell_price_inc_tax / 100);
-
-                array_push($products, $product);
+                $products[$index] = $product;
             }
+            // $product = $this->productUtil->getDetailsFromVariation($variation_id, $business_id, $location_id, $check_qty);
+            // if (!isset($product->quantity_ordered)) {
+            //     $product->quantity_ordered = $quantity;
+            // }
 
-            $product = $this->productUtil->getDetailsFromVariation($variation_id, $business_id, $location_id, $check_qty);
-            if (!isset($product->quantity_ordered)) {
-                $product->quantity_ordered = $quantity;
-            }
-
-            $product->formatted_qty_available = $this->productUtil->num_f($product->qty_available, false, null, true);
+            // $product->formatted_qty_available = $this->productUtil->num_f($product->qty_available, false, null, true);
 
             $sub_units = $this->productUtil->getSubUnits($business_id, $product->unit_id, false, $product->product_id);
 
@@ -2006,7 +2004,6 @@ class SellPosController extends Controller
                     $edit_discount = auth()->user()->can('edit_product_discount_from_pos_screen');
                     $edit_price = auth()->user()->can('edit_product_price_from_pos_screen');
                 }
-                // dd($products);
                 $output['html_content'] =  view('sale_pos.product_return_table_new')
                     ->with(compact('products', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell'))
                     ->render();
@@ -2024,7 +2021,7 @@ class SellPosController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            dd($e->getMessage(), $e->getLine(), $e->getFile());
+            // dd($e->getMessage(), $e->getLine(), $e->getFile());
             \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
 
             $output['success'] = false;

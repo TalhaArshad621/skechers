@@ -456,9 +456,11 @@ $(document).ready(function () {
 
     //Remove row on click on remove row
     $('table#pos_table tbody').on('click', 'i.pos_remove_row', function () {
+        removeProduct($(this).data("id"));
         $(this)
             .parents('tr')
             .remove();
+
         pos_total_row();
     });
 
@@ -1640,7 +1642,12 @@ function addProductRow() {
     });
 
 }
+function removeProduct(product_id){
+    const existingProductIndex = newProductsList.findIndex(product => product.product_id === product_id);
+    newProductsList.splice(existingProductIndex, 1);
 
+
+}
 function updateQty(product_id,qty){
     const existingProductIndex = newProductsList.findIndex(product => product.product_id === product_id);
     if (existingProductIndex !== -1) {
