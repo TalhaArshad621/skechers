@@ -1935,7 +1935,7 @@ class SellPosController extends Controller
                 $product = $this->productUtil->getDetailsFromVariation($pid, $business_id, $location_id, $check_qty);
                 $product->quantity_ordered = $product_qty[$index];
                 $product->lot_numbers = [];
-
+                $product->qty_available = $product->qty_available;
                 $product->default_sell_price = $product->default_sell_price + ($percent * $product->default_sell_price / 100);
                 $product->sell_price_inc_tax = $product->sell_price_inc_tax + ($percent * $product->sell_price_inc_tax / 100);
                 $products[$index] = $product;
