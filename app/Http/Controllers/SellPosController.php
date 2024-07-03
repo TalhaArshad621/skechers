@@ -1930,8 +1930,9 @@ class SellPosController extends Controller
             $percent = (empty($cg) || empty($cg->amount) || $cg->price_calculation_type != 'percentage') ? 0 : $cg->amount;
 
             $products = [];
-
+            // dd($product_ids, $variation_id);
             foreach ($product_ids as $index => $pid) {
+
                 $product = $this->productUtil->getDetailsFromVariation($pid, $business_id, $location_id, $check_qty);
                 $product->quantity_ordered = $product_qty[$index];
                 $product->lot_numbers = [];
@@ -2021,7 +2022,7 @@ class SellPosController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            // dd($e->getMessage(), $e->getLine(), $e->getFile());
+            dd($e->getMessage(), $e->getLine(), $e->getFile());
             \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
 
             $output['success'] = false;

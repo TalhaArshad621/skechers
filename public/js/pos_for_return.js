@@ -195,6 +195,7 @@ $(document).ready(function () {
                         
                         addProductLine(ui.item);
 
+                        console.log("ddd",ui.item);
                         // addProductRow();
                         pos_product_row(ui.item.variation_id, purchase_line_id);
                     } else {
@@ -277,11 +278,11 @@ $(document).ready(function () {
             $(this).val(entered_qty);
         });
         sibling = $(this).parent('.input-group').next('.error');
-
-        if($(this).val()<= $(this).data('qty_available')){
+        let qty_available = parseInt($(this).data('qty_available'));
+        let order_available = parseInt($(this).val());
+        
+        if(order_available<= qty_available){
             sibling.hide();
-
-
         }else{
             sibling.show();
 
@@ -1505,7 +1506,7 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
             $('#types_of_service_price_group').val()) {
             price_group = $('#types_of_service_price_group').val();
         }
-
+        console.log(newProductsList);
         $.ajax({
             method: 'GET',
             url: '/sells/pos/new/get_product_row_for_return/' + variation_id + '/' + location_id,
@@ -1665,7 +1666,7 @@ function addProductLine(newProduct) {
     } else {
         // If it doesn't exist, push the new product into the array
         newProductsList.push({
-            "product_id": newProduct.product_id,
+            "product_id": newProduct.variation_id,
             "qty_available": newProduct.qty_available,
             "qty": 1,
             "name": newProduct.name,
