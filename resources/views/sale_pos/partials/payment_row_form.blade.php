@@ -27,6 +27,7 @@
                 <i class="fa fa-calendar"></i>
               </span>
               {!! Form::text("payment[$row_index][paid_on]", isset($payment_line['paid_on']) ? @format_datetime($payment_line['paid_on']) : @format_datetime('now'), ['class' => 'form-control paid_on', 'readonly', 'required']); !!}
+			  <input type="hidden" name="{{"payment[$row_index][paid_time]"}}" value="{{date("H:i")}}">
             </div>
 		</div>
 	</div>
