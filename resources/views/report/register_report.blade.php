@@ -14,10 +14,16 @@
         <div class="col-md-12">
             @component('components.filters', ['title' => __('report.filters')])
               {!! Form::open(['url' => action('ReportController@getStockReport'), 'method' => 'get', 'id' => 'register_report_filter_form' ]) !!}
-                <div class="col-md-4">
+                {{-- <div class="col-md-4">
                     <div class="form-group">
                         {!! Form::label('register_user_id',  __('report.user') . ':') !!}
                         {!! Form::select('register_user_id', $users, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('report.all_users')]); !!}
+                    </div>
+                </div> --}}
+                <div class="col-md-4">
+                    <div class="form-group">
+                        {!! Form::label('register_location_id',  __('report.location') . ':') !!}
+                        {!! Form::select('register_location_id', $locations, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('report.location')]); !!}
                     </div>
                 </div>
                 <div class="col-md-4">

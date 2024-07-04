@@ -2574,7 +2574,16 @@ class ProductUtil extends Util
 
         return array_reverse($stock_history_array);
     }
+    function calculateStockNew($product_name_without_size, $variation_id, $vld_str, $business_id)
+    {
+        $query = DB::table('variation_location_details')
+            ->join('products', 'products.id', '=', 'variation_location_details.product_id')
+            ->select(DB::raw('SUM(variation_location_details.qty_available) as stock'))
+            ->where('products.name', 'like', '%' . $product_name_without_size . '-%')
+            ->first();
 
+        return $query->stock;
+    }
     function calculateStock($product_name_without_size, $variation_id, $vld_str, $business_id)
     {
         $query = TransactionSellLine::join(
@@ -2597,9 +2606,8 @@ class ProductUtil extends Util
                 'p.name as product_name',
                 DB::raw("(SELECT SUM(vld.qty_available) FROM variation_location_details as vld WHERE vld.variation_id=v.id $vld_str) as stock"),
             )
-            ->groupBy('v.id')
-            ->get();
-        return $query;
+            ->groupBy('v.id');
+        return $query->get();
     }
 
     function calculateStockByCode($product_code, $variation_id, $vld_str, $business_id)
