@@ -402,7 +402,7 @@ $(document).ready(function () {
 
                 d.variation_id = $('#variation_id').val();
                 d.customer_id = $('select#customer_id').val();
-                d.location_id = $('select#location_id').val();
+                d.location_id = $('select#register_location_id').val();
             },
         },
         // ajax: '/reports/register-report',
@@ -445,7 +445,7 @@ $(document).ready(function () {
         updateRegisterReport();
     });
 
-    $('#register_user_id, #register_status').change(function () {
+    $('#register_user_id, #register_status, #register_location_id').change(function () {
         updateRegisterReport();
     });
 
@@ -2038,6 +2038,7 @@ function updateRegisterReport() {
     var data = {
         user_id: $('#register_user_id').val(),
         status: $('#register_status').val(),
+        location: $('#register_location_id').val(),
         start_date: start,
         end_date: end
     };
