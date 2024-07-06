@@ -881,6 +881,7 @@ class TransactionUtil extends Util
                 $uf_item_tax = $uf_data ?$this->num_uf($product['item_tax']) : $product['item_tax'];
                 $uf_unit_price_inc_tax = $uf_data ? $this->num_uf($product['default_sell_price']) : $product['default_sell_price'];
                 $category = DB::table('products')->select('category_id')->where('id',$product['product_id'])->first();
+                $variations = DB::table('variations')->select('default_purchase_price','dpp_inc_tax','product_variation_id')->where('product_id',$product['product_id'])->first();
                //  dd("hit");
 
                 $line = [
@@ -935,6 +936,20 @@ class TransactionUtil extends Util
                     $modifiers_array[] = $sell_line_modifiers;
                 }
                 
+                DB::table('purchase_lines')->insert([
+                    'transaction_id' => $transaction->id,
+                    'product_id' => $product['product_id'],
+                    'variation_id' => $product['variation_id'],
+                    'quantity' => $uf_quantity * $multiplier,
+                    'pp_without_discount' => $variations->default_purchase_price,
+                    'item_tax' => $variations->dpp_inc_tax - $variations->default_purchase_price,
+                    'tax_id' => 1,
+                    'pp_without_discount' => $variations->default_purchase_price,
+                    'purchase_price' => $variations->default_purchase_price,
+                    'purchase_price_inc_tax' => $variations->dpp_inc_tax,
+                    'exp_date' => !empty($opening_stock['exp_date']) ? $opening_stock['exp_date'] : null,
+                    'lot_number' => !empty($opening_stock['lot_number']) ? $opening_stock['lot_number'] : null,
+                ]);
                 // dd($lines_formatted, $line);
                 $lines_formatted[] = new TransactionSellLine($line);
                 $fbr_lines =  $lines_formatted;
@@ -5808,8 +5823,8 @@ class TransactionUtil extends Util
                 ->where('transactions.business_id', $business['id'])
                 ->where('transactions.location_id', $business['location_id'])
                 ->whereIn('transactions.type', ['purchase', 'purchase_transfer',
-                    'opening_stock', 'production_purchase'])
-                ->where('transactions.status', 'received')
+                    'opening_stock', 'production_purchase','international_return'])
+                ->whereIn('transactions.status', ['received','final'])
                 ->whereRaw("( $qty_sum_query ) < PL.quantity")
                 ->where('PL.product_id', $line->product_id)
                 ->where('PL.variation_id', $line->variation_id);

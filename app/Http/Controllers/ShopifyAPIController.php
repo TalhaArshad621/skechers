@@ -71,10 +71,24 @@ class ShopifyAPIController extends Controller
 
     public function getProducts()
     {
-        $products = DB::table('variations')->leftJoin('variation_location_details','variation_location_details.variation_id','variations.product_variation_id')
-        ->select("variations.sub_sku as sku","variations.sell_price_inc_tax as sell_price" , DB::raw("SUM(variation_location_details.qty_available) as qty_available"))
-        ->groupBy("variation_location_details.variation_id")
+        $products = DB::table('variations')
+        ->leftJoin('variation_location_details', 'variation_location_details.variation_id', '=', 'variations.product_variation_id')
+        ->leftJoin('discount_variations', 'discount_variations.variation_id', '=', 'variations.id')
+        ->leftJoin('discounts', 'discount_variations.discount_id', '=', 'discounts.id')
+        ->select(
+            'variations.sub_sku as sku',
+            'variations.sell_price_inc_tax as sell_price',
+            DB::raw('SUM(variation_location_details.qty_available) as qty_available'),
+            DB::raw('CASE 
+                        WHEN discounts.discount_amount IS NULL OR discounts.discount_amount = 0 THEN variations.sell_price_inc_tax 
+                        ELSE CAST(variations.sell_price_inc_tax * (discounts.discount_amount / 100) AS DECIMAL(10,2)) 
+                     END as discount_price')
+        )
+        ->groupBy('variations.id', 'variations.sub_sku', 'variations.sell_price_inc_tax')
         ->get();
+    
+    
+
 
         return response()->json([
             "result" => $products
