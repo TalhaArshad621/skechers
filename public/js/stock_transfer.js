@@ -156,16 +156,34 @@ $(document).ready(function () {
         }
     });
 
+    $('#stock_transfer_list_filter_date_range').daterangepicker(
+        dateRangeSettings,
+        function (start, end) {
+            $('#stock_transfer_list_filter_date_range').val(start.format(moment_date_format) + ' ~ ' + end.format(moment_date_format));
+            stock_transfer_table.ajax.reload();
+        }
+    );
+    $('#stock_transfer_list_filter_date_range').on('cancel.daterangepicker', function(ev, picker) {
+        $('#stock_transfer_list_filter_date_range').val('');
+        stock_transfer_table.ajax.reload();
+    });
     stock_transfer_table = $('#stock_transfer_table').DataTable({
         processing: true,
         serverSide: true,
         aaSorting: [[0, 'desc']],
         // ajax: '/stock-transfers',
+        // "data": function ( d ) {
         "ajax": {
                 "url": "/stock-transfers",
                 "data": function ( d ) {
                     if($('#stock_transfer_list_filter_location_id').length) {
                         d.location_id = $('#stock_transfer_list_filter_location_id').val();
+                    }
+                    if($('#stock_transfer_list_filter_date_range').val()) {
+                        var start = $('#stock_transfer_list_filter_date_range').data('daterangepicker').startDate.format('YYYY-MM-DD');
+                        var end = $('#stock_transfer_list_filter_date_range').data('daterangepicker').endDate.format('YYYY-MM-DD');
+                        d.start_date = start;
+                        d.end_date = end;
                     }
                 }
             },

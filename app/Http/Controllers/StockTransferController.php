@@ -66,6 +66,7 @@ class StockTransferController extends Controller
         // dd($business_id);
 
         if (request()->ajax()) {
+            // dd(request());
             $business_id = request()->session()->get('user.business_id');
             $edit_days = request()->session()->get('business.transaction_edit_days');
 
@@ -102,6 +103,12 @@ class StockTransferController extends Controller
                 $stock_transfers->whereIn('transactions.location_id', $permitted_locations);
             }
 
+            // dd(request()->get('start_date'),request()->get('end_date'));
+            if (!empty(request()->input('start_date')) && !empty(request()->input('end_date'))) {
+                // dd("hehe");
+                $stock_transfers->whereDate('transactions.transaction_date', '>=', request()->input('start_date'))
+                    ->whereDate('transactions.transaction_date', '<=', request()->input('end_date'));
+            }
             if (request()->has('location_id')) {
                 // dd("inside");
                 $location_id = request()->get('location_id');

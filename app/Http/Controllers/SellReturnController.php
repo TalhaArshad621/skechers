@@ -337,7 +337,7 @@ class SellReturnController extends Controller
         $business_details = $this->businessUtil->getDetails($business_id);
         $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
-
+        $bll = auth()->user()->permitted_locations();
         $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
         $commission_agent = [];
         if ($commsn_agnt_setting == 'user') {
@@ -351,9 +351,14 @@ class SellReturnController extends Controller
 
         foreach ($roles as $role) {
             $usersWithRole = $role->users;
-
             foreach ($usersWithRole as $user) {
-                $usersCollection[$user->id] = $user->first_name . ' ' . $user->last_name;
+                if ($bll == 'all') {
+                    $usersCollection[$user->id] = $user->first_name . ' ' . $user->last_name;
+                } else {
+                    if ($user->can('location.' . $bll[0]) == true) {
+                        $usersCollection[$user->id] = $user->first_name . ' ' . $user->last_name;
+                    }
+                }
             }
         }
         // $business_locations = BusinessLocation::fortransferDropdown($business_id);
