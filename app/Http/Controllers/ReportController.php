@@ -298,7 +298,7 @@ class ReportController extends Controller
             //Return the details in ajax call
             $for = request()->input('for') == 'view_product' ? 'view_product' : 'datatables';
 
-            $products = $this->productUtil->getProductStockDetails($business_id, $filters, $for);
+            $products = $this->productUtil->getProductStockDetailsNew($business_id, $filters, $for);
             //To show stock details on view product modal
             if ($for == 'view_product' && !empty(request()->input('product_id'))) {
                 $product_stock_details = $products;

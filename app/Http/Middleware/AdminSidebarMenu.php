@@ -27,9 +27,9 @@ class AdminSidebarMenu
             $is_admin = auth()->user()->hasRole('Admin#' . session('business.id')) ? true : false;
             //Home
             $menu->url(action('HomeController@index'), __('home.home'), ['icon' => 'fa fas fa-tachometer-alt', 'active' => request()->segment(1) == 'home'])->order(5);
-            
+
             //POS
-            $menu->url(action('SellPosController@create'),__('sale.pos_sale'),['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'pos' && request()->segment(2) == 'create'])->order(5);
+            $menu->url(action('SellPosController@create'), __('sale.pos_sale'), ['icon' => 'fa fas fa-plus-circle', 'active' => request()->segment(1) == 'pos' && request()->segment(2) == 'create'])->order(5);
 
             //User management dropdown
             if (auth()->user()->can('user.view') || auth()->user()->can('user.create') || auth()->user()->can('roles.view')) {
@@ -94,7 +94,7 @@ class AdminSidebarMenu
                             );
                         }
 
-                        if(!empty(env('GOOGLE_MAP_API_KEY'))) {
+                        if (!empty(env('GOOGLE_MAP_API_KEY'))) {
                             $sub->url(
                                 action('ContactController@contactMap'),
                                 __('lang_v1.map'),
@@ -107,10 +107,12 @@ class AdminSidebarMenu
             }
 
             //Products dropdown
-            if (auth()->user()->can('product.view') || auth()->user()->can('product.create') ||
+            if (
+                auth()->user()->can('product.view') || auth()->user()->can('product.create') ||
                 auth()->user()->can('brand.view') || auth()->user()->can('unit.view') ||
                 auth()->user()->can('category.view') || auth()->user()->can('brand.create') ||
-                auth()->user()->can('unit.create') || auth()->user()->can('category.create') || auth()->user()->can('product.audit')) {
+                auth()->user()->can('unit.create') || auth()->user()->can('category.create') || auth()->user()->can('product.audit')
+            ) {
                 $menu->dropdown(
                     __('sale.products'),
                     function ($sub) {
@@ -196,7 +198,7 @@ class AdminSidebarMenu
                         //         ['icon' => 'fa fas fa-gem', 'active' => request()->segment(1) == 'brands']
                         //     );
                         // }
-                        
+
                         if (auth()->user()->can('product.create')) {
                             $sub->url(
                                 action('ProductAdjustmentController@index'),
@@ -260,7 +262,7 @@ class AdminSidebarMenu
                 )->order(25);
             }
             //Sell dropdown
-            if ($is_admin || auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping', 'access_sell_return']) ) {
+            if ($is_admin || auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping', 'access_sell_return'])) {
                 $menu->dropdown(
                     __('sale.sale'),
                     function ($sub) use ($enabled_modules, $is_admin) {
@@ -398,13 +400,13 @@ class AdminSidebarMenu
                 $menu->dropdown(
                     __('lang_v1.stock_transfers'),
                     function ($sub) {
-                        if (auth()->user()->can('stocktransfer.view')) {
-                            $sub->url(
-                                action('StockTransferController@index'),
-                                __('lang_v1.list_stock_transfers'),
-                                ['icon' => 'fa fas fa-list', 'active' => request()->segment(1) == 'stock-transfers' && request()->segment(2) == null]
-                            );
-                        }
+                        // if (auth()->user()->can('stocktransfer.view')) {
+                        $sub->url(
+                            action('StockTransferController@index'),
+                            __('lang_v1.list_stock_transfers'),
+                            ['icon' => 'fa fas fa-list', 'active' => request()->segment(1) == 'stock-transfers' && request()->segment(2) == null]
+                        );
+                        // }
                         if (auth()->user()->can('stocktransfer.create')) {
                             $sub->url(
                                 action('StockTransferController@create'),
@@ -547,10 +549,12 @@ class AdminSidebarMenu
             }
 
             //Reports dropdown
-            if (auth()->user()->can('purchase_n_sell_report.view') || auth()->user()->can('contacts_report.view')
+            if (
+                auth()->user()->can('purchase_n_sell_report.view') || auth()->user()->can('contacts_report.view')
                 || auth()->user()->can('stock_report.view') || auth()->user()->can('tax_report.view')
                 || auth()->user()->can('trending_product_report.view') || auth()->user()->can('sales_representative.view') || auth()->user()->can('register_report.view')
-                || auth()->user()->can('expense_report.view')|| auth()->user()->can('view_ecommerce')) {
+                || auth()->user()->can('expense_report.view') || auth()->user()->can('view_ecommerce')
+            ) {
                 $menu->dropdown(
                     __('report.reports'),
                     function ($sub) use ($enabled_modules) {
@@ -780,8 +784,10 @@ class AdminSidebarMenu
             // }
 
             //Gift Module
-            if (auth()->user()->can('view_gifts') ||
-            auth()->user()->can('add_gifts')) {
+            if (
+                auth()->user()->can('view_gifts') ||
+                auth()->user()->can('add_gifts')
+            ) {
                 $menu->dropdown(
                     __('Gift'),
                     function ($sub) {
@@ -809,7 +815,6 @@ class AdminSidebarMenu
                     },
                     ['icon' => 'fa fa-gift']
                 )->order(36);
-            
             }
 
             // //Gift Module
@@ -841,12 +846,14 @@ class AdminSidebarMenu
                 )->order(36);
             }
             //Settings Dropdown
-            if (auth()->user()->can('business_settings.access') ||
+            if (
+                auth()->user()->can('business_settings.access') ||
                 auth()->user()->can('barcode_settings.access') ||
                 auth()->user()->can('invoice_settings.access') ||
                 auth()->user()->can('tax_rate.view') ||
                 auth()->user()->can('tax_rate.create') ||
-                auth()->user()->can('access_package_subscriptions')) {
+                auth()->user()->can('access_package_subscriptions')
+            ) {
                 $menu->dropdown(
                     __('business.settings'),
                     function ($sub) use ($enabled_modules) {
@@ -920,7 +927,7 @@ class AdminSidebarMenu
                 )->order(85);
             }
         });
-        
+
         //Add menus from modules
         $moduleUtil = new ModuleUtil;
         $moduleUtil->getModuleData('modifyAdminMenu');

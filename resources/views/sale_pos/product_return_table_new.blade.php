@@ -4,6 +4,7 @@
 <tr class="product_row" data-row_index="{{$index}}">
 	<td>
 		@php
+			$discount_percentage = 0.0;
 			$product_name = $product->product_name . '<br/>' . $product->sub_sku ;
 			// if(!empty($product->brand)){ $product_name .= ' ' . $product->brand ;}
 		@endphp
@@ -311,7 +312,7 @@
 		</td>
 	@endif
 	<td class="{{$hide_tax}}">
-		<input type="text" name="exchange_products[{{$index}}][unit_price_inc_tax]" class="form-control pos_unit_price_inc_tax input_number" value="{{@num_format($unit_price_inc_tax)}}" @if(!$edit_price) readonly @endif @if(!empty($pos_settings['enable_msp'])) data-rule-min-value="{{$unit_price_inc_tax}}" data-msg-min-value="{{__('lang_v1.minimum_selling_price_error_msg', ['price' => @num_format($unit_price_inc_tax)])}}" @endif readonly>
+		<input type="text" name="exchange_products[{{$index}}][unit_price_inc_tax]" class="form-control pos_unit_price_inc_tax input_number" value="{{@num_format($unit_price_inc_tax-$discount_percentage)}}" @if(!$edit_price) readonly @endif @if(!empty($pos_settings['enable_msp'])) data-rule-min-value="{{$unit_price_inc_tax}}" data-msg-min-value="{{__('lang_v1.minimum_selling_price_error_msg', ['price' => @num_format($unit_price_inc_tax)])}}" @endif readonly>
 	</td>
 	<td class="text-center">
 		@php
@@ -319,7 +320,7 @@
 
 		@endphp
 		<input type="{{$subtotal_type}}" class="form-control pos_line_total @if(!empty($pos_settings['is_pos_subtotal_editable'])) input_number @endif" value="{{@num_format($product->quantity_ordered*$unit_price_inc_tax )}}">
-		<span class="display_currency pos_line_total_text @if(!empty($pos_settings['is_pos_subtotal_editable'])) hide @endif" data-currency_symbol="true">{{$product->quantity_ordered*$unit_price_inc_tax}}</span>
+		<span class="display_currency pos_line_total_text @if(!empty($pos_settings['is_pos_subtotal_editable'])) hide @endif" data-currency_symbol="true">{{$product->quantity_ordered*$unit_price_inc_tax - $product->quantity_ordered * $discount_percentage}}</span>
 	</td>
 	<td class="text-center v-center">
 		<i class="fa fa-times text-danger pos_remove_row cursor-pointer" data-id="{{ $product->product_id }}" aria-hidden="true"></i>
