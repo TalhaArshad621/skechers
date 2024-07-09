@@ -310,12 +310,23 @@ $(document).ready(function () {
             true
         );
 
+        var sell_price_before_discount = __read_number(
+            row.find('input.default_sell_price'),
+            true
+        );
+        console.log(sell_price_before_discount);
         //Calculations.
         var purchase_before_tax =
             parseFloat(purchase_before_discount) -
             __calculate_amount('percentage', discount_percent, purchase_before_discount);
 
         __write_number(row.find('input.purchase_unit_cost'), purchase_before_tax, true);
+
+        var sell_price_inc_tax = parseFloat(sell_price_before_discount) -
+            __calculate_amount('percentage', discount_percent, sell_price_before_discount);
+
+        __write_number(row.find('input.default_sell_price'), sell_price_inc_tax, true);
+
 
         var sub_total_before_tax = quantity * purchase_before_tax;
 
