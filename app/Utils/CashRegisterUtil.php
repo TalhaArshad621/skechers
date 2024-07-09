@@ -68,7 +68,7 @@ class CashRegisterUtil extends Util
     {
         // dd($transaction, $payments);
         $user_id = auth()->user()->id;
-        $register =  CashRegister::where('user_id', $user_id)
+        $register =  CashRegister::where('location_id', $transaction->location_id)
                                 ->where('status', 'open')
                                 ->first();
         $payments_formatted = [];
