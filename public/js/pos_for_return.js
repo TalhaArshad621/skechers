@@ -2096,6 +2096,7 @@ function get_unit_price_from_discounted_unit_price(row, discounted_unit_price) {
 
 //Update quantity if line subtotal changes
 $('table#pos_table tbody').on('change', 'input.pos_line_total', function () {
+
     var subtotal = __read_number($(this));
     var tr = $(this).parents('tr');
     var quantity_element = tr.find('input.pos_quantity');
