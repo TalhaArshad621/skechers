@@ -336,7 +336,7 @@ class TransactionUtil extends Util
                     }
                 }
             }
-
+            // Quantity check
             if($total_quantity > 0) {
                 $error_msg = "Product Quantity Doesn't Exist.";
                 throw new \Exception($error_msg);
