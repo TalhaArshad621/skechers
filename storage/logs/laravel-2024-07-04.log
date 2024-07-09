@@ -1,0 +1,288 @@
+[2024-07-04 16:56:37] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown at Command line code:1)
+[stacktrace]
+#0 {main}
+"} 
+[2024-07-04 16:57:35] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown at Command line code:1)
+[stacktrace]
+#0 {main}
+"} 
+[2024-07-04 16:57:38] local.ERROR: syntax error, unexpected 'if' (T_IF) {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): syntax error, unexpected 'if' (T_IF) at /var/www/html/skechers/app/Http/Controllers/ReportController.php:1805)
+[stacktrace]
+#0 /var/www/html/skechers/vendor/composer/ClassLoader.php(322): Composer\\Autoload\\includeFile()
+#1 [internal function]: Composer\\Autoload\\ClassLoader->loadClass()
+#2 [internal function]: spl_autoload_call()
+#3 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(788): ReflectionClass->__construct()
+#4 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(667): Illuminate\\Container\\Container->build()
+#5 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(615): Illuminate\\Container\\Container->resolve()
+#6 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(767): Illuminate\\Container\\Container->make()
+#7 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Route.php(233): Illuminate\\Foundation\\Application->make()
+#8 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Route.php(833): Illuminate\\Routing\\Route->getController()
+#9 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Route.php(794): Illuminate\\Routing\\Route->controllerMiddleware()
+#10 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(693): Illuminate\\Routing\\Route->gatherMiddleware()
+#11 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(673): Illuminate\\Routing\\Router->gatherRouteMiddleware()
+#12 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(657): Illuminate\\Routing\\Router->runRouteWithinStack()
+#13 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(623): Illuminate\\Routing\\Router->runRoute()
+#14 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(612): Illuminate\\Routing\\Router->dispatchToRoute()
+#15 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(176): Illuminate\\Routing\\Router->dispatch()
+#16 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(30): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}()
+#17 /var/www/html/skechers/vendor/barryvdh/laravel-debugbar/src/Middleware/InjectDebugbar.php(58): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#18 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Barryvdh\\Debugbar\\Middleware\\InjectDebugbar->handle()
+#19 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#20 /var/www/html/skechers/vendor/fideloper/proxy/src/TrustProxies.php(57): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#21 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Fideloper\\Proxy\\TrustProxies->handle()
+#22 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#23 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#24 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#25 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#26 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#27 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#28 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#29 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ValidatePostSize.php(27): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#30 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle()
+#31 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#32 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/CheckForMaintenanceMode.php(62): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#33 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\CheckForMaintenanceMode->handle()
+#34 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#35 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(104): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#36 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(151): Illuminate\\Pipeline\\Pipeline->then()
+#37 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(116): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter()
+#38 /var/www/html/skechers/public/index.php(53): Illuminate\\Foundation\\Http\\Kernel->handle()
+#39 /var/www/html/skechers/server.php(21): require_once('/var/www/html/s...')
+#40 {main}
+"} 
+[2024-07-04 16:57:38] local.ERROR: syntax error, unexpected 'if' (T_IF) {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): syntax error, unexpected 'if' (T_IF) at /var/www/html/skechers/app/Http/Controllers/ReportController.php:1805)
+[stacktrace]
+#0 /var/www/html/skechers/vendor/composer/ClassLoader.php(322): Composer\\Autoload\\includeFile()
+#1 [internal function]: Composer\\Autoload\\ClassLoader->loadClass()
+#2 [internal function]: spl_autoload_call()
+#3 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(788): ReflectionClass->__construct()
+#4 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(667): Illuminate\\Container\\Container->build()
+#5 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(615): Illuminate\\Container\\Container->resolve()
+#6 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(767): Illuminate\\Container\\Container->make()
+#7 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Route.php(233): Illuminate\\Foundation\\Application->make()
+#8 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Route.php(833): Illuminate\\Routing\\Route->getController()
+#9 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Route.php(794): Illuminate\\Routing\\Route->controllerMiddleware()
+#10 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(693): Illuminate\\Routing\\Route->gatherMiddleware()
+#11 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(673): Illuminate\\Routing\\Router->gatherRouteMiddleware()
+#12 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(657): Illuminate\\Routing\\Router->runRouteWithinStack()
+#13 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(623): Illuminate\\Routing\\Router->runRoute()
+#14 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(612): Illuminate\\Routing\\Router->dispatchToRoute()
+#15 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(176): Illuminate\\Routing\\Router->dispatch()
+#16 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(30): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}()
+#17 /var/www/html/skechers/vendor/barryvdh/laravel-debugbar/src/Middleware/InjectDebugbar.php(58): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#18 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Barryvdh\\Debugbar\\Middleware\\InjectDebugbar->handle()
+#19 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#20 /var/www/html/skechers/vendor/fideloper/proxy/src/TrustProxies.php(57): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#21 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Fideloper\\Proxy\\TrustProxies->handle()
+#22 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#23 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#24 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#25 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#26 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#27 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#28 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#29 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ValidatePostSize.php(27): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#30 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle()
+#31 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#32 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/CheckForMaintenanceMode.php(62): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#33 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\CheckForMaintenanceMode->handle()
+#34 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#35 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(104): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#36 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(151): Illuminate\\Pipeline\\Pipeline->then()
+#37 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(116): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter()
+#38 /var/www/html/skechers/public/index.php(53): Illuminate\\Foundation\\Http\\Kernel->handle()
+#39 /var/www/html/skechers/server.php(21): require_once('/var/www/html/s...')
+#40 {main}
+"} 
+[2024-07-04 16:57:38] local.ERROR: syntax error, unexpected 'if' (T_IF) {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): syntax error, unexpected 'if' (T_IF) at /var/www/html/skechers/app/Http/Controllers/ReportController.php:1805)
+[stacktrace]
+#0 /var/www/html/skechers/vendor/composer/ClassLoader.php(322): Composer\\Autoload\\includeFile()
+#1 [internal function]: Composer\\Autoload\\ClassLoader->loadClass()
+#2 [internal function]: spl_autoload_call()
+#3 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(788): ReflectionClass->__construct()
+#4 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(667): Illuminate\\Container\\Container->build()
+#5 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(615): Illuminate\\Container\\Container->resolve()
+#6 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(767): Illuminate\\Container\\Container->make()
+#7 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Route.php(233): Illuminate\\Foundation\\Application->make()
+#8 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Route.php(833): Illuminate\\Routing\\Route->getController()
+#9 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Route.php(794): Illuminate\\Routing\\Route->controllerMiddleware()
+#10 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(693): Illuminate\\Routing\\Route->gatherMiddleware()
+#11 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(673): Illuminate\\Routing\\Router->gatherRouteMiddleware()
+#12 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(657): Illuminate\\Routing\\Router->runRouteWithinStack()
+#13 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(623): Illuminate\\Routing\\Router->runRoute()
+#14 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(612): Illuminate\\Routing\\Router->dispatchToRoute()
+#15 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(176): Illuminate\\Routing\\Router->dispatch()
+#16 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(30): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}()
+#17 /var/www/html/skechers/vendor/barryvdh/laravel-debugbar/src/Middleware/InjectDebugbar.php(58): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#18 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Barryvdh\\Debugbar\\Middleware\\InjectDebugbar->handle()
+#19 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#20 /var/www/html/skechers/vendor/fideloper/proxy/src/TrustProxies.php(57): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#21 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Fideloper\\Proxy\\TrustProxies->handle()
+#22 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#23 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#24 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#25 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#26 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#27 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#28 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#29 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ValidatePostSize.php(27): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#30 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle()
+#31 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#32 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/CheckForMaintenanceMode.php(62): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#33 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\CheckForMaintenanceMode->handle()
+#34 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#35 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(104): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#36 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(151): Illuminate\\Pipeline\\Pipeline->then()
+#37 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(116): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter()
+#38 /var/www/html/skechers/public/index.php(53): Illuminate\\Foundation\\Http\\Kernel->handle()
+#39 /var/www/html/skechers/server.php(21): require_once('/var/www/html/s...')
+#40 {main}
+"} 
+[2024-07-04 16:57:38] local.ERROR: syntax error, unexpected 'if' (T_IF) {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): syntax error, unexpected 'if' (T_IF) at /var/www/html/skechers/app/Http/Controllers/ReportController.php:1805)
+[stacktrace]
+#0 /var/www/html/skechers/vendor/composer/ClassLoader.php(322): Composer\\Autoload\\includeFile()
+#1 [internal function]: Composer\\Autoload\\ClassLoader->loadClass()
+#2 [internal function]: spl_autoload_call()
+#3 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(788): ReflectionClass->__construct()
+#4 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(667): Illuminate\\Container\\Container->build()
+#5 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Container/Container.php(615): Illuminate\\Container\\Container->resolve()
+#6 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(767): Illuminate\\Container\\Container->make()
+#7 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Route.php(233): Illuminate\\Foundation\\Application->make()
+#8 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Route.php(833): Illuminate\\Routing\\Route->getController()
+#9 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Route.php(794): Illuminate\\Routing\\Route->controllerMiddleware()
+#10 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(693): Illuminate\\Routing\\Route->gatherMiddleware()
+#11 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(673): Illuminate\\Routing\\Router->gatherRouteMiddleware()
+#12 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(657): Illuminate\\Routing\\Router->runRouteWithinStack()
+#13 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(623): Illuminate\\Routing\\Router->runRoute()
+#14 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Router.php(612): Illuminate\\Routing\\Router->dispatchToRoute()
+#15 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(176): Illuminate\\Routing\\Router->dispatch()
+#16 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(30): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}()
+#17 /var/www/html/skechers/vendor/barryvdh/laravel-debugbar/src/Middleware/InjectDebugbar.php(58): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#18 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Barryvdh\\Debugbar\\Middleware\\InjectDebugbar->handle()
+#19 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#20 /var/www/html/skechers/vendor/fideloper/proxy/src/TrustProxies.php(57): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#21 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Fideloper\\Proxy\\TrustProxies->handle()
+#22 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#23 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#24 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#25 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#26 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#27 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#28 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#29 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ValidatePostSize.php(27): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#30 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle()
+#31 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#32 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/CheckForMaintenanceMode.php(62): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#33 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(163): Illuminate\\Foundation\\Http\\Middleware\\CheckForMaintenanceMode->handle()
+#34 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(53): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}()
+#35 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(104): Illuminate\\Routing\\Pipeline->Illuminate\\Routing\\{closure}()
+#36 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(151): Illuminate\\Pipeline\\Pipeline->then()
+#37 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(116): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter()
+#38 /var/www/html/skechers/public/index.php(53): Illuminate\\Foundation\\Http\\Kernel->handle()
+#39 /var/www/html/skechers/server.php(21): require_once('/var/www/html/s...')
+#40 {main}
+"} 
+[2024-07-04 16:58:35] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown at Command line code:1)
+[stacktrace]
+#0 {main}
+"} 
+[2024-07-04 16:59:35] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown at Command line code:1)
+[stacktrace]
+#0 {main}
+"} 
+[2024-07-04 17:00:35] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown at Command line code:1)
+[stacktrace]
+#0 {main}
+"} 
+[2024-07-04 17:01:35] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown at Command line code:1)
+[stacktrace]
+#0 {main}
+"} 
+[2024-07-04 17:02:35] local.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct()
+#1 [internal function]: {closure}()
+#2 Command line code(1): array_map()
+#3 {main}
+  thrown at Command line code:1)
+[stacktrace]
+#0 {main}
+"} 
