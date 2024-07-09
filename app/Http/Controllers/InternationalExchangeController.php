@@ -625,39 +625,44 @@ class InternationalExchangeController extends Controller
                 $final_array['purchase_line_id'] = $purchase_line_id;
                 $final_array['quantity'] = $quantity;
                 $final_array['quantity_returned'] = $quantity_returned;
-
                 $transactionSellLinesPurchaseLines = new TransactionSellLinesPurchaseLines();
-
+                
                 $transactionSellLinesPurchaseLines->sell_line_id = $final_array['sell_line_id'];
                 $transactionSellLinesPurchaseLines->purchase_line_id = $final_array['purchase_line_id'];
                 $transactionSellLinesPurchaseLines->quantity = $final_array['quantity'];
                 $transactionSellLinesPurchaseLines->qty_returned = $final_array['quantity_returned'];
                 
                 $transactionSellLinesPurchaseLines->save();
-
-                $variation_id_of_returning_product = Variation::where('product_id', $product_id_of_returning_product)
-                ->orderBy('id', 'desc')
-                ->value('id');
-                // dd($variation_id_of_returning_product);
-
+ 
                 $product_variation_id_of_returning_product = ProductVariation::where('product_id', $product_id_of_returning_product)
                 ->orderBy('id', 'desc')
                 ->value('id');
+                
+                // Update quantity in variation location details
+                $this->productUtil->updateProductQuantity( $input['location_id'], $product_id_of_returning_product, $product_variation_id_of_returning_product,$quantity , 0, null, false);
+                
+        
+                // $variation_id_of_returning_product = Variation::where('product_id', $product_id_of_returning_product)
+                // ->orderBy('id', 'desc')
+                // ->value('id');
+                // // dd($variation_id_of_returning_product);
+               
+                
+                // $VLD_of_returning_product_id = VariationLocationDetails::
+                // where('product_id', $product_id_of_returning_product)
+                // ->where('location_id', $sell_return->location_id)
+                // // ->where('product_variation_id', $product_variation_id_of_returning_product)
+                // ->orderBy('id', 'desc')
+                // ->value('id');
+                // dd($VLD_of_returning_product_id, $product_id_of_returning_product);
+                // $VLD_of_returning_product = VariationLocationDetails::find($VLD_of_returning_product_id);
 
-                $VLD_of_returning_product_id = VariationLocationDetails::
-                where('product_id', $product_id_of_returning_product)
-                ->where('location_id', $sell_return->location_id)
-                ->where('product_variation_id', $product_variation_id_of_returning_product)
-                ->orderBy('id', 'desc')
-                ->value('id');
-                $VLD_of_returning_product = VariationLocationDetails::find($VLD_of_returning_product_id);
-
-                // dd($VLD_of_returning_product);
-                $purchase_line_of_returning_product = PurchaseLine::find($product_id_of_returning_product);
-                // dd($purchase_line_of_returning_product);
+                // // dd($VLD_of_returning_product);
+                // $purchase_line_of_returning_product = PurchaseLine::find($product_id_of_returning_product);
+                // // dd($purchase_line_of_returning_product);
 
 
-                $VLD_of_returning_product->increment('qty_available', $quantity);
+                // $VLD_of_returning_product->increment('qty_available', $quantity);
 
                 // dd($VLD_of_returning_product);
                 // dd($product_variation_id_of_returning_product,$variation_id_of_returning_product);
