@@ -1,0 +1,64 @@
+[2024-07-09 11:52:55] local.ERROR: Uncaught Symfony\Component\Finder\Exception\DirectoryNotFoundException: The "/var/www/html/skechers/custom_views" directory does not exist. in /var/www/html/skechers/vendor/symfony/finder/Finder.php:602
+Stack trace:
+#0 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(414): Symfony\Component\Finder\Finder->in()
+#1 Command line code(1): Illuminate\Filesystem\Filesystem->files()
+#2 Command line code(1): getViews()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught Symfony\\Component\\Finder\\Exception\\DirectoryNotFoundException: The \"/var/www/html/skechers/custom_views\" directory does not exist. in /var/www/html/skechers/vendor/symfony/finder/Finder.php:602
+Stack trace:
+#0 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(414): Symfony\\Component\\Finder\\Finder->in()
+#1 Command line code(1): Illuminate\\Filesystem\\Filesystem->files()
+#2 Command line code(1): getViews()
+#3 {main}
+  thrown at /var/www/html/skechers/vendor/symfony/finder/Finder.php:602)
+[stacktrace]
+#0 {main}
+"} 
+[2024-07-09 11:53:00] local.ERROR: Uncaught Symfony\Component\Finder\Exception\DirectoryNotFoundException: The "/var/www/html/skechers/custom_views" directory does not exist. in /var/www/html/skechers/vendor/symfony/finder/Finder.php:602
+Stack trace:
+#0 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(414): Symfony\Component\Finder\Finder->in()
+#1 Command line code(1): Illuminate\Filesystem\Filesystem->files()
+#2 Command line code(1): getViews()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught Symfony\\Component\\Finder\\Exception\\DirectoryNotFoundException: The \"/var/www/html/skechers/custom_views\" directory does not exist. in /var/www/html/skechers/vendor/symfony/finder/Finder.php:602
+Stack trace:
+#0 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(414): Symfony\\Component\\Finder\\Finder->in()
+#1 Command line code(1): Illuminate\\Filesystem\\Filesystem->files()
+#2 Command line code(1): getViews()
+#3 {main}
+  thrown at /var/www/html/skechers/vendor/symfony/finder/Finder.php:602)
+[stacktrace]
+#0 {main}
+"} 
+[2024-07-09 11:53:05] local.ERROR: Uncaught Symfony\Component\Finder\Exception\DirectoryNotFoundException: The "/var/www/html/skechers/custom_views" directory does not exist. in /var/www/html/skechers/vendor/symfony/finder/Finder.php:602
+Stack trace:
+#0 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(414): Symfony\Component\Finder\Finder->in()
+#1 Command line code(1): Illuminate\Filesystem\Filesystem->files()
+#2 Command line code(1): getViews()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught Symfony\\Component\\Finder\\Exception\\DirectoryNotFoundException: The \"/var/www/html/skechers/custom_views\" directory does not exist. in /var/www/html/skechers/vendor/symfony/finder/Finder.php:602
+Stack trace:
+#0 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(414): Symfony\\Component\\Finder\\Finder->in()
+#1 Command line code(1): Illuminate\\Filesystem\\Filesystem->files()
+#2 Command line code(1): getViews()
+#3 {main}
+  thrown at /var/www/html/skechers/vendor/symfony/finder/Finder.php:602)
+[stacktrace]
+#0 {main}
+"} 
+[2024-07-09 11:53:10] local.ERROR: Uncaught Symfony\Component\Finder\Exception\DirectoryNotFoundException: The "/var/www/html/skechers/custom_views" directory does not exist. in /var/www/html/skechers/vendor/symfony/finder/Finder.php:602
+Stack trace:
+#0 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(414): Symfony\Component\Finder\Finder->in()
+#1 Command line code(1): Illuminate\Filesystem\Filesystem->files()
+#2 Command line code(1): getViews()
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught Symfony\\Component\\Finder\\Exception\\DirectoryNotFoundException: The \"/var/www/html/skechers/custom_views\" directory does not exist. in /var/www/html/skechers/vendor/symfony/finder/Finder.php:602
+Stack trace:
+#0 /var/www/html/skechers/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(414): Symfony\\Component\\Finder\\Finder->in()
+#1 Command line code(1): Illuminate\\Filesystem\\Filesystem->files()
+#2 Command line code(1): getViews()
+#3 {main}
+  thrown at /var/www/html/skechers/vendor/symfony/finder/Finder.php:602)
+[stacktrace]
+#0 {main}
+"} 
