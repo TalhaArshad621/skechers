@@ -1,4 +1,7 @@
+let newProductsList = [];
+let newProductIDList = [];
 $(document).ready(function () {
+
     customer_set = false;
     //Prevent enter key function except texarea
     $('form').on('keyup keypress', function (e) {
@@ -21,6 +24,8 @@ $(document).ready(function () {
     }
 
     $('select#select_location_id').change(function () {
+        var location_id = $(this).val();
+        $("#location_id").val(location_id);
         reset_pos_form();
 
         var default_price_group = $(this).find(':selected').data('default_price_group')
@@ -129,7 +134,10 @@ $(document).ready(function () {
         //Add Product
         $('#search_product')
             .autocomplete({
+                
                 source: function (request, response) {
+                    
+
                     var price_group = '';
                     var search_fields = [];
                     $('.search_fields:checked').each(function (i) {
@@ -184,6 +192,11 @@ $(document).ready(function () {
 
                         //Pre select lot number only if the searched term is same as the lot number
                         var purchase_line_id = ui.item.purchase_line_id && searched_term == ui.item.lot_number ? ui.item.purchase_line_id : null;
+                        
+                        addProductLine(ui.item);
+
+                        console.log("ddd",ui.item);
+                        // addProductRow();
                         pos_product_row(ui.item.variation_id, purchase_line_id);
                     } else {
                         alert(LANG.out_of_stock);
@@ -239,6 +252,7 @@ $(document).ready(function () {
 
     //Update line total and check for quantity not greater than max quantity
     $('table#pos_table tbody').on('change', 'input.pos_quantity', function () {
+        
         // if (sell_form_validator) {
         //     sell_form_validator.element($(this));
         // }
@@ -263,10 +277,21 @@ $(document).ready(function () {
         tr.find('.modifiers_quantity').each(function () {
             $(this).val(entered_qty);
         });
+        sibling = $(this).parent('.input-group').next('.error');
+        let qty_available = parseInt($(this).data('qty_available'));
+        let order_available = parseInt($(this).val());
+        
+        if(order_available<= qty_available){
+            sibling.hide();
+        }else{
+            sibling.show();
 
+        }
+        updateQty($(this).data('id'),$(this).val());
         pos_total_row();
 
         adjustComboQty(tr);
+        toggleSubmitBTN();
     });
 
     //If change in unit price update price including tax and line total
@@ -432,9 +457,11 @@ $(document).ready(function () {
 
     //Remove row on click on remove row
     $('table#pos_table tbody').on('click', 'i.pos_remove_row', function () {
+        removeProduct($(this).data("id"));
         $(this)
             .parents('tr')
             .remove();
+
         pos_total_row();
     });
 
@@ -1050,6 +1077,7 @@ $(document).ready(function () {
     $('select#product_category, select#product_brand, select#select_location_id').on('change', function (e) {
         $('input#suggestion_page').val(1);
         var location_id = $('input#location_id').val();
+        console.log(location_id);
         if (location_id != '' || location_id != undefined) {
             get_product_suggestion_list(
                 $('select#product_category').val(),
@@ -1080,6 +1108,7 @@ $(document).ready(function () {
 
     //Press enter on search product to jump into last quantty and vice-versa
     $('#search_product').keydown(function (e) {
+
         var key = e.which;
         if (key == 9) {
             // the tab key code
@@ -1390,6 +1419,10 @@ function get_recent_transactions(status, element_obj) {
     });
 }
 
+function new_pos_product_row(product,index) {
+
+    $("#pos_table tbody").append('<tr class="product_row" data-row_index="'+ index+'"><td><div title=""><span class="text-link text-info cursor-pointer" data-toggle="modal" data-target="#row_edit_product_price_modal_'+index+'">'+ product.product_name+'<br/>'+product.sub_sku+'&nbsp;<i class="fa fa-info-circle"></i></span></div>');
+}
 //variation_id is null when weighing_scale_barcode is used.
 function pos_product_row(variation_id = null, purchase_line_id = null, weighing_scale_barcode = null, quantity = 1) {
 
@@ -1473,10 +1506,10 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
             $('#types_of_service_price_group').val()) {
             price_group = $('#types_of_service_price_group').val();
         }
-
+        console.log(newProductsList);
         $.ajax({
             method: 'GET',
-            url: '/sells/pos/get_product_row_for_return/' + variation_id + '/' + location_id,
+            url: '/sells/pos/new/get_product_row_for_return/' + variation_id + '/' + location_id,
             async: false,
             data: {
                 product_row: product_row,
@@ -1485,11 +1518,13 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
                 price_group: price_group,
                 purchase_line_id: purchase_line_id,
                 weighing_scale_barcode: weighing_scale_barcode,
-                quantity: quantity
+                quantity: quantity,
+                productLine: newProductsList
             },
             dataType: 'json',
             success: function (result) {
                 console.log(result);
+                $('table#pos_table tbody').empty();
                 if (result.success) {
                     $('table#pos_table tbody')
                         .append(result.html_content)
@@ -1546,6 +1581,7 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
             },
         });
     }
+    toggleSubmitBTN();
 }
 
 //Update values for each row
@@ -1599,6 +1635,53 @@ function returned_amount() {
     console.log(net_return_inc_tax);
     return net_return_inc_tax;
 }
+function addProductRow() {
+    $('#pos_table tbody').empty();
+
+    $.each(newProductsList, function(index, item) {
+        pos_product_row(item.variation_id, null);
+    });
+
+}
+function removeProduct(product_id){
+    const existingProductIndex = newProductsList.findIndex(product => product.product_id === product_id);
+    newProductsList.splice(existingProductIndex, 1);
+
+
+}
+function updateQty(product_id,qty){
+    const existingProductIndex = newProductsList.findIndex(product => product.product_id === product_id);
+    if (existingProductIndex !== -1) {
+        // If it exists, increase the quantity
+        newProductsList[existingProductIndex].qty = parseInt(qty);
+    }   
+
+}
+function addProductLine(newProduct) {
+    // Find the index of the product with the same product_id
+    const existingProductIndex = newProductsList.findIndex(product => product.product_id === newProduct.product_id);
+    if (existingProductIndex !== -1) {
+        // If it exists, increase the quantity
+        newProductsList[existingProductIndex].qty += 1;
+    } else {
+        // If it doesn't exist, push the new product into the array
+        newProductsList.push({
+            "product_id": newProduct.variation_id,
+            "qty_available": newProduct.qty_available,
+            "qty": 1,
+            "name": newProduct.name,
+            "selling_price": newProduct.selling_price,
+            "sub_sku": newProduct.sub_sku,
+            "unit": newProduct.unit,
+            "variation_id" : newProduct.variation_id,
+            "sub_sku" : newProduct.sub_sku
+
+        });
+    }
+}
+
+
+// Example usage:
 
 function pos_total_row() {
     var total_quantity = 0;
@@ -1803,9 +1886,9 @@ function reset_pos_form() {
     if (pos_form_obj[0]) {
         pos_form_obj[0].reset();
     }
-    if (sell_form[0]) {
-        sell_form[0].reset();
-    }
+    // if (sell_form[0]) {
+    //     sell_form[0].reset();
+    // }
     set_default_customer();
     set_location();
 
@@ -2445,4 +2528,15 @@ function update_shipping_address(data) {
 
     $('#shipping_address_modal').val(data.shipping_address);
     $('#shipping_address').val(data.shipping_address);
+}
+
+
+function toggleSubmitBTN(){
+    if ($('#pos_table .error').is(':visible')) {
+        $('#pos-finalize').prop('disabled', true);
+
+    }else{
+        $('#pos-finalize').prop('disabled', false);
+
+    }
 }

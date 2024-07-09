@@ -13,7 +13,7 @@
 <section class="content no-print">
 
 	{{-- {!! Form::hidden('location_id', null, ['id' => 'location_id', 'data-receipt_printer_type' => 'browser' ]); !!} --}}
-	<input type="hidden" id="location_id" name="location_id" value="{{$location_id}}">
+	<input type="hidden" id="location_id" name="location_id">
 {!! Form::open(['url' => action('SellReturnController@store'), 'method' => 'post', 'id' => 'sell_return_form_new' ]) !!}
 	{{-- {!! Form::hidden('transaction_id', $sell->id); !!} --}}
 @component('components.widget', ['class' => 'box-primary'])
@@ -431,6 +431,13 @@
 </section>
 @stop
 @section('javascript')
+<script>
+	$(document).ready("change","#select_location_id",function() {
+		console.log($(this).val());
+		$("#location_id").val($(this).val());
+	})
+</script>
+
 <script src="{{ asset('js/pos_for_return.js?v=' . $asset_v) }}"></script>
 {{-- <script src="{{ asset('js/product.js?v=' . $asset_v) }}"></script> --}}
 {{-- <script src="{{ asset('js/opening_stock.js?v=' . $asset_v) }}"></script>
@@ -438,6 +445,9 @@
 <script src="{{ asset('js/sell_return.js?v=' . $asset_v) }}"></script> --}}
 <script type="text/javascript">
 	$(document).ready( function(){
+
+		$("#location_id").val($("#select_location_id").val());
+		
 		$('form#sell_return_form_new').validate();
 		update_sell_return_total();
 		//Date picker

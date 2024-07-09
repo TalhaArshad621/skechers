@@ -1843,9 +1843,12 @@ class TransactionUtil extends Util
                     if (isset($payment['is_return']) && $payment['is_return'] == 1) {
                         $payment['account_id'] = !empty($payments[0]['account_id']) ? $payments[0]['account_id'] : null;
                     }
-
                     if (!empty($payment['paid_on'])) {
+                        if($transaction->type == "gift") {
+                            $payment['paid_on'] = $payment['paid_on'] . ' ' . $payment['paid_time'];
+                        }
                         $paid_on = $uf_data ? $this->uf_date($payment['paid_on'], true) : $payment['paid_on'];
+                    
                     } else {
                         $paid_on = \Carbon::now()->toDateTimeString();
                     }
