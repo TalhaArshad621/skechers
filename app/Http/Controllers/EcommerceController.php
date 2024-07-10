@@ -588,6 +588,10 @@ class EcommerceController extends Controller
                             continue;
                         }
 
+                        if(empty($shopifyOrder['payment_gateway_names'])) {
+                            DB::rollBack();
+                            continue;
+                        }
                         // dd($transaction);
                         $is_credit_sale = false;
                         if( str_contains($shopifyOrder['payment_gateway_names'][0],  "(COD)")) {
@@ -641,7 +645,7 @@ class EcommerceController extends Controller
             Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
            
             $output = ['success' => 0,
-                        'msg' => $e->getMessage()
+                        'msg' => $e->getMessage() . ' ' . $e->getLine()
                         ];
         }
 
@@ -799,17 +803,19 @@ class EcommerceController extends Controller
                     'shipping_status', 'delivered_to', 'shipping_custom_field_1', 'shipping_custom_field_2', 'shipping_custom_field_3', 'shipping_custom_field_4', 'shipping_custom_field_5'
                 ]);
             $business_id = $request->session()->get('user.business_id');
+            $user_id = $request->session()->get('user.id');
+
 
             $transaction = EcommerceTransaction::where('business_id', $business_id)
                                 ->findOrFail($id);
-            dd($transaction, $request);
+            dd($transaction, $transaction->ecommerce_sell_lines ,$request);
 
             // $transaction_before = $transaction->replicate();
 
             // $transaction->update($input);
             
             if($request->shipping_status == "cancelled") {
-
+                $ecommerce_return = $this->transactionUtil->addEcommerceSellReturn($transaction, $business_id, $user_id);
             }
 
             $this->transactionUtil->activityLog($transaction, 'shipping_edited', $transaction_before);
