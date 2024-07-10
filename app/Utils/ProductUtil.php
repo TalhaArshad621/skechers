@@ -2143,10 +2143,10 @@ class ProductUtil extends Util
             ->where('p.business_id', $business_id)
             ->whereIn('p.type', ['single', 'variable']);
 
-        if (!auth()->user()->roles->name == "Admin#4") {
-            $permxitted_locations = auth()->user()->permitted_locations_without_Warehouse();
+        if (!auth()->user()->roles) {
+            $permitted_locations = auth()->user()->permitted_locations_without_Warehouse();
         } else {
-            $permxitted_locations = 'all';
+            $permitted_locations = 'all';
         }
 
 

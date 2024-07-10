@@ -285,14 +285,14 @@
 	</td>
 	@if ( $discount && $discount->discount_type == 'fixed')
 		<td class="text-center">
-			<input type="{{$discount->amount}}" class="form-control pos_line_totall" value="{{@num_format($product->sell_price_inc_tax - $unit_price_inc_tax )}}">
+			<input type="number" class="form-control pos_line_totall" value="{{@num_format($discount_amount)}}">
 		</td>
 	@elseif ( $discount && $discount->discount_type == 'percentage')
 		@php
 			$discount_percentage = ($product->sell_price_inc_tax*$discount->discount_amount)/100;
 		@endphp
 		<td class="text-center">
-			<input type="{{$discount->amount}}" class="form-control pos_line_totall" value="{{@num_format($discount_percentage )}}" disabled>
+			<input type="number" class="form-control pos_line_totall" value="{{@num_format($discount_percentage )}}" disabled>
 		</td>
 	@else
 		<td class="text-center">

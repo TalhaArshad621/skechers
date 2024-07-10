@@ -1557,9 +1557,9 @@ function pos_each_row(row_obj) {
         .find('select.tax_id')
         .find(':selected')
         .data('rate');
-
-    var unit_price_inc_tax =
-        discounted_unit_price + __calculate_amount('percentage', tax_rate, discounted_unit_price);
+        var unit_price_inc_tax =discounted_unit_price ;
+    // var unit_price_inc_tax =
+        // discounted_unit_price + __calculate_amount('percentage', tax_rate, discounted_unit_price);
     __write_number(row_obj.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
 
     var discount = __read_number(row_obj.find('input.row_discount_amount'));
@@ -1947,12 +1947,13 @@ function pos_print(receipt) {
 }
 
 function calculate_discounted_unit_price(row) {
-    var this_unit_price = __read_number(row.find('input.pos_unit_price'));
+    var this_unit_price = __read_number(row.find('input.original_amount'));
     var row_discounted_unit_price = this_unit_price;
     var row_discount_type = row.find('select.row_discount_type').val();
     var row_discount_amount = __read_number(row.find('input.row_discount_amount'));
     if (row_discount_amount) {
         if (row_discount_type == 'fixed') {
+            alert(this_unit_price, row_discount_amount);
             row_discounted_unit_price = this_unit_price - row_discount_amount;
         } else {
             row_discounted_unit_price = __substract_percent(this_unit_price, row_discount_amount);

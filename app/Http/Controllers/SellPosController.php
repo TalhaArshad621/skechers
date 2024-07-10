@@ -114,6 +114,7 @@ class SellPosController extends Controller
      */
     public function index()
     {
+
         if (!auth()->user()->can('sell.view') && !auth()->user()->can('sell.create')) {
             abort(403, 'Unauthorized action.');
         }
@@ -355,6 +356,7 @@ class SellPosController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->input());
         if (!auth()->user()->can('sell.create') && !auth()->user()->can('direct_sell.access')) {
             abort(403, 'Unauthorized action.');
         }
@@ -421,7 +423,7 @@ class SellPosController extends Controller
                 // dd($input['products']);
                 $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'], $discount);
 
-
+                // dd($invoice_total, $request->input());
                 DB::beginTransaction();
 
                 if (empty($request->input('transaction_date'))) {
@@ -660,10 +662,11 @@ class SellPosController extends Controller
             } else {
                 $output = [
                     'success' => 0,
-                    'msg' => trans("messages.something_went_wrong")
+                    'msg' => trans("messages.something_went_wrong" . "111")
                 ];
             }
         } catch (\Exception $e) {
+            // dd($e->getMessage(), $e->getLine(), $e->getFile());
             DB::rollBack();
             \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
             $msg = trans("messages.something_went_wrong");
@@ -1116,6 +1119,7 @@ class SellPosController extends Controller
             $output['printer_config'] = $this->businessUtil->printerConfig($business_id, $location_details->printer_id);
             $output['data'] = $receipt_details;
         } else {
+            // dd($receipt_details->design);
             $layout = !empty($receipt_details->design) ? 'sale_pos.receipts.' . $receipt_details->design : 'sale_pos.receipts.classic';
 
             $output['html_content'] = view($layout, compact('receipt_details'))->render();
@@ -1846,7 +1850,7 @@ class SellPosController extends Controller
                     $edit_discount = auth()->user()->can('edit_product_discount_from_pos_screen');
                     $edit_price = auth()->user()->can('edit_product_price_from_pos_screen');
                 }
-
+                // dd($product);
                 $output['html_content'] =  view('sale_pos.product_row')
                     ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell'))
                     ->render();
