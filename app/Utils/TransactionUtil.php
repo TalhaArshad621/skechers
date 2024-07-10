@@ -332,10 +332,13 @@ class TransactionUtil extends Util
                     }
                 }
             }
+            // dd($total_quantity);
             // Quantity check
-            if ($total_quantity > 0) {
-                $error_msg = "Product Quantity Doesn't Exist.";
-                throw new \Exception($error_msg);
+            if($total_quantity > 0) {
+                $exist = false;
+                return $exist;
+                // $error_msg = "Product Quantity Doesn't Exist.";
+                // throw new \Exception($error_msg);
             } else {
                 // Insert Location vise data 
                 foreach ($ecommerce_product_location as $ecommerce_location) {
@@ -9551,24 +9554,24 @@ class TransactionUtil extends Util
 
         //Get parent sale
         $sell = EcommerceTransaction::where('business_id', $business_id)
-            ->with(['ecommerce_sell_lines', 'ecommerce_sell_lines.sub_unit', 'contact'])
-            ->findOrFail($input->ecommerce_transaction_id);
-
+                        ->with(['ecommerce_sell_lines', 'ecommerce_sell_lines.sub_unit','contact'])
+                        ->findOrFail($input->id);
+        
 
         //Check if any sell return exists for the sale
         $sell_return = EcommerceTransaction::where('business_id', $business_id)
-            ->where('type', 'sell_return')
-            ->where('return_parent_id', $sell->id)
-            ->first();
-
+                ->where('type', 'ecommerce_sell_return')
+                ->where('return_parent_id', $sell->id)
+                ->first();
+        
         $sell_return_data = [
             'invoice_no' =>  null,
-            'discount_type' => $discount['discount_type'],
-            'discount_amount' => $uf_number ? $this->num_uf($discount['discount_amount']) : $discount['discount_amount'],
+            'discount_type' => $input->discount_type,
+            'discount_amount' => $uf_number ? $this->num_uf($input->discount_amount) : $input->discount_amount,
             'tax_id' => $input->tax_id,
-            'tax_amount' => $input->item_tax,
-            'total_before_tax' => $invoice_total['total_before_tax'],
-            'final_total' => $invoice_total['final_total']
+            'tax_amount' => $input->tax_amount,
+            'total_before_tax' => $input->total_before_tax,
+            'final_total' => $input->final_total
         ];
 
 
@@ -9590,7 +9593,7 @@ class TransactionUtil extends Util
             // $sell_return_data['location_id'] = $sell->location_id;
             $sell_return_data['contact_id'] = $sell->contact_id;
             // $sell_return_data['customer_group_id'] = $sell->customer_group_id;
-            $sell_return_data['type'] = 'sell_return';
+            $sell_return_data['type'] = 'ecommerce_sell_return';
             $sell_return_data['status'] = 'final';
             $sell_return_data['created_by'] = $user_id;
             $sell_return_data['return_parent_id'] = $sell->id;
@@ -9624,14 +9627,15 @@ class TransactionUtil extends Util
         EcommerceTransaction::where('id', $sell->id)
             ->update(['payment_status' => 'paid']);
 
+        dd($input);
         //Update quantity returned in sell line
         $returns = [];
-        $product_lines = [];
+        $product_lines = $input['products'];
 
-        // foreach ($product_lines as $product_line) {
-        $returns[$input->id] = $uf_number ? $this->num_uf($input->quantity) : $input->quantity;
-        // }
-
+        foreach ($product_lines as $product_line) {
+            $returns[$input->id] = $uf_number ? $this->num_uf($input->quantity) : $input->quantity;
+        }
+        
         $payments_formatted = [];
         $payments_formatted[] = new CashRegisterTransaction([
             'amount' => $sell_return->final_total,

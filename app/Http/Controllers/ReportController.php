@@ -4669,7 +4669,7 @@ class ReportController extends Controller
                     '=',
                     'PL.id'
                 )
-                ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
+                // ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
                 ->whereIn('sale.type', ['sell'])
                 ->where('sale.status', 'final')
                 ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
@@ -4678,7 +4678,7 @@ class ReportController extends Controller
                 ->where('transaction_sell_lines.children_type', '!=', 'combo');
             //Filter by the location
             if (!empty($location_id)) {
-                $gross_profit->where('L.id', $location_id);
+                $gross_profit->where('sale.location_id', $location_id);
             }
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
                 $start = request()->start_date;
@@ -4697,7 +4697,7 @@ class ReportController extends Controller
                     ON tspl2.purchase_line_id = pl2.id 
                     WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity ) * transaction_sell_lines.unit_price_inc_tax,   
                     (TSPL.quantity ) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
-            )->groupBy('L.id');
+            );
             $results = $gross_profit->first();
             $gross_profit = $results ?  $results['gross_profit'] : 0;
 
@@ -4709,7 +4709,7 @@ class ReportController extends Controller
                     '=',
                     'PL.id'
                 )
-                ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
+                // ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
                 ->whereIn('sale.type', ['sell_return'])
                 ->where('sale.status', 'final')
                 ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
@@ -4719,7 +4719,7 @@ class ReportController extends Controller
                 ->where('transaction_sell_lines.children_type', '!=', 'combo');
             //Filter by the location
             if (!empty($location_id)) {
-                $exchange_one_profit->where('L.id', $location_id);
+                $exchange_one_profit->where('sale.location_id', $location_id);
             }
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
                 $start = request()->start_date;
@@ -4738,7 +4738,7 @@ class ReportController extends Controller
                 ON tspl2.purchase_line_id = pl2.id 
                 WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax,   
                 (TSPL.qty_returned) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
-            )->groupBy('L.id');
+            );
             $results_new = $exchange_one_profit->first();
             $result_new_profit = $results_new ?  $results_new['gross_profit'] : 0;
 
@@ -4750,7 +4750,7 @@ class ReportController extends Controller
                     '=',
                     'PL.id'
                 )
-                ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
+                // ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
                 ->whereIn('sale.type', ['sell_return'])
                 ->where('sale.status', 'final')
                 ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
@@ -4759,7 +4759,7 @@ class ReportController extends Controller
                 ->where('transaction_sell_lines.children_type', '!=', 'combo');
             //Filter by the location
             if (!empty($location_id)) {
-                $exchange_two_profit->where('L.id', $location_id);
+                $exchange_two_profit->where('sale.location_id', $location_id);
             }
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
                 $start = request()->start_date;
@@ -4778,7 +4778,7 @@ class ReportController extends Controller
                 ON tspl2.purchase_line_id = pl2.id 
                 WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity) * transaction_sell_lines.unit_price_inc_tax,   
                 (TSPL.quantity) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
-            )->groupBy('L.id');
+            );
             $results_two = $exchange_two_profit->first();
             $result_two_pofit = $results_two ?  $results_two['gross_profit'] : 0;
             $exchanged_profit =  $result_two_pofit - $result_new_profit;
@@ -4786,7 +4786,7 @@ class ReportController extends Controller
             // International Exchange profit
             $international_exchange_profit_one = TransactionSellLine::join('transactions as sale', 'sale.id', 'transaction_sell_lines.transaction_id')
                 ->join('variations', 'variations.product_id', 'transaction_sell_lines.product_id')
-                ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
+                // ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
                 ->whereIn('sale.type', ['international_return'])
                 ->where('sale.status', 'final')
                 ->where('transaction_sell_lines.sell_line_note', 'international_return')
@@ -4796,7 +4796,7 @@ class ReportController extends Controller
                 ->where('transaction_sell_lines.children_type', '!=', 'combo');
             //Filter by the location
             if (!empty($location_id)) {
-                $international_exchange_profit_one->where('L.id', $location_id);
+                $international_exchange_profit_one->where('sale.location_id', $location_id);
             }
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
                 $start = request()->start_date;
@@ -4804,13 +4804,12 @@ class ReportController extends Controller
                 $international_exchange_profit_one->whereDate('sale.transaction_date', '>=', $start)->whereDate('sale.transaction_date', '<=', $end);
             }
 
-            $international_exchange_profit_one->select(DB::raw('SUM((transaction_sell_lines.quantity_returned) * (transaction_sell_lines.unit_price_inc_tax - variations.dpp_inc_tax)) as profit'))
-                ->groupBy('L.id');
+            $international_exchange_profit_one->select(DB::raw('SUM((transaction_sell_lines.quantity_returned) * (transaction_sell_lines.unit_price_inc_tax - variations.dpp_inc_tax)) as profit'));
             $international_exchange_profit_one_result = $international_exchange_profit_one->first();
 
             $international_exchange_profit_two = TransactionSellLine::join('transactions as sale', 'sale.id', 'transaction_sell_lines.transaction_id')
                 ->join('variations', 'variations.product_id', 'transaction_sell_lines.product_id')
-                ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
+                // ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
                 ->whereIn('sale.type', ['international_return'])
                 ->where('sale.status', 'final')
                 ->where('transaction_sell_lines.sell_line_note', '<>', 'international_return')
@@ -4820,7 +4819,7 @@ class ReportController extends Controller
                 ->where('transaction_sell_lines.children_type', '!=', 'combo');
             //Filter by the location
             if (!empty($location_id)) {
-                $international_exchange_profit_two->where('L.id', $location_id);
+                $international_exchange_profit_two->where('sale.location_id', $location_id);
             }
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
                 $start = request()->start_date;
@@ -4828,8 +4827,7 @@ class ReportController extends Controller
                 $international_exchange_profit_two->whereDate('sale.transaction_date', '>=', $start)->whereDate('sale.transaction_date', '<=', $end);
             }
 
-            $international_exchange_profit_two->select(DB::raw('SUM((transaction_sell_lines.quantity) * (transaction_sell_lines.unit_price_inc_tax - variations.dpp_inc_tax)) as profit'))
-                ->groupBy('L.id');
+            $international_exchange_profit_two->select(DB::raw('SUM((transaction_sell_lines.quantity) * (transaction_sell_lines.unit_price_inc_tax - variations.dpp_inc_tax)) as profit'));
             $international_exchange_profit_two_result = $international_exchange_profit_two->first();
 
             $final_international_profit = ($international_exchange_profit_two_result ? $international_exchange_profit_two_result['profit'] : 0) - ($international_exchange_profit_one_result ? $international_exchange_profit_one_result['profit'] : 0);
@@ -4973,7 +4971,7 @@ class ReportController extends Controller
                     '=',
                     'PL.id'
                 )
-                ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
+                // ->join('business_locations as L', 'sale.location_id', '=', 'L.id')
                 ->whereIn('sale.type', ['sell'])
                 ->where('sale.status', 'final')
                 ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
@@ -4982,7 +4980,7 @@ class ReportController extends Controller
                 ->where('transaction_sell_lines.children_type', '!=', 'combo');
             //Filter by the location
             if (!empty($location_id)) {
-                $query9->where('L.id', $location_id);
+                $query9->where('sale.location_id', $location_id);
             }
             if (!empty(request()->start_date) && !empty(request()->end_date)) {
                 $start = request()->start_date;
@@ -4993,7 +4991,7 @@ class ReportController extends Controller
             //If type combo: find childrens, sale price parent - get PP of childrens
             $query9->select(
                 DB::raw('SUM(PL.purchase_price_inc_tax * (TSPL.quantity)) AS buy_price')
-            )->groupBy('L.id');
+            );
             $buy_of_sell = $query9->first();
 
 
