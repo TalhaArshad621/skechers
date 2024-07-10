@@ -65,6 +65,7 @@ class ProductController extends Controller
      */
     public function index()
     {
+
         if (!auth()->user()->can('product.view') && !auth()->user()->can('product.create')) {
             abort(403, 'Unauthorized action.');
         }
@@ -86,6 +87,7 @@ class ProductController extends Controller
             //Filter by location
             $location_id = request()->get('location_id', null);
             $permitted_locations = auth()->user()->permitted_locations();
+            // $permitted_locations = 'all';
 
             if (!empty($location_id) && $location_id != 'none') {
                 if ($permitted_locations == 'all' || in_array($location_id, $permitted_locations)) {
@@ -101,6 +103,7 @@ class ProductController extends Controller
                         $query->whereIn('product_locations.location_id', $permitted_locations);
                     });
                 } else {
+
                     $query->with('product_locations');
                 }
             }
@@ -315,9 +318,8 @@ class ProductController extends Controller
         // $tax_dropdown = TaxRate::forBusinessDropdown($business_id, false);
         // $taxes = $tax_dropdown['tax_rates'];
 
-        $business_locations = BusinessLocation::forDropdown($business_id);
-        $business_locations->prepend(__('lang_v1.none'), 'none');
-
+        $business_locations = BusinessLocation::forDropdown($business_id, true, false, true, false);
+        // $business_locations->prepend(__('lang_v1.none'), 'none');
         if ($this->moduleUtil->isModuleInstalled('Manufacturing') && (auth()->user()->can('superadmin') || $this->moduleUtil->hasThePermissionInSubscription($business_id, 'manufacturing_module'))) {
             $show_manufacturing_data = true;
         } else {

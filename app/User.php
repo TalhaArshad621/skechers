@@ -116,7 +116,25 @@ class User extends Authenticatable
             return $permitted_locations;
         }
     }
+    public function permitted_locations_without_Warehouse()
+    {
+        $user = $this;
 
+        if ($user->can('access_all_locations')) {
+            return 'all';
+        } else {
+            $business_id = request()->session()->get('user.business_id');
+            $permitted_locations = [];
+            $all_locations = BusinessLocation::where('business_id', $business_id)->where('id', '!=', '9')->get();
+            foreach ($all_locations as $location) {
+                // if ($user->can('location.' . $location->id)) {
+                $permitted_locations[] = $location->id;
+                // }
+            }
+
+            return $permitted_locations;
+        }
+    }
     /**
      * Returns if a user can access the input location
      *
