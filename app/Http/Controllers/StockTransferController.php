@@ -133,7 +133,7 @@ class StockTransferController extends Controller
                         ->addDays($edit_days);
                     $today = today();
 
-                    if ($date->gte($today)) {
+                    if ($date->gte($today) && auth()->user()->can('stocktransfer.delete')) {
                         $html .= '&nbsp;
                         <button type="button" data-href="' . action("StockTransferController@destroy", [$row->id]) . '" class="btn btn-danger btn-xs delete_stock_transfer"><i class="fa fa-trash" aria-hidden="true"></i> ' . __("messages.delete") . '</button>';
                     }

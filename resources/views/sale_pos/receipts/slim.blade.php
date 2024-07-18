@@ -306,12 +306,7 @@
 	                        </td>
 	                        <td class="quantity text-right">{{(int)$line['quantity']}}</td>
 	                        @if(empty($receipt_details->hide_price))
-							@if($receipt_details->line_discount_type == 'fixed')
-	                        <td class="unit_price text-right">{{(int)($line['original_price']) - (int)$line['new_discount_amount'] }}</td>
-							@else
 	                        <td class="unit_price text-right">{{(int)($line['original_price'])}}</td>
-
-							@endif
 							<td class="discount text-right">{{(int)$line['new_discount_amount']}}</td>
 	                        <td class="price text-right">{{(int)$line['line_total_uf']}}</td>
 	                        @endif

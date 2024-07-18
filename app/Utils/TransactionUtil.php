@@ -478,6 +478,7 @@ class TransactionUtil extends Util
         $combo_lines = [];
         $products_modified_combo = [];
         $fbr_lines = [];
+        $array_of_products = [];
         foreach ($products as $product) {
             // dd($product, $transaction);
             $multiplier = 1;
@@ -543,7 +544,7 @@ class TransactionUtil extends Util
                 $uf_quantity = $uf_data ? $this->num_uf($product['quantity']) : $product['quantity'];
                 $uf_item_tax = $uf_data ? $this->num_uf($product['item_tax']) : $product['item_tax'];
                 $uf_unit_price_inc_tax = $uf_data ? $this->num_uf($product['unit_price_inc_tax']) : $product['unit_price_inc_tax'];
-                $category = DB::table('products')->select('category_id')->where('id', $product['product_id'])->first();
+                $category = DB::table('products')->select('category_id','sku')->where('id', $product['product_id'])->first();
 
                 $line = [
                     'product_id' => $product['product_id'],
@@ -554,7 +555,7 @@ class TransactionUtil extends Util
                     'unit_price' => $unit_price,
                     'line_discount_type' => !empty($product['line_discount_type']) ? $product['line_discount_type'] : null,
                     'line_discount_amount' => !empty($product['line_discount_amount']) ? $uf_data ? $this->num_uf($product['line_discount_amount']) : $product['line_discount_amount'] : 0,
-                    'item_tax' =>  $uf_item_tax / $multiplier,
+                    'item_tax' =>  ($uf_unit_price_inc_tax / $multiplier) / 5,
                     'tax_id' => $product['tax_id'],
                     'unit_price_inc_tax' =>  $uf_unit_price_inc_tax / $multiplier,
                     'sell_line_note' => !empty($product['sell_line_note']) ? $product['sell_line_note'] : '',
@@ -563,7 +564,9 @@ class TransactionUtil extends Util
                     'res_service_staff_id' => !empty($product['res_service_staff_id']) ? $product['res_service_staff_id'] : null,
                     'res_line_order_status' => !empty($product['res_service_staff_id']) ? 'received' : null
                 ];
-
+                $post_data = ['sku' => $category->sku , 'quantity' => $uf_quantity * $multiplier];
+                array_push($array_of_products, $post_data);  
+    
                 foreach ($extra_line_parameters as $key => $value) {
                     $line[$key] = isset($product[$value]) ? $product[$value] : '';
                 }
@@ -645,6 +648,18 @@ class TransactionUtil extends Util
 
         if (!empty($lines_formatted)) {
             $transaction->sell_lines()->saveMany($lines_formatted);
+            
+            // SHOPIFY API INTEGRATION
+            $url = 'https://dynamics-junction-be.alche.cloud/erp_integration/update_inventory';
+
+            $postdata = json_encode($array_of_products);
+            $ch = curl_init($url); 
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            $result = curl_exec($ch);
+            curl_close($ch);
 
             //Add corresponding modifier sell lines if exists
             if ($this->isModuleEnabled('modifiers')) {
@@ -772,7 +787,7 @@ class TransactionUtil extends Util
                     'unit_price' => $unit_price,
                     'line_discount_type' => !empty($product['line_discount_type']) ? $product['line_discount_type'] : null,
                     'line_discount_amount' => !empty($product['line_discount_amount']) ? $uf_data ? $this->num_uf($product['line_discount_amount']) : $product['line_discount_amount'] : 0,
-                    'item_tax' =>  $uf_item_tax / $multiplier,
+                    'item_tax' =>  ($uf_unit_price_inc_tax / $multiplier) / 5,
                     'tax_id' => $product['tax_id'],
                     'unit_price_inc_tax' =>  $uf_unit_price_inc_tax / $multiplier,
                     'sell_line_note' => !empty($product['sell_line_note']) ? $product['sell_line_note'] : '',
@@ -1222,6 +1237,7 @@ class TransactionUtil extends Util
         $combo_lines = [];
         $products_modified_combo = [];
         $fbr_lines = [];
+        $array_of_products = [];
         foreach ($products as $product) {
             $multiplier = 1;
             if (isset($product['sub_unit_id']) && $product['sub_unit_id'] == $product['product_unit_id']) {
@@ -1286,7 +1302,7 @@ class TransactionUtil extends Util
                 $uf_quantity = $uf_data ? $this->num_uf($product['quantity']) : $product['quantity'];
                 $uf_item_tax = $uf_data ? $this->num_uf($product['item_tax']) : $product['item_tax'];
                 $uf_unit_price_inc_tax = $uf_data ? $this->num_uf($product['unit_price_inc_tax']) : $product['unit_price_inc_tax'];
-                $category = DB::table('products')->select('category_id')->where('id', $product['product_id'])->first();
+                $category = DB::table('products')->select('category_id','sku')->where('id', $product['product_id'])->first();
                 $line = [
                     'product_id' => $product['product_id'],
                     'variation_id' => $product['variation_id'],
@@ -1296,7 +1312,7 @@ class TransactionUtil extends Util
                     'unit_price' => $unit_price,
                     'line_discount_type' => !empty($product['line_discount_type']) ? $product['line_discount_type'] : null,
                     'line_discount_amount' => !empty($product['line_discount_amount']) ? $uf_data ? $this->num_uf($product['line_discount_amount']) : $product['line_discount_amount'] : 0,
-                    'item_tax' =>  $uf_item_tax / $multiplier,
+                    'item_tax' =>  ($uf_unit_price_inc_tax / $multiplier) / 5,
                     'tax_id' => $product['tax_id'],
                     'unit_price_inc_tax' =>  $uf_unit_price_inc_tax / $multiplier,
                     'sell_line_note' => !empty($product['sell_line_note']) ? $product['sell_line_note'] : '',
@@ -1305,7 +1321,9 @@ class TransactionUtil extends Util
                     'res_service_staff_id' => !empty($product['res_service_staff_id']) ? $product['res_service_staff_id'] : null,
                     'res_line_order_status' => !empty($product['res_service_staff_id']) ? 'received' : null
                 ];
-
+                
+			$post_data = ['sku' => $category->sku , 'quantity' => $uf_quantity * $multiplier];
+			array_push($array_of_products, $post_data);  
                 foreach ($extra_line_parameters as $key => $value) {
                     $line[$key] = isset($product[$value]) ? $product[$value] : '';
                 }
@@ -1386,7 +1404,19 @@ class TransactionUtil extends Util
 
         if (!empty($lines_formatted)) {
             $transaction->sell_lines()->saveMany($lines_formatted);
+           
+             //    Shopify API INTEGRATION
+            $url = 'https://dynamics-junction-be.alche.cloud/erp_integration/update_inventory';
 
+            // $postdata = json_encode($array_of_products);
+            // $ch = curl_init($url); 
+            // curl_setopt($ch, CURLOPT_POST, 1);
+            // curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
+            // curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            // $result = curl_exec($ch);
+            // curl_close($ch);
+           
             //Add corresponding modifier sell lines if exists
             if ($this->isModuleEnabled('modifiers')) {
                 foreach ($lines_formatted as $key => $value) {
@@ -4121,8 +4151,13 @@ class TransactionUtil extends Util
 
         foreach ($lines as $line) {
             // dd($line->unit_price_inc_tax, $line->line_discount_amount);
-            if ($line->line_discount_amount)
+            if ($line->line_discount_amount && $line->line_discount_type == "percentage") {
                 $original_price = $line->unit_price_inc_tax / (1 - ($line->line_discount_amount / 100));
+            } 
+
+            if($line->line_discount_amount && $line->line_discount_type == "fixed") {
+                $original_price = $line->unit_price_inc_tax + $line->line_discount_amount; 
+            }
 
             if ($line->line_discount_type == "percentage") {
                 $discount_amount_new  = ($line->unit_price_inc_tax / (1 - ($line->line_discount_amount / 100))) -  $line->unit_price_inc_tax;
@@ -6138,7 +6173,7 @@ class TransactionUtil extends Util
                     //Mapping of purchase
                     if ($qty_allocated != 0) {
                         $purchase_sell_map[] = [
-                            'sell_line_id' => $line->id,
+                            'ecommerce_line_id' => $line->id,
                             'purchase_line_id' => $row->purchase_lines_id,
                             'quantity' => $qty_allocated,
                             'created_at' => \Carbon::now(),
@@ -6152,7 +6187,7 @@ class TransactionUtil extends Util
                     //Mapping of purchase
                     if ($qty_allocated != 0) {
                         $purchase_sell_map[] = [
-                            'sell_line_id' => $line->id,
+                            'ecommerce_line_id' => $line->id,
                             'purchase_line_id' => $row->purchase_lines_id,
                             'quantity' => $qty_allocated,
                             'created_at' => \Carbon::now(),
@@ -6990,6 +7025,71 @@ class TransactionUtil extends Util
             $qty_left_to_update = $qty_difference;
             $sell_line_purchase_lines = TransactionSellLinesPurchaseLines::where('sell_line_id', $sell_line->id)->get();
 
+            //Return from each purchase line
+            foreach ($sell_line_purchase_lines as $tslpl) {
+                //If differnce is +ve decrease quantity sold
+                if ($qty_difference > 0) {
+                    if ($tslpl->qty_returned < $tslpl->quantity) {
+                        //Quantity that can be returned from sell line purchase line
+                        $tspl_qty_left_to_return = $tslpl->quantity - $tslpl->qty_returned;
+
+                        $purchase_line = PurchaseLine::find($tslpl->purchase_line_id);
+                        if ($qty_left_to_update <= $tspl_qty_left_to_return) {
+
+                            if (!empty($purchase_line)) {
+                                $purchase_line->quantity_sold -= $qty_left_to_update;
+                                $purchase_line->save();
+                            }
+
+
+                            $tslpl->qty_returned += $qty_left_to_update;
+                            $tslpl->save();
+                            break;
+                        } else {
+
+                            if (!empty($purchase_line)) {
+                                $purchase_line->quantity_sold -= $tspl_qty_left_to_return;
+                                $purchase_line->save();
+                            }
+
+                            $tslpl->qty_returned += $tspl_qty_left_to_return;
+                            $tslpl->save();
+                            $qty_left_to_update -= $tspl_qty_left_to_return;
+                        }
+                    }
+                } //If differnce is -ve increase quantity sold
+                elseif ($qty_difference < 0) {
+                    $purchase_line = PurchaseLine::find($tslpl->purchase_line_id);
+                    $tspl_qty_to_return = $tslpl->qty_returned + $qty_left_to_update;
+                    if ($tspl_qty_to_return >= 0) {
+                        $purchase_line->quantity_sold -= $qty_left_to_update;
+                        $purchase_line->save();
+
+                        $tslpl->qty_returned += $qty_left_to_update;
+                        $tslpl->save();
+                        break;
+                    } else {
+                        $purchase_line->quantity_sold += $tslpl->quantity;
+                        $purchase_line->save();
+
+                        $tslpl->qty_returned = 0;
+                        $tslpl->save();
+                        $qty_left_to_update += $tslpl->quantity;
+                    }
+                }
+            }
+        }
+    }
+    public function updateQuantitySoldFromEcommerceSellLine($sell_line, $new_quantity, $old_quantity, $uf_number = true)
+    {
+        $new_quantity = $uf_number ? $this->num_uf($new_quantity) : $new_quantity;
+        $old_quantity = $uf_number ? $this->num_uf($old_quantity) : $old_quantity;
+        $qty_difference = $new_quantity - $old_quantity;
+
+        if ($qty_difference != 0) {
+            $qty_left_to_update = $qty_difference;
+            $sell_line_purchase_lines = TransactionSellLinesPurchaseLines::where('ecommerce_line_id', $sell_line->id)->get();
+            
             //Return from each purchase line
             foreach ($sell_line_purchase_lines as $tslpl) {
                 //If differnce is +ve decrease quantity sold
@@ -8965,10 +9065,15 @@ class TransactionUtil extends Util
     {
         // dd($input);
         $location_id_new = auth()->user()->permitted_locations();
-
-        $register =  CashRegister::where('user_id', $user_id)
+        if(auth()->user()->can('superadmin')) {
+            $register =  CashRegister::where('location_id', $input['location_id'])
             ->where('status', 'open')
             ->first();
+        } else {
+            $register =  CashRegister::where('user_id', $user_id)
+                ->where('status', 'open')
+                ->first();
+        }
         // dd($register);
 
         $discount = [
@@ -9181,10 +9286,15 @@ class TransactionUtil extends Util
         // dd($input);
         // $location_id_new = auth()->user()->permitted_locations();
         // dd($location_id_new);
-
-        $register =  CashRegister::where('user_id', $user_id)
+        if(auth()->user()->can('superadmin')){
+            $register =  CashRegister::where('location_id', $input['location_id'])
             ->where('status', 'open')
             ->first();
+        } else {
+            $register =  CashRegister::where('user_id', $user_id)
+                ->where('status', 'open')
+                ->first();
+        }
         // dd($register);
 
         $discount = [
@@ -9500,7 +9610,7 @@ class TransactionUtil extends Util
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt_array($curl, array(
             //LIVE URL
-            // CURLOPT_URL             => 'https://gw.fbr.gov.pk/imsp/v1/api/Live/PostData',
+         // CURLOPT_URL             => 'https://gw.fbr.gov.pk/imsp/v1/api/Live/PostData',
             //SANDBOX URL FOR TESTING
             CURLOPT_URL             => 'https://esp.fbr.gov.pk:8244/FBR/v1/api/Live/PostData',
             CURLOPT_RETURNTRANSFER  => true,
@@ -9535,50 +9645,43 @@ class TransactionUtil extends Util
 
     public function addEcommerceSellReturn($input, $business_id, $user_id, $uf_number = true)
     {
-        $register =  CashRegister::where('user_id', $user_id)
-            ->where('status', 'open')
-            ->first();
-        // dd($register);
         $discount = [
-            'discount_type' => $input->line_discount_type ?? 'fixed',
-            'discount_amount' => $input->line_discount_amount ?? 0
+            'discount_type' => $input['discount_type'] ?? 'fixed',
+            'discount_amount' => $input['discount_amount'] ?? 0
         ];
 
         $business = Business::with(['currency'])->findOrFail($business_id);
 
         $productUtil = new \App\Utils\ProductUtil();
 
-        $input->tax_id = $input->tax_id ?? null;
+        $input['tax_id'] = $input['tax_id'] ?? null;
 
-        $invoice_total = $productUtil->calculateEcommerceInvoiceTotal($input, $input->tax_id, $discount, $uf_number);
-
+        $invoice_total = $productUtil->calculateEcommerceInvoiceTotal($input, $input['tax_id'], $discount, $uf_number);
         //Get parent sale
         $sell = EcommerceTransaction::where('business_id', $business_id)
-                        ->with(['ecommerce_sell_lines', 'ecommerce_sell_lines.sub_unit','contact'])
-                        ->findOrFail($input->id);
-        
+        ->with(['ecommerce_sell_lines', 'ecommerce_sell_lines.sub_unit','contact'])
+        ->findOrFail($input['ecommerce_transaction_id']);
 
+        
         //Check if any sell return exists for the sale
         $sell_return = EcommerceTransaction::where('business_id', $business_id)
-                ->where('type', 'ecommerce_sell_return')
-                ->where('return_parent_id', $sell->id)
-                ->first();
+        ->where('type', 'sell_return')
+        ->where('return_parent_id', $sell->id)
+        ->first();
         
         $sell_return_data = [
-            'invoice_no' =>  null,
-            'discount_type' => $input->discount_type,
-            'discount_amount' => $uf_number ? $this->num_uf($input->discount_amount) : $input->discount_amount,
-            'tax_id' => $input->tax_id,
-            'tax_amount' => $input->tax_amount,
-            'total_before_tax' => $input->total_before_tax,
-            'final_total' => $input->final_total
+            'invoice_no' => $input['invoice_no'] ?? null,
+            'discount_type' => $discount['discount_type'],
+            'discount_amount' => $uf_number ? $this->num_uf($discount['discount_amount']) : $discount['discount_amount'],
+            'tax_id' => $input['tax_id'],
+            'tax_amount' => $invoice_total['tax'],
+            'total_before_tax' => $invoice_total['total_before_tax'],
+            'final_total' => $invoice_total['final_total']
         ];
 
-
-        // if (!empty($input['transaction_date'])) {
-        $sell_return_data['transaction_date'] = Carbon::now();
-        // }
-
+        if (!empty($input['transaction_date'])) {
+            $sell_return_data['transaction_date'] = $uf_number ? $this->uf_date($input['transaction_date'], true) : $input['transaction_date'];
+        }
         //Generate reference number
         if (empty($sell_return_data['invoice_no']) && empty($sell_return)) {
             //Update reference count
@@ -9586,19 +9689,18 @@ class TransactionUtil extends Util
             $sell_return_data['invoice_no'] = $this->generateReferenceNumber('sell_return', $ref_count, $business_id);
         }
 
-
         if (empty($sell_return)) {
             $sell_return_data['transaction_date'] = $sell_return_data['transaction_date'] ?? \Carbon::now();
             $sell_return_data['business_id'] = $business_id;
             // $sell_return_data['location_id'] = $sell->location_id;
             $sell_return_data['contact_id'] = $sell->contact_id;
             // $sell_return_data['customer_group_id'] = $sell->customer_group_id;
-            $sell_return_data['type'] = 'ecommerce_sell_return';
+            $sell_return_data['type'] = 'sell_return';
             $sell_return_data['status'] = 'final';
             $sell_return_data['created_by'] = $user_id;
             $sell_return_data['return_parent_id'] = $sell->id;
             $sell_return = EcommerceTransaction::create($sell_return_data);
-
+            
             $this->activityLog($sell_return, 'added');
         } else {
             $sell_return_data['invoice_no'] = $sell_return_data['invoice_no'] ?? $sell_return->invoice_no;
@@ -9627,35 +9729,61 @@ class TransactionUtil extends Util
         EcommerceTransaction::where('id', $sell->id)
             ->update(['payment_status' => 'paid']);
 
-        dd($input);
+        // dd($input);
         //Update quantity returned in sell line
         $returns = [];
-        $product_lines = $input['products'];
-
-        foreach ($product_lines as $product_line) {
+        $product_lines = [];
+        // foreach ($product_lines as $product_line) {
             $returns[$input->id] = $uf_number ? $this->num_uf($input->quantity) : $input->quantity;
+        // }
+        foreach ($sell->ecommerce_sell_lines as $sell_line) { 
+            if (array_key_exists($sell_line->id, $returns)) {
+                $multiplier = 1;
+                if (!empty($sell_line->sub_unit)) {
+                    $multiplier = $sell_line->sub_unit->base_unit_multiplier;
+                }
+
+                $quantity = $returns[$sell_line->id] * $multiplier;
+
+                $quantity_before = $sell_line->quantity_returned;
+
+                $sell_line->quantity_returned = $quantity;
+                $sell_line->save();
+                // dd($sell_line);
+                //update quantity sold in corresponding purchase lines
+                $this->updateQuantitySoldFromEcommerceSellLine($sell_line, $quantity, $quantity_before, false);
+                // Update quantity in variation location details
+                $productUtil->updateProductQuantity($sell_line->location_id, $sell_line->product_id, $sell_line->variation_id, $quantity, $quantity_before, null, false);
+            }
         }
         
-        $payments_formatted = [];
-        $payments_formatted[] = new CashRegisterTransaction([
-            'amount' => $sell_return->final_total,
-            'pay_method' => 'cash',
-            'type' => 'debit',
-            'transaction_type' => 'sell_return',
-            'transaction_id' => $input['transaction_id']
-        ]);
-        // dd($payments_formatted);
+        return $sell_return;
+    }
 
-        if (!empty($payments_formatted)) {
-            $register->cash_register_transactions()->saveMany($payments_formatted);
+    public function addEcommerceCancelOrder($input, $business_id, $user_id, $uf_number = true)
+    {
+        $productUtil = new \App\Utils\ProductUtil();
+
+        //Get parent sale
+        $sell = EcommerceTransaction::where('business_id', $business_id)
+                        ->with(['ecommerce_sell_lines', 'ecommerce_sell_lines.sub_unit','contact'])
+                        ->findOrFail($input->id);
+        
+
+            //Update quantity returned in sell line
+        $returns = [];
+        $product_lines = $input->ecommerce_sell_lines;
+        
+        foreach ($product_lines as $product_line) {
+            $returns[$product_line->id] = $uf_number ? $this->num_uf($product_line->quantity) : $product_line->quantity;
         }
-
-
+        
+                
         $total_tax = 0;
         $total_items = 0;
         $unit_price = 0;
         $line_discount_amount = 0;
-
+        
         foreach ($sell->ecommerce_sell_lines as $sell_line) {
             if (array_key_exists($sell_line->id, $returns)) {
                 $multiplier = 1;
@@ -9679,13 +9807,177 @@ class TransactionUtil extends Util
 
 
                 //update quantity sold in corresponding purchase lines
-                $this->updateQuantitySoldFromSellLine($sell_line, $quantity, $quantity_before, false);
-                // dd($input);
+                $this->updateQuantitySoldFromEcommerceSellLine($sell_line, $quantity, $quantity_before, false);
+
                 // Update quantity in variation location details
-                $productUtil->updateProductQuantity($input->location_id, $sell_line->product_id, $sell_line->variation_id, $quantity, $quantity_before, null, false);
+                $productUtil->updateProductQuantity($sell_line->location_id, $sell_line->product_id, $sell_line->variation_id, $quantity, $quantity_before, null, false);
             }
         }
 
-        return $sell_return;
+        return true;
+    }
+
+    public function dispatchEcommerceOrderTCS($input, $business_id, $user_id, $uf_number  = true)
+    {
+
+        $success = false;
+        $transactionUtil = new \App\Utils\TransactionUtil();
+        if($input->payment_lines->isEmpty()) {
+            $inputs['paid_on'] = Carbon::now();
+            $inputs['ecommerce_transaction_id'] = $input->id;
+            $inputs['amount'] = $transactionUtil->num_uf($input->final_total);
+            $inputs['created_by'] = auth()->user()->id;
+            $inputs['payment_for'] = $input->contact_id;
+            $inputs['method'] = "cash";
+            
+            $prefix_type = 'purchase_payment';
+            
+            $prefix_type = 'sell_payment';
+            
+            
+            
+            $ref_count = $transactionUtil->setAndGetReferenceCount($prefix_type);
+            //Generate reference number
+            $inputs['payment_ref_no'] = $transactionUtil->generateReferenceNumber($prefix_type, $ref_count);
+            
+            $inputs['business_id'] = $business_id;
+            
+            //Pay from advance balance
+            $payment_amount = $inputs['amount'];
+            if (!empty($inputs['amount'])) {
+                $tp = EcommercePayment::create($inputs);
+                
+                $inputs['transaction_type'] = $input->type;
+
+                EcommerceTransaction::where('id', $input->id)
+                ->update(['payment_status' => 'paid']);
+
+                event(new EcommercePaymentAdded($tp, $inputs));
+            } 
+        }
+
+        $sub_total    = 0;
+        $grand_total  = 0;
+        // FETCH CUSTOMER INFO 
+        $customer_name  = $input->contact->name;
+        $customer_emial = $input->contact->email;
+        $customer_group = ""; 
+        $customer_phone = $input->contact->mobile; 
+        
+        // FETCH SHIPPING INFO 
+        // $shipping_info  = $ecommerce_model->getShippingInfo($order_id);
+        $s_first_name   = $input->contact->first_name;
+        $s_last_name    = $input->contact->last_name;
+        $s_city         = $input->contact->city;
+        $s_address      = $input->shipping_address;
+        $s_email        = $input->contact->email;
+        $s_phone        = $input->contact->mobile;
+        
+        $order_data = [];
+        $order_array = [];
+        foreach($input->ecommerce_sell_lines as $sell) {
+            $store_id       = $sell->location_id;
+          
+            // FETCH ITEMS INFO 
+            $itemsCount = count($input->ecommerce_sell_lines);
+            $ret = DB::table('url')->select("*")->where('store_id', $store_id)->first();
+            
+            $tcs_info = DB::table('url_tcs')->select("*")->where('url_id', $ret->id)->first();
+            
+            if($input->payment_lines->isEmpty()){
+                $amount = $sell->unit_price_inc_tax;
+            } else{
+                $amount = 0;
+            }
+            
+            $order_data['originCityName'] = $tcs_info->origin_city;
+            $order_data['userName'] = $tcs_info->username;
+            $order_data['password'] = $tcs_info->password;
+            $order_data['costCenterCode'] = $tcs_info->cost_center_code;
+            $order_data['pieces'] = $sell->quantity;
+            $order_data['amount'] = $amount;
+            $order_data['location_id'] = $sell->location_id;
+            
+            array_push($order_array, $order_data);
+        }
+        
+        $mergedData = [];
+
+        foreach ($order_array as $entry) {
+            $locationId = $entry['location_id'];
+            if (!isset($mergedData[$locationId])) {
+                $mergedData[$locationId] = $entry;
+                $mergedData[$locationId]['amount'] = floatval($entry['amount']);
+            } else {
+                $mergedData[$locationId]['pieces'] += $entry['pieces'];
+                $mergedData[$locationId]['amount'] += floatval($entry['amount']);
+            }
+        }
+        
+        // Reindex the array
+        $mergedData = array_values($mergedData);
+
+        foreach($mergedData  as $final) {
+            $dataString =array(
+                "userName"=> $final['userName'],
+                "password"=> $final['password'],
+                "costCenterCode"=> $final['costCenterCode'],
+                "consigneeName"=>$s_first_name." " .$s_last_name,
+                "consigneeAddress"=>$s_address,
+                "consigneeMobNo"=>$s_phone,
+                "consigneeEmail"=>$s_email,
+                "originCityName"=>$final['originCityName'],
+                "destinationCityName"=>$s_city,
+                "weight"=>1,
+                "pieces"=>$final['pieces'],
+                "codAmount"=>$final['amount'],
+                "customerReferenceNo"=>$input->invoice_no,
+                "services"=>"O",
+                "productDetails"=>"N/A",
+                "fragile"=>"No",
+                "remarks"=>"N/A",
+                "insuranceValue"=>1
+              );
+              
+              $string = json_encode($dataString);
+              $curl = curl_init();
+              
+              curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://api.tcscourier.com/production/v1/cod/create-order",
+                // CURLOPT_URL => $ret['tcs'],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => $string,
+                CURLOPT_HTTPHEADER => array(
+                  "accept: application/json",
+                  "content-type: application/json",
+                  "x-ibm-client-id: 1ddc207a-d3aa-4d76-a279-96d8cd32ad25"
+                //   "x-ibm-client-id: 33b3ef31-8474-45d8-aa0f-afed317ef8b8" new key
+                ),
+              ));
+              
+              $response = curl_exec($curl);
+              $err      = curl_error($curl);
+              curl_close($curl);
+        
+              $booking_res = json_decode($response, true);
+
+              if($booking_res['returnStatus']['code'] == "0200") {
+                $success = true;
+                $booking_msg  = $booking_res['bookingReply']["result"];
+                $booking_cn   = explode(':', $booking_msg);
+                $booking_cn   = ltrim($booking_cn[1]);
+                EcommerceTransaction::where('id', $input->id)
+                ->update(['shipping_custom_field_1' => $booking_cn]);
+              } else {
+                $success = false;
+              }
+        }
+       
+        return $success;
     }
 }

@@ -2728,12 +2728,15 @@ class ProductUtil extends Util
 
         return array_reverse($stock_history_array);
     }
-    function calculateStockNew($product_name_without_size, $variation_id, $vld_str, $business_id)
+    function calculateStockNew($product_name_without_size, $variation_id, $vld_str, $business_id, $location_id)
     {
         $query = DB::table('variation_location_details')
             ->join('products', 'products.id', '=', 'variation_location_details.product_id')
             ->select(DB::raw('SUM(variation_location_details.qty_available) as stock'))
             ->where('products.name', 'like', '%' . $product_name_without_size . '-%')
+            ->when($location_id, function($q, $location_id){
+                $q->where('variation_location_details.location_id', $location_id);
+            })
             ->first();
 
         return $query->stock;

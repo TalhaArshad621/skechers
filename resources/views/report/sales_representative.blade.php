@@ -17,7 +17,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         {!! Form::label('sr_id',  __('report.user') . ':') !!}
-                        {!! Form::select('sr_id', $users, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('report.all_users')]); !!}
+                        {!! Form::select('sr_id', $usersCollection, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('report.all_users')]); !!}
                     </div>
                 </div>
                 <div class="col-md-4">

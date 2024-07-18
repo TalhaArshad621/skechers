@@ -896,68 +896,68 @@ $(document).ready(function () {
             .addClass('hide');
         $('.contact_modal').modal('show');
     });
-    // $('form#quick_add_contact')
-    //     .submit(function (e) {
-    //         e.preventDefault();
-    //     })
-    //     .validate({
-    //         rules: {
-    //             contact_id: {
-    //                 remote: {
-    //                     url: '/contacts/check-contact-id',
-    //                     type: 'post',
-    //                     data: {
-    //                         contact_id: function () {
-    //                             return $('#contact_id').val();
-    //                         },
-    //                         hidden_id: function () {
-    //                             if ($('#hidden_id').length) {
-    //                                 return $('#hidden_id').val();
-    //                             } else {
-    //                                 return '';
-    //                             }
-    //                         },
-    //                     },
-    //                 },
-    //             },
-    //         },
-    //         messages: {
-    //             contact_id: {
-    //                 remote: LANG.contact_id_already_exists,
-    //             },
-    //         },
-    //         submitHandler: function (form) {
-    //             var data = $(form).serialize();
-    //             $.ajax({
-    //                 method: 'POST',
-    //                 url: $(form).attr('action'),
-    //                 dataType: 'json',
-    //                 data: data,
-    //                 beforeSend: function (xhr) {
-    //                     __disable_submit_button($(form).find('button[type="submit"]'));
-    //                 },
-    //                 success: function (result) {
-    //                     if (result.success == true) {
-    //                         $('select#customer_id').append(
-    //                             $('<option>', { value: result.data.id, text: result.data.name })
-    //                         );
-    //                         $('select#customer_id')
-    //                             .val(result.data.id)
-    //                             .trigger('change');
-    //                         $('div.contact_modal').modal('hide');
-    //                         update_shipping_address(result.data)
-    //                         toastr.success(result.msg);
-    //                     } else {
-    //                         toastr.error(result.msg);
-    //                     }
-    //                 },
-    //             });
-    //         },
-    //     });
+    $('form#quick_add_contact')
+        .submit(function (e) {
+            e.preventDefault();
+        })
+        .validate({
+            rules: {
+                contact_id: {
+                    remote: {
+                        url: '/contacts/check-contact-id',
+                        type: 'post',
+                        data: {
+                            contact_id: function () {
+                                return $('#contact_id').val();
+                            },
+                            hidden_id: function () {
+                                if ($('#hidden_id').length) {
+                                    return $('#hidden_id').val();
+                                } else {
+                                    return '';
+                                }
+                            },
+                        },
+                    },
+                },
+            },
+            messages: {
+                contact_id: {
+                    remote: LANG.contact_id_already_exists,
+                },
+            },
+            submitHandler: function (form) {
+                var data = $(form).serialize();
+                $.ajax({
+                    method: 'POST',
+                    url: $(form).attr('action'),
+                    dataType: 'json',
+                    data: data,
+                    beforeSend: function (xhr) {
+                        __disable_submit_button($(form).find('button[type="submit"]'));
+                    },
+                    success: function (result) {
+                        if (result.success == true) {
+                            $('select#customer_id').append(
+                                $('<option>', { value: result.data.id, text: result.data.name })
+                            );
+                            $('select#customer_id')
+                                .val(result.data.id)
+                                .trigger('change');
+                            $('div.contact_modal').modal('hide');
+                            update_shipping_address(result.data)
+                            toastr.success(result.msg);
+                        } else {
+                            toastr.error(result.msg);
+                        }
+                    },
+                });
+            },
+        });
     $('.contact_modal').on('shown.bs.modal', function () {
         $('form#quick_add_contact')
-        .find('button[type="submit"]')
-        .removeAttr('disabled');
+            .find('button[type="submit"]')
+            .removeAttr('disabled');
     });
     $('.contact_modal').on('hidden.bs.modal', function () {
         $('form#quick_add_contact')

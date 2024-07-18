@@ -351,6 +351,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::post('/store-gift-return', 'SellReturnController@storeGiftReturn');
 
 
+    // Open Register
+    Route::get('/open-register','SellPosController@openRegister');
 
     //Backup
     Route::get('backup/download/{file_name}', 'BackUpController@download');

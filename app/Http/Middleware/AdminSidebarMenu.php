@@ -754,14 +754,14 @@ class AdminSidebarMenu
             }
 
             //Backup menu
-            if (auth()->user()->can('backup')) {
-                $menu->url(action('BackUpController@index'), __('lang_v1.backup'), ['icon' => 'fa fas fa-hdd', 'active' => request()->segment(1) == 'backup'])->order(60);
-            }
+            // if (auth()->user()->can('backup')) {
+            //     $menu->url(action('BackUpController@index'), __('lang_v1.backup'), ['icon' => 'fa fas fa-hdd', 'active' => request()->segment(1) == 'backup'])->order(60);
+            // }
 
             //Modules menu
-            if (auth()->user()->can('manage_modules')) {
-                $menu->url(action('Install\ModulesController@index'), __('lang_v1.modules'), ['icon' => 'fa fas fa-plug', 'active' => request()->segment(1) == 'manage-modules'])->order(60);
-            }
+            // if (auth()->user()->can('manage_modules')) {
+            //     $menu->url(action('Install\ModulesController@index'), __('lang_v1.modules'), ['icon' => 'fa fas fa-plug', 'active' => request()->segment(1) == 'manage-modules'])->order(60);
+            // }
 
             //Booking menu
             if (in_array('booking', $enabled_modules) && (auth()->user()->can('crud_all_bookings') || auth()->user()->can('crud_own_bookings'))) {

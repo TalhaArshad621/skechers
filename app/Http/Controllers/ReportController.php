@@ -24,6 +24,7 @@ use App\TransactionSellLine;
 use App\TransactionSellLinesPurchaseLines;
 use App\Unit;
 use App\User;
+use App\Utils\BusinessUtil;
 use App\Utils\ModuleUtil;
 use App\Utils\ProductUtil;
 use App\Utils\TransactionUtil;
@@ -33,6 +34,7 @@ use Datatables;
 use DB;
 use Illuminate\Http\Request;
 use App\TaxRate;
+use Spatie\Permission\Models\Role;
 use Svg\Tag\Rect;
 
 class ReportController extends Controller
@@ -44,17 +46,20 @@ class ReportController extends Controller
     protected $transactionUtil;
     protected $productUtil;
     protected $moduleUtil;
+    protected $businessUtil;
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(TransactionUtil $transactionUtil, ProductUtil $productUtil, ModuleUtil $moduleUtil)
+    public function __construct(TransactionUtil $transactionUtil, ProductUtil $productUtil, ModuleUtil $moduleUtil, BusinessUtil $businessUtil
+    )
     {
         $this->transactionUtil = $transactionUtil;
         $this->productUtil = $productUtil;
         $this->moduleUtil = $moduleUtil;
+        $this->businessUtil = $businessUtil;
     }
 
     /**
@@ -1188,10 +1193,38 @@ class ReportController extends Controller
         $commission_agent = User::forDropdown($business_id, false);
 
         $users = User::allUsersEmployeeDropdown($business_id, false);
-        $business_locations = BusinessLocation::forDropdown($business_id, true);
 
+        $business_locations = BusinessLocation::forDropdown($business_id, true);
+        $business_details = $this->businessUtil->getDetails($business_id);
+
+        $bll = auth()->user()->permitted_locations();
+   
+        $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
+        $commission_agent = [];
+        if ($commsn_agnt_setting == 'user') {
+            $commission_agent = User::forDropdown($business_id, false);
+        } elseif ($commsn_agnt_setting == 'cmsn_agnt') {
+            $commission_agent = User::saleCommissionAgentsDropdown($business_id, false);
+        }
+        
+        $roles = Role::where('name', 'like', '%employee%')->get();
+
+        $usersCollection = collect();
+
+        foreach ($roles as $role) {
+            $usersWithRole = $role->users;
+            foreach ($usersWithRole as $user) {
+                if ($bll == 'all') {
+                    $usersCollection[$user->id] = $user->first_name . ' ' . $user->last_name;
+                } else {
+                    if ($user->can('location.' . $bll[0]) == true) {
+                        $usersCollection[$user->id] = $user->first_name . ' ' . $user->last_name;
+                    }
+                }
+            }
+        }
         return view('report.sales_representative')
-            ->with(compact('users', 'business_locations'));
+            ->with(compact('users', 'business_locations','usersCollection'));
     }
 
     /**
@@ -2659,7 +2692,7 @@ class ReportController extends Controller
                     return $product_name;
                 })
 
-                ->addColumn('stock', function ($row) use ($vld_str, $business_id) {
+                ->addColumn('stock', function ($row) use ($vld_str, $business_id, $location_id) {
                     $product_name = $row->product_name;
 
                     $second_hyphen_position = strpos($product_name, '-', strpos($product_name, '-') + 1);
@@ -2669,7 +2702,7 @@ class ReportController extends Controller
                     if ($row->product_type == 'variable') {
                         $product_name_without_size .= ' - ' . $row->product_variation . ' - ' . $row->variation_name;
                     }
-                    $stock = $this->productUtil->calculateStockNew($product_name_without_size, $row->variation_id, $vld_str, $business_id);
+                    $stock = $this->productUtil->calculateStockNew($product_name_without_size, $row->variation_id, $vld_str, $business_id, $location_id);
 
                     $stocks = $stock;
 
@@ -2680,12 +2713,12 @@ class ReportController extends Controller
                         return 0;
                     }
                 })
-                ->addColumn('stock_by_code', function ($row) use ($vld_str, $business_id) {
+                ->addColumn('stock_by_code', function ($row) use ($vld_str, $business_id, $location_id) {
                     $product_name = $row->product_name;
 
                     $product_code = explode('-', $product_name)[0];
 
-                    $stock = $this->productUtil->calculateStockNew($product_code, $row->variation_id, $vld_str, $business_id);
+                    $stock = $this->productUtil->calculateStockNew($product_code, $row->variation_id, $vld_str, $business_id, $location_id);
 
                     $stocks = $stock;
 
@@ -4921,7 +4954,7 @@ class ReportController extends Controller
             $gst_tax = $query8->select(DB::raw('SUM(item_tax * quantity) as tax'))
                 ->first();
 
-            $query11 = TransactionSellLine::join('transactions as t', 't.id', 'transaction_sell_lines.transaction_id')
+             $query11 = TransactionSellLine::join('transactions as t', 't.id', 'transaction_sell_lines.transaction_id')
                 ->where('t.business_id', $business_id)
                 ->whereIN('t.type', ['sell_return'])
                 // ->where('t.type', 'sell')
@@ -4960,10 +4993,10 @@ class ReportController extends Controller
             if (!empty($location_id)) {
                 $query12->where('t.location_id', $location_id);
             }
-            $gst_tax_new_returned = $query12->select(DB::raw('SUM(item_tax) as tax'))
+            $gst_tax_new_returned = $query12->select(DB::raw('SUM(item_tax * quantity_returned) as tax'))
                 ->first();
 
-            $query9 = TransactionSellLine::join('transactions as sale', 'sale.id', 'transaction_sell_lines.transaction_id')
+             $query9 = TransactionSellLine::join('transactions as sale', 'sale.id', 'transaction_sell_lines.transaction_id')
                 ->leftjoin('transaction_sell_lines_purchase_lines as TSPL', 'transaction_sell_lines.id', '=', 'TSPL.sell_line_id')
                 ->leftjoin(
                     'purchase_lines as PL',
@@ -5498,7 +5531,7 @@ class ReportController extends Controller
         $business_locations = BusinessLocation::forDropdown($business_id);
         $customers = Contact::customersDropdown($business_id);
 
-        return view('report.brandfolio_report');
+        return view('report.brandfolio_report', compact('business_locations','customers'));
     }
 
     public function getDetailedProductCategory(Request $request)

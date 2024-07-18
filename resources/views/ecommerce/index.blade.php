@@ -60,7 +60,7 @@
                         {{-- <th>{{ $custom_labels['types_of_service']['custom_field_1'] ?? __('lang_v1.service_custom_field_1' )}}</th> --}}
                         <th>@lang('lang_v1.added_by')</th>
                         <th>@lang('sale.sell_note')</th>
-                        <th>@lang('sale.staff_note')</th>
+                        <th>CN#</th>
                         <th>@lang('sale.shipping_details')</th>
                         <th>@lang('restaurant.table')</th>
                         <th>@lang('restaurant.service_staff')</th>
@@ -177,7 +177,7 @@ $(document).ready( function(){
             // { data: 'service_custom_field_1', name: 'service_custom_field_1', @if(empty($is_types_service_enabled)) visible: false @endif},
             { data: 'added_by', name: 'u.first_name'},
             { data: 'additional_notes', name: 'additional_notes'},
-            { data: 'staff_note', name: 'staff_note'},
+            { data: 'shipping_custom_field_1', name: 'shipping_custom_field_1'},
             { data: 'shipping_details', name: 'shipping_details'},
             { data: 'table_name', name: 'tables.name', @if(empty($is_tables_enabled)) visible: false @endif },
             { data: 'waiter', name: 'ss.first_name', @if(empty($is_service_staff_enabled)) visible: false @endif },

@@ -16,6 +16,10 @@ class CashRegisterUtil extends Util
      *
      * @return int
      */
+    public function getOpenRegister(){
+        $registerss = CashRegister::where("status",'open')->pluck('location_id');
+        return $registerss;
+    }
     public function countOpenedRegister()
     {
         $user_id = auth()->user()->id;
@@ -68,9 +72,15 @@ class CashRegisterUtil extends Util
     {
         // dd($transaction, $payments);
         $user_id = auth()->user()->id;
-        $register =  CashRegister::where('location_id', $transaction->location_id)
+        if(auth()->user()->can("superadmin")){
+            $register =  CashRegister::where('location_id', $transaction->location_id)
+            ->where('status', 'open')
+            ->first();
+        }else{
+        $register =  CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')
                                 ->first();
+        }
         $payments_formatted = [];
         foreach ($payments as $payment) {
             $payments_formatted[] = new CashRegisterTransaction([

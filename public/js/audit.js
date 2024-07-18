@@ -163,13 +163,13 @@ $.ajax({
 //     });
 // }
 
-function enterBarcode() {
-    $('#code').val(entryValue);
-    getProductDetails();
-}
+// function enterBarcode() {
+//     $('#code').val(entryValue);
+//     getProductDetails();
+// }
 
 // Start the process
-enterBarcode();
+// enterBarcode();
 
 var debounceTimeout;
 
@@ -241,7 +241,7 @@ function getProductDetails() {
 // function getProductDetails() {
 //     // Get the entered barcode number
 //     var barcodeNumber = $('#code').val();
-    
+
 //     // console.log(barcodeNumber);
 
 //     // Make an AJAX request to retrieve product details
@@ -302,35 +302,35 @@ function getProductDetails() {
 //     });
 // }
 
-    // Event handler for the "Check Audit" button
-    $('#check-audit').click(function() {
-        // Clear existing table rows
-        $('#audit_table tbody').empty();
-        
-        // Get the last 20 entries from the ScannedProduct array
-        var lastEntries = ScannedProduct.slice(0, 20);
-        
-        // Iterate over the last entries and append them to the table
-        $.each(lastEntries, function(index, item) {
-            // console.log(item);
-            var newRow = '<tr>';
-            var imagePath = item.img ? ('uploads/img/' + item.img) : 'img/default.png';
-            newRow += '<td><div style="display: flex; justify-content: center; align-items: center;"><img src="' + item.img + '" alt="Product image" class="product-thumbnail-small"></div></td>';
-            newRow += '<td>' + item.id + '</td>';
-            newRow += '<td>' + item.product + '</td>';
-            newRow += '<td>' + item.sku + '</td>';
-            newRow += '<td>' + item.categoryName + '</td>';
-            newRow += '</tr>';
-    
-            // var newRow = '<tr>';
-            // newRow += '<td>' + item.id + '</td>';
-            // newRow += '<td>' + item.categoryName + '</td>';
-            // newRow += '<td>' + item.sku + '</td>';
-            // newRow += '</tr>';
-            $('#audit_table tbody').append(newRow);
-        });
+// Event handler for the "Check Audit" button
+$('#check-audit').click(function () {
+    // Clear existing table rows
+    $('#audit_table tbody').empty();
+
+    // Get the last 20 entries from the ScannedProduct array
+    var lastEntries = ScannedProduct.slice(0, 20);
+
+    // Iterate over the last entries and append them to the table
+    $.each(lastEntries, function (index, item) {
+        // console.log(item);
+        var newRow = '<tr>';
+        var imagePath = item.img ? ('uploads/img/' + item.img) : 'img/default.png';
+        newRow += '<td><div style="display: flex; justify-content: center; align-items: center;"><img src="' + item.img + '" alt="Product image" class="product-thumbnail-small"></div></td>';
+        newRow += '<td>' + item.id + '</td>';
+        newRow += '<td>' + item.product + '</td>';
+        newRow += '<td>' + item.sku + '</td>';
+        newRow += '<td>' + item.categoryName + '</td>';
+        newRow += '</tr>';
+
+        // var newRow = '<tr>';
+        // newRow += '<td>' + item.id + '</td>';
+        // newRow += '<td>' + item.categoryName + '</td>';
+        // newRow += '<td>' + item.sku + '</td>';
+        // newRow += '</tr>';
+        $('#audit_table tbody').append(newRow);
     });
 });
+// });
 
 
 // Array to store all products
