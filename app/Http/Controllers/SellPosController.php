@@ -154,24 +154,23 @@ class SellPosController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-     public function openRegister()
-     {
+    public function openRegister()
+    {
         return view('cash_register.open_register');
-     }
+    }
 
     public function create()
     {
         $business_id = request()->session()->get('user.business_id');
         $openRegisters = $this->cashRegisterUtil->getOpenRegister();
-        
-        if($openRegisters->isEmpty() && auth()->user()->can('superadmin')) {
+        if ($openRegisters->isEmpty() && auth()->user()->can('superadmin')) {
             // Please open register
             return redirect()->action('SellPosController@openRegister');
         }
         if (!(auth()->user()->can('superadmin') || auth()->user()->can('sell.create') || ($this->moduleUtil->hasThePermissionInSubscription($business_id, 'repair_module') && auth()->user()->can('repair.create')))) {
             abort(403, 'Unauthorized action.');
         }
-        
+
         //Check if subscribed or not, then check for users quota
         if (!$this->moduleUtil->isSubscribed($business_id)) {
             return $this->moduleUtil->expiredResponse(action('HomeController@index'));
@@ -197,14 +196,14 @@ class SellPosController extends Controller
         $payment_lines[] = $this->dummyPaymentLine;
 
         $default_location = !empty($register_details->location_id) ? BusinessLocation::findOrFail($register_details->location_id) : null;
-        if(auth()->user()->can('superadmin')) {
-            $business_locations = BusinessLocation::forDropdown($business_id, false, true,true,true, $openRegisters);
+        if (auth()->user()->can('superadmin')) {
+            $business_locations = BusinessLocation::forDropdown($business_id, false, true, true, true, $openRegisters);
         } else {
             $business_locations = BusinessLocation::forDropdown($business_id, false, true);
         }
         $bl_attributes = $business_locations['attributes'];
         $business_locations = $business_locations['locations'];
-        
+
         //set first location as default locaton
         if (empty($default_location)) {
             foreach ($business_locations as $id => $name) {
@@ -212,7 +211,7 @@ class SellPosController extends Controller
                 break;
             }
         }
-        
+
         // dd($openRegisters,$register_details, $default_location);
         $payment_types = $this->productUtil->payment_types(null, true, $business_id);
 

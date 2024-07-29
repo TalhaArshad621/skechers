@@ -290,6 +290,7 @@
                     </tr>
                 </thead>
                 <tbody>
+	
 					@if ($receipt_details->return_new)
 					@forelse($receipt_details->return_new as $line)
 					{{-- @if ($line['quantity'] > 0) --}}
@@ -325,7 +326,7 @@
 	                        <td class="description">
 	                        	@if(!empty($line['sub_sku'])) {{$line['sub_sku'] . '(EX)'}} @endif
 	                        </td>
-	                        <td class="quantity text-right">{{$line['quantity']}}</td>
+	                        <td class="quantity text-right">{{$line['quantity']}} @if($line['quantity_returned'] > 0)(Returned) @endif</td>
 	                        @if(empty($receipt_details->hide_price))
 	                        <td class="unit_price text-right">{{$line['original_price']}}</td>
 							<td class="discount text-right">{{(int)$line['new_discount_amount']}}</td>
@@ -335,7 +336,8 @@
 						@endif
                     @endforeach
 					@endif
-                	@forelse($receipt_details->exchanges as $line)
+					@if($receipt_details->transaction_type != "gift")
+					@forelse($receipt_details->exchanges as $line)
 						@php
 							$total_ex_discount += $line['new_discount_amount'];
 						@endphp
@@ -356,6 +358,7 @@
 	                    </tr>
 						{{-- @endif --}}
                     @endforeach
+					@endif
                     <tr>
                     	<td colspan="5">&nbsp;</td>
                     </tr>

@@ -372,9 +372,8 @@ class SellReturnController extends Controller
             break;
         }
 
-        
-        return view('sell_return.new_sell_return',compact('business_locations','bl_attributes','commission_agent','usersCollection','sell','default_location','business_details','pos_settings','payment_lines','payment_types','change_return'));
 
+        return view('sell_return.new_sell_return', compact('business_locations', 'bl_attributes', 'commission_agent', 'usersCollection', 'sell', 'default_location', 'business_details', 'pos_settings', 'payment_lines', 'payment_types', 'change_return'));
     }
 
 
