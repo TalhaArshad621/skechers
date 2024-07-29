@@ -33,6 +33,7 @@ Route::middleware(['setData'])->group(function () {
     Route::get('/quote/{token}', 'SellPosController@showInvoice')
         ->name('show_quote');
 });
+Route::get('/shopify-ecommerce-api', 'EcommerceController@store');
 
 //Routes for authenticated users only
 Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 'AdminSidebarMenu', 'CheckUserLogin'])->group(function () {
@@ -129,12 +130,13 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
 
     Route::resource('products', 'ProductController');
 
+    Route::resource('purchases', 'PurchaseController')->except(['show','edit']);
+    Route::get('purchase-delete/{id}', 'PurchaseController@delete');
     Route::post('/purchases/update-status', 'PurchaseController@updateStatus');
     Route::get('/purchases/get_products', 'PurchaseController@getProducts');
     Route::get('/purchases/get_suppliers', 'PurchaseController@getSuppliers');
     Route::post('/purchases/get_purchase_entry_row', 'PurchaseController@getPurchaseEntryRow');
     Route::post('/purchases/check_ref_number', 'PurchaseController@checkRefNumber');
-    Route::resource('purchases', 'PurchaseController')->except(['show']);
 
     Route::get('/toggle-subscription/{id}', 'SellPosController@toggleRecurringInvoices');
     Route::post('/sells/pos/get-types-of-service-details', 'SellPosController@getTypesOfServiceDetails');
@@ -396,7 +398,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::put('ecommerce/update-shipping/{id}', 'EcommerceController@updateShipping');
     Route::get('/ecommerce/return-item/{id}', 'EcommerceController@returnItem');
     Route::resource('/ecommerce', 'EcommerceController')->except(['store']);
-    Route::get('/shopify-ecommerce-api', 'EcommerceController@store');
+    // Route::get('/shopify-ecommerce-api', 'EcommerceController@store');
 
     // Ecommerce Payments
     Route::resource('ecommerce-payments', 'EcommercePaymentController');
@@ -499,6 +501,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone'])
     Route::get('/purchases/{id}', 'PurchaseController@show');
     Route::get('/sells/{id}', 'SellController@show');
     Route::get('/sells/{transaction_id}/print', 'SellPosController@printInvoice')->name('sell.printInvoice');
+    Route::get('/ecommerce/{transaction_id}/print', 'EcommerceController@printInvoice')->name('ecommerce.printInvoice');
     Route::get('/sells/invoice-url/{id}', 'SellPosController@showInvoiceUrl');
     Route::get('/show-notification/{id}', 'HomeController@showNotification');
 });

@@ -1088,24 +1088,24 @@ $(document).ready(function () {
             { data: 'style_no', name: 'style_no' },
             { data: 'color', name: 'color' },
             { data: 'size', name: 'size' },
-            { data: 'distributor', name: 'distributor' },
-            { data: 'country', name: 'country' },
+            { data: 'distributor', name: 'distributor', searchable: false },
+            { data: 'country', name: 'country', searchable: false },
             { data: 'transaction_date', name: 't.transaction_date' },
             { data: 'store', name: 'bl.name' },
             { data: 'category', name: 'categories.name' },
             { data: 'sell_qty', name: 'transaction_sell_lines.quantity' },
             // { data: 'tax', name: 'tax_rates.name' },
             { data: 'subtotal', name: 'subtotal', searchable: false },
-            { data: 'closing_stock', name: 'closing_stock' },
+            { data: 'closing_stock', name: 'closing_stock', searchable: false },
         ],
-        // fnDrawCallback: function(oSettings) {
-        //     $('#footer_subtotal').text(
-        //         sum_table_col($('#product_sell_report_table'), 'row_subtotal')
-        //     );
-        //     $('#footer_total_sold').html(__sum_stock($('#product_sell_report_table'), 'sell_qty'));
-        //     $('#footer_tax').html(__sum_stock($('#product_sell_report_table'), 'tax', 'left'));
-        //     __currency_convert_recursively($('#product_sell_report_table'));
-        // },
+        fnDrawCallback: function (oSettings) {
+            $('.footer_subtotal').text(
+                sum_table_col($('#brandfolio_report_table'), 'row_subtotal')
+            );
+            $('.footer_total_sold').html(__sum_stock($('#brandfolio_report_table'), 'sell_qty'));
+            $('.footer_qty_stock').html(__sum_stock($('#brandfolio_report_table'), 'qty_stock'));
+            __currency_convert_recursively($('#brandfolio_report_table'));
+        },
     });
 
     var is_lot_enabled = $('#lot_enabled').length > 0 ? true : false;
@@ -1340,6 +1340,11 @@ $(document).ready(function () {
         product_sell_grouped_report.ajax.reload();
         product_exchange_report_table.ajax.reload();
         product_sell_report_with_purchase_table.ajax.reload();
+    });
+
+
+    $('.brand_folio_location').change(function () {
+        brandfolio_report.ajax.reload();
     });
 
     $('#product_sell_report_form #search_product').keyup(function () {

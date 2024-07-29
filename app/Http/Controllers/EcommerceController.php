@@ -32,6 +32,7 @@ use App\Transaction;
 use App\TransactionSellLine;
 use App\TypesOfService;
 use App\User;
+use App\Utils\SmsUtil;
 use Illuminate\Support\Facades\Redirect;
 use Yajra\DataTables\Facades\DataTables;
 use Spatie\Activitylog\Models\Activity;
@@ -51,6 +52,7 @@ class EcommerceController extends Controller
     protected $moduleUtil;
     protected $notificationUtil;
     protected $business_id;
+    protected $smsUtil;
 
     /**
      * Constructor
@@ -65,7 +67,8 @@ class EcommerceController extends Controller
         TransactionUtil $transactionUtil,
         CashRegisterUtil $cashRegisterUtil,
         ModuleUtil $moduleUtil,
-        NotificationUtil $notificationUtil
+        NotificationUtil $notificationUtil,
+        SmsUtil $smsUtil
     )
     {
         $this->contactUtil = $contactUtil;
@@ -75,6 +78,7 @@ class EcommerceController extends Controller
         $this->cashRegisterUtil = $cashRegisterUtil;
         $this->moduleUtil = $moduleUtil;
         $this->notificationUtil = $notificationUtil;
+        $this->smsUtil = $smsUtil;
         $this->business_id = 4;
         $this->shipping_status_colors = [
             'ordered' => 'bg-yellow',
@@ -580,15 +584,14 @@ class EcommerceController extends Controller
                         }
 
                          //Add payments to Cash Register
-                        if(!$is_credit_sale) {
-                            $this->cashRegisterUtil->addSellEcommercePayments($transaction, $shopifyOrder, $user_id);
-                        }
+                        // if(!$is_credit_sale) {
+                        //     $this->cashRegisterUtil->addSellEcommercePayments($transaction, $shopifyOrder, $user_id);
+                        // }
 
                         //Update payment status
                         $payment_status = $this->transactionUtil->updateEcommercePaymentStatus($transaction->id, $invoice_total);
                         $transaction->payment_status = $payment_status;
                         
-                        // dd($transaction->ecommerce_sell_lines);
                         
                         //Allocate the quantity from purchase and add mapping of
                         //purchase & sell lines in
@@ -601,6 +604,14 @@ class EcommerceController extends Controller
                         'location_id' => 8,
                         'pos_settings' => $pos_settings
                          ];
+
+                        $messageText ="Order placed Successfully with Order ID: $transaction->invoice_no and Total Amount : $transaction->final_total \n 
+                        on shoestreet.pk. Thankyou for shopping! \n";
+            
+                        // $phone = "03200412197";
+            
+                        // $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $transaction->contact->mobile), 'SKECHERS.', '');
+                        // $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone), 'SKECHERS.', '');
 
                         //  dd($transaction->ecommerce_sell_lines);
                         $this->transactionUtil->mapPurchaseEcommerceSell($business, $transaction->ecommerce_sell_lines, 'purchase');
@@ -911,11 +922,61 @@ class EcommerceController extends Controller
 
     }
 
+
+    public function printInvoice(Request $request, $transaction_id)
+    {
+        if (request()->ajax()) {
+            try {
+                $output = [
+                    'success' => 0,
+                    'msg' => trans("messages.something_went_wrong")
+                ];
+
+                $business_id = $request->session()->get('user.business_id');
+
+                $transaction = EcommerceTransaction::where('business_id', $business_id)
+                    ->where('id', $transaction_id)
+                    ->with(['location'])
+                    ->first();
+
+                if (empty($transaction)) {
+                    return $output;
+                }
+
+                $printer_type = 'browser';
+                if (!empty(request()->input('check_location')) && request()->input('check_location') == true) {
+                    $printer_type = $transaction->location->receipt_printer_type;
+                }
+
+                $is_package_slip = !empty($request->input('package_slip')) ? true : false;
+
+                $invoice_layout_id = $transaction->is_direct_sale ? $transaction->location->sale_invoice_layout_id : null;
+                $receipt = $this->receiptContent($business_id, 11, $transaction_id, $printer_type, $is_package_slip, false, $invoice_layout_id);
+
+                if (!empty($receipt)) {
+                    $output = ['success' => 1, 'receipt' => $receipt];
+                }
+            } catch (\Exception $e) {
+                \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+
+                $output = [
+                    'success' => 0,
+                    'msg' => trans("messages.something_went_wrong")
+                ];
+            }
+
+            return $output;
+        }
+    }
+
     private function receiptContent(
         $business_id,
         $location_id,
         $transaction_id,
-        $printer_type = null
+        $printer_type = null,
+        $is_package_slip = false,
+        $from_pos_screen = true,
+        $invoice_layout_id = null
     ) {
         $output = ['is_enabled' => false,
                     'print_type' => 'browser',
@@ -939,15 +1000,19 @@ class EcommerceController extends Controller
 
             $receipt_details = $this->transactionUtil->getEcommerceReceiptDetails($transaction_id, $location_id, $invoice_layout, $business_details, $location_details, $receipt_printer_type);
             //If print type browser - return the content, printer - return printer config data, and invoice format config
+            if ($is_package_slip) {
+                $output['html_content'] = view('sale_pos.receipts.packing_slip', compact('receipt_details'))->render();
+                return $output;
+            }
+            
             if ($receipt_printer_type == 'printer') {
                 $output['print_type'] = 'printer';
                 $output['printer_config'] = $this->businessUtil->printerConfig($business_id, $location_details->printer_id);
                 $output['data'] = $receipt_details;
             } else {
-                $output['html_content'] = view('sell_return.receipt', compact('receipt_details'))->render();
+                $output['html_content'] = view('sale_pos.receipts.slim', compact('receipt_details'))->render();
             }
         }
-
         return $output;
     }
 

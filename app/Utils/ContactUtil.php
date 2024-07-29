@@ -235,7 +235,7 @@ class ContactUtil extends Util
 
     public function getEcommerceCustomer($email)
     {
-        $contact = DB::table('contacts')->select('id')->where('email', $email)->first();
+        $contact = DB::table('contacts')->select('id','mobile')->where('email', $email)->first();
         return $contact ? $contact->id : $contact;
     }
 

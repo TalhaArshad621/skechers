@@ -290,7 +290,6 @@
                     </tr>
                 </thead>
                 <tbody>
-					{{-- {{ dd($receipt_details) }} --}}
                 	@forelse($receipt_details->lines as $line)
 					{{-- {{ dd($line) }} --}}
 					@php
@@ -514,13 +513,14 @@
 				<p class="centered">
 					{!! $receipt_details->footer_text !!}
 				</p>
-			@endif
-
+			@endif			
+			@if ($receipt_details->fbr_id)
 			<P class="centered" style="margin-top: 10px">
 				 <span style="font-size: 20px; font-weight:700">FBR Invoice #</span> 
 				<br>
 				{!! $receipt_details->fbr_id !!}
 			</P>
+			@endif
         </div>
         <!-- <button id="btnPrint" class="hidden-print">Print</button>
         <script src="script.js"></script> -->
