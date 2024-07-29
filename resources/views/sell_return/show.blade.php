@@ -128,7 +128,8 @@
                 <td>
                   @php
                      $line_total = ($sell_line->quantity_returned * $sell_line->sell_price_inc_tax) - $sell_line->total_sell_discount;
-                  @endphp
+                     $total_before_tax += $line_total ;
+                 @endphp
                     <span class="display_currency" data-currency_symbol="true">{{ ($sell_line->quantity_returned * $sell_line->sell_price_inc_tax) - $sell_line->total_sell_discount }}</span>
                 </td>
             </tr>
@@ -174,7 +175,7 @@
                 </td>
             @endif
             <td>
-                <span class="display_currency" data-currency_symbol="true">{{ $sell_line->sell_price_inc_tax }}</span>
+                <span class="display_currency" data-currency_symbol="true">{{ (int)$sell_line->sell_price_inc_tax }}</span>
             </td>
             <td>
               <span class="display_currency" data-currency_symbol="true">{{ $sell_line->total_sell_discount }}</span> ({{intval($sell_line->line_discount_amount)}}%)

@@ -120,16 +120,17 @@ class CashRegisterController extends Controller
             // dd($business_location);
             $input['started_at'] = \Carbon::now()->format('Y-m-d H:i:s');
             // dd($input);
+            $business_location = DB::table('business_locations')->select('name')->where('id', $request->input('location_id'))->first();
 
             $messageText = "DAY STARTED\n" .
                 "DATE: " . $input['started_at'] . "\n" .
                 "USERNAME: " . $user_name->full_name . "\n" .
-                "STORE: SKX Jhelum\n" .
+                "STORE: ".$business_location->name."\n" .
                 "Opening Balance: " .  12000 . " ";
 
-            $phone = "03416881318";
+            $phone = "03008513513";
 
-            $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone), 'SKECHERS.', '');
+            // $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone), 'SKECHERS.', '');
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
         }
@@ -330,7 +331,7 @@ class CashRegisterController extends Controller
             // Cash Sale: $request->input('cash_sale');
             // To block promotions from SKECHERS. send UNSUB to 9689128
             // To block all promotions, send REG to 3627";
-            $phone = "03416881318";
+            $phone = "03008513513";
 
             // $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone), 'SKECHERS.', '');
         } catch (\Exception $e) {

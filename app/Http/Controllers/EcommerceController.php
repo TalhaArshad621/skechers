@@ -32,6 +32,7 @@ use App\Transaction;
 use App\TransactionSellLine;
 use App\TypesOfService;
 use App\User;
+use App\Utils\SmsUtil;
 use Illuminate\Support\Facades\Redirect;
 use Yajra\DataTables\Facades\DataTables;
 use Spatie\Activitylog\Models\Activity;
@@ -51,6 +52,7 @@ class EcommerceController extends Controller
     protected $moduleUtil;
     protected $notificationUtil;
     protected $business_id;
+    protected $smsUtil;
 
     /**
      * Constructor
@@ -65,7 +67,8 @@ class EcommerceController extends Controller
         TransactionUtil $transactionUtil,
         CashRegisterUtil $cashRegisterUtil,
         ModuleUtil $moduleUtil,
-        NotificationUtil $notificationUtil
+        NotificationUtil $notificationUtil,
+        SmsUtil $smsUtil
     )
     {
         $this->contactUtil = $contactUtil;
@@ -75,6 +78,7 @@ class EcommerceController extends Controller
         $this->cashRegisterUtil = $cashRegisterUtil;
         $this->moduleUtil = $moduleUtil;
         $this->notificationUtil = $notificationUtil;
+        $this->smsUtil = $smsUtil;
         $this->business_id = 4;
         $this->shipping_status_colors = [
             'ordered' => 'bg-yellow',
@@ -311,16 +315,6 @@ class EcommerceController extends Controller
                         //         $html .= '<li><a href="' . action('SellPosController@destroy', [$row->id]) . '" class="delete-sale"><i class="fas fa-trash"></i> ' . __("messages.delete") . '</a></li>';
                         //     }
                         // }
-                        if (auth()->user()->can("view_ecommerce")) {
-                            if (!empty($row->document)) {
-                                $document_name = !empty(explode("_", $row->document, 2)[1]) ? explode("_", $row->document, 2)[1] : $row->document ;
-                                $html .= '<li><a href="' . url('uploads/documents/' . $row->document) .'" download="' . $document_name . '"><i class="fas fa-download" aria-hidden="true"></i>' . __("purchase.download_document") . '</a></li>';
-                                if (isFileImage($document_name)) {
-                                    $html .= '<li><a href="#" data-href="' . url('uploads/documents/' . $row->document) .'" class="view_uploaded_document"><i class="fas fa-image" aria-hidden="true"></i>' . __("lang_v1.view_document") . '</a></li>';
-                                }
-                            }
-                        }
-
                         // if (auth()->user()->can("print_invoice")) {
                         //     $html .= '<li><a href="#" class="print-invoice" data-href="' . route('sell.printInvoice', [$row->id]) . '"><i class="fas fa-print" aria-hidden="true"></i> ' . __("lang_v1.print_invoice") . '</a></li>
                         //         <li><a href="#" class="print-invoice" data-href="' . route('sell.printInvoice', [$row->id]) . '?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> ' . __("lang_v1.packing_slip") . '</a></li>';
@@ -328,26 +322,6 @@ class EcommerceController extends Controller
                         // if ($is_admin || auth()->user()->hasAnyPermission(['access_shipping', 'access_own_shipping', 'access_commission_agent_shipping']) ) {
                         //     $html .= '<li><a href="#" data-href="' . action('SellController@editShipping', [$row->id]) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-truck" aria-hidden="true"></i>' . __("lang_v1.edit_shipping") . '</a></li>';
                         // }
-                        $html .= '<li class="divider"></li>';
-                        if (!$only_shipments) {
-                            if ($row->payment_status != "paid" && (auth()->user()->can("view_ecommerce"))) {
-                                $html .= '<li><a href="' . action('TransactionPaymentController@addPayment', [$row->id]) . '" class="add_payment_modal"><i class="fas fa-money-bill-alt"></i> ' . __("purchase.add_payment") . '</a></li>';
-                            }
-
-                            $html .= '<li><a href="' . action('TransactionPaymentController@show', [$row->id]) . '" class="view_payment_modal"><i class="fas fa-money-bill-alt"></i> ' . __("purchase.view_payments") . '</a></li>';
-
-                            // if (auth()->user()->can("sell.create")) {
-                            //     $html .= '<li><a href="' . action('SellController@duplicateSell', [$row->id]) . '"><i class="fas fa-copy"></i> ' . __("lang_v1.duplicate_sell") . '</a></li>
-
-                            //     <li><a href="' . action('SellReturnController@add', [$row->id]) . '"><i class="fas fa-undo"></i> ' . __("lang_v1.sell_return") . '</a></li>
-
-                            //     <li><a href="' . action('SellPosController@showInvoiceUrl', [$row->id]) . '" class="view_invoice_url"><i class="fas fa-eye"></i> ' . __("lang_v1.view_invoice_url") . '</a></li>';
-                            // }
-
-                            $html .= '<li><a href="#" data-href="' . action('NotificationController@getTemplate', ["transaction_id" => $row->id,"template_for" => "new_sale"]) . '" class="btn-modal" data-container=".view_modal"><i class="fa fa-envelope" aria-hidden="true"></i>' . __("lang_v1.new_sale_notification") . '</a></li>';
-                        } else {
-                            $html .= '<li><a href="#" data-href="' . action('SellController@viewMedia', ["model_id" => $row->id, "model_type" => "App\Transaction", 'model_media_type' => 'shipping_document']) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-paperclip" aria-hidden="true"></i>' . __("lang_v1.shipping_documents") . '</a></li>';
-                        }
 
                         $html .= '</ul></div>';
 
@@ -431,7 +405,7 @@ class EcommerceController extends Controller
                 })
                 ->editColumn('shipping_status', function ($row) use ($shipping_statuses) {
                     $status_color = !empty($this->shipping_status_colors[$row->shipping_status]) ? $this->shipping_status_colors[$row->shipping_status] : 'bg-gray';
-                    $status = !empty($row->shipping_status) ? '<a href="#" class="btn-modal" data-href="' . action('EcommerceController@editShipping', [$row->id]) . '" data-container=".view_modal"><span class="label ' . $status_color .'">' . $shipping_statuses[$row->shipping_status] . '</span></a>' : '';
+                    $status = !empty($row->shipping_status) && $row->shipping_status != "delivered"  ? '<a href="#" class="btn-modal" data-href="' . action('EcommerceController@editShipping', [$row->id]) . '" data-container=".view_modal"><span class="label ' . $status_color .'">' . $shipping_statuses[$row->shipping_status] . '</span></a>' : '<a href="#" class="btn-modal" ><span class="label ' . $status_color .'">' . $shipping_statuses[$row->shipping_status] . '</span></a>';
                      
                     return $status;
                 })
@@ -535,9 +509,16 @@ class EcommerceController extends Controller
                     // Order number for the shopify order in DB it will be invoice number
                     $orderId = trim($shopifyOrder['name'], "#");
                     $input['invoice_no'] = $orderId;
+                    // Current date and time
+                    // Create Carbon instances
+                    $dateToCheck = '2024-06-28T02:50:53+05:00';
+                    $carbonDateToCheck = Carbon::parse($dateToCheck);
+                    
+                    $orderDate = Carbon::parse($shopifyOrder['created_at']);
+                    // dd($orderDate->greaterThan($carbonDateToCheck));
                     // Check if the order already exist
                     $existingTransactions = DB::table('ecommerce_transactions')->where('type','sell')->where('sub_type','ecommerce')->where('invoice_no',$orderId)->first();
-                    if(!$existingTransactions) {
+                    if(!$existingTransactions && $orderDate->greaterThan($carbonDateToCheck)) {
                         $business_id = $this->business_id;
                         $input['status'] = "final";
                         $input['discount_type'] = "fixed";
@@ -603,15 +584,14 @@ class EcommerceController extends Controller
                         }
 
                          //Add payments to Cash Register
-                        if(!$is_credit_sale) {
-                            $this->cashRegisterUtil->addSellEcommercePayments($transaction, $shopifyOrder, $user_id);
-                        }
+                        // if(!$is_credit_sale) {
+                        //     $this->cashRegisterUtil->addSellEcommercePayments($transaction, $shopifyOrder, $user_id);
+                        // }
 
                         //Update payment status
                         $payment_status = $this->transactionUtil->updateEcommercePaymentStatus($transaction->id, $invoice_total);
                         $transaction->payment_status = $payment_status;
                         
-                        // dd($transaction->ecommerce_sell_lines);
                         
                         //Allocate the quantity from purchase and add mapping of
                         //purchase & sell lines in
@@ -624,6 +604,14 @@ class EcommerceController extends Controller
                         'location_id' => 8,
                         'pos_settings' => $pos_settings
                          ];
+
+                        $messageText ="Order placed Successfully with Order ID: $transaction->invoice_no and Total Amount : $transaction->final_total \n 
+                        on shoestreet.pk. Thankyou for shopping! \n";
+            
+                        // $phone = "03200412197";
+            
+                        // $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $transaction->contact->mobile), 'SKECHERS.', '');
+                        // $this->smsUtil->sendSmsMessage($messageText, preg_replace('/^0/', '92', $phone), 'SKECHERS.', '');
 
                         //  dd($transaction->ecommerce_sell_lines);
                         $this->transactionUtil->mapPurchaseEcommerceSell($business, $transaction->ecommerce_sell_lines, 'purchase');
@@ -798,6 +786,7 @@ class EcommerceController extends Controller
         }
 
         try {
+            db::beginTransaction();
             $input = $request->only([
                     'shipping_details', 'shipping_address',
                     'shipping_status', 'delivered_to', 'shipping_custom_field_1', 'shipping_custom_field_2', 'shipping_custom_field_3', 'shipping_custom_field_4', 'shipping_custom_field_5'
@@ -808,14 +797,25 @@ class EcommerceController extends Controller
 
             $transaction = EcommerceTransaction::where('business_id', $business_id)
                                 ->findOrFail($id);
-            dd($transaction, $transaction->ecommerce_sell_lines ,$request);
 
-            // $transaction_before = $transaction->replicate();
+            $transaction_before = $transaction->replicate();
 
-            // $transaction->update($input);
+            $transaction->update($input);
             
             if($request->shipping_status == "cancelled") {
-                $ecommerce_return = $this->transactionUtil->addEcommerceSellReturn($transaction, $business_id, $user_id);
+                $ecommerce_return = $this->transactionUtil->addEcommerceCancelOrder($transaction, $business_id, $user_id);
+            }
+
+            if($request->shipping_status == "delivered") {
+                $dispatchResult =   $this->transactionUtil->dispatchEcommerceOrderTCS($transaction, $business_id, $user_id);
+                if(!$dispatchResult) {
+                    $output = [
+                        'success' => 0,
+                        'msg' => trans("messages.something_went_wrong")
+                    ];
+                    DB::rollBack();
+                    return $output;
+                }
             }
 
             $this->transactionUtil->activityLog($transaction, 'shipping_edited', $transaction_before);
@@ -823,9 +823,10 @@ class EcommerceController extends Controller
             $output = ['success' => 1,
                             'msg' => trans("lang_v1.updated_success")
                         ];
+            db::commit();
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
+            db::rollBack();
             $output = ['success' => 0,
                             'msg' => trans("messages.something_went_wrong")
                         ];
@@ -849,13 +850,12 @@ class EcommerceController extends Controller
             DB::beginTransaction();
             // dd($input); 
             $sell_return =  $this->transactionUtil->addEcommerceSellReturn($input, $business_id, $user_id);
-            $receipt = $this->receiptContent($business_id, $input->location_id, $sell_return->id);
+            // $receipt = $this->receiptContent($business_id, $input->location_id, $sell_return->id);
             $payment_details['total_price'] =  $sell_return->final_total;
             $payment_details['payment_gateway_names'] = [
                 '0' => 'COD'
             ];
             // $this->transactionUtil->createEcommercePaymentLine($sell_return, $payment_details, $user_id, $business_id);
-
             if ($sell_return) {
                 
                 $inputs['paid_on'] = Carbon::now();
@@ -922,11 +922,61 @@ class EcommerceController extends Controller
 
     }
 
+
+    public function printInvoice(Request $request, $transaction_id)
+    {
+        if (request()->ajax()) {
+            try {
+                $output = [
+                    'success' => 0,
+                    'msg' => trans("messages.something_went_wrong")
+                ];
+
+                $business_id = $request->session()->get('user.business_id');
+
+                $transaction = EcommerceTransaction::where('business_id', $business_id)
+                    ->where('id', $transaction_id)
+                    ->with(['location'])
+                    ->first();
+
+                if (empty($transaction)) {
+                    return $output;
+                }
+
+                $printer_type = 'browser';
+                if (!empty(request()->input('check_location')) && request()->input('check_location') == true) {
+                    $printer_type = $transaction->location->receipt_printer_type;
+                }
+
+                $is_package_slip = !empty($request->input('package_slip')) ? true : false;
+
+                $invoice_layout_id = $transaction->is_direct_sale ? $transaction->location->sale_invoice_layout_id : null;
+                $receipt = $this->receiptContent($business_id, 11, $transaction_id, $printer_type, $is_package_slip, false, $invoice_layout_id);
+
+                if (!empty($receipt)) {
+                    $output = ['success' => 1, 'receipt' => $receipt];
+                }
+            } catch (\Exception $e) {
+                \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+
+                $output = [
+                    'success' => 0,
+                    'msg' => trans("messages.something_went_wrong")
+                ];
+            }
+
+            return $output;
+        }
+    }
+
     private function receiptContent(
         $business_id,
         $location_id,
         $transaction_id,
-        $printer_type = null
+        $printer_type = null,
+        $is_package_slip = false,
+        $from_pos_screen = true,
+        $invoice_layout_id = null
     ) {
         $output = ['is_enabled' => false,
                     'print_type' => 'browser',
@@ -950,15 +1000,19 @@ class EcommerceController extends Controller
 
             $receipt_details = $this->transactionUtil->getEcommerceReceiptDetails($transaction_id, $location_id, $invoice_layout, $business_details, $location_details, $receipt_printer_type);
             //If print type browser - return the content, printer - return printer config data, and invoice format config
+            if ($is_package_slip) {
+                $output['html_content'] = view('sale_pos.receipts.packing_slip', compact('receipt_details'))->render();
+                return $output;
+            }
+            
             if ($receipt_printer_type == 'printer') {
                 $output['print_type'] = 'printer';
                 $output['printer_config'] = $this->businessUtil->printerConfig($business_id, $location_details->printer_id);
                 $output['data'] = $receipt_details;
             } else {
-                $output['html_content'] = view('sell_return.receipt', compact('receipt_details'))->render();
+                $output['html_content'] = view('sale_pos.receipts.slim', compact('receipt_details'))->render();
             }
         }
-
         return $output;
     }
 

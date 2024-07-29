@@ -291,18 +291,18 @@
           </p>
         </div>
       </div>
-      <div class="row">
+      {{-- <div class="row">
         <div class="col-md-12">
               <strong>{{ __('lang_v1.activities') }}:</strong><br>
               @includeIf('activity_log.activities', ['activity_type' => 'sell'])
           </div>
-      </div>
+      </div> --}}
     </div>
     <div class="modal-footer">
-      <a href="#" class="print-invoice btn btn-success" data-href="{{route('sell.printInvoice', [$sell->id])}}?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> @lang("lang_v1.packing_slip")</a>
+      <a href="#" class="print-invoice btn btn-success" data-href="{{route('ecommerce.printInvoice', [$sell->id])}}?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> @lang("lang_v1.packing_slip")</a>
   
       @can('print_invoice')
-        <a href="#" class="print-invoice btn btn-primary" data-href="{{route('sell.printInvoice', [$sell->id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("lang_v1.print_invoice")</a>
+        <a href="#" class="print-invoice btn btn-primary" data-href="{{route('ecommerce.printInvoice', [$sell->id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("lang_v1.print_invoice")</a>
       @endcan
         <button type="button" class="btn btn-default no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
       </div>

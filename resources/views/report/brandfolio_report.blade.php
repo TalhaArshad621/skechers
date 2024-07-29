@@ -21,7 +21,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-map-marker"></i>
                             </span>
-                            {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
+                            {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2 brand_folio_location', 'placeholder' => __('messages.please_select'), 'required']); !!}
                         </div>
                     </div>
                 </div>
@@ -68,7 +68,23 @@
                                         <th>Closing Stock</th>
                                     </tr>
                                 </thead>
-                               
+                                <tfoot>
+                                    <tr class="bg-gray font-17 text-center footer-total">
+                                        {{-- <td></td> --}}
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="footer_total_sold"></td>
+                                        <td class="footer_subtotal"></td>
+                                        <td class="footer_qty_stock"></td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
 

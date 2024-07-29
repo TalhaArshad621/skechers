@@ -35,14 +35,18 @@ class BusinessLocation extends Model
      *
      * @return array
      */
-    public static function forDropdown($business_id, $show_all = false, $receipt_printer_type_attribute = false, $append_id = true, $check_permission = true)
+    public static function forDropdown($business_id, $show_all = false, $receipt_printer_type_attribute = false, $append_id = true, $check_permission = true,$openRegisters = null)
     {
         $query = BusinessLocation::where('business_id', $business_id)->where('id','<>',9)->Active();
 
         if ($check_permission) {
             $permitted_locations = auth()->user()->permitted_locations();
-            if ($permitted_locations != 'all') {
+            if ($permitted_locations != 'all' && $openRegisters == null) {
                 $query->whereIn('id', $permitted_locations);
+            }
+            if($openRegisters != null){
+                $query->whereIn('id', $openRegisters);
+                
             }
         }
         

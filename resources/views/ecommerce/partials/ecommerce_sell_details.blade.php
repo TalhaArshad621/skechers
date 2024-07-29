@@ -24,17 +24,6 @@
         <td>{{ $loop->iteration }}</td>
         <td>
             {{ $sell_line->product->name }}
-            @if( $sell_line->product->type == 'variable')
-            - {{ $sell_line->variations->product_variation->name ?? ''}}
-            - {{ $sell_line->variations->name ?? ''}},
-            @endif
-            {{ $sell_line->variations->sub_sku ?? ''}}
-            @php
-            $brand = $sell_line->product->brand;
-            @endphp
-            @if(!empty($brand->name))
-            , {{$brand->name}}
-            @endif
 
             @if(!empty($sell_line->sell_line_note))
             <br> {{$sell_line->sell_line_note}}

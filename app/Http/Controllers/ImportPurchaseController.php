@@ -237,14 +237,14 @@ class ImportPurchaseController extends Controller
 
                         $selling_price_from_excel_inc_tax = trim($value[3]);
 
-                        $selling_price_without_tax = $selling_price_from_excel_inc_tax/$tax;
+                        $selling_price_without_tax = (int)$selling_price_from_excel_inc_tax/$tax;
                         /*
                         profit margin percent formula:
 
                             [(sell_price - purchase_price)/purchase_price]*100 
 
                         */
-                        $profit_margin_percent = ($selling_price_from_excel_inc_tax - $purchase_price_from_excel_inc_tax)/$purchase_price_from_excel_inc_tax * 100;
+                        $profit_margin_percent = ((int)$selling_price_from_excel_inc_tax - $purchase_price_from_excel_inc_tax)/$purchase_price_from_excel_inc_tax * 100;
 
                         
                         if (!empty($products)) {
@@ -368,7 +368,7 @@ class ImportPurchaseController extends Controller
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
 
             $output = ['success' => 0,
-                            'msg' => $e->getMessage()
+                            'msg' => $e->getMessage() . ' '. $e->getLine()
                         ];
             return redirect('import-purchase')->with('notification', $output);
         }

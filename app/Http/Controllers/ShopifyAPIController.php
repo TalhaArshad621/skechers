@@ -29,22 +29,27 @@ class ShopifyAPIController extends Controller
             return response()->json(['error' => 'Product not found'], 404);
         }
 
-        $discount = DB::table('discount_variations')
-            ->join('discounts', 'discount_variations.discount_id', '=', 'discounts.id')
-            ->join('variations', 'discount_variations.variation_id', '=', 'variations.id')
+        $discount = DB::table('web_discount_variations')
+            ->join('web_discounts', 'web_discount_variations.discount_id', '=', 'web_discounts.id')
+            ->join('variations', 'web_discount_variations.variation_id', '=', 'variations.id')
             ->where('variations.sub_sku', $sku)
-            ->select('discounts.discount_amount', 'variations.sub_sku AS sku')
+            ->select( 
+                DB::raw('CASE 
+                WHEN web_discounts.discount_amount IS NULL OR web_discounts.discount_amount = 0 THEN variations.sell_price_inc_tax 
+                ELSE CAST(variations.sell_price_inc_tax * (web_discounts.discount_amount / 100) AS DECIMAL(10,2)) 
+                END as discount_price'),
+                'variations.sub_sku AS sku')
             ->first();
 
-        if (!$discount) {
-            return response()->json(['original_price' => $variation->sell_price_inc_tax, 'sku' => $sku]);
-        }
+        // if (!$discount) {
+        //     return response()->json(['original_price' => $variation->sell_price_inc_tax, 'sku' => $sku]);
+        // }
 
-        $discountPercentage = $discount->discount_amount;
+        // $discountPercentage = $discount->discount_amount;
 
-        $discountedPrice = $variation->sell_price_inc_tax * (1 - ($discountPercentage / 100));
+        // $discountedPrice = $variation->sell_price_inc_tax * (1 - ($discountPercentage / 100));
 
-        return response()->json(['discounted_price' => $discountedPrice, 'sku' => $discount->sku]);
+        return response()->json(['discounted_price' => $discount->discount_price, 'sku' => $discount->sku]);
     }
 
 
@@ -73,23 +78,21 @@ class ShopifyAPIController extends Controller
     {
         $products = DB::table('variations')
         ->leftJoin('variation_location_details', 'variation_location_details.variation_id', '=', 'variations.product_variation_id')
-        ->leftJoin('discount_variations', 'discount_variations.variation_id', '=', 'variations.id')
-        ->leftJoin('discounts', 'discount_variations.discount_id', '=', 'discounts.id')
+        ->leftJoin('web_discount_variations', 'web_discount_variations.variation_id', '=', 'variations.id')
+        ->leftJoin('web_discounts', 'web_discount_variations.discount_id', '=', 'web_discounts.id')
         ->select(
             'variations.sub_sku as sku',
-            'variations.sell_price_inc_tax as sell_price',
-            DB::raw('SUM(variation_location_details.qty_available) as qty_available'),
+            DB::raw('COALESCE(variations.sell_price_inc_tax, 0) as sell_price'),
+            DB::raw('COALESCE(SUM(variation_location_details.qty_available), 0) as qty_available'),
             DB::raw('CASE 
-                        WHEN discounts.discount_amount IS NULL OR discounts.discount_amount = 0 THEN variations.sell_price_inc_tax 
-                        ELSE CAST(variations.sell_price_inc_tax * (discounts.discount_amount / 100) AS DECIMAL(10,2)) 
+                        WHEN web_discounts.discount_amount IS NULL OR web_discounts.discount_amount = 0 THEN variations.sell_price_inc_tax 
+                        ELSE CAST(variations.sell_price_inc_tax - (variations.sell_price_inc_tax * (web_discounts.discount_amount / 100)) AS DECIMAL(10,2)) 
                      END as discount_price')
         )
+        ->where('variation_location_details.qty_available','>',0)
         ->groupBy('variations.id', 'variations.sub_sku', 'variations.sell_price_inc_tax')
         ->get();
     
-    
-
-
         return response()->json([
             "result" => $products
         ]);

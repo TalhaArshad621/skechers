@@ -1557,9 +1557,13 @@ function pos_each_row(row_obj) {
         .find('select.tax_id')
         .find(':selected')
         .data('rate');
-        var unit_price_inc_tax =discounted_unit_price ;
+    var unit_price_inc_tax = discounted_unit_price;
+    // var discount = __read_number(row_obj.find('input.original_amount')) - discounted_unit_price;
+    // console.log(typeof (discount));
+    // __write_number(row_obj.find('input.pos_line_totall'), parseInt(discount));
+
     // var unit_price_inc_tax =
-        // discounted_unit_price + __calculate_amount('percentage', tax_rate, discounted_unit_price);
+    // discounted_unit_price + __calculate_amount('percentage', tax_rate, discounted_unit_price);
     __write_number(row_obj.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
 
     var discount = __read_number(row_obj.find('input.row_discount_amount'));
@@ -1570,8 +1574,7 @@ function pos_each_row(row_obj) {
         __write_number(row_obj.find('input.pos_line_total'), line_total);
     }
 
-    //var unit_price_inc_tax = __read_number(row_obj.find('input.pos_unit_price_inc_tax'));
-
+    // var unit_price_inc_tax = __read_number(row_obj.find('input.pos_unit_price_inc_tax'));
     __write_number(row_obj.find('input.item_tax'), unit_price_inc_tax - discounted_unit_price);
 }
 
@@ -1953,7 +1956,7 @@ function calculate_discounted_unit_price(row) {
     var row_discount_amount = __read_number(row.find('input.row_discount_amount'));
     if (row_discount_amount) {
         if (row_discount_type == 'fixed') {
-            alert(this_unit_price, row_discount_amount);
+            // alert(this_unit_price, row_discount_amount);
             row_discounted_unit_price = this_unit_price - row_discount_amount;
         } else {
             row_discounted_unit_price = __substract_percent(this_unit_price, row_discount_amount);

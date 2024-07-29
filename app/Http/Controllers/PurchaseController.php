@@ -119,9 +119,9 @@ class PurchaseController extends Controller
                     // if (auth()->user()->can("purchase.update")) {
                     //     $html .= '<li><a href="' . action('PurchaseController@edit', [$row->id]) . '"><i class="fas fa-edit"></i>' . __("messages.edit") . '</a></li>';
                     // }
-                    // if (auth()->user()->can("purchase.delete")) {
-                    //     $html .= '<li><a href="' . action('PurchaseController@destroy', [$row->id]) . '" class="delete-purchase"><i class="fas fa-trash"></i>' . __("messages.delete") . '</a></li>';
-                    // }
+                    if (auth()->user()->can("purchase.delete")) {
+                        $html .= '<li><a href="' . action('PurchaseController@delete', [$row->id]) . '" class="delete-purchase"><i class="fas fa-trash"></i>' . __("messages.delete") . '</a></li>';
+                    }
 
                     // $html .= '<li><a href="' . action('LabelsController@show') . '?purchase_id=' . $row->id . '" data-toggle="tooltip" title="' . __('lang_v1.label_help') . '"><i class="fas fa-barcode"></i>' . __('barcode.labels') . '</a></li>';
 
@@ -743,6 +743,88 @@ class PurchaseController extends Controller
                         ];
         }
 
+        return $output;
+    }
+    public function delete($id)
+    {
+        if (!auth()->user()->can('purchase.delete')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            if (request()->ajax()) {
+                $business_id = request()->session()->get('user.business_id');
+
+                //Check if return exist then not allowed
+                if ($this->transactionUtil->isReturnExist($id)) {
+                    $output = [
+                        'success' => false,
+                        'msg' => __('lang_v1.return_exist')
+                    ];
+                    return $output;
+                }
+        
+                $transaction = Transaction::where('id', $id)
+                                ->where('business_id', $business_id)
+                                ->with(['purchase_lines'])
+                                ->first();
+
+                //Check if lot numbers from the purchase is selected in sale
+                if (request()->session()->get('business.enable_lot_number') == 1 && $this->transactionUtil->isLotUsed($transaction)) {
+                    $output = [
+                        'success' => false,
+                        'msg' => __('lang_v1.lot_numbers_are_used_in_sale')
+                    ];
+                    return $output;
+                }
+                
+                $delete_purchase_lines = $transaction->purchase_lines;
+                DB::beginTransaction();
+
+                $transaction_status = $transaction->status;
+                if ($transaction_status != 'received') {
+                    $transaction->delete();
+                } else {
+                    //Delete purchase lines first
+                    $delete_purchase_line_ids = [];
+                    foreach ($delete_purchase_lines as $purchase_line) {
+                        $delete_purchase_line_ids[] = $purchase_line->id;
+                        $this->productUtil->decreaseProductQuantity(
+                            $purchase_line->product_id,
+                            $purchase_line->variation_id,
+                            $transaction->location_id,
+                            $purchase_line->quantity
+                        );
+                    }
+                    PurchaseLine::where('transaction_id', $transaction->id)
+                                ->whereIn('id', $delete_purchase_line_ids)
+                                ->delete();
+
+                    //Update mapping of purchase & Sell.
+                    $this->transactionUtil->adjustMappingPurchaseSellAfterEditingPurchase($transaction_status, $transaction, $delete_purchase_lines);
+                }
+
+                //Delete Transaction
+                $transaction->delete();
+
+                //Delete account transactions
+                AccountTransaction::where('transaction_id', $id)->delete();
+
+                DB::commit();
+
+                $output = ['success' => true,
+                            'msg' => __('lang_v1.purchase_delete_success')
+                        ];
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            
+            $output = ['success' => false,
+                            'msg' => $e->getMessage()
+                        ];
+        }
+        
         return $output;
     }
     

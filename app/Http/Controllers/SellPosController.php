@@ -153,14 +153,25 @@ class SellPosController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     public function openRegister()
+     {
+        return view('cash_register.open_register');
+     }
+
     public function create()
     {
         $business_id = request()->session()->get('user.business_id');
-
+        $openRegisters = $this->cashRegisterUtil->getOpenRegister();
+        
+        if($openRegisters->isEmpty() && auth()->user()->can('superadmin')) {
+            // Please open register
+            return redirect()->action('SellPosController@openRegister');
+        }
         if (!(auth()->user()->can('superadmin') || auth()->user()->can('sell.create') || ($this->moduleUtil->hasThePermissionInSubscription($business_id, 'repair_module') && auth()->user()->can('repair.create')))) {
             abort(403, 'Unauthorized action.');
         }
-
+        
         //Check if subscribed or not, then check for users quota
         if (!$this->moduleUtil->isSubscribed($business_id)) {
             return $this->moduleUtil->expiredResponse(action('HomeController@index'));
@@ -172,7 +183,7 @@ class SellPosController extends Controller
         $sub_type = request()->get('sub_type');
 
         //Check if there is a open register, if no then redirect to Create Register screen.
-        if ($this->cashRegisterUtil->countOpenedRegister() == 0) {
+        if ($this->cashRegisterUtil->countOpenedRegister() == 0 && !auth()->user()->can('superadmin')) {
             return redirect()->action('CashRegisterController@create', ['sub_type' => $sub_type]);
         }
 
@@ -186,10 +197,14 @@ class SellPosController extends Controller
         $payment_lines[] = $this->dummyPaymentLine;
 
         $default_location = !empty($register_details->location_id) ? BusinessLocation::findOrFail($register_details->location_id) : null;
-        $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+        if(auth()->user()->can('superadmin')) {
+            $business_locations = BusinessLocation::forDropdown($business_id, false, true,true,true, $openRegisters);
+        } else {
+            $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+        }
         $bl_attributes = $business_locations['attributes'];
         $business_locations = $business_locations['locations'];
-
+        
         //set first location as default locaton
         if (empty($default_location)) {
             foreach ($business_locations as $id => $name) {
@@ -197,13 +212,15 @@ class SellPosController extends Controller
                 break;
             }
         }
-
+        
+        // dd($openRegisters,$register_details, $default_location);
         $payment_types = $this->productUtil->payment_types(null, true, $business_id);
 
         //Shortcuts
         $shortcuts = json_decode($business_details->keyboard_shortcuts, true);
         $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
+        $bll = auth()->user()->permitted_locations();
         $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
         $commission_agent = [];
         if ($commsn_agnt_setting == 'user') {
@@ -211,25 +228,22 @@ class SellPosController extends Controller
         } elseif ($commsn_agnt_setting == 'cmsn_agnt') {
             $commission_agent = User::saleCommissionAgentsDropdown($business_id, false);
         }
-
-        // Find roles that contain the term 'employee'
         $roles = Role::where('name', 'like', '%employee%')->get();
 
-        // Initialize an empty collection to store users
         $usersCollection = collect();
 
-        // Loop through each role
         foreach ($roles as $role) {
-            // Retrieve users with the specified role
             $usersWithRole = $role->users;
-
-            // Add users to the collection
             foreach ($usersWithRole as $user) {
-                $usersCollection[$user->id] = $user->first_name . ' ' . $user->last_name;
-                // You can customize the user name format based on your user model structure
+                if ($bll == 'all') {
+                    $usersCollection[$user->id] = $user->first_name . ' ' . $user->last_name;
+                } else {
+                    if ($user->can('location.' . $bll[0]) == true) {
+                        $usersCollection[$user->id] = $user->first_name . ' ' . $user->last_name;
+                    }
+                }
             }
         }
-
 
         // $roles = Role::where('name', 'like', '%employee%')->get();
 
@@ -356,7 +370,6 @@ class SellPosController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->input());
         if (!auth()->user()->can('sell.create') && !auth()->user()->can('direct_sell.access')) {
             abort(403, 'Unauthorized action.');
         }
@@ -367,7 +380,7 @@ class SellPosController extends Controller
         }
 
         //Check if there is a open register, if no then redirect to Create Register screen.
-        if (!$is_direct_sale && $this->cashRegisterUtil->countOpenedRegister() == 0) {
+        if (!$is_direct_sale && $this->cashRegisterUtil->countOpenedRegister() == 0 && !auth()->user()->can('superadmin')) {
             return redirect()->action('CashRegisterController@create');
         }
 
@@ -666,7 +679,7 @@ class SellPosController extends Controller
                 ];
             }
         } catch (\Exception $e) {
-            // dd($e->getMessage(), $e->getLine(), $e->getFile());
+            dd($e->getMessage(), $e->getLine(), $e->getFile());
             DB::rollBack();
             \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
             $msg = trans("messages.something_went_wrong");
