@@ -53,9 +53,12 @@ class ReportController extends Controller
      *
      * @return void
      */
-    public function __construct(TransactionUtil $transactionUtil, ProductUtil $productUtil, ModuleUtil $moduleUtil, BusinessUtil $businessUtil
-    )
-    {
+    public function __construct(
+        TransactionUtil $transactionUtil,
+        ProductUtil $productUtil,
+        ModuleUtil $moduleUtil,
+        BusinessUtil $businessUtil
+    ) {
         $this->transactionUtil = $transactionUtil;
         $this->productUtil = $productUtil;
         $this->moduleUtil = $moduleUtil;
@@ -315,7 +318,7 @@ class ReportController extends Controller
                 ->editColumn('stock', function ($row) {
                     if ($row->enable_stock) {
                         $stock = $row->stock ? $row->stock : 0;
-                        return  '<span data-is_quantity="true" class="current_stock display_currency" data-orig-value="' . (float)$stock . '" data-unit="' . $row->unit . '" data-currency_symbol=false > ' . (float)$stock . '</span>' . ' ' . $row->unit;
+                        return  '<span data-is_quantity="true" class="current_stock display_currency" data-orig-value="' . (float)$stock . '" data-unit="' . $row->unit . '" data-currency_symbol=false > ' . (float)$stock . '</span>';
                     } else {
                         return '--';
                     }
@@ -1073,7 +1076,6 @@ class ReportController extends Controller
                 ->leftJoin('cash_register_transactions', 'cash_register_transactions.cash_register_id', '=', 'cash_registers.id')
 
                 ->where('cash_registers.business_id', $business_id)
-                ->where('cash_register_transactions.transaction_type', 'sell')
                 ->select(
                     'cash_registers.*',
                     DB::raw(
@@ -1198,7 +1200,7 @@ class ReportController extends Controller
         $business_details = $this->businessUtil->getDetails($business_id);
 
         $bll = auth()->user()->permitted_locations();
-   
+
         $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
         $commission_agent = [];
         if ($commsn_agnt_setting == 'user') {
@@ -1206,7 +1208,7 @@ class ReportController extends Controller
         } elseif ($commsn_agnt_setting == 'cmsn_agnt') {
             $commission_agent = User::saleCommissionAgentsDropdown($business_id, false);
         }
-        
+
         $roles = Role::where('name', 'like', '%employee%')->get();
 
         $usersCollection = collect();
@@ -1224,7 +1226,7 @@ class ReportController extends Controller
             }
         }
         return view('report.sales_representative')
-            ->with(compact('users', 'business_locations','usersCollection'));
+            ->with(compact('users', 'business_locations', 'usersCollection'));
     }
 
     /**
@@ -1684,7 +1686,7 @@ class ReportController extends Controller
      */
     public function getproductPurchaseReport(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product_purchase_report.view')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -3646,7 +3648,7 @@ class ReportController extends Controller
 
     public function getproductSellGroupedReportDetailed(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product_sell_detail_report.view')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -4380,6 +4382,7 @@ class ReportController extends Controller
 
     public function ecommerceSellReport(Request $request)
     {
+
         $business_id = $request->session()->get('user.business_id');
 
         $business_locations = BusinessLocation::forDropdown($business_id, true);
@@ -4954,7 +4957,7 @@ class ReportController extends Controller
             $gst_tax = $query8->select(DB::raw('SUM(item_tax * quantity) as tax'))
                 ->first();
 
-             $query11 = TransactionSellLine::join('transactions as t', 't.id', 'transaction_sell_lines.transaction_id')
+            $query11 = TransactionSellLine::join('transactions as t', 't.id', 'transaction_sell_lines.transaction_id')
                 ->where('t.business_id', $business_id)
                 ->whereIN('t.type', ['sell_return'])
                 // ->where('t.type', 'sell')
@@ -4996,7 +4999,7 @@ class ReportController extends Controller
             $gst_tax_new_returned = $query12->select(DB::raw('SUM(item_tax * quantity_returned) as tax'))
                 ->first();
 
-             $query9 = TransactionSellLine::join('transactions as sale', 'sale.id', 'transaction_sell_lines.transaction_id')
+            $query9 = TransactionSellLine::join('transactions as sale', 'sale.id', 'transaction_sell_lines.transaction_id')
                 ->leftjoin('transaction_sell_lines_purchase_lines as TSPL', 'transaction_sell_lines.id', '=', 'TSPL.sell_line_id')
                 ->leftjoin(
                     'purchase_lines as PL',
@@ -5429,6 +5432,9 @@ class ReportController extends Controller
 
     public function getbrandfolioReport(Request $request)
     {
+        if (!auth()->user()->can('brand_folio_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
         $business_id = $request->session()->get('user.business_id');
         $variation_id = $request->get('variation_id', null);
         $location_id = $request->get('location_id', null);
@@ -5479,7 +5485,7 @@ class ReportController extends Controller
                 )
                 // ->get();
                 // dd($query);
-                ->groupBy('transaction_sell_lines.id','transaction_sell_lines.product_id');
+                ->groupBy('transaction_sell_lines.id', 'transaction_sell_lines.product_id');
 
             if (!empty($variation_id)) {
                 $query->where('transaction_sell_lines.variation_id', $variation_id);
@@ -5506,13 +5512,13 @@ class ReportController extends Controller
             }
 
             return Datatables::of($query)
-                ->addColumn('style_no', function($row){
+                ->addColumn('style_no', function ($row) {
                     $product_name = $row->product_name;
 
                     $product_code = explode('-', $product_name)[0];
                     return $product_code;
                 })
-                ->addColumn('color', function($row){
+                ->addColumn('color', function ($row) {
                     $product_name = $row->product_name;
 
                     $first_hyphen_position = strpos($product_name, '-');
@@ -5525,13 +5531,13 @@ class ReportController extends Controller
                     }
                     return $product_color;
                 })
-                ->addColumn('size', function($row){
+                ->addColumn('size', function ($row) {
                     $product_name = $row->product_name;
                     $parts = explode('-', $product_name);
                     if (is_numeric(end($parts))) {
                         return end($parts);
                     }
-            
+
                     // Check if the last two parts are numeric
                     if (count($parts) > 1 && is_numeric(end($parts)) && is_numeric(prev($parts))) {
                         return prev($parts) . '-' . end($parts);
@@ -5564,14 +5570,14 @@ class ReportController extends Controller
                 ->editColumn('category', function ($row) {
                     return $row->category_name;
                 })
-                ->rawColumns(['subtotal', 'sell_qty','closing_stock','style_no','color','size'])
+                ->rawColumns(['subtotal', 'sell_qty', 'closing_stock', 'style_no', 'color', 'size'])
                 ->make(true);
         }
 
         $business_locations = BusinessLocation::forDropdown($business_id);
         $customers = Contact::customersDropdown($business_id);
 
-        return view('report.brandfolio_report', compact('business_locations','customers'));
+        return view('report.brandfolio_report', compact('business_locations', 'customers'));
     }
 
     public function getDetailedProductCategory(Request $request)
@@ -7010,6 +7016,7 @@ class ReportController extends Controller
                 ->where('cash_registers.business_id', $business_id)
                 ->where('cash_register_transactions.transaction_type', 'sell')
                 ->select(
+
                     'cash_registers.*',
                     DB::raw(
                         "CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) as user_name"
@@ -7045,6 +7052,9 @@ class ReportController extends Controller
                 //         return '';
                 //     }
                 // })
+                ->addColumn('merchant_tax_rate', function ($row) {
+                    return $row->merchant_tax_rate * 100;
+                })
                 ->editColumn('card_amount', function ($row) {
                     if ($row->status == 'close') {
                         return '<span class="display_currency card_amount" data-currency_symbol = true data-orig-value="' . $row->card_amount . '">' . $row->card_amount . '</span>';
@@ -7085,11 +7095,11 @@ class ReportController extends Controller
                     return $row->cash_amount + $row->card_amount;
                 })
                 ->editColumn('merchant_tax', function ($row) {
-                    $total_kamai =  $row->card_amount * 0.0174;
+                    $total_kamai =  $row->card_amount * $row->merchant_tax_rate;
                     return '<span class="display_currency mechant_tax" data-currency_symbol = true data-orig-value="' . $total_kamai . '">' . $total_kamai . '</span>';
                 })
                 ->editColumn('card_amount_after_tax', function ($row) {
-                    $merchant_tax =  $row->card_amount * 0.0174;
+                    $merchant_tax =  $row->card_amount * $row->merchant_tax_rate;
                     $card_amount = $row->card_amount - $merchant_tax;
                     return '<span class="display_currency card_amount_after_tax" data-currency_symbol = true data-orig-value="' . $card_amount . '">' . $card_amount . '</span>';
                 })
@@ -7100,7 +7110,7 @@ class ReportController extends Controller
                 })
                 ->editColumn('total_net_amount', function ($row) {
                     $cash_amount =  $row->cash_amount;
-                    $merchant_tax =  $row->card_amount * 0.0174;
+                    $merchant_tax =  $row->card_amount * $row->merchant_tax_rate;
                     $card_amount = $row->card_amount - $merchant_tax;
                     $total_net_amount = $cash_amount + $card_amount;
                     return '<span class="display_currency total_net_amount" data-currency_symbol = true data-orig-value="' . $total_net_amount . '">' . $total_net_amount . '</span>';

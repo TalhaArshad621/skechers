@@ -71,7 +71,7 @@
 					<br>
 
 					{{-- Barcode --}}
-					<img style="max-width:90% !important;height: {{$barcode_details->height*0.24}}in !important;" src="data:image/png;base64,{{DNS1D::getBarcodePNG($page_product->sub_sku, $page_product->barcode_type, 3,30,array(39, 48, 54), true)}}">
+					<img style="max-width:90% !important;height: {{$barcode_details->height*0.24}}in !important;" src="data:image/png;base64,{{DNS1D::getBarcodePNG($page_product->barcode, $page_product->barcode_type, 3,30,array(39, 48, 54), true)}}">
 				</div>
 			</div>
 		

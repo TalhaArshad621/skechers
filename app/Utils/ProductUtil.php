@@ -528,6 +528,7 @@ class ProductUtil extends Util
             DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, 
                     ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
             'p.id as product_id',
+            'p.barcode',
             'p.brand_id',
             'p.category_id',
             'p.tax as tax_id',
@@ -2734,7 +2735,7 @@ class ProductUtil extends Util
             ->join('products', 'products.id', '=', 'variation_location_details.product_id')
             ->select(DB::raw('SUM(variation_location_details.qty_available) as stock'))
             ->where('products.name', 'like', '%' . $product_name_without_size . '-%')
-            ->when($location_id, function($q, $location_id){
+            ->when($location_id, function ($q, $location_id) {
                 $q->where('variation_location_details.location_id', $location_id);
             })
             ->first();

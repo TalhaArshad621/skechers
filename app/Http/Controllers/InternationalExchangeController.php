@@ -44,7 +44,7 @@ class InternationalExchangeController extends Controller
      * @param ProductUtils $product
      * @return void
      */
-    public function __construct(ProductUtil $productUtil, TransactionUtil $transactionUtil, BusinessUtil $businessUtil, ModuleUtil $moduleUtil,ContactUtil $contactUtil, CashRegisterUtil $cashRegisterUtil)
+    public function __construct(ProductUtil $productUtil, TransactionUtil $transactionUtil, BusinessUtil $businessUtil, ModuleUtil $moduleUtil, ContactUtil $contactUtil, CashRegisterUtil $cashRegisterUtil)
     {
         $this->productUtil = $productUtil;
         $this->transactionUtil = $transactionUtil;
@@ -60,8 +60,10 @@ class InternationalExchangeController extends Controller
             'cancelled' => 'bg-red',
         ];
 
-        $this->dummyPaymentLine = ['method' => 'cash', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
-        'is_return' => 0, 'transaction_no' => ''];
+        $this->dummyPaymentLine = [
+            'method' => 'cash', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+            'is_return' => 0, 'transaction_no' => ''
+        ];
     }
 
 
@@ -76,46 +78,46 @@ class InternationalExchangeController extends Controller
             $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
 
             $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
-                    ->leftJoin('transaction_sell_lines as tsl', function($join) {
-                        $join->on('transactions.id', '=', 'tsl.transaction_id')
-                            ->whereNull('tsl.parent_sell_line_id');
-                    })
-                    ->join(
-                        'business_locations AS bl',
-                        'transactions.location_id',
-                        '=',
-                        'bl.id'
-                    )
-                    // ->join(
-                    //     'transactions as T1',
-                    //     'transactions.return_parent_id',
-                    //     '=',
-                    //     'T1.id'
-                    // )
-                    ->leftJoin(
-                        'transaction_payments AS TP',
-                        'transactions.id',
-                        '=',
-                        'TP.transaction_id'
-                    )
-                    ->where('transactions.business_id', $business_id)
-                    ->where('transactions.type', 'international_return')
-                    ->where('transactions.status', 'final')
-                    // ->select('transactions.*')
-                    ->select(
-                        'transactions.id',
-                        'transactions.transaction_date',
-                        'transactions.invoice_no',
-                        'contacts.name',
-                        'transactions.final_total',
-                        // DB::raw('(SELECT SUM(IF(TP.is_return = 1,-1*TP.amount,TP.amount)) FROM transaction_payments AS TP WHERE
-                        // TP.transaction_id=transactions.id) as final_total'),
-                        'transactions.payment_status',
-                        'bl.name as business_location',
-                        // 'T1.invoice_no as parent_sale',
-                        // 'T1.id as parent_sale_id',
-                        DB::raw('SUM(TP.amount) as amount_paid'),
-                        DB::raw("SUM(
+                ->leftJoin('transaction_sell_lines as tsl', function ($join) {
+                    $join->on('transactions.id', '=', 'tsl.transaction_id')
+                        ->whereNull('tsl.parent_sell_line_id');
+                })
+                ->join(
+                    'business_locations AS bl',
+                    'transactions.location_id',
+                    '=',
+                    'bl.id'
+                )
+                // ->join(
+                //     'transactions as T1',
+                //     'transactions.return_parent_id',
+                //     '=',
+                //     'T1.id'
+                // )
+                ->leftJoin(
+                    'transaction_payments AS TP',
+                    'transactions.id',
+                    '=',
+                    'TP.transaction_id'
+                )
+                ->where('transactions.business_id', $business_id)
+                ->where('transactions.type', 'international_return')
+                ->where('transactions.status', 'final')
+                // ->select('transactions.*')
+                ->select(
+                    'transactions.id',
+                    'transactions.transaction_date',
+                    'transactions.invoice_no',
+                    'contacts.name',
+                    'transactions.final_total',
+                    // DB::raw('(SELECT SUM(IF(TP.is_return = 1,-1*TP.amount,TP.amount)) FROM transaction_payments AS TP WHERE
+                    // TP.transaction_id=transactions.id) as final_total'),
+                    'transactions.payment_status',
+                    'bl.name as business_location',
+                    // 'T1.invoice_no as parent_sale',
+                    // 'T1.id as parent_sale_id',
+                    DB::raw('SUM(TP.amount) as amount_paid'),
+                    DB::raw("SUM(
                             IF(
                                 transactions.type = 'international_return' AND transactions.status = 'final' AND tsl.line_discount_amount > 0,
                                 IF(
@@ -126,9 +128,9 @@ class InternationalExchangeController extends Controller
                                 0
                             )
                         ) as total_sell_discount"),
-                            );
-                    // ->get();
-                    // dd($sells);
+                );
+            // ->get();
+            // dd($sells);
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
@@ -157,7 +159,7 @@ class InternationalExchangeController extends Controller
                 $start = request()->start_date;
                 $end =  request()->end_date;
                 $sells->whereDate('transactions.transaction_date', '>=', $start)
-                        ->whereDate('transactions.transaction_date', '<=', $end);
+                    ->whereDate('transactions.transaction_date', '<=', $end);
             }
 
             $sells->groupBy('transactions.id');
@@ -224,23 +226,24 @@ class InternationalExchangeController extends Controller
                     }
 
                     $html = !empty($payment_method) ? '<span class="payment-method" data-orig-value="' . $payment_method . '" data-status-name="' . $payment_method . '">' . $payment_method . '</span>' : '';
-                    
+
                     return $html;
                 })
                 ->setRowAttr([
                     'data-href' => function ($row) {
                         if (auth()->user()->can("sell.view")) {
-                            return  action('InternationalExchangeController@showGiftReceipt', [$row->id]) ;
+                            return  action('InternationalExchangeController@showGiftReceipt', [$row->id]);
                         } else {
                             return '';
                         }
-                    }])
-                ->rawColumns(['final_total', 'payment_status', 'payment_due','discount_amount','original_amount','payment_methods','action'])
+                    }
+                ])
+                ->rawColumns(['final_total', 'payment_status', 'payment_due', 'discount_amount', 'original_amount', 'payment_methods', 'action'])
                 ->make(true);
         }
         $business_locations = BusinessLocation::forDropdown($business_id, false);
         $customers = Contact::customersDropdown($business_id, false);
-      
+
         $sales_representative = User::forDropdown($business_id, false, false, true);
 
         return view('international_exchange.index')->with(compact('business_locations', 'customers', 'sales_representative'));
@@ -260,8 +263,8 @@ class InternationalExchangeController extends Controller
         }
 
         $taxes = TaxRate::where('business_id', $business_id)
-                        ->ExcludeForTaxGroup()
-                        ->get();
+            ->ExcludeForTaxGroup()
+            ->get();
         $orderStatuses = $this->productUtil->orderStatuses();
         $business_locations = BusinessLocation::forDropdown($business_id, false, true);
         // dd($business_locations);
@@ -316,9 +319,9 @@ class InternationalExchangeController extends Controller
         $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
         $commission_agent = [];
         if ($commsn_agnt_setting == 'user') {
-            $commission_agent = User::forDropdown($business_id, false);
+            $commission_agent = User::forDropdownActive($business_id, false);
         } elseif ($commsn_agnt_setting == 'cmsn_agnt') {
-            $commission_agent = User::saleCommissionAgentsDropdown($business_id, false);
+            $commission_agent = User::saleCommissionAgentsDropdownActive($business_id, false);
         }
 
         $roles = Role::where('name', 'like', '%employee%')->get();
@@ -334,11 +337,10 @@ class InternationalExchangeController extends Controller
         }
 
         return view('international_exchange.create')
-        ->with(compact('usersCollection','commission_agent','taxes', 'orderStatuses', 'business_locations', 'currency_details', 'default_purchase_status', 'customer_groups', 'types', 'shortcuts', 'payment_line', 'payment_types', 'accounts', 'bl_attributes','business_details','pos_settings','payment_lines','change_return','default_location'));
-
+            ->with(compact('usersCollection', 'commission_agent', 'taxes', 'orderStatuses', 'business_locations', 'currency_details', 'default_purchase_status', 'customer_groups', 'types', 'shortcuts', 'payment_line', 'payment_types', 'accounts', 'bl_attributes', 'business_details', 'pos_settings', 'payment_lines', 'change_return', 'default_location'));
     }
 
-    public function store(Request $request) 
+    public function store(Request $request)
     {
 
         if (!auth()->user()->can('create_international_exchange')) {
@@ -359,43 +361,43 @@ class InternationalExchangeController extends Controller
                 if (!$this->moduleUtil->isSubscribed($business_id)) {
                     return $this->moduleUtil->expiredResponse(action('SellReturnController@index'));
                 }
-        
+
                 $user_id = $request->session()->get('user.id');
 
                 DB::beginTransaction();
-                
+
                 $sell_return =  $this->transactionUtil->addSellReturnInternational($input, $business_id, $user_id);
                 DB::commit();
 
-                $output = ['success' => 1,
-                            'msg' => __('lang_v1.success'),
-                            // 'receipt' => $receipt
-                        ];
+                $output = [
+                    'success' => 1,
+                    'msg' => __('lang_v1.success'),
+                    // 'receipt' => $receipt
+                ];
             }
 
             foreach ($input['exchange_products'] as $key => $product) {
 
                 $variationId = $product['variation_id'];
-                
+
                 // Fetch default_sell_price from the database based on $variationId
                 $defaultSellPrice = Variation::where('id', $variationId)->value('default_sell_price');
                 // dd($defaultSellPrice);
-                
+
                 // Fetch tax_id from the products table based on $product['product_id']
                 $taxId = Product::where('id', $product['product_id'])->value('tax');
-            
+
                 // Calculate item_tax
                 $sellPriceIncTax = (float) str_replace(',', '', $product['unit_price_inc_tax']); // Remove commas and convert to float
                 $itemTax = $sellPriceIncTax - $defaultSellPrice;
-                
+
                 // Add the fetched default_sell_price, tax_id, and calculated item_tax to the sub-array
                 $input['exchange_products'][$key]['default_sell_price'] = $defaultSellPrice;
                 $input['exchange_products'][$key]['item_tax'] = $itemTax;
                 $input['exchange_products'][$key]['tax_id'] = $taxId;
                 $input['exchange_products'][$key]['sell_line_note'] = null;
-
             }
-            
+
             if (!empty($input['exchange_products'])) {
                 $business_id = $request->session()->get('user.business_id');
 
@@ -405,21 +407,22 @@ class InternationalExchangeController extends Controller
                 } elseif (!$this->moduleUtil->isQuotaAvailable('invoices', $business_id)) {
                     return $this->moduleUtil->quotaExpiredResponse('invoices', $business_id, action('SellPosController@index'));
                 }
-        
+
                 $user_id = $request->session()->get('user.id');
 
-                $discount = ['discount_type' => $input['discount_type'],
-                                'discount_amount' => $input['discount_amount']
-                            ];
+                $discount = [
+                    'discount_type' => $input['discount_type'],
+                    'discount_amount' => $input['discount_amount']
+                ];
                 $invoice_total = $this->productUtil->calculateInvoiceTotal($input['exchange_products'], $input['tax_rate_id'], $discount);
 
                 DB::beginTransaction();
-                
+
                 $is_direct_sale = false;
                 if (!empty($request->input('is_direct_sale'))) {
                     $is_direct_sale = true;
                 }
-                
+
                 if (empty($request->input('transaction_date'))) {
                     $input['transaction_date'] =  \Carbon::now();
                 } else {
@@ -472,16 +475,16 @@ class InternationalExchangeController extends Controller
                     $input['types_of_service_id'] = $request->input('types_of_service_id');
                     $price_group_id = !empty($request->input('types_of_service_price_group')) ? $request->input('types_of_service_price_group') : $price_group_id;
                     $input['packing_charge'] = !empty($request->input('packing_charge')) ?
-                    $this->transactionUtil->num_uf($request->input('packing_charge')) : 0;
+                        $this->transactionUtil->num_uf($request->input('packing_charge')) : 0;
                     $input['packing_charge_type'] = $request->input('packing_charge_type');
                     $input['service_custom_field_1'] = !empty($request->input('service_custom_field_1')) ?
-                    $request->input('service_custom_field_1') : null;
+                        $request->input('service_custom_field_1') : null;
                     $input['service_custom_field_2'] = !empty($request->input('service_custom_field_2')) ?
-                    $request->input('service_custom_field_2') : null;
+                        $request->input('service_custom_field_2') : null;
                     $input['service_custom_field_3'] = !empty($request->input('service_custom_field_3')) ?
-                    $request->input('service_custom_field_3') : null;
+                        $request->input('service_custom_field_3') : null;
                     $input['service_custom_field_4'] = !empty($request->input('service_custom_field_4')) ?
-                    $request->input('service_custom_field_4') : null;
+                        $request->input('service_custom_field_4') : null;
                 }
 
                 $input['selling_price_group_id'] = $price_group_id;
@@ -500,9 +503,9 @@ class InternationalExchangeController extends Controller
                 foreach ($input['purchases'] as $key => $product) {
                     $taxId = Product::where('id', $product['product_id'])->value('tax');
                     $input['purchases'][$key]['tax_id'] = $taxId;
-                    $input['purchases'][$key]['sell_line_note'] = null;    
+                    $input['purchases'][$key]['sell_line_note'] = null;
                 }
-                $fbr_lines =   $this->transactionUtil->createOrUpdateSellLinesReturnNEW($sell_return, $input['exchange_products'],$input['purchases'] ,$sell_return->location_id);
+                $fbr_lines =   $this->transactionUtil->createOrUpdateSellLinesReturnNEW($sell_return, $input['exchange_products'], $input['purchases'], $sell_return->location_id);
                 // dd($fbr_lines);
                 if (!$is_direct_sale) {
                     //Add change return
@@ -525,7 +528,7 @@ class InternationalExchangeController extends Controller
                     //update product stock
                     foreach ($input['exchange_products'] as $product) {
                         $decrease_qty = $this->productUtil
-                                    ->num_uf($product['quantity']);
+                            ->num_uf($product['quantity']);
                         if (!empty($product['base_unit_multiplier'])) {
                             $decrease_qty = $decrease_qty * $product['base_unit_multiplier'];
                         }
@@ -553,7 +556,7 @@ class InternationalExchangeController extends Controller
                     if (!$sell_return->is_suspend && !empty($input['payment']) && !$is_credit_sale) {
                         $this->cashRegisterUtil->addSellPayments($sell_return, $input['payment']);
                     }
-                    
+
                     //Update payment status
                     // $payment_status = $this->transactionUtil->updatePaymentStatus($sell_return->id, $sell_return->final_total);
                     $sell_return->payment_status = "paid";
@@ -569,13 +572,13 @@ class InternationalExchangeController extends Controller
                     $business_details = $this->businessUtil->getDetails($business_id);
                     $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
-                    $business = ['id' => $business_id,
-                                    'accounting_method' => $request->session()->get('business.accounting_method'),
-                                    'location_id' => $input['location_id'],
-                                    'pos_settings' => $pos_settings
-                                ];
+                    $business = [
+                        'id' => $business_id,
+                        'accounting_method' => $request->session()->get('business.accounting_method'),
+                        'location_id' => $input['location_id'],
+                        'pos_settings' => $pos_settings
+                    ];
                     $this->transactionUtil->mapPurchaseSell($business, $sell_return->sell_lines, 'purchase');
-
                 }
                 // dd($fbr_lines);
                 $selected_arrays = array_filter($fbr_lines, function ($line) {
@@ -593,8 +596,8 @@ class InternationalExchangeController extends Controller
                 }
                 // dd($product_id_of_returning_product);
                 $purchase_line_id = PurchaseLine::where('product_id', $product_id_of_returning_product)
-                ->orderBy('id', 'desc')
-                ->value('id');
+                    ->orderBy('id', 'desc')
+                    ->value('id');
 
                 $purchase_line_qty_sold = PurchaseLine::where('product_id', $product_id_of_returning_product)
                     ->orderBy('id', 'desc')
@@ -606,7 +609,6 @@ class InternationalExchangeController extends Controller
                 }
                 if ($purchase_line_qty_sold && $purchase_line_qty_sold->quantity_sold = 0) {
                     $purchase_line_qty_sold->increment('quantity', $quantity_returned);
-
                 }
                 // $purchase_line_qty_sold = PurchaseLine::where('product_id', $product_id_of_returning_product)
                 // ->orderBy('id', 'desc')
@@ -626,28 +628,28 @@ class InternationalExchangeController extends Controller
                 $final_array['quantity'] = $quantity;
                 $final_array['quantity_returned'] = $quantity_returned;
                 $transactionSellLinesPurchaseLines = new TransactionSellLinesPurchaseLines();
-                
+
                 $transactionSellLinesPurchaseLines->sell_line_id = $final_array['sell_line_id'];
                 $transactionSellLinesPurchaseLines->purchase_line_id = $final_array['purchase_line_id'];
                 $transactionSellLinesPurchaseLines->quantity = $final_array['quantity'];
                 $transactionSellLinesPurchaseLines->qty_returned = $final_array['quantity_returned'];
-                
+
                 $transactionSellLinesPurchaseLines->save();
- 
+
                 $product_variation_id_of_returning_product = ProductVariation::where('product_id', $product_id_of_returning_product)
-                ->orderBy('id', 'desc')
-                ->value('id');
-                
+                    ->orderBy('id', 'desc')
+                    ->value('id');
+
                 // Update quantity in variation location details
-                $this->productUtil->updateProductQuantity( $input['location_id'], $product_id_of_returning_product, $product_variation_id_of_returning_product,$quantity , 0, null, false);
-                
-        
+                $this->productUtil->updateProductQuantity($input['location_id'], $product_id_of_returning_product, $product_variation_id_of_returning_product, $quantity, 0, null, false);
+
+
                 // $variation_id_of_returning_product = Variation::where('product_id', $product_id_of_returning_product)
                 // ->orderBy('id', 'desc')
                 // ->value('id');
                 // // dd($variation_id_of_returning_product);
-               
-                
+
+
                 // $VLD_of_returning_product_id = VariationLocationDetails::
                 // where('product_id', $product_id_of_returning_product)
                 // ->where('location_id', $sell_return->location_id)
@@ -700,24 +702,23 @@ class InternationalExchangeController extends Controller
                 if (!auth()->user()->can("print_invoice")) {
                     $print_invoice = true;
                 }
-                
+
                 // if ($print_invoice) {
                 //     $receipt = $this->receiptContent($business_id, $input['location_id'], $sell_return->id, null, false, true, $invoice_layout_id);
                 // }
-        return redirect()
-        ->action('InternationalExchangeController@index')
-        ->with('status', $output);
+                return redirect()
+                    ->action('InternationalExchangeController@index')
+                    ->with('status', $output);
                 // $output = ['success' => 1, 'msg' => $msg, 'receipt' => $receipt ];
 
                 if (!empty($whatsapp_link)) {
                     $output['whatsapp_link'] = $whatsapp_link;
                 }
-
-
             } else {
-                $output = ['success' => 0,
-                            'msg' => trans("messages.something_went_wrong")
-                        ];
+                $output = [
+                    'success' => 0,
+                    'msg' => trans("messages.something_went_wrong")
+                ];
             }
         } catch (\Exception $e) {
             DB::rollBack();
@@ -725,13 +726,14 @@ class InternationalExchangeController extends Controller
             if (get_class($e) == \App\Exceptions\PurchaseSellMismatch::class) {
                 $msg = $e->getMessage();
             } else {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+                \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
                 $msg = __('messages.something_went_wrong');
             }
 
-            $output = ['success' => 0,
-                            'msg' => $msg
-                        ];
+            $output = [
+                'success' => 0,
+                'msg' => $msg
+            ];
         }
         return $output;
     }
@@ -744,12 +746,13 @@ class InternationalExchangeController extends Controller
         $transaction_id,
         $printer_type = null
     ) {
-        $output = ['is_enabled' => false,
-                    'print_type' => 'browser',
-                    'html_content' => null,
-                    'printer_config' => [],
-                    'data' => []
-                ];
+        $output = [
+            'is_enabled' => false,
+            'print_type' => 'browser',
+            'html_content' => null,
+            'printer_config' => [],
+            'data' => []
+        ];
 
         $business_details = $this->businessUtil->getDetails($business_id);
         $location_details = BusinessLocation::find($location_id);
@@ -783,50 +786,50 @@ class InternationalExchangeController extends Controller
     public function showGiftReceipt($id)
     {
         $business_id = request()->session()->get('user.business_id');
-            $taxes = TaxRate::where('business_id', $business_id)
-                                ->pluck('name', 'id');
-            $query = Transaction::where('business_id', $business_id)
-                        ->where('id', $id)
-                        ->with(['contact', 'sell_lines' => function ($q) {
-                            $q->whereNull('parent_sell_line_id');
-                        },'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
-    
-            if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
-                $query->where('transactions.created_by', request()->session()->get('user.id'));
+        $taxes = TaxRate::where('business_id', $business_id)
+            ->pluck('name', 'id');
+        $query = Transaction::where('business_id', $business_id)
+            ->where('id', $id)
+            ->with(['contact', 'sell_lines' => function ($q) {
+                $q->whereNull('parent_sell_line_id');
+            }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+
+        if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+            $query->where('transactions.created_by', request()->session()->get('user.id'));
+        }
+
+        $sellOrg = $query->firstOrFail();
+
+        $activities = Activity::forSubject($sellOrg)
+            ->with(['causer', 'subject'])
+            ->latest()
+            ->get();
+
+        foreach ($sellOrg->sell_lines as $key => $value) {
+            if (!empty($value->sub_unit_id)) {
+                $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
+                $sellOrg->sell_lines[$key] = $formated_sell_line;
             }
-    
-            $sellOrg = $query->firstOrFail();
-    
-            $activities = Activity::forSubject($sellOrg)
-                ->with(['causer', 'subject'])
-                ->latest()
-                ->get();
-    
-            foreach ($sellOrg->sell_lines as $key => $value) {
-                if (!empty($value->sub_unit_id)) {
-                    $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
-                    $sellOrg->sell_lines[$key] = $formated_sell_line;
-                }
+        }
+
+        $payment_types = $this->transactionUtil->payment_types($sellOrg->location_id, true);
+        $order_taxes = [];
+        if (!empty($sellOrg->tax)) {
+            if ($sellOrg->tax->is_tax_group) {
+                $order_taxes = $this->transactionUtil->sumGroupTaxDetails($this->transactionUtil->groupTaxDetails($sellOrg->tax, $sellOrg->tax_amount));
+            } else {
+                $order_taxes[$sellOrg->tax->name] = $sellOrg->tax_amount;
             }
-    
-            $payment_types = $this->transactionUtil->payment_types($sellOrg->location_id, true);
-            $order_taxes = [];
-            if (!empty($sellOrg->tax)) {
-                if ($sellOrg->tax->is_tax_group) {
-                    $order_taxes = $this->transactionUtil->sumGroupTaxDetails($this->transactionUtil->groupTaxDetails($sellOrg->tax, $sellOrg->tax_amount));
-                } else {
-                    $order_taxes[$sellOrg->tax->name] = $sellOrg->tax_amount;
-                }
-            }
-    
-            $business_details = $this->businessUtil->getDetails($business_id);
-            $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
-            $shipping_statuses = $this->transactionUtil->shipping_statuses();
-            $shipping_status_colors = $this->shipping_status_colors;
-            $common_settings = session()->get('business.common_settings');
-            $is_warranty_enabled = !empty($common_settings['enable_product_warranty']) ? true : false;
-    
-            $statuses = Transaction::getSellStatuses();
+        }
+
+        $business_details = $this->businessUtil->getDetails($business_id);
+        $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+        $shipping_statuses = $this->transactionUtil->shipping_statuses();
+        $shipping_status_colors = $this->shipping_status_colors;
+        $common_settings = session()->get('business.common_settings');
+        $is_warranty_enabled = !empty($common_settings['enable_product_warranty']) ? true : false;
+
+        $statuses = Transaction::getSellStatuses();
 
 
         if (!auth()->user()->can('access_sell_return')) {
@@ -835,21 +838,21 @@ class InternationalExchangeController extends Controller
 
         $business_id = request()->session()->get('user.business_id');
         $sell = Transaction::where('business_id', $business_id)
-                                ->where('id', $id)
-                                ->with(
-                                    'contact',
-                                    'return_parent',
-                                    'tax',
-                                    'sell_lines',
-                                    'sell_lines.product',
-                                    'sell_lines.variations',
-                                    'sell_lines.sub_unit',
-                                    'sell_lines.product',
-                                    'sell_lines.product.unit',
-                                    'location'
-                                )
-                                ->first();
-                                // dd($sell->sell_lines);
+            ->where('id', $id)
+            ->with(
+                'contact',
+                'return_parent',
+                'tax',
+                'sell_lines',
+                'sell_lines.product',
+                'sell_lines.variations',
+                'sell_lines.sub_unit',
+                'sell_lines.product',
+                'sell_lines.product.unit',
+                'location'
+            )
+            ->first();
+        // dd($sell->sell_lines);
 
         foreach ($sell->sell_lines as $key => $value) {
             if (!empty($value->sub_unit_id)) {
@@ -878,17 +881,18 @@ class InternationalExchangeController extends Controller
             // dd($transaction_id);
 
             try {
-                $output = ['success' => 0,
-                        'msg' => trans("messages.something_went_wrong")
-                        ];
+                $output = [
+                    'success' => 0,
+                    'msg' => trans("messages.something_went_wrong")
+                ];
 
                 $business_id = $request->session()->get('user.business_id');
                 // dd($business_id);
-            
+
                 $transaction = Transaction::where('business_id', $business_id)
-                                ->where('id', $transaction_id)
-                                ->first();
-                                // dd($transaction);
+                    ->where('id', $transaction_id)
+                    ->first();
+                // dd($transaction);
 
                 if (empty($transaction)) {
                     return $output;
@@ -900,13 +904,13 @@ class InternationalExchangeController extends Controller
                     $output = ['success' => 1, 'receipt' => $receipt];
                 }
             } catch (\Exception $e) {
-                $output = ['success' => 0,
-                        'msg' => trans("messages.something_went_wrong")
-                        ];
+                $output = [
+                    'success' => 0,
+                    'msg' => trans("messages.something_went_wrong")
+                ];
             }
 
             return $output;
         }
     }
-
 }

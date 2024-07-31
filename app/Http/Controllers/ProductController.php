@@ -279,14 +279,14 @@ class ProductController extends Controller
                 ->addColumn('mass_delete', function ($row) {
                     return  '<input type="checkbox" class="row-select" value="' . $row->id . '">';
                 })
-                ->editColumn('current_stock', '@if($enable_stock == 1) {{@number_format($current_stock)}} @else -- @endif')
+                ->editColumn('current_stock', '@if($enable_stock == 1) <div style="white-space: nowrap;" class="stock" data-orig-value="{{ $current_stock}}" > {{@number_format($current_stock)}} @else -- @endif</div>')
                 ->addColumn(
                     'purchase_price',
-                    '<div style="white-space: nowrap;" class="unit_price">@format_currency($min_purchase_price) @if($max_purchase_price != $min_purchase_price && $type == "variable") -  @format_currency($max_purchase_price)@endif </div>'
+                    '<div style="white-space: nowrap;" data-orig-value="{{(( $max_purchase_price != $min_purchase_price) && $type == "variable") ? $max_purchase_price : $min_purchase_price }}" class="unit_price">@format_currency($min_purchase_price) @if($max_purchase_price != $min_purchase_price && $type == "variable") -  @format_currency($max_purchase_price)@endif </div>'
                 )
                 ->addColumn(
                     'selling_price',
-                    '<div style="white-space: nowrap;" class="selling_price">@format_currency($min_price) @if($max_price != $min_price && $type == "variable") -  @format_currency($max_price)@endif </div>'
+                    '<div style="white-space: nowrap;" data-orig-value="{{($max_price != $min_price && $type == "variable") ? $max_price :$min_price}}" class="selling_price">@format_currency($min_price) @if($max_price != $min_price && $type == "variable") -  @format_currency($max_price)@endif </div>'
                 )
                 ->filterColumn('products.sku', function ($query, $keyword) {
                     $query->whereHas('variations', function ($q) use ($keyword) {
@@ -303,7 +303,7 @@ class ProductController extends Controller
                         }
                     }
                 ])
-                ->rawColumns(['action', 'image', 'mass_delete', 'product', 'selling_price', 'purchase_price', 'category'])
+                ->rawColumns(['action', 'image', 'mass_delete', 'product', 'selling_price', 'purchase_price', 'category', 'current_stock'])
                 ->make(true);
         }
 
@@ -2221,7 +2221,8 @@ class ProductController extends Controller
 
     public function productHistoryAJAX($id)
     {
-        if (!auth()->user()->can('product.view')) {
+
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
         $business_id = request()->session()->get('user.business_id');
@@ -2237,7 +2238,7 @@ class ProductController extends Controller
 
     public function productHistory(Request $request)
     {
-        if (!auth()->user()->can('product.view')) {
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -2279,7 +2280,7 @@ class ProductController extends Controller
 
     public function productOpeningStockHistory(Request $request)
     {
-        if (!auth()->user()->can('product.view')) {
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -2330,7 +2331,7 @@ class ProductController extends Controller
 
     public function productSellHistory(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -2395,7 +2396,7 @@ class ProductController extends Controller
 
     public function productExchangeHistory(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -2461,19 +2462,21 @@ class ProductController extends Controller
 
     public function productGiftHistory(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
         $business_id = $request->session()->get('user.business_id');
         if ($request->ajax()) {
-            $query = TransactionSellLine::join('transactions', 'transaction_sell_lines.transaction_id', '=', 'transactions.id')
+            $query = TransactionSellLine::with("transactionNew")->join('transactions', 'transaction_sell_lines.transaction_id', '=', 'transactions.id')
                 ->join('products', 'transaction_sell_lines.product_id', '=', 'products.id')
                 ->join('users', 'transactions.created_by', '=', 'users.id')
                 ->where('transaction_sell_lines.product_id', $request->id)
                 ->where('transactions.type', 'gift')
                 ->where('transactions.status', 'final')
                 ->select(
+                    'transaction_sell_lines.*',
                     'products.sku as product_sku',
                     'products.image as product_image',
                     'transactions.invoice_no',
@@ -2487,6 +2490,9 @@ class ProductController extends Controller
                 ->get();
 
             return Datatables::of($query)
+                ->addColumn('store', function ($row) {
+                    return $row->transactionNew->location->name;
+                })
                 ->editColumn('product_sku', function ($row) {
                     $product_sku = $row->product_sku;
 
@@ -2512,7 +2518,7 @@ class ProductController extends Controller
 
     public function productEcommerceHistory(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -2570,7 +2576,7 @@ class ProductController extends Controller
 
     public function productEcommerceReturnHistory(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -2636,7 +2642,7 @@ class ProductController extends Controller
 
     public function productStoreToStoreHistory(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -2716,7 +2722,7 @@ class ProductController extends Controller
 
     public function productStoreToWarehouseHistory(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -2795,7 +2801,7 @@ class ProductController extends Controller
 
     public function productWarehouseToStoreHistory(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -2873,7 +2879,7 @@ class ProductController extends Controller
 
     public function productAdjustmentHistory(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -2936,7 +2942,7 @@ class ProductController extends Controller
 
     public function productCompaintHistory(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -2999,7 +3005,7 @@ class ProductController extends Controller
 
     public function productInternationalExchangeHistory(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product.history')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -3061,7 +3067,7 @@ class ProductController extends Controller
 
     public function productAudit(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product.audit')) {
             abort(403, 'Unauthorized action.');
         }
 

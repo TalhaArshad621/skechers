@@ -59,6 +59,21 @@
     </div>
 @endif
 @endif
+@if(isset($status))
+<div class="col-md-3">
+    <div class="form-group">
+        {!! Form::label('status', __('Status') . ':') !!}
+        <select class="form-control select2" name="status" id="status">
+            <option value="">All</option>
+            @foreach ($status as $s)
+                <option value="{{ $s }}">{{ ucfirst($s) }}</option>
+                
+            @endforeach
+        </select>
+        {{-- {!! Form::select('status', $status, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!} --}}
+    </div>
+</div>
+@endif
 {{-- @if(!empty($shipping_statuses))
     <div class="col-md-3">
         <div class="form-group">
