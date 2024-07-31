@@ -281,8 +281,12 @@
                     $('#unit_price').text(
                         sum_table_col($('#product_table'), 'unit_price')
                     );
+                    // alert( sum_table_col($('#product_table'), 'selling_price'));
                     $('#selling_price').html(
                         sum_table_col($('#product_table'), 'selling_price')
+                    );
+                    $('#current_stock').html(
+                        sum_table_col($('#product_table'), 'stock')
                     );
                     __currency_convert_recursively($('#product_table'));
                 }

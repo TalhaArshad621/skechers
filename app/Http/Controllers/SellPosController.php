@@ -115,6 +115,7 @@ class SellPosController extends Controller
     public function index()
     {
 
+
         if (!auth()->user()->can('sell.view') && !auth()->user()->can('sell.create')) {
             abort(403, 'Unauthorized action.');
         }
@@ -223,9 +224,9 @@ class SellPosController extends Controller
         $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
         $commission_agent = [];
         if ($commsn_agnt_setting == 'user') {
-            $commission_agent = User::forDropdown($business_id, false);
+            $commission_agent = User::forDropdownActive($business_id, false);
         } elseif ($commsn_agnt_setting == 'cmsn_agnt') {
-            $commission_agent = User::saleCommissionAgentsDropdown($business_id, false);
+            $commission_agent = User::saleCommissionAgentsDropdownActive($business_id, false);
         }
         $roles = Role::where('name', 'like', '%employee%')->get();
 

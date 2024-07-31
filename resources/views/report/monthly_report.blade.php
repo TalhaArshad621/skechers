@@ -57,6 +57,7 @@
                                 <th>Card Amount</th>
                                 <th>Toal Card And Cash</th>
                                 <th>Merchant Tax</th>
+                                <th>Merchant Tax Rate</th>
                                 <th>Card Amount After Tax</th>
                                 <th>Bank Trasnfer</th>
                                 <th>Total Net Amount</th>
@@ -70,6 +71,7 @@
                                 <td><span class="display_currency" id="card_amount" data-currency_symbol ="true"></span></td>
                                 <td><span class="display_currency" id="cash_and_card" data-currency_symbol ="true"></span></td>
                                 <td><span class="display_currency" id="mechant_tax" data-currency_symbol ="true"></span></td>
+                                <td></td>
                                 <td><span class="display_currency" id="card_amount_after_tax" data-currency_symbol ="true"></span></td>
                                 <td><span class="display_currency" id="bank_transfer" data-currency_symbol ="true"></span></td>
                                 <td><span class="display_currency" id="total_net_amount" data-currency_symbol ="true"></span></td>

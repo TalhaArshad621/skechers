@@ -158,6 +158,7 @@
                                 <th>@lang('product.sku')</th>
                                 <th>@lang('Invoice No.')</th>
                                 <th>@lang('sale.qty')</th>
+                                <th>Store</th>
                                 <th>@lang('Returned')</th>
                                 <th>@lang('Date')</th>
                                 <th>Created By</th>
@@ -167,6 +168,8 @@
                             <tr class="bg-gray font-17 footer-total text-center">
                                 <td colspan="2"><strong>@lang('sale.total'):</strong></td>
                                 <td id="product_gift_report_table_footer"></td>
+                                <td></td>
+                                
                                 <td id="product_gift_report_table_footer_returned"></td>
                                 <td></td>
                                 <td></td>
@@ -520,6 +523,7 @@
                 { data: 'product_sku', name: 'product_sku' },
                 { data: 'invoice_no', name: 'invoice_no' },
                 { data: 'sell_quantity', name: 'sell_quantity' },
+                { data: 'store', name: 'store' },
                 { data: 'return_quantity', name: 'return_quantity' },
                 { data: 'transaction_date', name: 'transaction_date' },
                 { data: 'full_name', name: 'full_name' }

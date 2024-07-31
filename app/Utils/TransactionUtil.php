@@ -8085,7 +8085,7 @@ class TransactionUtil extends Util
      */
     public function getEcommerceListSells($business_id)
     {
-        $sells = EcommerceTransaction::leftJoin('contacts', 'ecommerce_transactions.contact_id', '=', 'contacts.id')
+        $sells = EcommerceTransaction::with("contact")->leftJoin('contacts', 'ecommerce_transactions.contact_id', '=', 'contacts.id')
             ->leftJoin('ecommerce_payments as tp', 'ecommerce_transactions.id', '=', 'tp.ecommerce_transaction_id')
             ->leftJoin('ecommerce_sell_lines as tsl', function ($join) {
                 $join->on('ecommerce_transactions.id', '=', 'tsl.ecommerce_transaction_id')
@@ -8117,12 +8117,13 @@ class TransactionUtil extends Util
             ->where('ecommerce_transactions.status', 'final')
             ->select(
                 'ecommerce_transactions.id',
+                'ecommerce_transactions.contact_id',
                 'ecommerce_transactions.transaction_date',
                 'ecommerce_transactions.invoice_no',
                 'ecommerce_transactions.invoice_no as invoice_no_text',
                 'contacts.name',
                 'contacts.mobile',
-                'contacts.contact_id',
+                // 'contacts.id as customer_id',
                 'contacts.supplier_business_name',
                 'ecommerce_transactions.payment_status',
                 'ecommerce_transactions.final_total',
@@ -9431,6 +9432,7 @@ class TransactionUtil extends Util
             'type' => 'debit',
             'transaction_type' => 'sell_return',
             // 'transaction_id' => $input['transaction_id']
+            // "merchant_tax_rate" => $this->getMerchantTax($input['location_id'])
         ]);
         // dd($payments_formatted);
 
@@ -9672,7 +9674,8 @@ class TransactionUtil extends Util
             'pay_method' => 'cash',
             'type' => 'debit',
             'transaction_type' => 'sell_return',
-            'transaction_id' => $input['transaction_id']
+            'transaction_id' => $input['transaction_id'],
+            // "merchant_tax_rate" => $this->getMerchantTax($input['location_id'])
         ]);
         // dd($payments_formatted);
 
@@ -10218,5 +10221,12 @@ class TransactionUtil extends Util
         }
 
         return $success;
+    }
+
+
+    public function getMerchantTax($location_id)
+    {
+        $query = DB::table("location_merchant_tax")->select("tax_percentage")->where("location_id", 12)->first();
+        return $query->tax_percentage;
     }
 }

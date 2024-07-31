@@ -82,8 +82,10 @@ class CashRegisterController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($this->transactionUtil->getMerchantTax($request->location_id));
         // dd($request->input('amount'));
         //like:repair
+        $tax = $this->transactionUtil->getMerchantTax($request->location_id);
         $sub_type = request()->get('sub_type');
 
         try {
@@ -99,6 +101,7 @@ class CashRegisterController extends Controller
                 'user_id' => $user_id,
                 'status' => 'open',
                 'location_id' => $request->input('location_id'),
+                'merchant_tax_rate' => $tax,
                 'created_at' => \Carbon::now()->format('Y-m-d H:i:00')
             ]);
             if (!empty($initial_amount)) {
@@ -125,7 +128,7 @@ class CashRegisterController extends Controller
             $messageText = "DAY STARTED\n" .
                 "DATE: " . $input['started_at'] . "\n" .
                 "USERNAME: " . $user_name->full_name . "\n" .
-                "STORE: ".$business_location->name."\n" .
+                "STORE: " . $business_location->name . "\n" .
                 "Opening Balance: " .  12000 . " ";
 
             $phone = "03008513513";
@@ -165,13 +168,13 @@ class CashRegisterController extends Controller
         $start_date = \Carbon\Carbon::parse($open_time)->format('Y-m-d');
         $end_date = \Carbon\Carbon::parse($close_time)->format('Y-m-d');
 
-        $bank_transfer = CashRegister::where('id',$id)->select('bank_transfer')->first();
+        $bank_transfer = CashRegister::where('id', $id)->select('bank_transfer')->first();
         // dd($bank_transfer);
         $data = $this->transactionUtil->getProfitLossDetailsForRegister($business_id, $register_details->location_id, $start_date, $end_date);
 
 
         return view('cash_register.register_details')
-            ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'sell_return', 'data','bank_transfer'));
+            ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'sell_return', 'data', 'bank_transfer'));
     }
 
     /**
@@ -274,12 +277,12 @@ class CashRegisterController extends Controller
 
             $input = $request->only([
                 'closing_amount', 'total_card_slips', 'total_cheques',
-                'closing_note','bank_transfer'
+                'closing_note', 'bank_transfer'
             ]);
             $input['closing_amount'] = $this->cashRegisterUtil->num_uf($input['closing_amount']);
             $user_id = $request->input('user_id');
             $user_name = User::where('id', $user_id)
-            // (DB::raw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) AS full_name")),
+                // (DB::raw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) AS full_name")),
 
                 ->select(DB::raw("CONCAT(COALESCE(first_name, ''),' ', COALESCE(last_name,'')) AS full_name"))
                 ->first();
@@ -290,9 +293,9 @@ class CashRegisterController extends Controller
             $input['status'] = 'close';
             // dd($input);
 
-           $cashRegister =   CashRegister::where('user_id', $user_id)
+            $cashRegister =   CashRegister::where('user_id', $user_id)
                 ->where('status', 'open')->first();
-                $cashRegister->update($input);
+            $cashRegister->update($input);
             $output = [
                 'success' => 1,
                 'msg' => __('cash_register.close_success')
@@ -312,7 +315,7 @@ class CashRegisterController extends Controller
             $messageText = "DAY ENDED\n" .
                 "DATE: " . $input['closed_at'] . "\n" .
                 "USERNAME: " . $user_name->full_name . "\n" .
-                "STORE: ".$business_location->name."\n" .
+                "STORE: " . $business_location->name . "\n" .
                 "Total Sale: " . number_format((int)$request->input('total_sales')) . "\n" .
                 "Card Sale: " . number_format((int)$request->input('card_sale')) . "\n" .
                 "Cash Sale: " . number_format((int)$request->input('cash_sale')) . "\n" .

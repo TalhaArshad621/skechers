@@ -1686,7 +1686,7 @@ class ReportController extends Controller
      */
     public function getproductPurchaseReport(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product_purchase_report.view')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -3648,7 +3648,7 @@ class ReportController extends Controller
 
     public function getproductSellGroupedReportDetailed(Request $request)
     {
-        if (!auth()->user()->can('purchase_n_sell_report.view')) {
+        if (!auth()->user()->can('product_sell_detail_report.view')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -4382,6 +4382,7 @@ class ReportController extends Controller
 
     public function ecommerceSellReport(Request $request)
     {
+
         $business_id = $request->session()->get('user.business_id');
 
         $business_locations = BusinessLocation::forDropdown($business_id, true);
@@ -5431,6 +5432,9 @@ class ReportController extends Controller
 
     public function getbrandfolioReport(Request $request)
     {
+        if (!auth()->user()->can('brand_folio_report.view')) {
+            abort(403, 'Unauthorized action.');
+        }
         $business_id = $request->session()->get('user.business_id');
         $variation_id = $request->get('variation_id', null);
         $location_id = $request->get('location_id', null);
@@ -7012,6 +7016,7 @@ class ReportController extends Controller
                 ->where('cash_registers.business_id', $business_id)
                 ->where('cash_register_transactions.transaction_type', 'sell')
                 ->select(
+
                     'cash_registers.*',
                     DB::raw(
                         "CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) as user_name"
@@ -7047,6 +7052,9 @@ class ReportController extends Controller
                 //         return '';
                 //     }
                 // })
+                ->addColumn('merchant_tax_rate', function ($row) {
+                    return $row->merchant_tax_rate * 100;
+                })
                 ->editColumn('card_amount', function ($row) {
                     if ($row->status == 'close') {
                         return '<span class="display_currency card_amount" data-currency_symbol = true data-orig-value="' . $row->card_amount . '">' . $row->card_amount . '</span>';
@@ -7087,11 +7095,11 @@ class ReportController extends Controller
                     return $row->cash_amount + $row->card_amount;
                 })
                 ->editColumn('merchant_tax', function ($row) {
-                    $total_kamai =  $row->card_amount * 0.0174;
+                    $total_kamai =  $row->card_amount * $row->merchant_tax_rate;
                     return '<span class="display_currency mechant_tax" data-currency_symbol = true data-orig-value="' . $total_kamai . '">' . $total_kamai . '</span>';
                 })
                 ->editColumn('card_amount_after_tax', function ($row) {
-                    $merchant_tax =  $row->card_amount * 0.0174;
+                    $merchant_tax =  $row->card_amount * $row->merchant_tax_rate;
                     $card_amount = $row->card_amount - $merchant_tax;
                     return '<span class="display_currency card_amount_after_tax" data-currency_symbol = true data-orig-value="' . $card_amount . '">' . $card_amount . '</span>';
                 })
@@ -7102,7 +7110,7 @@ class ReportController extends Controller
                 })
                 ->editColumn('total_net_amount', function ($row) {
                     $cash_amount =  $row->cash_amount;
-                    $merchant_tax =  $row->card_amount * 0.0174;
+                    $merchant_tax =  $row->card_amount * $row->merchant_tax_rate;
                     $card_amount = $row->card_amount - $merchant_tax;
                     $total_net_amount = $cash_amount + $card_amount;
                     return '<span class="display_currency total_net_amount" data-currency_symbol = true data-orig-value="' . $total_net_amount . '">' . $total_net_amount . '</span>';

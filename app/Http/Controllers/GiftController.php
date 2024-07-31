@@ -51,8 +51,10 @@ class GiftController extends Controller
         $this->moduleUtil = $moduleUtil;
         $this->productUtil = $productUtil;
 
-        $this->dummyPaymentLine = ['method' => '', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
-        'is_return' => 0, 'transaction_no' => ''];
+        $this->dummyPaymentLine = [
+            'method' => '', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
+            'is_return' => 0, 'transaction_no' => ''
+        ];
 
         $this->shipping_status_colors = [
             'ordered' => 'bg-yellow',
@@ -75,50 +77,50 @@ class GiftController extends Controller
             // dd($request->input('location_id'));
             // dd($request->input('start_date'), $request->input('end_date'));
             $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
-                    
-                    ->join(
-                        'business_locations AS bl',
-                        'transactions.location_id',
-                        '=',
-                        'bl.id'
-                    )
-                    ->leftJoin('transaction_sell_lines', 'transactions.id', '=', 'transaction_sell_lines.transaction_id')
-                    ->leftJoin(
-                        'transactions AS SR',
-                        'transactions.id',
-                        '=',
-                        'SR.return_parent_id'
-                    )
-                    // ->join(
-                    //     'transactions as T1',
-                    //     'transactions.return_parent_id',
-                    //     '=',
-                    //     'T1.id'
-                    // )
-                    // ->leftJoin(
-                    //     'transaction_payments AS TP',
-                    //     'transactions.id',
-                    //     '=',
-                    //     'TP.transaction_id'
-                    // )
-                    ->where('transactions.business_id', $business_id)
-                    ->where('transactions.type', 'gift')
-                    ->where('transactions.status', 'final')
-                    ->select(
-                        'transactions.id',
-                        'transactions.transaction_date',
-                        'transactions.invoice_no',
-                        'contacts.name',
-                        'transactions.final_total',
-                        'transactions.payment_status',
-                        'bl.name as business_location',
-                            'transaction_sell_lines.quantity',
-                        DB::raw('COUNT(SR.id) as return_exists')
-                        // 'T1.invoice_no as parent_sale',
-                        // 'T1.id as parent_sale_id',
-                        // DB::raw('SUM(TP.amount) as amount_paid')
-                    )
-                    ->groupBy('transactions.id');
+
+                ->join(
+                    'business_locations AS bl',
+                    'transactions.location_id',
+                    '=',
+                    'bl.id'
+                )
+                ->leftJoin('transaction_sell_lines', 'transactions.id', '=', 'transaction_sell_lines.transaction_id')
+                ->leftJoin(
+                    'transactions AS SR',
+                    'transactions.id',
+                    '=',
+                    'SR.return_parent_id'
+                )
+                // ->join(
+                //     'transactions as T1',
+                //     'transactions.return_parent_id',
+                //     '=',
+                //     'T1.id'
+                // )
+                // ->leftJoin(
+                //     'transaction_payments AS TP',
+                //     'transactions.id',
+                //     '=',
+                //     'TP.transaction_id'
+                // )
+                ->where('transactions.business_id', $business_id)
+                ->where('transactions.type', 'gift')
+                ->where('transactions.status', 'final')
+                ->select(
+                    'transactions.id',
+                    'transactions.transaction_date',
+                    'transactions.invoice_no',
+                    'contacts.name',
+                    'transactions.final_total',
+                    'transactions.payment_status',
+                    'bl.name as business_location',
+                    'transaction_sell_lines.quantity',
+                    DB::raw('COUNT(SR.id) as return_exists')
+                    // 'T1.invoice_no as parent_sale',
+                    // 'T1.id as parent_sale_id',
+                    // DB::raw('SUM(TP.amount) as amount_paid')
+                )
+                ->groupBy('transactions.id');
 
 
             $customer_id = $request->input('customer_id');
@@ -145,7 +147,7 @@ class GiftController extends Controller
             if (!empty($request->input('start_date')) && !empty($request->input('end_date')) && $request->input('start_date') == $request->input('end_date')) {
                 $sells->whereDate('transactions.transaction_date', $request->input('end_date'));
             }
-    
+
             // $permitted_locations = auth()->user()->permitted_locations();
             // if ($permitted_locations != 'all') {
             //     $sells->whereIn('transactions.location_id', $permitted_locations);
@@ -212,7 +214,7 @@ class GiftController extends Controller
                 )
                 ->editColumn('quantity', function ($row) {
                     if (!empty($row->return_exists)) {
-                        $row->quantity .= ' &nbsp;<small class="label bg-red label-round no-print" title="' . __('lang_v1.some_qty_returned_from_sell') .'"><i class="fas fa-undo"></i></small>';
+                        $row->quantity .= ' &nbsp;<small class="label bg-red label-round no-print" title="' . __('lang_v1.some_qty_returned_from_sell') . '"><i class="fas fa-undo"></i></small>';
                     }
                     return '<button type="button" class="btn btn-link btn-modal" data-container=".view_modal" data-href="' . '">' . intval($row->quantity) . '</button>';
                 })
@@ -229,17 +231,18 @@ class GiftController extends Controller
                     'data-href' => function ($row) {
                         if (auth()->user()->can("view_gifts")) {
                             // dd($row);
-                            return  action('SellReturnController@showGiftReceipt', [$row->id]) ;
+                            return  action('SellReturnController@showGiftReceipt', [$row->id]);
                         } else {
                             return '';
                         }
-                    }])
+                    }
+                ])
                 ->rawColumns(['final_total', 'action', 'quantity', 'payment_status'])
                 ->make(true);
         }
         $business_locations = BusinessLocation::forDropdown($business_id, false);
         $customers = Contact::customersDropdown($business_id, false);
-      
+
         $sales_representative = User::forDropdown($business_id, false, false, true);
 
         return view('sell.gift_index')->with(compact('business_locations', 'customers', 'sales_representative'));
@@ -261,7 +264,7 @@ class GiftController extends Controller
         }
 
         $walk_in_customer = $this->contactUtil->getWalkInCustomer($business_id);
-        
+
         $business_details = $this->businessUtil->getDetails($business_id);
         $taxes = TaxRate::forBusinessDropdown($business_id, true, true);
 
@@ -278,9 +281,9 @@ class GiftController extends Controller
         $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
         $commission_agent = [];
         if ($commsn_agnt_setting == 'user') {
-            $commission_agent = User::forDropdown($business_id);
+            $commission_agent = User::forDropdownActive($business_id);
         } elseif ($commsn_agnt_setting == 'cmsn_agnt') {
-            $commission_agent = User::saleCommissionAgentsDropdown($business_id);
+            $commission_agent = User::saleCommissionAgentsDropdownActive($business_id);
         }
 
         $types = [];
@@ -352,16 +355,17 @@ class GiftController extends Controller
     {
         if (request()->ajax()) {
             try {
-                $output = ['success' => 0,
-                        'msg' => trans("messages.something_went_wrong")
-                        ];
+                $output = [
+                    'success' => 0,
+                    'msg' => trans("messages.something_went_wrong")
+                ];
 
                 $business_id = $request->session()->get('user.business_id');
-            
+
                 $transaction = Transaction::where('business_id', $business_id)
-                                ->where('id', $transaction_id)
-                                ->with(['location'])
-                                ->first();
+                    ->where('id', $transaction_id)
+                    ->with(['location'])
+                    ->first();
 
                 if (empty($transaction)) {
                     return $output;
@@ -380,11 +384,12 @@ class GiftController extends Controller
                     $output = ['success' => 1, 'receipt' => $receipt];
                 }
             } catch (\Exception $e) {
-                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-                
-                $output = ['success' => 0,
-                        'msg' => trans("messages.something_went_wrong")
-                        ];
+                \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+
+                $output = [
+                    'success' => 0,
+                    'msg' => trans("messages.something_went_wrong")
+                ];
             }
 
             return $output;
@@ -403,18 +408,19 @@ class GiftController extends Controller
         if (!auth()->user()->can("print_invoice")) {
             abort(403, 'Unauthorized action.');
         }
-        
-        $output = ['is_enabled' => false,
-                    'print_type' => 'browser',
-                    'html_content' => null,
-                    'printer_config' => [],
-                    'data' => []
-                ];
+
+        $output = [
+            'is_enabled' => false,
+            'print_type' => 'browser',
+            'html_content' => null,
+            'printer_config' => [],
+            'data' => []
+        ];
 
 
         $business_details = $this->businessUtil->getDetails($business_id);
         $location_details = BusinessLocation::find($location_id);
-        
+
         if ($from_pos_screen && $location_details->print_receipt_on_invoice != 1) {
             return $output;
         }
@@ -430,14 +436,14 @@ class GiftController extends Controller
         $receipt_printer_type = is_null($printer_type) ? $location_details->receipt_printer_type : $printer_type;
 
         $receipt_details = $this->transactionUtil->getReceiptDetails($transaction_id, $location_id, $invoice_layout, $business_details, $location_details, $receipt_printer_type);
-            // dd($receipt_details);
+        // dd($receipt_details);
         $currency_details = [
             'symbol' => $business_details->currency_symbol,
             'thousand_separator' => $business_details->thousand_separator,
             'decimal_separator' => $business_details->decimal_separator,
         ];
         $receipt_details->currency = $currency_details;
-        
+
         if ($is_package_slip) {
             $output['html_content'] = view('sale_pos.receipts.packing_slip', compact('receipt_details'))->render();
             return $output;
@@ -452,7 +458,7 @@ class GiftController extends Controller
 
             $output['html_content'] = view($layout, compact('receipt_details'))->render();
         }
-        
+
         return $output;
     }
 }
