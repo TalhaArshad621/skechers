@@ -10,7 +10,7 @@ class Transaction extends Model
 
     //Transaction status = ['received','pending','ordered','draft','final', 'in_transit', 'completed']
 
-    
+
     /**
      * The attributes that aren't mass assignable.
      *
@@ -24,7 +24,8 @@ class Transaction extends Model
      * @var string
      */
     protected $table = 'transactions';
-    
+
+
     public function purchase_lines()
     {
         return $this->hasMany(\App\PurchaseLine::class);
@@ -34,7 +35,7 @@ class Transaction extends Model
     {
         return $this->hasMany(\App\TransactionSellLine::class);
     }
-    
+
     public function return_sell_lines($id)
     {
         return $this->hasMany(\App\TransactionSellLine::class)->where('sell_line_note', $id);
@@ -130,7 +131,7 @@ class Transaction extends Model
     public function getDocumentPathAttribute()
     {
         $path = !empty($this->document) ? asset('/uploads/documents/' . $this->document) : null;
-        
+
         return $path;
     }
 
@@ -139,7 +140,7 @@ class Transaction extends Model
      */
     public function getDocumentNameAttribute()
     {
-        $document_name = !empty(explode("_", $this->document, 2)[1]) ? explode("_", $this->document, 2)[1] : $this->document ;
+        $document_name = !empty(explode("_", $this->document, 2)[1]) ? explode("_", $this->document, 2)[1] : $this->document;
         return $document_name;
     }
 
@@ -255,21 +256,21 @@ class Transaction extends Model
     public static function discountTypes()
     {
         return [
-                'fixed' => __('lang_v1.fixed'),
-                'percentage' => __('lang_v1.percentage')
-            ];
+            'fixed' => __('lang_v1.fixed'),
+            'percentage' => __('lang_v1.percentage')
+        ];
     }
 
     public static function transactionTypes()
     {
         return  [
-                'sell' => __('sale.sale'),
-                'purchase' => __('lang_v1.purchase'),
-                'sell_return' => __('lang_v1.sell_return'),
-                'purchase_return' =>  __('lang_v1.purchase_return'),
-                'opening_balance' => __('lang_v1.opening_balance'),
-                'payment' => __('lang_v1.payment')
-            ];
+            'sell' => __('sale.sale'),
+            'purchase' => __('lang_v1.purchase'),
+            'sell_return' => __('lang_v1.sell_return'),
+            'purchase_return' =>  __('lang_v1.purchase_return'),
+            'opening_balance' => __('lang_v1.opening_balance'),
+            'payment' => __('lang_v1.payment')
+        ];
     }
 
     public static function getPaymentStatus($transaction)
@@ -310,7 +311,8 @@ class Transaction extends Model
     /**
      * Attributes to be logged for activity
      */
-    public function getLogPropertiesAttribute() {
+    public function getLogPropertiesAttribute()
+    {
         $properties = [];
 
         if (in_array($this->type, ['sell_transfer'])) {
@@ -333,8 +335,8 @@ class Transaction extends Model
     public function scopeOverDue($query)
     {
         return $query->whereIn('transactions.payment_status', ['due', 'partial'])
-                    ->whereNotNull('transactions.pay_term_number')
-                    ->whereNotNull('transactions.pay_term_type')
-                    ->whereRaw("IF(transactions.pay_term_type='days', DATE_ADD(transactions.transaction_date, INTERVAL transactions.pay_term_number DAY) < CURDATE(), DATE_ADD(transactions.transaction_date, INTERVAL transactions.pay_term_number MONTH) < CURDATE())");
+            ->whereNotNull('transactions.pay_term_number')
+            ->whereNotNull('transactions.pay_term_type')
+            ->whereRaw("IF(transactions.pay_term_type='days', DATE_ADD(transactions.transaction_date, INTERVAL transactions.pay_term_number DAY) < CURDATE(), DATE_ADD(transactions.transaction_date, INTERVAL transactions.pay_term_number MONTH) < CURDATE())");
     }
 }

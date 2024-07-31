@@ -12,10 +12,14 @@ class TransactionSellLine extends Model
      * @var array
      */
     protected $guarded = ['id'];
-    
+
     public function transaction()
     {
         return $this->belongsTo(\App\Transaction::class);
+    }
+    public function transactionNew()
+    {
+        return $this->hasOne(\App\Transaction::class,  'id', 'transaction_id');
     }
 
     public function product()

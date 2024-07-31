@@ -209,6 +209,35 @@ class User extends Authenticatable
         return $users;
     }
 
+
+    public static function forDropdownActive($business_id, $prepend_none = true, $include_commission_agents = false, $prepend_all = false, $check_location_permission = false)
+    {
+        $query = User::where("status", "active")->where('business_id', $business_id)
+            ->user();
+
+        if (!$include_commission_agents) {
+            $query->where('is_cmmsn_agnt', 0);
+        }
+
+        if ($check_location_permission) {
+            $query->onlyPermittedLocations();
+        }
+
+        $all_users = $query->select('id', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"))->get();
+        $users = $all_users->pluck('full_name', 'id');
+
+        //Prepend none
+        if ($prepend_none) {
+            $users = $users->prepend(__('lang_v1.none'), '');
+        }
+
+        //Prepend all
+        if ($prepend_all) {
+            $users = $users->prepend(__('lang_v1.all'), '');
+        }
+
+        return $users;
+    }
     /**
      * Return list of sales commission agents dropdown for a business
      *
@@ -232,7 +261,21 @@ class User extends Authenticatable
 
         return $users;
     }
+    public static function saleCommissionAgentsDropdownActive($business_id, $prepend_none = true)
+    {
+        $all_cmmsn_agnts = User::where("status", "active")->where('business_id', $business_id)
+            ->where('is_cmmsn_agnt', 1)
+            ->select('id', DB::raw("CONCAT(COALESCE(surname, ''),' ',COALESCE(first_name, ''),' ',COALESCE(last_name,'')) as full_name"));
 
+        $users = $all_cmmsn_agnts->pluck('full_name', 'id');
+
+        //Prepend none
+        if ($prepend_none) {
+            $users = $users->prepend(__('lang_v1.none'), '');
+        }
+
+        return $users;
+    }
     /**
      * Return list of users dropdown for a business
      *

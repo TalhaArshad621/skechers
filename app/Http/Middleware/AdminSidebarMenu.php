@@ -648,7 +648,14 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-chart-line', 'active' => request()->segment(2) == 'trending-products']
                             );
                         }
+                        if (auth()->user()->can('product_purchase_report.view')) {
 
+                            $sub->url(
+                                action('ReportController@getproductPurchaseReport'),
+                                __('lang_v1.product_purchase_report'),
+                                ['icon' => 'fa fas fa-arrow-circle-down', 'active' => request()->segment(2) == 'product-purchase-report']
+                            );
+                        }
                         if (auth()->user()->can('purchase_n_sell_report.view')) {
                             // $sub->url(
                             //     action('ReportController@getSellReport'),
@@ -656,11 +663,6 @@ class AdminSidebarMenu
                             //     ['icon' => 'fa fas fa-tasks', 'active' => request()->segment(2) == 'items-report']
                             // );
 
-                            $sub->url(
-                                action('ReportController@getproductPurchaseReport'),
-                                __('lang_v1.product_purchase_report'),
-                                ['icon' => 'fa fas fa-arrow-circle-down', 'active' => request()->segment(2) == 'product-purchase-report']
-                            );
 
                             $sub->url(
                                 action('ReportController@getproductSellReport'),
@@ -668,11 +670,6 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-arrow-circle-up', 'active' => request()->segment(2) == 'product-sell-report']
                             );
 
-                            $sub->url(
-                                action('ReportController@getproductSellGroupedReportDetailed'),
-                                __('Product Sell Report Detailed'),
-                                ['icon' => 'fa fas fa-arrow-circle-up', 'active' => request()->segment(2) == 'product-sell-grouped-report-detailed']
-                            );
 
                             // $sub->url(
                             //     action('ReportController@purchasePaymentReport'),
@@ -685,6 +682,18 @@ class AdminSidebarMenu
                             //     __('lang_v1.sell_payment_report'),
                             //     ['icon' => 'fa fas fa-search-dollar', 'active' => request()->segment(2) == 'sell-payment-report']
                             // );
+
+                        }
+
+                        if (auth()->user()->can('product_sell_detail_report.view')) {
+                            $sub->url(
+                                action('ReportController@getproductSellGroupedReportDetailed'),
+                                __('Product Sell Report Detailed'),
+                                ['icon' => 'fa fas fa-arrow-circle-up', 'active' => request()->segment(2) == 'product-sell-grouped-report-detailed']
+                            );
+                        }
+                        if (auth()->user()->can('brand_folio_report.view')) {
+
                             $sub->url(
                                 action('ReportController@getbrandfolioReport'),
                                 __('Brandfolio Report'),

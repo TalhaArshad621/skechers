@@ -310,6 +310,15 @@
           <div class="col-md-12">
             <div class="checkbox">
               <label>
+                {!! Form::checkbox('permissions[]', 'product.history', in_array('product.history', $role_permissions), 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'View Product History' ) }}
+              </label>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
                 {!! Form::checkbox('permissions[]', 'view_purchase_price', in_array('view_purchase_price', $role_permissions),['class' => 'input-icheck']); !!}
                 {{ __('lang_v1.view_purchase_price') }}
               </label>
@@ -1088,6 +1097,38 @@
               <label>
                 {!! Form::checkbox('permissions[]', 'profit_loss_report.view', in_array('profit_loss_report.view', $role_permissions), 
                 [ 'class' => 'input-icheck']); !!} {{ __( 'role.profit_loss_report.view' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'overview_report.view', in_array('overview_report.view', $role_permissions), 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'View Overview Report' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'product_purchase_report.view',  in_array('product_purchase_report.view', $role_permissions), 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'View Product Purchase Report' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'product_sell_detail_report.view',  in_array('product_sell_detail_report.view', $role_permissions), 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'View Product Sell Detail Report' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'brand_folio_report.view',  in_array('brand_folio_report.view', $role_permissions), 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'View Brand Folio Report' ) }}
               </label>
             </div>
           </div>

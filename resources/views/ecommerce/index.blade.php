@@ -46,39 +46,46 @@
                         <th>@lang('messages.date')</th>
                         <th>@lang('sale.invoice_no')</th>
                         <th>@lang('sale.customer_name')</th>
+                        <th>City</th>
                         <th>@lang('lang_v1.contact_no')</th>
                         {{-- <th>@lang('sale.location')</th> --}}
+                        <th>@lang('sale.total_amount')</th>
+                        <th>Discount</th>
+                        <th>Order Status</th>
+                        
                         <th>@lang('sale.payment_status')</th>
                         <th>@lang('lang_v1.payment_method')</th>
-                        <th>@lang('sale.total_amount')</th>
                         <th>@lang('sale.total_paid')</th>
                         <th>@lang('lang_v1.sell_due')</th>
                         {{-- <th>@lang('lang_v1.sell_return_due')</th> --}}
                         <th>@lang('lang_v1.shipping_status')</th>
                         <th>@lang('lang_v1.total_items')</th>
-                        <th>@lang('lang_v1.types_of_service')</th>
+                        {{-- <th>@lang('lang_v1.types_of_service')</th> --}}
                         {{-- <th>{{ $custom_labels['types_of_service']['custom_field_1'] ?? __('lang_v1.service_custom_field_1' )}}</th> --}}
                         <th>@lang('lang_v1.added_by')</th>
                         <th>@lang('sale.sell_note')</th>
                         <th>CN#</th>
-                        <th>@lang('sale.shipping_details')</th>
-                        <th>@lang('restaurant.table')</th>
-                        <th>@lang('restaurant.service_staff')</th>
+                        {{-- <th>@lang('sale.shipping_details')</th> --}}
+                        {{-- <th>@lang('restaurant.table')</th> --}}
+                        {{-- <th>@lang('restaurant.service_staff')</th> --}}
                     </tr>
                 </thead>
                 <tbody></tbody>
                 <tfoot>
                     <tr class="bg-gray font-17 footer-total text-center">
                         <td colspan="5"><strong>@lang('sale.total'):</strong></td>
+                        <td class="footer_sale_total"></td>
+                        <td class="footer_total_discount"></td>
+                        <td></td>
                         <td class="footer_payment_status_count"></td>
                         <td class="payment_method_count"></td>
-                        <td class="footer_sale_total"></td>
                         <td class="footer_total_paid"></td>
                         <td class="footer_total_remaining"></td>
+                        
                         {{-- <td class="footer_total_sell_return_due"></td> --}}
-                        <td colspan="2"></td>
-                        <td class="service_type_count"></td>
-                        <td colspan="6"></td>
+                        <td colspan="4"></td>
+                        {{-- <td class="service_type_count"></td> --}}
+                        {{-- <td colspan="2"></td> --}}
                     </tr>
                 </tfoot>
             </table>
@@ -130,7 +137,7 @@ $(document).ready( function(){
                     d.end_date = end;
                 }
                 d.is_direct_sale = 1;
-
+                d.shipping_status = $("#status").val();
                 d.location_id = $('#sell_list_filter_location_id').val();
                 d.customer_id = $('#sell_list_filter_customer_id').val();
                 d.payment_status = $('#sell_list_filter_payment_status').val();
@@ -163,11 +170,14 @@ $(document).ready( function(){
             { data: 'transaction_date', name: 'transaction_date'  },
             { data: 'invoice_no', name: 'invoice_no'},
             { data: 'conatct_name', name: 'conatct_name'},
+            { data: 'city', name: 'city'},
             { data: 'mobile', name: 'contacts.mobile'},
+            { data: 'final_total', name: 'final_total'},
+            { data: 'discount_amount', name: 'discount_amount'},
+            { data: 'order_status', name: 'order_status'},
             // { data: 'business_location', name: 'bl.name'},
             { data: 'payment_status', name: 'payment_status'},
             { data: 'payment_methods', orderable: false, "searchable": false},
-            { data: 'final_total', name: 'final_total'},
             { data: 'total_paid', name: 'total_paid', "searchable": false},
             { data: 'total_remaining', name: 'total_remaining'},
             // { data: 'return_due', orderable: false, "searchable": false},
@@ -177,10 +187,10 @@ $(document).ready( function(){
             // { data: 'service_custom_field_1', name: 'service_custom_field_1', @if(empty($is_types_service_enabled)) visible: false @endif},
             { data: 'added_by', name: 'u.first_name'},
             { data: 'additional_notes', name: 'additional_notes'},
-            { data: 'shipping_custom_field_1', name: 'shipping_custom_field_1'},
-            { data: 'shipping_details', name: 'shipping_details'},
-            { data: 'table_name', name: 'tables.name', @if(empty($is_tables_enabled)) visible: false @endif },
-            { data: 'waiter', name: 'ss.first_name', @if(empty($is_service_staff_enabled)) visible: false @endif },
+            // { data: 'shipping_custom_field_1', name: 'shipping_custom_field_1'},
+            // { data: 'shipping_details', name: 'shipping_details'},
+            // { data: 'table_name', name: 'tables.name', @if(empty($is_tables_enabled)) visible: false @endif },
+            // { data: 'waiter', name: 'ss.first_name', @if(empty($is_service_staff_enabled)) visible: false @endif },
         ],
         "fnDrawCallback": function (oSettings) {
             __currency_convert_recursively($('#sell_table'));
@@ -190,17 +200,22 @@ $(document).ready( function(){
             var footer_total_paid = 0;
             var footer_total_remaining = 0;
             var footer_total_sell_return_due = 0;
+            var discount = 0; 
             for (var r in data){
                 footer_sale_total += $(data[r].final_total).data('orig-value') ? parseFloat($(data[r].final_total).data('orig-value')) : 0;
                 footer_total_paid += $(data[r].total_paid).data('orig-value') ? parseFloat($(data[r].total_paid).data('orig-value')) : 0;
                 footer_total_remaining += $(data[r].total_remaining).data('orig-value') ? parseFloat($(data[r].total_remaining).data('orig-value')) : 0;
                 footer_total_sell_return_due += $(data[r].return_due).data('orig-value') ? parseFloat($(data[r].return_due).data('orig-value')) : 0;
+                discount += $(data[r].discount_amount).data('orig-value') ? parseFloat($(data[r].discount_amount).data('orig-value')) : 0;
+
+            
             }
 
             $('.footer_total_sell_return_due').html(__currency_trans_from_en(footer_total_sell_return_due));
             $('.footer_total_remaining').html(__currency_trans_from_en(footer_total_remaining));
             $('.footer_total_paid').html(__currency_trans_from_en(footer_total_paid));
             $('.footer_sale_total').html(__currency_trans_from_en(footer_sale_total));
+            $('.footer_total_discount').html(__currency_trans_from_en(discount));
 
             $('.footer_payment_status_count').html(__count_status(data, 'payment_status'));
             $('.service_type_count').html(__count_status(data, 'types_of_service_name'));
@@ -211,7 +226,7 @@ $(document).ready( function(){
         }
     });
 
-    $(document).on('change', '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #sales_cmsn_agnt, #service_staffs, #shipping_status',  function() {
+    $(document).on('change', '#status','#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #sales_cmsn_agnt, #service_staffs, #shipping_status',  function() {
         sell_table.ajax.reload();
     });
     @if($is_woocommerce)

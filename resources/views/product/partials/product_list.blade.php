@@ -47,7 +47,7 @@
                 <td colspan="5"><strong>@lang('sale.total'):</strong></td>
                 <td id="unit_price"></td>
                 <td id="selling_price"></td>
-                <td class="current_stock"></td>
+                <td id="current_stock"></td>
                 <td></td>
                 @can('view_product_stock_value')
                 <td></td>

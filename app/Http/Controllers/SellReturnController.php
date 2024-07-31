@@ -341,9 +341,9 @@ class SellReturnController extends Controller
         $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
         $commission_agent = [];
         if ($commsn_agnt_setting == 'user') {
-            $commission_agent = User::forDropdown($business_id, false);
+            $commission_agent = User::forDropdownActive($business_id, false);
         } elseif ($commsn_agnt_setting == 'cmsn_agnt') {
-            $commission_agent = User::saleCommissionAgentsDropdown($business_id, false);
+            $commission_agent = User::saleCommissionAgentsDropdownActive($business_id, false);
         }
         $roles = Role::where('name', 'like', '%employee%')->get();
 
@@ -372,9 +372,8 @@ class SellReturnController extends Controller
             break;
         }
 
-        
-        return view('sell_return.new_sell_return',compact('business_locations','bl_attributes','commission_agent','usersCollection','sell','default_location','business_details','pos_settings','payment_lines','payment_types','change_return'));
 
+        return view('sell_return.new_sell_return', compact('business_locations', 'bl_attributes', 'commission_agent', 'usersCollection', 'sell', 'default_location', 'business_details', 'pos_settings', 'payment_lines', 'payment_types', 'change_return'));
     }
 
 

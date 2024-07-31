@@ -1572,6 +1572,7 @@ $(document).ready(function () {
             { data: 'card_amount', name: 'card_amount' },
             { data: 'total_kamai', name: 'total_kamai' },
             { data: 'merchant_tax', name: 'merchant_tax' },
+            { data: 'merchant_tax_rate', name: 'merchant_tax_rate' },
             { data: 'card_amount_after_tax', name: 'card_amount_after_tax' },
             { data: 'bank_transfer', name: 'bank_transfer' },
             { data: 'total_net_amount', name: 'total_net_amount' },
