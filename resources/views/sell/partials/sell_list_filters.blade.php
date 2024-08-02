@@ -66,7 +66,16 @@
         <select class="form-control select2" name="status" id="status">
             <option value="">All</option>
             @foreach ($status as $s)
-                <option value="{{ $s }}">{{ ucfirst($s) }}</option>
+                <option value="{{ $s }}">
+                @if($s == "ordered")
+                    {{  ucfirst("new") }}
+                    @elseif($s == "delivered")
+                    {{  ucfirst("dispatched") }}
+                    @else{{
+                        ucfirst($s)
+                    }}
+                    @endif
+                    </option>
                 
             @endforeach
         </select>

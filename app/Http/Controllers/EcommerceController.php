@@ -53,7 +53,7 @@ class EcommerceController extends Controller
     protected $notificationUtil;
     protected $business_id;
     protected $smsUtil;
-
+    protected $shipping_status_colors = [];
     /**
      * Constructor
      *
@@ -81,9 +81,12 @@ class EcommerceController extends Controller
         $this->business_id = 4;
         $this->shipping_status_colors = [
             'ordered' => 'bg-yellow',
+            'new' => 'bg-yellow',
             'packed' => 'bg-info',
             'shipped' => 'bg-navy',
             'delivered' => 'bg-green',
+            'dispatched' => 'bg-green',
+            'completed' => 'bg-green',
             'cancelled' => 'bg-red',
         ];
     }
@@ -107,14 +110,14 @@ class EcommerceController extends Controller
         $is_tables_enabled = $this->transactionUtil->isModuleEnabled('tables');
         $is_service_staff_enabled = $this->transactionUtil->isModuleEnabled('service_staff');
         $is_types_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
-        $status = ["cancelled", "delivered", "ordered"];
+        $status = ["cancelled", "delivered", "ordered", "completed"];
         if (request()->ajax()) {
 
             $shipping_status = request()->get("shipping_status");
 
             $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
             $with = [];
-            $shipping_statuses = $this->transactionUtil->shipping_statuses();
+            $shipping_statuses = $this->transactionUtil->new_shipping_statuses();
             $sells = $this->transactionUtil->getEcommerceListSells($business_id);
 
             // $permitted_locations = auth()->user()->permitted_locations();
@@ -415,8 +418,16 @@ class EcommerceController extends Controller
                     return $invoice_no;
                 })
                 ->editColumn('shipping_status', function ($row) use ($shipping_statuses) {
+
+                    $status_text = $row->shipping_status;
+                    if ($status_text == "ordered") {
+                        $status_text = "new";
+                    }
+                    if ($status_text == "delivered") {
+                        $status_text = "dispatched";
+                    }
                     $status_color = !empty($this->shipping_status_colors[$row->shipping_status]) ? $this->shipping_status_colors[$row->shipping_status] : 'bg-gray';
-                    $status = !empty($row->shipping_status) && $row->shipping_status != "delivered"  ? '<a href="#" class="btn-modal" data-href="' . action('EcommerceController@editShipping', [$row->id]) . '" data-container=".view_modal"><span class="label ' . $status_color . '">' . $shipping_statuses[$row->shipping_status] . '</span></a>' : '<a href="#" class="btn-modal" ><span class="label ' . $status_color . '">' . $shipping_statuses[$row->shipping_status] . '</span></a>';
+                    $status = !empty($row->shipping_status) && $row->shipping_status != "cancelled"  ? '<a href="#" class="btn-modal" data-href="' . action('EcommerceController@editShipping', [$row->id]) . '" data-container=".view_modal"><span class="label ' . $status_color . '">' . $shipping_statuses[$row->shipping_status] . '</span></a>' : '<a href="#" class="btn-modal" ><span class="label ' . $status_color . '">' . $shipping_statuses[$row->shipping_status] . '</span></a>';
 
                     return $status;
                 })
@@ -776,8 +787,8 @@ class EcommerceController extends Controller
         $transaction = EcommerceTransaction::where('business_id', $business_id)
             ->with(['media', 'media.uploaded_by_user'])
             ->findorfail($id);
-        $shipping_statuses = $this->transactionUtil->shipping_statuses();
-
+        $shipping_statuses = $this->transactionUtil->new_shipping_statuses();
+        // dd($shipping_statuses);
         return view('ecommerce.partials.edit_shipping')
             ->with(compact('transaction', 'shipping_statuses'));
     }
@@ -819,6 +830,22 @@ class EcommerceController extends Controller
 
             if ($request->shipping_status == "delivered") {
                 $dispatchResult =   $this->transactionUtil->dispatchEcommerceOrderTCS($transaction, $business_id, $user_id);
+                // dd($dispatchResult);
+
+                if (!$dispatchResult) {
+                    $output = [
+                        'success' => 0,
+                        'msg' => trans("messages.something_went_wrong")
+                    ];
+                    DB::rollBack();
+                    return $output;
+                }
+            }
+
+
+            if ($request->shipping_status == "completed") {
+                $dispatchResult =   $this->transactionUtil->PaymentEcommerceOrder($transaction, $business_id, $user_id);
+                // dd($dispatchResult);
                 if (!$dispatchResult) {
                     $output = [
                         'success' => 0,
