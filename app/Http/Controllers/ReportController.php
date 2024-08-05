@@ -5055,7 +5055,41 @@ class ReportController extends Controller
             )
                 ->first();
 
-
+            
+                $query11 = Transaction::join(
+                    'business_locations AS l1',
+                    'transactions.location_id',
+                    '=',
+                    'l1.id'
+                )
+                    ->join('transactions as t2', 't2.transfer_parent_id', '=', 'transactions.id')
+                    ->join(
+                        'business_locations AS l2',
+                        't2.location_id',
+                        '=',
+                        'l2.id'
+                    )
+                    ->join('transaction_sell_lines', 'transactions.id', '=', 'transaction_sell_lines.transaction_id')
+                    ->join('products', 'transaction_sell_lines.product_id', '=', 'products.id')
+                    ->join('users', 'transactions.created_by', '=', 'users.id')
+                    ->where('transactions.type', 'sell_transfer')
+                    ->where('transactions.status', 'final')
+                    ->where('l1.name', '<>', 'Warehouse')
+                    ->where('l2.name', '<>', 'Warehouse');
+                    if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+                        $query11->whereDate('transactions.transaction_date', '>=', $start_date)
+                            ->whereDate('transactions.transaction_date', '<=', $end_date);
+                    }
+                    if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+                        $query11->whereDate('transactions.transaction_date', $end_date);
+                    }
+        
+                    //Filter by the location
+                    if (!empty($location_id)) {
+                        $query11->where('transactions.location_id', $location_id);
+                    }
+                 $stock_transfer = $query11->select(DB::raw("SUM(transaction_sell_lines.quantity) as quantity"))->first();
+                
             // dd($buy_of_sell);
             // dd($return_data, $return_items, $invoice_data, $cash_payment, $card_payment, $gross_profit, $gift_amount, $gift_items, $gst_tax);
             return response()->json([
@@ -5076,7 +5110,8 @@ class ReportController extends Controller
                 'total_gift_amount' => $gift_amount->amount,
                 'total_gift_items' => $gift_items['gift_items'],
                 'gst_tax' => $gst_tax['tax'] + ($gst_tax_new['tax'] - $gst_tax_new_returned['tax']),
-                'amount' => $amount
+                'amount' => $amount,
+                'store_to_store_transfer' => $stock_transfer->quantity
             ]);
         }
     }
