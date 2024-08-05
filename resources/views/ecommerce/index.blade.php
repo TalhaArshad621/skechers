@@ -145,9 +145,9 @@ $(document).ready( function(){
                 d.sales_cmsn_agnt = $('#sales_cmsn_agnt').val();
                 d.service_staffs = $('#service_staffs').val();
 
-                if($('#shipping_status').length) {
-                    d.shipping_status = $('#shipping_status').val();
-                }
+              //  if($('#shipping_status').length) {
+                //    d.shipping_status = $('#shipping_status').val();
+               // }
                 
                 @if($is_woocommerce)
                     if($('#synced_from_woocommerce').is(':checked')) {

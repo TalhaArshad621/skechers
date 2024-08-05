@@ -10089,16 +10089,16 @@ class TransactionUtil extends Util
 
             //Pay from advance balance
             $payment_amount = $inputs['amount'];
-            if (!empty($inputs['amount'])) {
-                $tp = EcommercePayment::create($inputs);
+            // if (!empty($inputs['amount'])) {
+            //     $tp = EcommercePayment::create($inputs);
 
-                $inputs['transaction_type'] = $input->type;
+            //     $inputs['transaction_type'] = $input->type;
 
-                EcommerceTransaction::where('id', $input->id)
-                    ->update(['payment_status' => 'paid']);
+            //     EcommerceTransaction::where('id', $input->id)
+            //         ->update(['payment_status' => 'paid']);
 
-                event(new EcommercePaymentAdded($tp, $inputs));
-            }
+            //     event(new EcommercePaymentAdded($tp, $inputs));
+            // }
         }
 
         $sub_total    = 0;
@@ -10305,6 +10305,50 @@ class TransactionUtil extends Util
         return $success;
     }
 
+
+
+    public function PaymentEcommerceOrder($input, $business_id, $user_id, $uf_number  = true)
+    {
+
+        $success = false;
+        $transactionUtil = new \App\Utils\TransactionUtil();
+        if ($input->payment_lines->isEmpty()) {
+            $inputs['paid_on'] = Carbon::now();
+            $inputs['ecommerce_transaction_id'] = $input->id;
+            $inputs['amount'] = $transactionUtil->num_uf($input->final_total);
+            $inputs['created_by'] = auth()->user()->id;
+            $inputs['payment_for'] = $input->contact_id;
+            $inputs['method'] = "cash";
+
+            $prefix_type = 'purchase_payment';
+
+            $prefix_type = 'sell_payment';
+
+
+
+            $ref_count = $transactionUtil->setAndGetReferenceCount($prefix_type);
+            //Generate reference number
+            $inputs['payment_ref_no'] = $transactionUtil->generateReferenceNumber($prefix_type, $ref_count);
+
+            $inputs['business_id'] = $business_id;
+
+            //Pay from advance balance
+            $payment_amount = $inputs['amount'];
+            if (!empty($inputs['amount'])) {
+                $tp = EcommercePayment::create($inputs);
+
+                $inputs['transaction_type'] = $input->type;
+
+                EcommerceTransaction::where('id', $input->id)
+                    ->update(['payment_status' => 'paid']);
+
+                event(new EcommercePaymentAdded($tp, $inputs));
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public function getMerchantTax($location_id)
     {
