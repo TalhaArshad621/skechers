@@ -2482,6 +2482,7 @@ function updateOverView(start = null, end = null, location_id = null, selector =
             $("#total-gift-amount").html(__currency_trans_from_en(response.total_gift_amount));
             $("#total-gift-items").html(giftItemsFloat);
             $("#gst-tax").html(__currency_trans_from_en(response.gst_tax));
+            $("#store-store-transfer").html(__currency_trans_from_en(response.store_to_store_transfer));
             __currency_convert_recursively(selector);
         },
     });
