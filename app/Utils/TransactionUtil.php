@@ -35,6 +35,9 @@ use App\CashRegister;
 use App\CashRegisterTransaction;
 use App\Events\EcommercePaymentAdded;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Http;
+
 
 class TransactionUtil extends Util
 {
@@ -10126,13 +10129,15 @@ class TransactionUtil extends Util
 
             $tcs_info = DB::table('url_tcs')->select("*")->where('url_id', $ret->id)->first();
 
-            if ($input->payment_lines->isEmpty()) {
+            $leopard_info  =  DB::table('leopard_shipping_lists')->where('location_id', $store_id)->first();
+
+            if($input->payment_lines->isEmpty()){
                 $amount = $sell->unit_price_inc_tax;
             } else {
                 $amount = 0;
             }
-
-            $order_data['originCityName'] = $tcs_info->origin_city;
+            
+            $order_data['origin_city'] = $leopard_info->city_id;
             $order_data['userName'] = $tcs_info->username;
             $order_data['password'] = $tcs_info->password;
             $order_data['costCenterCode'] = $tcs_info->cost_center_code;
@@ -10159,62 +10164,139 @@ class TransactionUtil extends Util
         // Reindex the array
         $mergedData = array_values($mergedData);
 
-        foreach ($mergedData  as $final) {
-            $dataString = array(
-                "userName" => $final['userName'],
-                "password" => $final['password'],
-                "costCenterCode" => $final['costCenterCode'],
-                "consigneeName" => $s_first_name . " " . $s_last_name,
-                "consigneeAddress" => $s_address,
-                "consigneeMobNo" => $s_phone,
-                "consigneeEmail" => $s_email,
-                "originCityName" => $final['originCityName'],
-                "destinationCityName" => $s_city,
-                "weight" => 1,
-                "pieces" => $final['pieces'],
-                "codAmount" => $final['amount'],
-                "customerReferenceNo" => $input->invoice_no,
-                "services" => "O",
-                "productDetails" => "N/A",
-                "fragile" => "No",
-                "remarks" => "N/A",
-                "insuranceValue" => 1
-            );
+        foreach($mergedData  as $final) {
+            // $dataString =array(
+            //     "userName"=> $final['userName'],
+            //     "password"=> $final['password'],
+            //     "costCenterCode"=> $final['costCenterCode'],
+            //     "consigneeName"=>$s_first_name." " .$s_last_name,
+            //     "consigneeAddress"=>$s_address,
+            //     "consigneeMobNo"=>$s_phone,
+            //     "consigneeEmail"=>$s_email,
+            //     "originCityName"=>$final['originCityName'],
+            //     "destinationCityName"=>$s_city,
+            //     "weight"=>1,
+            //     "pieces"=>$final['pieces'],
+            //     "codAmount"=>$final['amount'],
+            //     "customerReferenceNo"=>$input->invoice_no,
+            //     "services"=>"O",
+            //     "productDetails"=>"N/A",
+            //     "fragile"=>"No",
+            //     "remarks"=>"N/A",
+            //     "insuranceValue"=>1
+            //   );
+              
+            //   $string = json_encode($dataString);
+            //   $curl = curl_init();
+              
+            //   curl_setopt_array($curl, array(
+            //     CURLOPT_URL => "https://api.tcscourier.com/production/v1/cod/create-order",
+            //     // CURLOPT_URL => $ret['tcs'],
+            //     CURLOPT_RETURNTRANSFER => true,
+            //     CURLOPT_ENCODING => "",
+            //     CURLOPT_MAXREDIRS => 10,
+            //     CURLOPT_TIMEOUT => 30,
+            //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            //     CURLOPT_CUSTOMREQUEST => "POST",
+            //     CURLOPT_POSTFIELDS => $string,
+            //     CURLOPT_HTTPHEADER => array(
+            //       "accept: application/json",
+            //       "content-type: application/json",
+            //       "x-ibm-client-id: 1ddc207a-d3aa-4d76-a279-96d8cd32ad25"
+            //     //   "x-ibm-client-id: 33b3ef31-8474-45d8-aa0f-afed317ef8b8" new key
+            //     ),
+            //   ));
+              
+            //   $response = curl_exec($curl);
+            //   $err      = curl_error($curl);
+            //   curl_close($curl);
+        
+            //   $booking_res = json_decode($response, true);
 
-            $string = json_encode($dataString);
-            $curl = curl_init();
+            //   if($booking_res['returnStatus']['code'] == "0200") {
+            //     $success = true;
+            //     $booking_msg  = $booking_res['bookingReply']["result"];
+            //     $booking_cn   = explode(':', $booking_msg);
+            //     $booking_cn   = ltrim($booking_cn[1]);
+            //     EcommerceTransaction::where('id', $input->id)
+            //     ->update(['shipping_custom_field_1' => $booking_cn]);
+            //   } else {
+            //     $success = false;
+            //   }
 
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.tcscourier.com/production/v1/cod/create-order",
-                // CURLOPT_URL => $ret['tcs'],
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => $string,
-                CURLOPT_HTTPHEADER => array(
-                    "accept: application/json",
-                    "content-type: application/json",
-                    "x-ibm-client-id: 1ddc207a-d3aa-4d76-a279-96d8cd32ad25"
-                    //   "x-ibm-client-id: 33b3ef31-8474-45d8-aa0f-afed317ef8b8" new key
-                ),
-            ));
-
-            $response = curl_exec($curl);
-            $err      = curl_error($curl);
-            curl_close($curl);
-
-            $booking_res = json_decode($response, true);
-
-            if ($booking_res['returnStatus']['code'] == "0200") {
+            $leopard_city = DB::table('leopard_cities')->select('city_id')->where('name','LIKE',"%$s_city%")->first();
+            $client = new Client();
+            $response = $client->post('https://merchantapi.leopardscourier.com/api/bookPacket/format/json/', [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode([
+                'api_key' => '487F7B22F68312D2C1BBC93B1AEA445B1722240787',
+                'api_password' => 'skechersapi1234*',
+                'booked_packet_weight' => 0, // Weight in grams
+                'booked_packet_vol_weight_w' => 0, // Optional
+                'booked_packet_vol_weight_h' =>0, // Optional
+                'booked_packet_vol_weight_l' => 0, // Optional
+                'booked_packet_no_piece' => $final['pieces'], // Number of pieces
+                'booked_packet_collect_amount' => $final['amount'], // Collection amount
+                'booked_packet_order_id' => $input->invoice_no, // Optional
+                'origin_city' => $final['origin_city'], // 'self' or integer value
+                'destination_city' => $leopard_city->city_id, // 'self' or integer value
+                'shipment_id' => 1,
+                'shipment_name_eng' => "self", // 'self' or custom name"
+                'shipment_email' => "self", // 'self' or custom email
+                'shipment_phone' => "self", // 'self' or custom phone
+                'shipment_address' => "self", // 'self' or custom address
+                'consignment_name_eng' => $s_first_name." " .$s_last_name,
+                'consignment_email' => $s_email, // Optional
+                'consignment_phone' => $s_phone,
+                'consignment_phone_two' => "", // Optional
+                'consignment_phone_three' => "", // Optional
+                'consignment_address' => $s_address,
+                'special_instructions' => $s_address,
+                'shipment_type' => "", // Optional
+                'custom_data' => "", // Optional
+                'return_address' => "", // Optional
+                'return_city' => "", // Optional
+                'is_vpc' => "", // Optional
+                ]),
+            ]);
+            // $response = $client->post('https://merchantapi.leopardscourier.com/api/bookPacket/format/json/', [
+            //     'api_key' => '487F7B22F68312D2C1BBC93B1AEA445B1722240787',
+            //     'api_password' => 'skechersapi1234*',
+            //     'booked_packet_weight' => 0, // Weight in grams
+            //     'booked_packet_vol_weight_w' => 0, // Optional
+            //     'booked_packet_vol_weight_h' =>0, // Optional
+            //     'booked_packet_vol_weight_l' => 0, // Optional
+            //     'booked_packet_no_piece' => $final['pieces'], // Number of pieces
+            //     'booked_packet_collect_amount' => $final['amount'], // Collection amount
+            //     'booked_packet_order_id' => $input->invoice_no, // Optional
+            //     'origin_city' => $final['origin_city'], // 'self' or integer value
+            //     'destination_city' => $leopard_city->city_id, // 'self' or integer value
+            //     'shipment_id' => 1,
+            //     'shipment_name_eng' => "self", // 'self' or custom name"
+            //     'shipment_email' => "self", // 'self' or custom email
+            //     'shipment_phone' => "self", // 'self' or custom phone
+            //     'shipment_address' => "self", // 'self' or custom address
+            //     'consignment_name_eng' => $s_first_name." " .$s_last_name,
+            //     'consignment_email' => $s_email, // Optional
+            //     'consignment_phone' => $s_phone,
+            //     'consignment_phone_two' => "", // Optional
+            //     'consignment_phone_three' => "", // Optional
+            //     'consignment_address' => $s_address,
+            //     'special_instructions' => "",
+            //     'shipment_type' => "", // Optional
+            //     'custom_data' => "", // Optional
+            //     'return_address' => "", // Optional
+            //     'return_city' => "", // Optional
+            //     'is_vpc' => "", // Optional
+            // ]);
+    
+            $result = json_decode($response->getBody()->getContents(), true);
+            if ($result['status'] == 1) {
                 $success = true;
-                $booking_msg  = $booking_res['bookingReply']["result"];
-                $booking_cn   = explode(':', $booking_msg);
-                $booking_cn   = ltrim($booking_cn[1]);
                 EcommerceTransaction::where('id', $input->id)
-                    ->update(['shipping_custom_field_1' => $booking_cn]);
+                    ->update(['shipping_custom_field_1' => $result['track_number']]);
             } else {
                 $success = false;
             }

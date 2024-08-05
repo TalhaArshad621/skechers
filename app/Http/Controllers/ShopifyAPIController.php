@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\LeopardCity;
 use Illuminate\Http\Request;
 use App\Variation;
 use Illuminate\Support\Facades\DB;
+use GuzzleHttp\Client;
+
 
 class ShopifyAPIController extends Controller
 {
@@ -95,6 +98,40 @@ class ShopifyAPIController extends Controller
     
         return response()->json([
             "result" => $products
+        ]);
+    }
+
+    public function storeLeopardCity()
+    {
+        $client = new Client();
+        // $response = $client->post('https://merchantapistaging.leopardscourier.com/api/getAllCities/format/json/', [
+        //     'json' => [
+        //         'api_key' => '487F7B22F68312D2C1BBC93B1AEA445B1722240787',
+        //         'api_password' => 'skechersapi1234*',
+        //     ],
+        // ]);
+         $response = $client->post('https://merchantapi.leopardscourier.com/api/getAllCities/format/json/', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'body' => json_encode([
+                'api_key' => '487F7B22F68312D2C1BBC93B1AEA445B1722240787',
+                'api_password' => 'skechersapi1234*',
+            ]),
+        ]);
+
+        $cities = json_decode($response->getBody()->getContents(), true);
+        
+        // dd($cities);
+        foreach ($cities['city_list'] as $city) {
+            LeopardCity::updateOrCreate(
+                ['city_id' => $city['id']],
+                ['name' => $city['name']]
+            );
+        }
+
+        return response()->json([
+            'message' => "Cities fetched and stored successfully."
         ]);
     }
 }
