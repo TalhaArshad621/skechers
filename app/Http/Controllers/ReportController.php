@@ -763,13 +763,56 @@ class ReportController extends Controller
                     if ($type == 'sell' || $type == 'sell_return') {
                         // dd($row->sell_lines);
                         foreach ($row->sell_lines as $sell_line) {
-                            // dd($sell_line->tax_id, $tax['id']);
-                            if ($sell_line->tax_id == $tax['id']) {
-                                $tax_amount += ($sell_line->item_tax * ($sell_line->quantity - $sell_line->quantity_returned));
-                                // $tax_amount += ($tax_amount1 + ($sell_line->item_tax * ($sell_line->quantity_returned) ) - $sell_line->quantity);
+                            
+                            // dd($sell_line->transaction_id);
+                            $sell_return_tax = 0;
+                            $total_before_tax = 0;
+                            // dd($row->sell_line,$sell_line->sell_line_note);
 
-                            }
+                                if($sell_line->transaction_id){
+                                    // dd("insie");
+                                   
+                                    $sell_return_transaction = Transaction::find($sell_line->transaction_id);
+                                    // dd($sell_return_transaction->total_before_tax);
+                                    $total_before_tax = $sell_return_transaction->total_before_tax;
+                                    if($sell_line->sell_line_note){
+                                        $tax_amount1 -= ($sell_line->item_tax * ($sell_line->quantity));
+                                        // break;
+                                        
+                                        // $sell_return_transaction = Transaction::find($sell_line->sell_line_note);
+                                        // dd($sell_return_transaction);
+                                        
+                                        // $sell_return_tax = $sell_return_transaction->total_before_tax / 5;
+                                        // dd($sell_return_tax, $tax_amount);
+                                        // $tax_amount += $sell_return_tax;
+                                        // dd($tax_amount, $tax_amount1);
+                                    }
+                                    // break;
+                                    // dd($total_before_tax);
+                                    $sell_return_tax = $sell_return_transaction->total_before_tax / 5;
+                                    // dd($sell_return_tax, $tax_amount);
+                                    // $tax_amount += $sell_return_tax;
+                                }
+                                        // dd($sell_line->tax_id, $tax['id']);
+                                    if ($sell_line->tax_id == $tax['id']) {
+                                        // dd($sell_line->tax_id);
+                                        if($sell_return_tax != 0){
+                                            $tax_amount += $sell_return_tax;
+                                            break;
+                                        }
+                                        // dd($sell_line->item_tax, $sell_line->quantity, $sell_line->quantity_returned);
 
+                                        if($total_before_tax == 0){
+                                            // dd($sell_line->item_tax * ($sell_line->quantity_returned));
+                                            // dd($sell_line->item_tax, $sell_line->quantity, $sell_line->quantity_returned);
+                                            // continue;
+                                            $tax_amount += ($sell_line->item_tax * ($sell_line->quantity_returned));
+                                            break;
+                                        }
+
+                                        $tax_amount += ($sell_line->item_tax * ($sell_line->quantity - $sell_line->quantity_returned) );
+                                        // $tax_amount += ($tax_amount1 + ($sell_line->item_tax * ($sell_line->quantity_returned) ) - $sell_line->quantity);
+                                    }
                             //break group tax
                             if ($sell_line->line_tax->is_tax_group == 1 && array_key_exists($tax['id'], $group_taxes[$sell_line->tax_id]['sub_taxes'])) {
 
