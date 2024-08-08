@@ -653,16 +653,16 @@ class TransactionUtil extends Util
             $transaction->sell_lines()->saveMany($lines_formatted);
 
             // SHOPIFY API INTEGRATION
-            $url = 'https://dynamics-junction-be.alche.cloud/erp_integration/update_inventory';
+            // $url = 'https://dynamics-junction-be.alche.cloud/erp_integration/update_inventory';
 
-            $postdata = json_encode($array_of_products);
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-            $result = curl_exec($ch);
-            curl_close($ch);
+            // $postdata = json_encode($array_of_products);
+            // $ch = curl_init($url);
+            // curl_setopt($ch, CURLOPT_POST, 1);
+            // curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            // curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            // $result = curl_exec($ch);
+            // curl_close($ch);
 
             //Add corresponding modifier sell lines if exists
             if ($this->isModuleEnabled('modifiers')) {
@@ -2332,11 +2332,12 @@ class TransactionUtil extends Util
             $details = $this->_receiptDetailsSellReturnLines($lines, $il, $business_details);
             $excahnge_details = $this->_receiptDetailsSellExchangeLines($return_lines, $il, $business_details);
             $return_details = $this->_receiptDetailsExchangedSellReturnLines($exchanged_lines, $il, $business_details);
-
+            // dd($excahnge_details);
             $output['lines'] = $details['lines'];
             $output['exchanges'] = $excahnge_details['lines'];
             $output['return_new'] = $return_details['lines'];
             $output['taxes'] = [];
+            // dd($output['exchanges']);
             foreach ($details['lines'] as $line) {
                 if (!empty($line['group_tax_details'])) {
                     foreach ($line['group_tax_details'] as $tax_group_detail) {
@@ -2395,9 +2396,9 @@ class TransactionUtil extends Util
             $output['total_quantity_label'] = $il->common_settings['total_quantity_label'];
             $output['total_quantity'] = $this->num_f($total_quantity, false, $business_details, true);
             // }
+            $output['return_new'] = null;
+            $output['exchanges'] = null;
         }
-        $output['return_new'] = null;
-        $output['exchanges'] = null;
 
         // dd($output['total_quantity_label']);
         //show cat code
