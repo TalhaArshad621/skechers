@@ -1895,11 +1895,10 @@ class TransactionUtil extends Util
                         if ($transaction->type == "gift") {
                             $payment['paid_on'] = $payment['paid_on'] . ' ' . $payment['paid_time'];
                         }
-                        $paid_on = $uf_data ? $this->uf_date($payment['paid_on'], true) : $payment['paid_on'];
+                        $paid_on = \Carbon::now()->toDateTimeString();
                     } else {
                         $paid_on = \Carbon::now()->toDateTimeString();
                     }
-
                     $payment_data = [
                         'amount' => $payment_amount,
                         'method' => $payment['method'],

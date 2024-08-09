@@ -1052,7 +1052,7 @@ class EcommerceController extends Controller
                 $output['printer_config'] = $this->businessUtil->printerConfig($business_id, $location_details->printer_id);
                 $output['data'] = $receipt_details;
             } else {
-                $output['html_content'] = view('sale_pos.receipts.slim', compact('receipt_details'))->render();
+                $output['html_content'] = view('sale_pos.receipts.ecommerce_slim', compact('receipt_details'))->render();
             }
         }
         return $output;

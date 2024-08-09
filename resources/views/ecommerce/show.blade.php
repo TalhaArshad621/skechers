@@ -222,7 +222,7 @@
                   <td> <span class="display_currency pull-right" data-currency_symbol="true">{{ $sell->rp_redeemed_amount }}</span></td>
                 </tr>
               @endif
-              <tr>
+              {{-- <tr>
                 <th>{{ __('sale.order_tax') }}:</th>
                 <td><b>(+)</b></td>
                 <td class="text-right">
@@ -234,8 +234,8 @@
                   0.00
                   @endif
                 </td>
-              </tr>
-              <tr>
+              </tr> --}}
+              {{-- <tr>
                 <th>{{ __('sale.shipping') }}: @if($sell->shipping_details)({{$sell->shipping_details}}) @endif</th>
                 <td><b>(+)</b></td>
                 <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $sell->shipping_charges }}</span></td>
@@ -244,18 +244,18 @@
                 <th>{{ __('lang_v1.round_off') }}: </th>
                 <td></td>
                 <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $sell->round_off_amount }}</span></td>
-              </tr>
+              </tr> --}}
               <tr>
                 <th>{{ __('sale.total_payable') }}: </th>
                 <td></td>
                 <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $sell->final_total }}</span></td>
               </tr>
-              <tr>
+              {{-- <tr>
                 <th>{{ __('sale.total_paid') }}:</th>
                 <td></td>
                 <td><span class="display_currency pull-right" data-currency_symbol="true" >{{ $total_paid }}</span></td>
-              </tr>
-              <tr>
+              </tr> --}}
+              {{-- <tr>
                 <th>{{ __('sale.total_remaining') }}:</th>
                 <td></td>
                 <td>
@@ -264,7 +264,7 @@
                     $total_paid = (string) $total_paid;
                   @endphp
                   <span class="display_currency pull-right" data-currency_symbol="true" >{{ $sell->final_total - $total_paid }}</span></td>
-              </tr>
+              </tr> --}}
             </table>
           </div>
         </div>
