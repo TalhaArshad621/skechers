@@ -92,7 +92,7 @@ class ShopifyAPIController extends Controller
                         ELSE CAST(variations.sell_price_inc_tax - (variations.sell_price_inc_tax * (web_discounts.discount_amount / 100)) AS DECIMAL(10,2)) 
                      END as discount_price')
         )
-        ->where('variation_location_details.qty_available','>',0)
+        // ->where('variation_location_details.qty_available','>',0)
         ->groupBy('variations.id', 'variations.sub_sku', 'variations.sell_price_inc_tax')
         ->get();
     
